@@ -5,17 +5,22 @@ from pygds.revalidateitinerary import _Revalidateitinerary
 from pygds.sabresoapapi import _Sabresoapapi
 from pygds.sendmail import _Semdmail
 from pygds.ticketing import _Ticketing
+import jxmlease,requests
+from time import gmtime, strftime
+
 
 class Gds(object):
 
     def __init__(self,test):
         self._test=test
-
+         
 
     @classmethod
     def test_sabre(cls):
         test='test0'
         return cls(test)
+   
+
 
     @property
     def objectxml(self):
