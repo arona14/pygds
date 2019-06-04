@@ -6,12 +6,16 @@ from pygds.sabresoapapi import _Sabresoapapi
 from pygds.sendmail import _Semdmail
 from pygds.ticketing import _Ticketing
 
-class Sabre(object):
+class Gds(object):
 
-    def __init__(self):
-        pass
+    def __init__(self,test):
+        self._test=test
 
 
+    @classmethod
+    def test_sabre(cls):
+        test='test0'
+        return cls(test)
 
     @property
     def objectxml(self):
