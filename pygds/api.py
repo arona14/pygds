@@ -5,8 +5,7 @@ from pygds.revalidateitinerary import _Revalidateitinerary
 from pygds.sabresoapapi import _Sabresoapapi
 from pygds.sendmail import _Semdmail
 from pygds.ticketing import _Ticketing
-import jxmlease,requests
-from time import gmtime, strftime
+
 
 
 class Gds(object):
@@ -16,8 +15,8 @@ class Gds(object):
          
 
     @classmethod
-    def test_sabre(cls):
-        test='test0'
+    def sabre(cls):
+        test='connecting to SABRE'
         return cls(test)
    
 

@@ -11,7 +11,9 @@ setup(name='pygds',
       install_requires=[
           'pyodbc',
           'pandas',
-          'psycopg2'
+          'psycopg2',
+          'jxmlease',
+          'xmltodict',
       ],
       include_package_data=True,
       zip_safe=False)
