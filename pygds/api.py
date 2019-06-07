@@ -131,3 +131,39 @@ class Gds(object):
                     p['MiddleName'] = pass_request['stl18:DOCSEntry']['stl18:MiddleName']
                 pass_list.append(p)
             return pass_list
+        
+        def get_segment():
+            segment_data = data["stl18:Reservation"]["stl18:PassengerReservation"]\
+            ["stl18:Segments"]["stl18:Segment"]
+            segment_list = []
+            if type(segment_data) == list:
+                for segment in segment_data:
+                    if "stl18:Air" in segment:
+                        s = {}
+                        m = {}
+                        s['Code'] = segment['stl18:Air']['Code']
+                        s['ResBookDesigCode'] = segment['stl18:Air']['ResBookDesigCode']
+                        s['StopQuantity'] = segment['stl18:Air']['StopQuantity']
+                        s['DepartureAirport'] = segment['stl18:Air']['stl18:DepartureAirport']
+                        s['DepartureAirportCodeContext'] = segment['stl18:Air']['stl18:DepartureAirportCodeContext']
+                        s['DepartureTerminalName'] = segment['stl18:Air']['stl18:DepartureTerminalName']
+                        s['DepartureTerminalCode'] = segment['stl18:Air']['stl18:DepartureTerminalCode']
+                        s['ArrivalAirport'] = segment['stl18:Air']['stl18:ArrivalAirport']
+                        s['ArrivalAirportCodeContext'] = segment['stl18:Air']['stl18:ArrivalAirportCodeContext']
+                        s['ArrivalTerminalName'] = segment['stl18:Air']['stl18:ArrivalTerminalName']
+                        s['ArrivalTerminalCode'] = segment['stl18:Air']['stl18:ArrivalTerminalCode']
+                        s['OperatingAirlineCode'] = segment['stl18:Air']['stl18:OperatingAirlineCode']
+                        s['OperatingAirlineShortName'] = segment['stl18:Air']['stl18:OperatingAirlineShortName']
+                        s['OperatingFlightNumber'] = segment['stl18:Air']['stl18:OperatingFlightNumber']
+                        s['EquipmentType'] = segment['stl18:Air']['stl18:EquipmentType']
+                        s['MarketingAirlineCode'] = segment['stl18:Air']['stl18:MarketingAirlineCode']
+                        s['MarketingFlightNumber'] = segment['stl18:Air']['stl18:MarketingFlightNumber']
+                        s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
+                        s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
+                        s['MarketingClassOfService'] = segment['stl18:Air']['stl18:MarketingClassOfService']
+                        m['Ind'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
+                        m['Group'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
+                        m['Sequence'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
+                        s['MarriageGrp'] = m
+                        segment_list.append(s)
+            return segment_list
