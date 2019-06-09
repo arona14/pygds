@@ -1,6 +1,0 @@
-
-
-
-class _Ticketing():
-
-    pass

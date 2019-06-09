@@ -1,24 +1,14 @@
 from time import gmtime, strftime
-from pygds.config import sabrecredential,base64ToString
-import psycopg2,base64
 
-class _Ojectxml():
+class SabreXMLBuilder():
+    """This class can generate XML needed for sabre soap requests."""
 
-    def __init__(self,gds):
-        self._gds=gds
-        self.time =  str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+    def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
+        """Return the xml request to create a session."""
 
-    def test(self):
-        test='My Pygds Test'
-        return test
-        
-    def sabretokensession(self,pcc=None,conversation_id=None):
+        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 
-        sabre_credential = sabrecredential(pcc)
-        user_name = sabre_credential["User"][0]
-        password = base64ToString(sabre_credential["Password1"][0])
-
-        token = f"""<?xml version="1.0" encoding="UTF-8"?>
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
                 <soap-env:Header>
                     <eb:MessageHeader soap-env:mustUnderstand="1" eb:version="1.0">
@@ -34,7 +24,7 @@ class _Ojectxml():
                         <eb:Action>SessionCreateRQ</eb:Action>
                         <eb:MessageData>
                             <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.time}Z</eb:Timestamp>
+                            <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
                         </eb:MessageData>
                     </eb:MessageHeader>
                     <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
@@ -59,60 +49,15 @@ class _Ojectxml():
                 </soap-env:Body>
             </soap-env:Envelope>"""
 
-        return token
-    
-    def sabredisplaypnr(self,pcc=None,conversation_id=None,pnr=None,token=None):
+    def sessionCloseRQ(self, pcc, token, conversation_id):
+        """Return the xml request to close a session."""
 
-        display_pnr = f"""<?xml version="1.0" encoding="UTF-8"?>
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{pcc}</eb:CPAId>
-                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
-                        <eb:Service>getReservationRQ</eb:Service>
-                        <eb:Action>getReservationRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.time}Z</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
-                <soapenv:Body>
-                    <GetReservationRQ xmlns="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
-                    <Locator>{pnr}</Locator>
-                    <RequestType>Stateful</RequestType>
-                    <ReturnOptions UnmaskCreditCard="true" ShowTicketStatus="false" Language="US">
-                        <SubjectAreas>
-                        <SubjectArea>AIR_CABIN</SubjectArea>
-                        <SubjectArea>ITINERARY</SubjectArea>
-                        <SubjectArea>PRICE_QUOTE</SubjectArea>
-                        <SubjectArea>ANCILLARY</SubjectArea>
-                        </SubjectAreas>
-                        
-                        <ResponseFormat>STL</ResponseFormat>
-                    </ReturnOptions>
-                    </GetReservationRQ>
-                </soapenv:Body>
-            </soapenv:Envelope>"""
-        
-        return display_pnr
-    
-    def sabreclosesession(self,pcc=None,conversation_id=None,token=None):
-        session_close = f"""<?xml version="1.0" encoding="UTF-8"?>
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
             <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
                 <SOAP-ENV:Header>
                         <ns3:MessageHeader xmlns:ns2="http://www.w3.org/2000/09/xmldsig#"
                         xmlns:ns3="http://www.ebxml.org/namespaces/messageHeader"
-                        xmlns:ns4="http://www.w3.org/1999/xlink" 
+                        xmlns:ns4="http://www.w3.org/1999/xlink"
                         xmlns:ns5="http://schemas.xmlsoap.org/ws/2002/12/secext">
                             <ns3:From>
                         <ns3:PartyId>sample.url.of.sabre.client.com</ns3:PartyId>
@@ -127,7 +72,7 @@ class _Ojectxml():
                             </ns3:MessageHeader>
                         <ns5:Security xmlns:ns2="http://www.w3.org/2000/09/xmldsig#"
                             xmlns:ns3="http://www.ebxml.org/namespaces/messageHeader"
-                            xmlns:ns4="http://www.w3.org/1999/xlink" 
+                            xmlns:ns4="http://www.w3.org/1999/xlink"
                                 xmlns:ns5="http://schemas.xmlsoap.org/ws/2002/12/secext">
                         <ns5:BinarySecurityToken>{token}</ns5:BinarySecurityToken>
                         <ns2:group>{pcc}</ns2:group>
@@ -137,12 +82,12 @@ class _Ojectxml():
                     <SessionCloseRQ status="Approved" version="1" xmlns="http://www.opentravel.org/OTA/2002/11"/>
                 </SOAP-ENV:Body>
             </SOAP-ENV:Envelope>"""
-        
-        return session_close
-    
-    def sabreendtransaction(self,pcc=None,conversation_id=None,token=None):
-        
-        end_transaction = f"""<?xml version="1.0" encoding="UTF-8"?>
+
+    def endTransactionRQ(self, pcc, token, conversation_id):
+
+        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
                     <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
@@ -158,7 +103,7 @@ class _Ojectxml():
                     <eb:Action>EndTransactionLLSRQ</eb:Action>
                     <eb:MessageData>
                         <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                        <eb:Timestamp>{self.time}Z</eb:Timestamp>
+                        <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
                     </eb:MessageData>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
@@ -171,12 +116,15 @@ class _Ojectxml():
                     </EndTransactionRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-        return end_transaction
-    
-    def sabresendcommand(self,pcc=None,conversation_id=None,token=None,command=None):
-    
 
-        send_command = f"""<?xml version="1.0" encoding="UTF-8"?>
+    def ignoreTransactionRQ(self):
+        pass
+
+    def sabreCommandLLSRQ(self, pcc, token, conversation_id, command):
+
+        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
                     <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
@@ -192,7 +140,7 @@ class _Ojectxml():
                         <eb:Action>SabreCommandLLSRQ</eb:Action>
                         <eb:MessageData>
                             <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.time}</eb:Timestamp>
+                            <eb:Timestamp>{current_timestamp}</eb:Timestamp>
                         </eb:MessageData>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
@@ -207,5 +155,48 @@ class _Ojectxml():
                     </SabreCommandLLSRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-        command_xml = send_command.encode('utf-8')
-        return command_xml
+
+    def getReservationRQ(self, pcc, token, conversation_id, record_locator):
+
+        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header>
+                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
+                        <eb:From>
+                            <eb:PartyId />
+                        </eb:From>
+                        <eb:To>
+                            <eb:PartyId />
+                        </eb:To>
+                        <eb:CPAId>{pcc}</eb:CPAId>
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
+                        <eb:Service>getReservationRQ</eb:Service>
+                        <eb:Action>getReservationRQ</eb:Action>
+                        <eb:MessageData>
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                            <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
+                        </eb:MessageData>
+                    </eb:MessageHeader>
+                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
+                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
+                    </eb:Security>
+                </soapenv:Header>
+                <soapenv:Body>
+                    <GetReservationRQ xmlns="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
+                    <Locator>{record_locator}</Locator>
+                    <RequestType>Stateful</RequestType>
+                    <ReturnOptions UnmaskCreditCard="true" ShowTicketStatus="false" Language="US">
+                        <SubjectAreas>
+                        <SubjectArea>AIR_CABIN</SubjectArea>
+                        <SubjectArea>ITINERARY</SubjectArea>
+                        <SubjectArea>PRICE_QUOTE</SubjectArea>
+                        <SubjectArea>ANCILLARY</SubjectArea>
+                        </SubjectAreas>
+
+                        <ResponseFormat>STL</ResponseFormat>
+                    </ReturnOptions>
+                    </GetReservationRQ>
+                </soapenv:Body>
+            </soapenv:Envelope>"""

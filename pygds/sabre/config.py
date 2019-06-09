@@ -1,4 +1,4 @@
-import psycopg2,base64
+import psycopg2, base64
 import pandas as pd
 
 fterospostgres = {
@@ -10,11 +10,11 @@ fterospostgres = {
 
 conn = psycopg2.connect(
     f"""host={fterospostgres["host"]} dbname={fterospostgres["db"]} user={fterospostgres["user"]} password={fterospostgres["pwd"]}""")
-    
+
 def sabrecredential(pcc):
-    
+
     sabre_credential = f"""select "User","Password1" from portal_sabrecredentials where "Pcc" ='{pcc}' """
-    credential = pd.read_sql(sql=sabre_credential, con=conn)    
+    credential = pd.read_sql(sql=sabre_credential, con=conn)
     return credential
 
 def base64ToString(b):

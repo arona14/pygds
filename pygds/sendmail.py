@@ -1,6 +1,0 @@
-
-
-
-class _Semdmail():
-
-    pass

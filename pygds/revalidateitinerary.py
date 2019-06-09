@@ -1,5 +1,0 @@
-
-
-class _Revalidateitinerary():
-
-    pass
