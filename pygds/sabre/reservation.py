@@ -1,4 +1,4 @@
-class SabreReservation():
+class SabreReservation:
     """This class contains all the services for manupilation a reservation."""
 
     def get(self, pnr, pcc, conversation_id):
