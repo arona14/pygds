@@ -9,7 +9,6 @@ setup(name='pygds',
       license='MIT',
       packages=['pygds'],
       install_requires=[
-          'pyodbc',
           'pandas',
           'psycopg2',
           'jxmlease',

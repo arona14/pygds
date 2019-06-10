@@ -1,1 +1,1 @@
-import pygds.main
+from pygds.main import GDS
