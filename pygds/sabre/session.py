@@ -1,6 +1,6 @@
 import requests, jxmlease, json, xmltodict
-from pygds.sabre.config import sabre_credentials, decode_base64
-from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
+from .config import sabre_credentials, decode_base64
+from .xmlbuilders.builder import SabreXMLBuilder
 
 url = "https://webservices3.sabre.com"
 headers = {'content-type': 'text/xml'}

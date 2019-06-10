@@ -1,4 +1,4 @@
-from pygds.sabre.reservation import SabreReservation
+from .sabre.reservation import SabreReservation
 
 class GDS:
 
