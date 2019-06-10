@@ -6,3 +6,4 @@ def get_reservation(gds, pnr, pcc, conversation_id):
         return SabreReservation().get(pnr, pcc, conversation_id)
     else:
         return 'Not yet implemented'
+
