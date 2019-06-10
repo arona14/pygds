@@ -1,7 +1,7 @@
-class SabreTransaction():
+class SabreTransaction:
 
-    def end():
+    def end(self):
         pass
 
-    def ignore():
+    def ignore(self):
         pass

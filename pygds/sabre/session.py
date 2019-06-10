@@ -5,9 +5,10 @@ from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 url = "https://webservices3.sabre.com"
 headers = {'content-type': 'text/xml'}
 
-class SabreSession():
 
-    def open(pcc, conversation_id):
+class SabreSession:
+
+    def open(self, pcc, conversation_id):
 
         sabre_credential = sabrecredential(pcc)
 
@@ -24,7 +25,7 @@ class SabreSession():
             token = None
         return token
 
-    def close(pcc, token, conversation_id):
+    def close(self, pcc, token, conversation_id):
 
         close_session_xml = SabreXMLBuilder().sessionCloseRQ(pcc, token, conversation_id)
 

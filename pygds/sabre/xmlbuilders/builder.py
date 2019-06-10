@@ -1,6 +1,7 @@
 from time import gmtime, strftime
 
-class SabreXMLBuilder():
+
+class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
 
     def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
