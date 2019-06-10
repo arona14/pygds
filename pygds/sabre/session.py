@@ -1,5 +1,5 @@
 import requests, jxmlease, json, xmltodict
-from pygds.sabre.config import sabrecredential, base64ToString
+from pygds.sabre.config import sabre_credentials, decode_base64
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 url = "https://webservices3.sabre.com"
@@ -10,11 +10,11 @@ class SabreSession:
 
     def open(self, pcc, conversation_id):
 
-        sabre_credential = sabrecredential(pcc)
+        sabre_credential = sabre_credentials(pcc)
 
         try:
             user_name = sabre_credential["User"][0]
-            password = base64ToString(sabre_credential["Password1"][0])
+            password = decode_base64(sabre_credential["Password1"][0])
 
             open_session_xml = SabreXMLBuilder().sessionCreateRQ(pcc, user_name, password, conversation_id)
 

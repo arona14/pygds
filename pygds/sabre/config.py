@@ -12,16 +12,16 @@ conn = psycopg2.connect(
     f"""host={fterospostgres["host"]} dbname={fterospostgres["db"]} user={fterospostgres["user"]} password={fterospostgres["pwd"]}""")
 
 
-def sabrecredential(pcc):
+def sabre_credentials(pcc):
 
-    sabre_credential = f"""select "User","Password1" from portal_sabrecredentials where "Pcc" ='{pcc}' """
-    credential = pd.read_sql(sql=sabre_credential, con=conn)
-    return credential
-
-
-def base64ToString(b):
-    return base64.b64decode(b).decode('utf-8')
+    query = f"""select "User","Password1" from portal_sabrecredentials where "Pcc" ='{pcc}' """
+    credentials = pd.read_sql(sql=query, con=conn)
+    return credentials
 
 
-def b64(toEncode):
-    return base64.b64encode(toEncode.encode('utf-8')).decode("utf-8")
+def decode_base64(source):
+    return base64.b64decode(source).decode('utf-8')
+
+
+def encode_base64(source):
+    return base64.b64encode(source.encode('utf-8')).decode("utf-8")
