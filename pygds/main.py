@@ -21,7 +21,7 @@ class GDS:
             #    pnr = SabreReservation().get(pnr, pcc, conversation_id)
             commandresponse = SabreCommand().send(command, pcc, token, conversation_id)
 
-            SabreSession().close(pcc,token,conversation_id)
-            #print(closesessionresponse)
+            closesessionresponse = SabreSession().close(pcc,token,conversation_id)
+            print(closesessionresponse)
             return commandresponse
 
