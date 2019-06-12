@@ -5,7 +5,7 @@ class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
 
     def __init__(self) :
-        self.current_timestamp =  str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+        self.current_timestamp =  str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
 
     def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
         """Return the xml request to create a session."""
