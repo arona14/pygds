@@ -4,10 +4,12 @@ from time import gmtime, strftime
 class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
 
+    def __init__(self) :
+        self.current_timestamp =  str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+
     def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
         """Return the xml request to create a session."""
 
-        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
@@ -25,7 +27,7 @@ class SabreXMLBuilder:
                         <eb:Action>SessionCreateRQ</eb:Action>
                         <eb:MessageData>
                             <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
+                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
                         </eb:MessageData>
                     </eb:MessageHeader>
                     <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
@@ -123,7 +125,6 @@ class SabreXMLBuilder:
 
     def sabreCommandLLSRQ(self, pcc, token, conversation_id, command):
 
-        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -141,7 +142,7 @@ class SabreXMLBuilder:
                         <eb:Action>SabreCommandLLSRQ</eb:Action>
                         <eb:MessageData>
                             <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{current_timestamp}</eb:Timestamp>
+                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
                         </eb:MessageData>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
@@ -159,7 +160,6 @@ class SabreXMLBuilder:
 
     def getReservationRQ(self, pcc, token, conversation_id, record_locator):
 
-        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -177,7 +177,7 @@ class SabreXMLBuilder:
                         <eb:Action>getReservationRQ</eb:Action>
                         <eb:MessageData>
                             <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
+                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
                         </eb:MessageData>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
