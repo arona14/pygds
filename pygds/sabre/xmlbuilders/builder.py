@@ -157,47 +157,85 @@ class SabreXMLBuilder:
                     </SabreCommandLLSRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-
-    def getReservationRQ(self, pcc, token, conversation_id, record_locator):
-
+    
+    def getReservationRQ(self, pcc, conversation_id, token, record_locator):
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{pcc}</eb:CPAId>
-                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
-                        <eb:Service>getReservationRQ</eb:Service>
-                        <eb:Action>getReservationRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
-                <soapenv:Body>
-                    <GetReservationRQ xmlns="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
-                    <Locator>{record_locator}</Locator>
-                    <RequestType>Stateful</RequestType>
-                    <ReturnOptions UnmaskCreditCard="true" ShowTicketStatus="false" Language="US">
-                        <SubjectAreas>
-                        <SubjectArea>AIR_CABIN</SubjectArea>
-                        <SubjectArea>ITINERARY</SubjectArea>
-                        <SubjectArea>PRICE_QUOTE</SubjectArea>
-                        <SubjectArea>ANCILLARY</SubjectArea>
-                        </SubjectAreas>
 
-                        <ResponseFormat>STL</ResponseFormat>
-                    </ReturnOptions>
-                    </GetReservationRQ>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+
+                <soapenv:Header>
+
+                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
+
+                        <eb:From>
+
+                            <eb:PartyId />
+
+                        </eb:From>
+
+                        <eb:To>
+
+                            <eb:PartyId />
+
+                        </eb:To>
+
+                        <eb:CPAId>{pcc}</eb:CPAId>
+
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
+
+                        <eb:Service>getReservationRQ</eb:Service>
+
+                        <eb:Action>getReservationRQ</eb:Action>
+
+                        <eb:MessageData>
+
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+
+                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
+
+                        </eb:MessageData>
+
+                    </eb:MessageHeader>
+
+                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
+
+                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
+
+                    </eb:Security>
+
+                </soapenv:Header>
+
+                <soapenv:Body>
+
+                    <ns7:GetReservationRQ xmlns:ns7="http://webservices.sabre.com/pnrbuilder/v1_19" Version="1.19.0">
+
+                        <ns7:Locator>{record_locator}</ns7:Locator>
+
+                        <ns7:RequestType>Stateful</ns7:RequestType>
+
+                        <ns7:ReturnOptions>
+
+                            <ns7:SubjectAreas>
+
+                                <ns7:SubjectArea>AIR_CABIN</ns7:SubjectArea>
+
+                                <ns7:SubjectArea>ITINERARY</ns7:SubjectArea>
+
+                                <ns7:SubjectArea>PRICE_QUOTE</ns7:SubjectArea>
+
+                                <ns7:SubjectArea>ANCILLARY</ns7:SubjectArea>
+
+                            </ns7:SubjectAreas>
+
+                            <ns7:ResponseFormat>STL</ns7:ResponseFormat>
+
+                        </ns7:ReturnOptions>
+
+                    </ns7:GetReservationRQ>
+
                 </soapenv:Body>
+
             </soapenv:Envelope>"""
+
+    
