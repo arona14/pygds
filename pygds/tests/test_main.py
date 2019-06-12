@@ -10,6 +10,5 @@ class TestMain(TestCase):
         self.assertTrue(isinstance(result, str))
 
     def test_send_command_ok(self):
-       
         result = GDS().send_command('sabre', '*JUBGEV','WR17', conversation_id='cosmo-material-b6851be0-b83e-11e8-be20-c56b920f05b5')
-        self.assertTrue(isinstance(result,str))
+        self.assertTrue(isinstance(result,object))
