@@ -30,7 +30,7 @@ class SabreTransaction:
             end_transaction = end_transaction.replace("u'", "'")
             end_transaction = eval(end_transaction)
 
-        return end_transaction
+        return end_transaction["soap-env:Envelope"]["soap-env:Body"]["stl18:GetReservationRS"]
 
     def ignore(self):
         pass
