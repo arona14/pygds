@@ -10,5 +10,3 @@ class TestDB(TestCase):
     def test_sabre_credentials(self):
         res = sabre_credentials('WR17')
         self.assertIsNotNone(res)
-
-

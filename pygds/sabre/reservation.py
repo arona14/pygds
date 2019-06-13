@@ -20,9 +20,9 @@ class SabreReservation:
 
         toreturn_dict = {}
 
-        token_session = SabreSession().open(pcc,conversation_id)
+        token_session = SabreSession().open(pcc, conversation_id)
 
-        get_reservation = SabreXMLBuilder().getReservationRQ(pcc,conversation_id,token_session,pnr)
+        get_reservation = SabreXMLBuilder().getReservationRQ(pcc, conversation_id, token_session, pnr)
 
         response = requests.post(self.url, data=get_reservation, headers=self.headers)
 
