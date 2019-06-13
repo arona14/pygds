@@ -1,6 +1,7 @@
 from .sabre.reservation import SabreReservation
 from .sabre.command import SabreCommand
 from .sabre.session import SabreSession
+from .sabre.transaction import SabreTransaction
 
 class GDS:
 
@@ -19,4 +20,17 @@ class GDS:
 
             
             return commandresponse
+
+    def end_transaction(self, gds, pcc, token, conversation_id) :
+
+        """Call end Transacton method"""
+        if gds.upper() == 'SABRE' :
+
+            end_transaction_response = SabreTransaction().end(pcc,token,conversation_id)
+
+            return end_transaction_response
+        else :
+            return 'Not yet implemented'
+
+
 

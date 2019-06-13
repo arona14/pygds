@@ -88,7 +88,7 @@ class SabreXMLBuilder:
 
     def endTransactionRQ(self, pcc, token, conversation_id):
 
-        current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+        """ end transaction xml"""
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -106,7 +106,7 @@ class SabreXMLBuilder:
                     <eb:Action>EndTransactionLLSRQ</eb:Action>
                     <eb:MessageData>
                         <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                        <eb:Timestamp>{current_timestamp}Z</eb:Timestamp>
+                        <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
                     </eb:MessageData>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
