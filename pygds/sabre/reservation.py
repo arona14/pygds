@@ -1,6 +1,8 @@
+# This file is for Sabre reservation classes and functions
+
 from .session import SabreSession
 from .xmlbuilders.builder import SabreXMLBuilder
-import xmltodict,requests,json
+import xmltodict, requests, json
 
 class SabreReservation:
     """This class contains all the services for manupilation a reservation."""
