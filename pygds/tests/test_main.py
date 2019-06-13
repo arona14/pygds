@@ -12,3 +12,7 @@ class TestMain(TestCase):
     def test_send_command_ok(self):
         result = GDS().send_command('sabre', '*JUBGEV','WR17', conversation_id='cosmo-material-b6851be0-b83e-11e8-be20-c56b920f05b5')
         self.assertTrue(isinstance(result,object))
+    
+    def test_end_transaction_ok(self):
+        result = GDS().end_transaction('sabre','WR17','test','test')
+        self.assertTrue(isinstance(result,object))
