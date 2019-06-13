@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from pygds.sabre.config import conn,sabre_credentials
+from pygds.sabre.config import conn, sabre_credentials
+
 
 class TestDB(TestCase):
     def test_connection_ok(self):

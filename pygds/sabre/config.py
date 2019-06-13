@@ -12,6 +12,7 @@ try:
 except:
     conn = None
 
+
 def sabre_credentials(pcc):
     try:
         query = f"""select "User","Password1" from portal_sabrecredentials where "Pcc" ='{pcc}' """

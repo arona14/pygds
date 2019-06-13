@@ -4,12 +4,11 @@ from time import gmtime, strftime
 class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
 
-    def __init__(self) :
-        self.current_timestamp =  str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
+    def __init__(self):
+        self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
 
     def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
         """Return the xml request to create a session."""
-
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">

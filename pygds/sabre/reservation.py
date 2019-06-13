@@ -1,14 +1,18 @@
 # This file is for Sabre reservation classes and functions
 
+import json
+import requests
+import xmltodict
+
 from .session import SabreSession
 from .xmlbuilders.builder import SabreXMLBuilder
-import xmltodict, requests, json
+
 
 class SabreReservation:
     """This class contains all the services for manupilation a reservation."""
 
     def __init__(self):
-        self.url  = "https://webservices3.sabre.com"
+        self.url = "https://webservices3.sabre.com"
         self.headers = {'content-type': 'text/xml'}
 
     def get(self, pnr, pcc, conversation_id, need_close = True):
@@ -24,14 +28,14 @@ class SabreReservation:
 
         get_reservation = json.loads(json.dumps(xmltodict.parse(response.content)))
 
-        toreturn_reservation  = get_reservation["soap-env:Envelope"]["soap-env:Body"]["stl19:GetReservationRS"]
+        toreturn_reservation = get_reservation["soap-env:Envelope"]["soap-env:Body"]["stl19:GetReservationRS"]
 
-        toreturn_reservation = str(toreturn_reservation).replace("@","")
+        toreturn_reservation = str(toreturn_reservation).replace("@", "")
 
-        toreturn_dict = eval(toreturn_reservation.replace("u'","'"))
+        toreturn_dict = eval(toreturn_reservation.replace("u'", "'"))
 
         if need_close:
-            SabreSession().close(pcc,conversation_id,token_session)
+            SabreSession().close(pcc, conversation_id, token_session)
 
         del toreturn_dict["xmlns:stl19"]
 
