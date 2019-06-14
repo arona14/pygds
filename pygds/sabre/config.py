@@ -1,4 +1,5 @@
-import psycopg2, base64
+import psycopg2
+import base64
 import pandas as pd
 
 fterospostgres = {
@@ -8,7 +9,8 @@ fterospostgres = {
     "db": "dcrr3f58noacr2"
 }
 try:
-    conn = psycopg2.connect(f"""host={fterospostgres["host"]} dbname={fterospostgres["db"]} user={fterospostgres["user"]} password={fterospostgres["pwd"]}""")
+    conn = psycopg2.connect(
+        f"""host={fterospostgres["host"]} dbname={fterospostgres["db"]} user={fterospostgres["user"]} password={fterospostgres["pwd"]}""")
 except:
     conn = None
 
@@ -29,4 +31,3 @@ def decode_base64(source):
 
 def encode_base64(source):
     return base64.b64encode(source.encode('utf-8')).decode("utf-8")
-
