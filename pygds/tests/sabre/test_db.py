@@ -1,5 +1,4 @@
 from unittest import TestCase
-
 from pygds.sabre.config import conn, sabre_credentials
 
 

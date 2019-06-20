@@ -12,7 +12,6 @@ class SabreTransaction:
         self.headers = {'content-type': 'text/xml'}
 
     def end(self, pcc, token, conversation_id):
-
         """End Transaction method"""
 
         end_transaction_xml = SabreXMLBuilder().endTransactionRQ(pcc, token, conversation_id)

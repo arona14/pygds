@@ -1,4 +1,7 @@
-import requests, jxmlease, json, xmltodict
+import requests
+import jxmlease
+import json
+import xmltodict
 from .config import sabre_credentials, decode_base64
 from .xmlbuilders.builder import SabreXMLBuilder
 
@@ -16,9 +19,11 @@ class SabreSession:
             user_name = sabre_credential["User"][0]
             password = decode_base64(sabre_credential["Password1"][0])
 
-            open_session_xml = SabreXMLBuilder().sessionCreateRQ(pcc, user_name, password, conversation_id)
+            open_session_xml = SabreXMLBuilder().sessionCreateRQ(
+                pcc, user_name, password, conversation_id)
 
-            response = requests.post(url, data=open_session_xml, headers=headers)
+            response = requests.post(
+                url, data=open_session_xml, headers=headers)
             r = jxmlease.parse(response.content)
             token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
         except:

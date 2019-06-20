@@ -2,7 +2,6 @@ from .sabre.reservation import SabreReservation
 from .sabre.command import SabreCommand
 from .sabre.transaction import SabreTransaction
 
-
 class GDS:
 
     def get_reservation(self, gds, pnr, pcc, conversation_id=None):
