@@ -7,7 +7,7 @@ def fromSoapResponse(response):
     try:
         get_reservation = json.loads(json.dumps(xmltodict.parse(response.content)))
         if get_reservation is not None:
-            toreturn_reservation = get_reservation["soap-env:Envelope"]["soap-env:Body"]#["stl19:GetReservationRS"]
+            toreturn_reservation = get_reservation["soap-env:Envelope"]["soap-env:Body"]["stl19:GetReservationRS"]
             toreturn_reservation = str(toreturn_reservation).replace("@", "")
             toreturn_dict = eval(toreturn_reservation.replace("u'", "'"))
             del toreturn_dict["xmlns:stl19"]
