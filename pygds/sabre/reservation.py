@@ -8,10 +8,10 @@ from .xmlbuilders.builder import SabreXMLBuilder
 from .helpers import soap_service_to_json
 
 
-def reformat_sabre_get_reservation(response):
+def reformat_sabre_get_reservation(data):
     """Get and Return Json dict."""
 
-    print(response)
+    print(data)
     dict_result = {}
     try:
         itineraries = []
