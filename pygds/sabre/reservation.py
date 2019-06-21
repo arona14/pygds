@@ -1,51 +1,57 @@
 # This file is for Sabre reservation classes and functions
 
 import requests
-import json
+
+from .base_service import BaseService
 from .session import SabreSession
 from .xmlbuilders.builder import SabreXMLBuilder
-from .helpers import fromSoapResponse
+from .helpers import soap_service_to_json
 
-class SabreReservation:
-    """This class contains all the services for manupilation a reservation."""
 
-    def __init__(self):
-        self.url = "https://webservices3.sabre.com"
-        self.headers = {'content-type': 'text/xml'}
+def reformat_sabre_get_reservation(response):
+    """Get and Return Json dict."""
 
-    def get(self, pnr, pcc, conversation_id, need_close = True):
+    print(response)
+    dict_result = {}
+    try:
+        itineraries = []
+        passengers = []
+        form_of_payments = []
+        price_quotes = []
+        ticketing_info = []
+        remarks = []
+
+        dict_result['Itineraries'] = itineraries
+        dict_result['Passengers'] = passengers
+        dict_result['FormOfPayments'] = form_of_payments
+        dict_result['PriceQuotes'] = price_quotes
+        dict_result['TicketingInfo'] = ticketing_info
+        dict_result['Remarks'] = remarks
+
+        return dict_result
+    except:
+        # TODO: Capture the real exception not the general one
+        dict_result = None
+    return dict_result
+
+
+class SabreReservation(BaseService):
+    """This class contains all the services for manipulation a reservation."""
+
+    def get(self, pnr, pcc, conversation_id, need_close=True):
         """Return the reservation data."""
+
         try:
             token_session = SabreSession().open(pcc, conversation_id)
             get_reservation = SabreXMLBuilder().getReservationRQ(pcc, conversation_id, token_session, pnr)
             response = requests.post(self.url, data=get_reservation, headers=self.headers)
-            toreturn = fromSoapResponse(response)
-            toreturn_dict = self.getReservationDataProcessing(toreturn)
+            to_return = soap_service_to_json(response)
+            to_return_dict = reformat_sabre_get_reservation(to_return)
+
             if need_close:
                 SabreSession().close(pcc, conversation_id, token_session)
         except:
-            toreturn_dict = None
-        return toreturn_dict
+            # TODO: Capture the real exception not the general one
+            to_return_dict = None
 
-
-    def getReservationDataProcessing(self,response):
-        """Get and Return Json dict."""
-        dict_result= []
-        try:
-            json_item_Passengers = response.get('Passenger')
-            json_item_Segments = response.get('Segment')
-            json_item_FormsOfPayment = response.get('FormsOfPayment')
-            json_item_TicketingInfo = response.get('TicketingInfo')
-            json_item_Remark = response.get('Remark')
-            json_item_PriceQuote = response.get('PriceQuote')
-
-            dict_result.append(json_item_Segments)
-            dict_result.append(json_item_Passengers)
-            dict_result.append(json_item_Remark)
-            dict_result.append(json_item_PriceQuote)
-            dict_result.append(json_item_TicketingInfo)
-            dict_result.append(json_item_FormsOfPayment)
-            return dict_result
-        except:
-            dict_result = None
-        return dict_result
+        return to_return_dict

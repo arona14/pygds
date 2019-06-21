@@ -2,22 +2,28 @@ import json
 import xmltodict
 
 
-def fromSoapResponse(response):
-    """Return Json dic"""
+def soap_service_to_json(data):
+    """Transform a sabre soap api response to json format"""
+
+    to_return_dict = None
+
     try:
-        get_reservation = json.loads(json.dumps(xmltodict.parse(response.content)))
-        if get_reservation is not None:
-            toreturn_reservation = get_reservation["soap-env:Envelope"]["soap-env:Body"]["stl19:GetReservationRS"]
-            toreturn_reservation = str(toreturn_reservation).replace("@", "")
-            toreturn_dict = eval(toreturn_reservation.replace("u'", "'"))
-            del toreturn_dict["xmlns:stl19"]
-            del toreturn_dict["xmlns:ns6"]
-            del toreturn_dict["xmlns:or114"]
-            del toreturn_dict["xmlns:raw"]
-            del toreturn_dict["xmlns:ns4"]
-        return toreturn_dict
+        json_data = json.loads(json.dumps(xmltodict.parse(data.content)))
+
+        if json_data is not None:
+            to_return = json_data["soap-env:Envelope"]["soap-env:Body"]
+            to_return = str(to_return).replace("@", "")
+            to_return_dict = eval(to_return.replace("u'", "'"))
+
+            del to_return_dict["xmlns:stl19"]
+            del to_return_dict["xmlns:ns6"]
+            del to_return_dict["xmlns:or114"]
+            del to_return_dict["xmlns:raw"]
+            del to_return_dict["xmlns:ns4"]
+        return to_return_dict
     except:
-        toreturn_dict = None
-    return toreturn_dict
+        # TODO: Capture the real exception not the general one
+        pass
+    return to_return_dict
 
 

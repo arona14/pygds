@@ -1,32 +1,30 @@
-import json
 import requests
-import xmltodict
 
+from .helpers import soap_service_to_json
+from .base_service import BaseService
 from .session import SabreSession
 from .xmlbuilders.builder import SabreXMLBuilder
 
 
-class SabreCommand:
-    """ this class contains all sabre commande """
-
-    def __init__(self):
-        self.url = "https://webservices3.sabre.com"
-        self.headers = {'content-type': 'text/xml'}
+class SabreCommand(BaseService):
+    """ this class contains all sabre command """
 
     def send(self, command, pcc, token=None, conversation_id=None):
-
-        """ this method take a parameters: command name, pcc token,recordlocator,conversation_id
+        """ this method take a parameters: command name, pcc token, record locator, conversation_id
             and return the status of command """
+
+        need_close = False
         if token is None:
-                token = SabreSession().open(pcc, conversation_id)
-                need_close = True
+            token = SabreSession().open(pcc, conversation_id)
+            need_close = True
+
         command_xml = SabreXMLBuilder().sabreCommandLLSRQ(pcc, token, conversation_id, command)
         command_xml = command_xml.encode('utf-8')
+
         response = requests.post(self.url, data=command_xml, headers=self.headers)
-        send_command = json.loads(json.dumps(xmltodict.parse(response.content)))
-        send_command = str(send_command).replace("@", "")
-        send_command = send_command.replace("u'", "'")
-        send_command = eval(send_command)
+
+        send_command = soap_service_to_json(response)
+
         if need_close:
             SabreSession().close(pcc, token, conversation_id)
         return send_command
