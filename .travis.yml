@@ -11,5 +11,7 @@ install:
   - pip install -r requirements.txt
   - pip install nose
   - pip install coverage
+  - pip install flake8
 script:
+  - flake8 pygds
   - nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests

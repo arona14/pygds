@@ -25,5 +25,3 @@ def soap_service_to_json(data):
         # TODO: Capture the real exception not the general one
         pass
     return to_return_dict
-
-
