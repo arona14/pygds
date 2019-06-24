@@ -3,7 +3,7 @@
 import requests
 
 from .helpers import soap_service_to_json
-from .base_service import BaseService
+from .baseservice import BaseService
 from .xmlbuilders.builder import SabreXMLBuilder
 
 
