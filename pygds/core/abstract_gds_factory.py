@@ -2,7 +2,7 @@
 
 
 from abc import ABC, abstractmethod
-from .abstractGDS import AbstractGDS
+from .abstract_gds import AbstractGDS
 
 
 class AbstractGDSFactory(ABC):

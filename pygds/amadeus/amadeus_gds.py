@@ -1,4 +1,4 @@
-from pygds.core.abstractGDS import AbstractGDS
+from pygds.core.abstract_gds import AbstractGDS
 
 
 class AmadeusGDS(AbstractGDS):
