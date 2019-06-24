@@ -3,10 +3,10 @@
 
 import requests
 
-from .base_service import BaseService
-from .session import SabreSession
-from .xmlbuilders.builder import SabreXMLBuilder
-from .helpers import soap_service_to_json
+from pygds.sabre.base_service import BaseService
+from pygds.sabre.session import SabreSession
+from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
+from pygds.sabre.helpers import soap_service_to_json
 
 
 def reformat_sabre_get_reservation(data):

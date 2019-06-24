@@ -2,9 +2,9 @@
 
 import requests
 
-from .helpers import soap_service_to_json
-from .base_service import BaseService
-from .xmlbuilders.builder import SabreXMLBuilder
+from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.base_service import BaseService
+from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 
 class SabreTransaction(BaseService):

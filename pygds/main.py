@@ -1,9 +1,9 @@
 # This file will be replaced by the factory.
 
 
-from .sabre.reservation import SabreReservation
-from .sabre.command import SabreCommand
-from .sabre.transaction import SabreTransaction
+from pygds.sabre.reservation import SabreReservation
+from pygds.sabre.command import SabreCommand
+from pygds.sabre.transaction import SabreTransaction
 
 
 class GDS:
