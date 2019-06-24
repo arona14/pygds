@@ -1,3 +1,6 @@
+# This file will be replaced by the factory.
+
+
 from .sabre.reservation import SabreReservation
 from .sabre.command import SabreCommand
 from .sabre.transaction import SabreTransaction
