@@ -1,6 +1,6 @@
-from .sabre.sabregds import SabreGDS
-from .amadeus.amadeusgds import AmadeusGDS
-from .core.abstractgdsfactory import AbstractGDSFactory
+from .sabre.sabre_gds import SabreGDS
+from .amadeus.amadeus_gds import AmadeusGDS
+from .core.abstract_gdsfactory import AbstractGDSFactory
 
 
 class GDS(AbstractGDSFactory):

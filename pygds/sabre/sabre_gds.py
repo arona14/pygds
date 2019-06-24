@@ -1,4 +1,4 @@
-from pygds.core.abstractgds import AbstractGDS
+from pygds.core.abstract_gds import AbstractGDS
 from .reservation import SabreReservation
 
 

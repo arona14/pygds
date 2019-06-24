@@ -4,7 +4,7 @@ import requests
 import jxmlease
 
 from .helpers import soap_service_to_json
-from .baseservice import BaseService
+from .base_service import BaseService
 from .config import sabre_credentials, decode_base64
 from .xmlbuilders.builder import SabreXMLBuilder
 
