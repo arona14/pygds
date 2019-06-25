@@ -1,5 +1,3 @@
-from pygds.sabre.sabre_gds import SabreGDS
-from pygds.amadeus.amadeus_gds import AmadeusGDS
 from pygds.core.abstract_gdsfactory import AbstractGDSFactory
 from pygds.core.abstract_gds import AbstractGDS
 

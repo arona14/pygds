@@ -14,4 +14,3 @@ class AbstractGDSFactory(ABC):
     @abstractmethod
     def get_reservation(self, pnr: str):
         pass
-
