@@ -15,7 +15,7 @@ class AbstractGDS(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def of(key):
+    def of(key: str):
         gds = [cls for cls in AbstractGDS.__subclasses__() if key.upper() in cls.__name__.upper()]
 
         if len(gds):
