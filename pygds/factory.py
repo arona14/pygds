@@ -5,7 +5,7 @@ from pygds.core.abstract_gdsfactory import AbstractGDSFactory
 class GDS(AbstractGDSFactory):
 
     def __init__(self, gds: str):
-        super(GDS, self).__init__(AbstractGDS.of(gds)())
+        super().__init__(AbstractGDS.of(gds)())
 
     def get_reservation(self, pnr):
         if self.gds_handler is not None:
