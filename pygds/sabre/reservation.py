@@ -12,7 +12,7 @@ from pygds.sabre.helpers import soap_service_to_json
 def reformat_sabre_get_reservation(data):
     """Get and Return Json dict."""
 
-    print(data)
+    # print(data)
     dict_result = {}
     try:
         itineraries = []
