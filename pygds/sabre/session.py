@@ -3,10 +3,10 @@
 import requests
 import jxmlease
 
-from .helpers import soap_service_to_json
-from .baseservice import BaseService
-from .config import sabre_credentials, decode_base64
-from .xmlbuilders.builder import SabreXMLBuilder
+from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.base_service import BaseService
+from pygds.sabre.config import sabre_credentials, decode_base64
+from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 
 class SabreSession(BaseService):

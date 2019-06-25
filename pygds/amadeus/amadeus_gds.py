@@ -1,4 +1,4 @@
-from pygds.core.abstractgds import AbstractGDS
+from pygds.core.abstract_gds import AbstractGDS
 
 
 class AmadeusGDS(AbstractGDS):
@@ -8,3 +8,4 @@ class AmadeusGDS(AbstractGDS):
 
     def get_reservation(self, pnr):
         print("Reservation data for " + pnr + " in " + self.gds_name)
+        return "Reservation data for " + pnr + " in " + self.gds_name
