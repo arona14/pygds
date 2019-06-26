@@ -6,8 +6,8 @@ class AmadeusXMLBuilder():
     """
     def __init__(self):
         self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
-    
-    def getReservationRQ(self, pcc, conversation_id, token, record_locator):
+
+    def getReservationRQ(self, pcc, conversation_id, token, record_locator,):
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
