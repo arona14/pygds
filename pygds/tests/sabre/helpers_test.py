@@ -1,8 +1,8 @@
-from unittest import TestCase
-from pygds.sabre.helpers import soap_service_to_json
+import unittest
+from pygds.sabre import helpers
 
 
-class TestHelpers(TestCase):
+class TestHelpers(unittest.TestCase):
 
     def test_soap_to_json_transform(self):
 
@@ -50,4 +50,8 @@ class TestHelpers(TestCase):
             </soapenv:Body>
         </soapenv:Envelope>"""
 
-        self.assertTrue(isinstance(soap_service_to_json(res), dict))
+        self.assertTrue(isinstance(helpers.soap_service_to_json(res), dict))
+
+
+if __name__ == '__main__':
+    unittest.main()

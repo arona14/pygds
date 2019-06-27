@@ -1,5 +1,7 @@
 # This file will be change for refactoring purpose.
 # This file is for Sabre reservation classes and functions
+# TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
+# Note that there is an explicit exemption for
 
 import requests
 
@@ -73,3 +75,11 @@ class SabreReservation(BaseService):
             to_return_dict = None
 
         return to_return_dict
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

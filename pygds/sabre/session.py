@@ -1,4 +1,6 @@
 # This file will be change for refactoring purpose.
+# TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
+# Note that there is an explicit exemption for
 
 import requests
 import jxmlease
@@ -37,3 +39,11 @@ class SabreSession(BaseService):
 
         response = requests.post(self.url, data=close_session_xml, headers=self.headers)
         return soap_service_to_json(response.content)
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

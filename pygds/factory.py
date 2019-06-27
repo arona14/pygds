@@ -1,11 +1,11 @@
-from pygds.core.abstract_gds import AbstractGDS
-from pygds.core.abstract_gdsfactory import AbstractGDSFactory
+from pygds.core import abstract_gds as abs_gds
+from pygds.core import abstract_gdsfactory as abs_factory
 
 
-class GDS(AbstractGDSFactory):
+class GDS(abs_factory.AbstractGDSFactory):
 
     def __init__(self, gds: str):
-        super().__init__(AbstractGDS.of(gds)())
+        super().__init__(abs_gds.AbstractGDS.of(gds)())
 
     def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
         if self.gds_handler is not None:
@@ -13,3 +13,11 @@ class GDS(AbstractGDSFactory):
 
         else:
             return None
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

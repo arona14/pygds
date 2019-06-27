@@ -37,3 +37,11 @@ def decode_base64(source):
 
 def encode_base64(source):
     return base64.b64encode(source.encode('utf-8')).decode("utf-8")
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

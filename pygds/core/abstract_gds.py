@@ -2,10 +2,10 @@
 
 """Abstract GDS classes file"""
 
-from abc import ABCMeta, abstractmethod
+import abc
 
 
-class AbstractGDS(metaclass=ABCMeta):
+class AbstractGDS(metaclass=abc.ABCMeta):
     """
     The GDS Meta class that register all derived class.
     It implements a static 'of' method that will help finding a registered class based
@@ -18,7 +18,7 @@ class AbstractGDS(metaclass=ABCMeta):
         self.gds_name = name
         super().__init__()
 
-    @abstractmethod
+    @abc.abstractmethod
     def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
         pass
 
@@ -36,3 +36,11 @@ class AbstractGDS(metaclass=ABCMeta):
             return gds[0]
         else:
             return None
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
