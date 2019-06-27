@@ -11,4 +11,4 @@ class TestFactory(TestCase):
 
         print(SabreGDS)
         print(AmadeusGDS)
-        self.assertIsNotNone(GDS('sabre').get_reservation('YQZMVU'))
+        self.assertIsNotNone(GDS('sabre').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))

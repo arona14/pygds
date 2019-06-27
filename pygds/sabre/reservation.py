@@ -10,10 +10,16 @@ from pygds.sabre.helpers import soap_service_to_json
 
 
 def reformat_sabre_get_reservation(data):
-    """Get and Return Json dict."""
+    """
+    Transform a raw json sabre response and transform it to custom dict.
 
-    # print(data)
+    :param data: raw sabre response (dict/json)
+    :return: {dict}
+    """
+
+    print(data)
     dict_result = {}
+
     try:
         itineraries = []
         passengers = []
@@ -30,6 +36,7 @@ def reformat_sabre_get_reservation(data):
         dict_result['Remarks'] = remarks
 
         return dict_result
+
     except:
         # TODO: Capture the real exception not the general one
         dict_result = None
@@ -39,14 +46,24 @@ def reformat_sabre_get_reservation(data):
 class SabreReservation(BaseService):
     """This class contains all the services for manipulation a reservation."""
 
-    def get(self, pnr, pcc, conversation_id, need_close=True):
-        """Return the reservation data."""
+    def get(self, pnr: str, pcc: str, conversation_id: str, need_close=True):
+        """
+        Returns the Sabre reservation data
+
+        :param pnr: the record locator of the reservation
+        :param pcc: Pseudo City Code or OfficeId
+        :param conversation_id: the conversation identifier
+        :param need_close: will allow the method to know if it will close the session
+        :return: {dict}
+        """
 
         try:
             token_session = SabreSession().open(pcc, conversation_id)
-            get_reservation = SabreXMLBuilder().getReservationRQ(pcc, conversation_id, token_session, pnr)
+
+            get_reservation = SabreXMLBuilder().get_reservation_rq(pcc, conversation_id, token_session, pnr)
             response = requests.post(self.url, data=get_reservation, headers=self.headers)
-            to_return = soap_service_to_json(response)
+
+            to_return = soap_service_to_json(response.content)
             to_return_dict = reformat_sabre_get_reservation(to_return)
 
             if need_close:
