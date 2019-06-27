@@ -144,7 +144,7 @@ class Reservation(BasicDataObject):
                 "ticketingInfo": self.ticketingInfo.toData() if self.ticketingInfo is not None else {}
             }
 
-        
+
 def test_me():
     r = Reservation()
     p1 = Passenger("Mariama", "KHAN", "F", "2017-03-23", preferences={"hublot": True, "alchol": False})
