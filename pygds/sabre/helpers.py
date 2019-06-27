@@ -5,18 +5,23 @@ import xmltodict
 
 
 def soap_service_to_json(data):
-    """Transform a sabre soap api response to json format
+    """Transform a sabre soap api response content to json format
     PS: This transformation is specific to SABRE
     """
 
     to_return_dict = None
 
     try:
-        json_data = json.loads(json.dumps(xmltodict.parse(data.content)))
+        json_data = json.loads(json.dumps(xmltodict.parse(data)))
 
         if json_data:
-            to_return = json_data["soap-env:Envelope"]["soap-env:Body"]
+            if 'soapenv:Envelope' in json_data:
+                to_return = json_data["soapenv:Envelope"]["soapenv:Body"]
+            else:
+                to_return = json_data["soap-env:Envelope"]["soap-env:Body"]
             to_return = str(to_return).replace("@", "")
+            to_return = str(to_return).replace("stl19:", "")
+            to_return = str(to_return).replace("or114:", "")
             to_return_dict = eval(to_return.replace("u'", "'"))
 
             del to_return_dict["xmlns:stl19"]
@@ -29,3 +34,11 @@ def soap_service_to_json(data):
         # TODO: Capture the real exception not the general one
         pass
     return to_return_dict
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

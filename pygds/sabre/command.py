@@ -25,7 +25,7 @@ class SabreCommand(BaseService):
 
         response = requests.post(self.url, data=command_xml, headers=self.headers)
 
-        send_command = soap_service_to_json(response)
+        send_command = soap_service_to_json(response.content)
 
         if need_close:
             SabreSession().close(pcc, token, conversation_id)

@@ -16,5 +16,5 @@ class AbstractGDSFactory(ABC):
         super().__init__()
 
     @abstractmethod
-    def get_reservation(self, pnr: str):
+    def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
         pass

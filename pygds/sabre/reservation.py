@@ -63,7 +63,7 @@ class SabreReservation(BaseService):
             get_reservation = SabreXMLBuilder().get_reservation_rq(pcc, conversation_id, token_session, pnr)
             response = requests.post(self.url, data=get_reservation, headers=self.headers)
 
-            to_return = soap_service_to_json(response)
+            to_return = soap_service_to_json(response.content)
             to_return_dict = reformat_sabre_get_reservation(to_return)
 
             if need_close:
