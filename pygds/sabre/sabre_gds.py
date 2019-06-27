@@ -9,8 +9,7 @@ class SabreGDS(AbstractGDS):
     def __init__(self):
         super().__init__("SABRE")
 
-    def get_reservation(self, pnr):
-        print("Reservation data for " + pnr + " in " + self.gds_name)
+    def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
+        print(f"{self.gds_name} get reservation for {pnr}.")
 
-        # TODO: These following lines are not permanents. It only here from a refactoring process
-        return SabreReservation().get(pnr, "WR17", "pygds-test")
+        return SabreReservation().get(pnr, pcc, conversation_id)

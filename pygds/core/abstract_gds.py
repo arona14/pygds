@@ -14,12 +14,12 @@ class AbstractGDS(metaclass=ABCMeta):
 
     code = None
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.gds_name = name
         super().__init__()
 
     @abstractmethod
-    def get_reservation(self, pnr):
+    def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
         pass
 
     @staticmethod

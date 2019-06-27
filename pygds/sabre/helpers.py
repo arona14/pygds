@@ -5,14 +5,16 @@ import xmltodict
 
 
 def soap_service_to_json(data):
-    """Transform a sabre soap api response to json format"""
+    """Transform a sabre soap api response to json format
+    PS: This transformation is specific to SABRE
+    """
 
     to_return_dict = None
 
     try:
         json_data = json.loads(json.dumps(xmltodict.parse(data.content)))
 
-        if json_data is not None:
+        if json_data:
             to_return = json_data["soap-env:Envelope"]["soap-env:Body"]
             to_return = str(to_return).replace("@", "")
             to_return_dict = eval(to_return.replace("u'", "'"))
