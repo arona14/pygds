@@ -2,14 +2,17 @@ from typing import List
 import json
 import datetime
 
+
 class BasicDataObject(object):
     def toData(self):
         raise NotImplementedError(" this is not yet implemented")
+
     def toJson(self):
         return json.dumps(self.toData(), indent=4)
 
+
 class FlightPointDetails(BasicDataObject):
-    def __init__(self, date: str = None, time : str = None, gmtOffset : int = None, city : str = None, airport : str = None, gate : str = None, terminal : str = None):
+    def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None, gate: str = None, terminal: str = None):
         self.date = date
         self.time = time
         self.gmtOffset = gmtOffset
@@ -29,8 +32,9 @@ class FlightPointDetails(BasicDataObject):
             "terminal": self.terminal
         }
 
+
 class FlightSegment(BasicDataObject):
-    def __init__(self, sequence : int = 1, departure : FlightPointDetails = None, arrival : FlightPointDetails = None, airline: str = None, flightNumber : str = None, classOfService : str = None, elapsedTime : str = None):
+    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
         self.sequence = sequence
         self.departure = departure
         self.arrival = arrival
@@ -44,18 +48,20 @@ class FlightSegment(BasicDataObject):
             "sequence": self.sequence,
             "departure": self.departure.toData() if self.departure is not None else {},
             "arrival": self.arrival.toData() if self.arrival is not None else {},
-            "airline" : self.airline,
+            "airline": self.airline,
             "flightNumber": self.flightNumber,
-            "classOfService" : self.classOfService,
-            "elapsedTime" : self.elapsedTime
+            "classOfService": self.classOfService,
+            "elapsedTime": self.elapsedTime
         }
+
+
 class Itinerary(BasicDataObject):
-    def __init__(self, itineraryType : str = None):
-        self.segments : List[FlightSegment] = []
+    def __init__(self, itineraryType: str = None):
+        self.segments: List[FlightSegment] = []
         self.itineraryType = itineraryType
         self.elapsedTime = None
 
-    def addSegment(self, segment : FlightSegment):
+    def addSegment(self, segment: FlightSegment):
         self.segments.append(segment)
         return self
 
@@ -66,15 +72,17 @@ class Itinerary(BasicDataObject):
             "elapsedTime": self.elapsedTime
         }
 
+
 class PassengerPreferences(BasicDataObject):
-    def __init__(self, prefs : dict = {}):
-        self.prefs =  prefs
+    def __init__(self, prefs: dict = {}):
+        self.prefs = prefs
 
     def toData(self):
         return self.prefs
 
+
 class Passenger(BasicDataObject):
-    def __init__(self, firstName : str = None, lastName : str = None, gender : str = None, dateOfBirth : str = None, passengerType = None, preferences = None):
+    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None, passengerType: str = None, preferences=None):
         self.firstName = firstName
         self.lastName = lastName
         self.gender = gender
@@ -87,7 +95,7 @@ class Passenger(BasicDataObject):
         if self.dateOfBirth is not None:
             age = datetime.date.today() - datetime.date.fromisoformat(self.dateOfBirth)
             age = age.days / 365
-            if  age < 0:
+            if age < 0:
                 self.passengerType = None
             elif age <= 2:
                 self.passengerType = "INFANT"
@@ -99,31 +107,35 @@ class Passenger(BasicDataObject):
     def toData(self):
         return {
             "lastName": self.lastName,
-            "lastName": self.lastName,
+            "firstName": self.firstName,
             "gender": self.gender,
             "dateOfBirth": self.dateOfBirth,
             "passengerType": self.passengerType,
             "preferences": self.preferences.toData()
         }
 
+
 class FormOfPayment(BasicDataObject):
     pass
+
 
 class PriceQuote(BasicDataObject):
     pass
 
+
 class TicketingInfo(BasicDataObject):
     pass
 
+
 class Reservation(BasicDataObject):
     def __init__(self):
-        self.itineraries : List[Itinerary] = []
-        self.passengers : List[Passenger] = []
-        self.formOfPayments : List[FormOfPayment] = []
-        self.priceQuotes : List [PriceQuote] = []
-        self.ticketingInfo : TicketingInfo = None
+        self.itineraries: List[Itinerary] = []
+        self.passengers: List[Passenger] = []
+        self.formOfPayments: List[FormOfPayment] = []
+        self.priceQuotes: List[PriceQuote] = []
+        self.ticketingInfo: TicketingInfo = None
 
-    def addItinerary(self, itnr : Itinerary):
+    def addItinerary(self, itnr: Itinerary):
         self.itineraries.append(itnr)
         return self
 
@@ -131,18 +143,18 @@ class Reservation(BasicDataObject):
         self.passengers.append(psgr)
         return self
 
-    def addFormOfPayment(self, fp : FormOfPayment):
+    def addFormOfPayment(self, fp: FormOfPayment):
         self.formOfPayments.append(fp)
         return self
 
     def toData(self):
         return {
-                "itineraries": [i.toData() for i in self.itineraries],
-                "passengers" : [p.toData() for p in self.passengers],
-                "formOfPayments" : [f.toData() for f in self.formOfPayments],
-                "priceQuotes" : [p.toData() for p in self.priceQuotes],
-                "ticketingInfo": self.ticketingInfo.toData() if self.ticketingInfo is not None else {}
-            }
+            "itineraries": [i.toData() for i in self.itineraries],
+            "passengers": [p.toData() for p in self.passengers],
+            "formOfPayments": [f.toData() for f in self.formOfPayments],
+            "priceQuotes": [p.toData() for p in self.priceQuotes],
+            "ticketingInfo": self.ticketingInfo.toData() if self.ticketingInfo is not None else {}
+        }
 
 
 def test_me():
@@ -157,6 +169,7 @@ def test_me():
     secondItinerary = Itinerary("INBOUND")
     r.addItinerary(firstItinerary).addItinerary(secondItinerary)
     print(r.toJson())
+
 
 if __name__ == "__main__":
     test_me()
