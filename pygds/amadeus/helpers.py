@@ -94,7 +94,18 @@ class FormatSoapAmadeus():
         pass
 
     def get_price_quotes(self, display_pnr):
-        pass
+        """ Transform a amadeus json and reponse to json pricequotes infos list"""
+        price_quotes = []
+        try:
+            for data in pricing_record_group["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]['pricingRecordGroup']['productPricingQuotationRecord']:
+                price_quotes_details = {}
+                pricing_record_id = data['pricingRecordId']
+                passenger_tattoos = data['passengerTattoos']
+                total_fare = data['documentDetailsGroup']['totalFare']
+
+        except:
+            price_quotes = None
+        return price_quotes
 
     def get_ticketing_info(self, display_pnr):
         pass
