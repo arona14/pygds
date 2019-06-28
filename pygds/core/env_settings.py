@@ -17,11 +17,13 @@ def load_all():
         _DOT_ENV_LOADED = True
 
 
-def get_setting(key: str, default_value):
+def get_setting(key: str, default_value=None):
     if not is_loaded():
         load_all()
     return os.getenv(key, default_value)
 
 
 if __name__ == "__main__":
+    print('is_loaded: {is_loaded()}')
     load_all()
+    print('is_loaded: {is_loaded()}')
