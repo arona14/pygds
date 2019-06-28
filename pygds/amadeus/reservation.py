@@ -2,19 +2,18 @@
 # This file is for Amadeus reservation classes and functions
 
 import requests
-from amadeus.session import AmadeusSession
-from amadeus.xmlbuilders.builder import AmadeusXMLBuilder
-from amadeus.helpers import FormatSoapAmadeus
-from amadeus.base_service import BaseServiceAmadeus
-from amadues.helpers import FormatSoapAmadeus
+#from amadeus.session import AmadeusSession
+from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
+from pygds.amadeus.base_service import BaseServiceAmadeus
+from .helpers import FormatSoapAmadeus
 
 class AmadeusReservation(BaseServiceAmadeus):
-    """This class contains all the services for manipulation a reservation."""
+    """This class contains all the services for manipulation a reservation.token= 1ED1LY2NGF8EG3LTQIXYZ738HZ"""
 
-    def get(self, pnr, pcc, conversation_id, status_session):
+    def get(self, pcc, conversation_id, status_session):
         """Return the reservation data."""
         try:
-            token_session = AmadeusSession().open(pcc, conversation_id)
+            token_session = "1ED1LY2NGF8EG3LTQIXYZ738HZ" #AmadeusSession().open(pcc, conversation_id)
             get_reservation = AmadeusXMLBuilder().getReservationRQ(pcc, conversation_id, token_session, record_locator, status_session)
             response = requests.post(self.url, data=get_reservation, headers=self.headers)
             to_return_dict = FormatSoapAmadeus().get_reservation_response(response)

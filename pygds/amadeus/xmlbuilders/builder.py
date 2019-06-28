@@ -1,5 +1,5 @@
 from time import gmtime, strftime
-from security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+from pygds.amadeus.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
 class AmadeusXMLBuilder():

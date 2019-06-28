@@ -7,7 +7,7 @@ class FormatSoapAmadeus():
     def soap_service_to_json(self, xml_object):
         """Transform a amadeus soap api response to json format"""
         try:
-            json_data = xmltodict.parse(xml_object)
+            json_data = xmltodict.parse(xml_object)#json.loads(json.dumps(xmltodict.parse(xml_object)))
         except:
             json_data = None
         return json_data
@@ -16,7 +16,7 @@ class FormatSoapAmadeus():
         """ Transform a amadeus json and reponse to json segment list"""
         segments_list = []
         try:
-            for data in origin_destination["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["originDestinationDetails"]["itineraryInfo"]:
+            for data in dispaly_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["originDestinationDetails"]["itineraryInfo"]:
                 segment_data = {}
                 dep_date = data["travelProduct"]["product"]["depDate"]
                 dep_time = data["travelProduct"]["product"]["depTime"]
@@ -38,47 +38,41 @@ class FormatSoapAmadeus():
         return segments_list
 
     def get_passengers(self, dispaly_pnr):
-          """ Transform a amadeus json and reponse to json passergers list"""
+        """ Transform a amadeus json and reponse to json passergers list"""
         passengers_list = []
         try:
-            for data in traveller_info["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["travellerInfo"]["passengerData"]:
+            for data in dispaly_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["travellerInfo"]:
                 passenger_data = {}
-
-                surname = data["travellerInformation"]["traveller"]["surname"]
-                quantity = data["travellerInformation"]["traveller"]["quantity"]
-
-                firstname = data["travellerInformation"]["traveller"]["firstName"]
-                passenger_type = data["travellerInformation"]["traveller"]["type"]
-
-                date = data["dateOfBirth"]["dateAndTimeDetails"]["date"]
-                qualifier = data["dateOfBirth"]["dateAndTimeDetails"]["qualifier"]
-                date_of_birth = f"""{date[0:2]-[date[2:4]]-{date[4:8]}}"""
-
+                surname = data['passengerData']["travellerInformation"]["traveller"]["surname"]
+                quantity = data['passengerData']["travellerInformation"]["traveller"]["quantity"]
+                firstname = data['passengerData']["travellerInformation"]["passenger"]["firstName"]
+                passenger_type = data['passengerData']["travellerInformation"]["passenger"]["type"]
+                date = data['passengerData']["dateOfBirth"]["dateAndTimeDetails"]["date"]
+                qualifier = data['passengerData']["dateOfBirth"]["dateAndTimeDetails"]["qualifier"]
+                date_of_birth = f"""{date[0:2]}-{[date[2:4]]}-{date[4:8]}"""
                 passenger_data['surname'] = surname
                 passenger_data['quantity'] = quantity
                 passenger_data['firstname'] = firstname
                 passenger_data['type']  = passenger_type
                 passenger_data['qualifier'] = qualifier
                 passenger_data['date_of_birth'] = date_of_birth
-
                 passengers_list.append(passenger_data)
         except:
             passengers_list = None
         return passengers_list
 
-
     def get_pnr_infos(self, dispaly_pnr):
-         """ Transform a amadeus json and reponse to json pnr infos list"""
+        """ Transform a amadeus json and reponse to json pnr infos list"""
         pnr_infos = []
         try:
-            for data in pnr_header["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["pnrHeader"]["reservationInfo"]:
+            for data in dispaly_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]["pnrHeader"]["reservationInfo"]:
                 reservation_info = {}
                 company_id = data["reservation"]["companyId"]
 
                 control_number = data["reservation"]["controlNumber"]
                 date = data["reservation"]["date"]
                 time = data["reservation"]["time"]
-                date_time = f""" {date[0:2]-{date[2:4]}-20{date[4:6]}T{time[0:2]}:{time[2:4]}}"""
+                date_time = f""" {date[0:2]}-{date[2:4]}-20{date[4:6]} T {time[0:2]}:{time[2:4]}"""
                 reservation_info['compagny_id'] = company_id
 
                 reservation_info['control_number'] = control_number
@@ -97,7 +91,7 @@ class FormatSoapAmadeus():
         """ Transform a amadeus json and reponse to json pricequotes infos list"""
         price_quotes = []
         try:
-            for data in pricing_record_group["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]['pricingRecordGroup']['productPricingQuotationRecord']:
+            for data in dispaly_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]['pricingRecordGroup']['productPricingQuotationRecord']:
                 price_quotes_details = {}
                 pricing_record_id = data['pricingRecordId']
                 passenger_tattoos = data['passengerTattoos']

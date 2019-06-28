@@ -1,5 +1,5 @@
 from unittest import TestCase
-from amadeus.reservation import AmadeusReservation
+from pygds.amadeus.reservation import AmadeusReservation
 
 class TestAmadeusReservation(TestCase):
 
@@ -10,7 +10,7 @@ class TestAmadeusReservation(TestCase):
         self.status_session ="InSeries"
 
     def test_get(self):
-        result = AmadeusReservation().get(self.pnr, self.pcc, self.conversation_id, self.status_session)
+        result = AmadeusReservation().get(self.pcc, self.conversation_id, self.status_session)
         self.assertIsNotNone(result)
         self.assertNotEquals(result['itineraries'], [])
         self.assertNotEquals(result['passengers'], [])
