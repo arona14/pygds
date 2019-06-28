@@ -1,11 +1,14 @@
 from .core.abstractGDS import AbstractGDS
 from .errors.gdserrors import GDSNotFoundError
 import logging
+
+
 class GDSRegistry(object):
     logger = logging.getLogger("GDSRegistry")
-    #logger.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    # logger.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
     class __GDSRegistry():
-        #logger = GDSRegistry.logger
+        # logger = GDSRegistry.logger
         """
         This inner class is a proxy to implement Singleton Pattern
         """
@@ -56,7 +59,7 @@ class GDSRegistry(object):
         """
         if not GDSRegistry.instance:
             GDSRegistry.instance = GDSRegistry.__GDSRegistry()
-    
+
     def __getattr__(self, name: str):
         """
             This method routes all calls to the Proxy Class
