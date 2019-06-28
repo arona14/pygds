@@ -21,6 +21,10 @@ def generate_created():
     return str(strftime("%Y-%m-%dT%H:%M:%S.%ZZ", gmtime()))
 
 
+def password_digest(password, nonce, created):
+    pass
+
+
 def main():
     nonce = generate_nonce()
     messageId = generate_random_message_id()
