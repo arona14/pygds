@@ -1,13 +1,17 @@
 # sabre config.py test file
 
-from unittest import TestCase
-from pygds.sabre.config import conn, sabre_credentials
+import unittest
+from pygds.sabre import config
 
 
-class TestConfig(TestCase):
+class TestConfig(unittest.TestCase):
     def test_connection_ok(self):
-        self.assertIsNotNone(conn)
+        self.assertIsNotNone(config.conn)
 
     def test_sabre_credentials(self):
-        res = sabre_credentials('WR17')
+        res = config.sabre_credentials('WR17')
         self.assertIsNotNone(res)
+
+
+if __name__ == '__main__':
+    unittest.main()

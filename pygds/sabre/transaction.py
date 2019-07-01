@@ -1,4 +1,6 @@
 # This file will be change for refactoring purpose.
+# TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
+# Note that there is an explicit exemption for
 
 import requests
 
@@ -19,3 +21,11 @@ class SabreTransaction(BaseService):
 
     def ignore(self):
         pass
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

@@ -197,3 +197,11 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

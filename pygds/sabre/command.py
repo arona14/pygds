@@ -1,4 +1,6 @@
 # This file will be change for refactoring purpose.
+# TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
+# Note that there is an explicit exemption for
 
 import requests
 
@@ -30,3 +32,11 @@ class SabreCommand(BaseService):
         if need_close:
             SabreSession().close(pcc, token, conversation_id)
         return send_command
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

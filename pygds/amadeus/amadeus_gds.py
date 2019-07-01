@@ -1,7 +1,7 @@
-from pygds.core.abstract_gds import AbstractGDS
+from pygds.core import abstract_gds
 
 
-class AmadeusGDS(AbstractGDS):
+class AmadeusGDS(abstract_gds.AbstractGDS):
 
     code = "AM"
 

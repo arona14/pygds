@@ -1,14 +1,20 @@
 # factory.py test file
+# TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
+# Note that there is an explicit exemption for
 
-from unittest import TestCase
-from pygds.factory import GDS
+import unittest
+import pygds.factory as factory
 from pygds.sabre.sabre_gds import SabreGDS
 from pygds.amadeus.amadeus_gds import AmadeusGDS
 
 
-class TestFactory(TestCase):
+class TestFactory(unittest.TestCase):
     def test_factory_registration(self):
 
         print(SabreGDS)
         print(AmadeusGDS)
-        self.assertIsNotNone(GDS('sabre').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))
+        self.assertIsNotNone(factory.GDS('sabre').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))
+
+
+if __name__ == '__main__':
+    unittest.main()
