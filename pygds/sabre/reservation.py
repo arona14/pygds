@@ -78,7 +78,8 @@ class SabreReservation(BaseService):
 
 
 def main():
-    pass
+    pnr = SabreReservation().get('YQZMVU', 'WR17', 'factory-test-pygds')
+    print(pnr)
 
 
 if __name__ == '__main__':
