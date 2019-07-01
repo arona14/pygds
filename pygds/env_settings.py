@@ -11,9 +11,8 @@ def is_loaded():
 
 def load_all():
     if not is_loaded():
-        env_path = Path('../..') / '.env'
-        print(f"env_path: {env_path}")
-        load_dotenv()
+        env_path = Path('.') / '.env'
+        load_dotenv(dotenv_path=env_path)
         global _DOT_ENV_LOADED
         _DOT_ENV_LOADED = True
 
