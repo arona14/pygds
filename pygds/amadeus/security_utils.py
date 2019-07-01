@@ -23,7 +23,6 @@ def generate_created():
 
 
 def password_digest(password, nonce, created):
-    print(f"password: {password}, nonce : {nonce}, created: {created}")
     shaPwd = sha1()
     shaPwd.update(password.encode('utf-8'))
     result = sha1()
@@ -32,7 +31,6 @@ def password_digest(password, nonce, created):
     result.update(shaPwd.digest())
     hashed = base64.b64encode(result.digest())
     hashed = str(hashed)[2:-1]
-    print(f"hashed : {hashed}")
     return hashed
 
 
