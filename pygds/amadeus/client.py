@@ -1,6 +1,8 @@
 from .xmlbuilders.builder import AmadeusXMLBuilder
 import requests
-import jxmlease
+import xmltodict
+from jsonpath import jsonpath
+from .errors import ClientError, ServerError
 
 
 class AmadeusClient():
@@ -21,10 +23,14 @@ class AmadeusClient():
         response = requests.post(self.endpoint, data=request_data, headers=headers)
         status = response.status_code
         print(f"{method_name} status: {status}")
-        response_data = jxmlease.parse(response.content)
-#        if status == 500:
-#            # handle errors by building the correspondig Exception object
-#            raise ValueError(f'Error with status {status}')
+        response_data = xmltodict.parse(response.content)
+        if status == 500:
+            # handle errors by building the correspondig Exception object
+            error_element = jsonpath(response_data, "$..soap:Fault[1]")
+            print(f"error_element: {error_element}")
+            raise ServerError(status, error_element.faultcode, error_element.faultstring)
+        elif status == 400:
+            raise ClientError(status, "Client Error")
         return response_data
 
     def start_new_session(self):
