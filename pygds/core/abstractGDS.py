@@ -1,7 +1,5 @@
 # Methods in this class are not complete yet
-
-
-from abc import ABC, abstractmethod
+from abc import ABC  # , abstractmethod
 
 
 class AbstractGDS(ABC):
@@ -43,5 +41,3 @@ class AbstractGDS(ABC):
 
     def update_passenger(self, parameter_list):
         raise NotImplementedError("This method is not yet implemented in the specific GDS")
-
-

@@ -1,6 +1,7 @@
 from unittest import TestCase
 from pygds.gdsregistry import GDSRegistry
 
+
 class RegisterTest(TestCase):
 
     def test_instanciate(self):

@@ -4,10 +4,17 @@ import datetime
 
 
 class BasicDataObject(object):
+    """
+        A basic class that contains data.
+    """
     def toData(self):
+        """
+            Method that returns a dictionary containing useful data. Must be implemented by sub-classes
+        """
         raise NotImplementedError(" this is not yet implemented")
 
     def toJson(self):
+
         return json.dumps(self.toData(), indent=4)
 
 

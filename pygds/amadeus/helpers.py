@@ -7,7 +7,7 @@ class FormatSoapAmadeus():
     def soap_service_to_json(self, xml_object):
         """Transform a amadeus soap api response to json format"""
         try:
-            json_data = json.loads(json.dumps(xmltodict.parse(xml_object))) #xmltodict.parse(xml_object)#
+            json_data = json.loads(json.dumps(xmltodict.parse(xml_object)))  # xmltodict.parse(xml_object)#
         except:
             json_data = None
         return json_data
@@ -53,7 +53,7 @@ class FormatSoapAmadeus():
                 passenger_data['surname'] = surname
                 passenger_data['quantity'] = quantity
                 passenger_data['firstname'] = firstname
-                passenger_data['type']  = passenger_type
+                passenger_data['type'] = passenger_type
                 passenger_data['qualifier'] = qualifier
                 passenger_data['date_of_birth'] = date_of_birth
                 passengers_list.append(passenger_data)
@@ -80,7 +80,6 @@ class FormatSoapAmadeus():
     #         # pnr_infos = None
     #     return pnr_infos
 
-
     # def get_form_of_payments(self, dispaly_pnr):
     #     pass
 
@@ -102,8 +101,9 @@ class FormatSoapAmadeus():
     #     pass
 
     def get_reservation_response(self, xml_object):
+
         """ Builds the object getResevation """
-        reservation_response = {}
+        # reservation_response = {}
         try:
             json_data = self.soap_service_to_json(xml_object)
             # itineraries = self.get_segments(json_data)
