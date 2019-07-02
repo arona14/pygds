@@ -1,10 +1,10 @@
 # This file will be change for refactoring purpose.
 # This file is for Amadeus reservation classes and functions
 import requests
-from xmlbuilders.builder import AmadeusXMLBuilder
+from .xmlbuilders.builder import AmadeusXMLBuilder
 # from amadeus.base_service import BaseServiceAmadeus
 # from amadeus.helpers import FormatSoapAmadeus
-from env_settings_ import get_setting
+from .env_settings_ import get_setting
 
 
 class AmadeusReservation():

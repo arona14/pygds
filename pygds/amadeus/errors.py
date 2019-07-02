@@ -1,4 +1,4 @@
-from errors.gdserrors import GDSError
+from ..errors.gdserrors import GDSError
 
 
 class ClientError(GDSError):

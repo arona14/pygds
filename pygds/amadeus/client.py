@@ -26,9 +26,9 @@ class AmadeusClient():
         response_data = xmltodict.parse(response.content)
         if status == 500:
             # handle errors by building the correspondig Exception object
-            error_element = jsonpath(response_data, "$..soap:Fault[1]")
+            error_element = jsonpath(response_data, "$..soap:Fault")[0]
             print(f"error_element: {error_element}")
-            raise ServerError(status, error_element.faultcode, error_element.faultstring)
+            raise ServerError(status, error_element['faultcode'], error_element['faultstring'])
         elif status == 400:
             raise ClientError(status, "Client Error")
         return response_data
