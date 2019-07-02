@@ -5,11 +5,12 @@ import base64
 import pandas as pd
 
 fterospostgres = {
-    "host": "ec2-35-171-66-64.compute-1.amazonaws.com",
-    "user": "u9d5na024rb5gk",
-    "pwd": "p6c7efd1c875b51bad733a9ee730243755fa16d8763f937ef5a9249a61051b8c7",
-    "db": "dcrr3f58noacr2"
+    "host": "ec2-174-129-227-51.compute-1.amazonaws.com",
+    "user": "fbxukujmusdgza",
+    "pwd": "8b831e68c329940e8a9d66cbd9219d286785a59bad4af76562c536bac3c1207d",
+    "db": "d7nsrrkmige2hd"
 }
+
 try:
     conn = psycopg2.connect(
         f"""host={fterospostgres["host"]} dbname={fterospostgres["db"]} user={fterospostgres["user"]} password={fterospostgres["pwd"]}""")
@@ -37,3 +38,11 @@ def decode_base64(source):
 
 def encode_base64(source):
     return base64.b64encode(source.encode('utf-8')).decode("utf-8")
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()

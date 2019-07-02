@@ -7,7 +7,7 @@ class SabreXMLBuilder:
     def __init__(self):
         self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
 
-    def sessionCreateRQ(self, pcc, user_name, password, conversation_id):
+    def session_create_rq(self, pcc, user_name, password, conversation_id):
         """Return the xml request to create a session."""
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -51,7 +51,7 @@ class SabreXMLBuilder:
                 </soap-env:Body>
             </soap-env:Envelope>"""
 
-    def sessionCloseRQ(self, pcc, token, conversation_id):
+    def session_close_rq(self, pcc, token, conversation_id):
         """Return the xml request to close a session."""
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -85,7 +85,7 @@ class SabreXMLBuilder:
                 </SOAP-ENV:Body>
             </SOAP-ENV:Envelope>"""
 
-    def endTransactionRQ(self, pcc, token, conversation_id):
+    def end_transaction_rq(self, pcc, token, conversation_id):
 
         """ end transaction xml"""
 
@@ -119,10 +119,10 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def ignoreTransactionRQ(self):
+    def ignore_transaction_rq(self):
         pass
 
-    def sabreCommandLLSRQ(self, pcc, token, conversation_id, command):
+    def sabre_command_lls_rq(self, pcc, token, conversation_id, command):
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -156,7 +156,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def getReservationRQ(self, pcc, conversation_id, token, record_locator):
+    def get_reservation_rq(self, pcc, conversation_id, token, record_locator):
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -197,3 +197,11 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
