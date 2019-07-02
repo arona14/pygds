@@ -1,5 +1,5 @@
 from time import gmtime, strftime
-from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+from security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
 class AmadeusXMLBuilder():
@@ -13,9 +13,9 @@ class AmadeusXMLBuilder():
         self.username = username
         self.wsap = wsap
         self.office_id = office_id
-        # self.created_date_time = generate_created()
-        # self.nonce = generate_nonce()
-        # self.digested_password = password_digest(password, self.nonce, self.created_date_time)
+        self.created_date_time = generate_created()
+        self.nonce = generate_nonce()
+        self.digested_password = password_digest(password, self.nonce, self.created_date_time)
 
     def new_transaction_chunk(self, office_id, username, nonce, digested_password, created_date_time):
         return f"""
@@ -70,40 +70,52 @@ class AmadeusXMLBuilder():
         </soapenv:Envelope>
         """
 
-    def getReservationRQ(self, pcc, conversation_id, token, record_locator, new_session=True):
+    def getReservationRQ(self, office_id, message_id, token, pnr_number, new_session=True):
         """
         Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
-        if conversation_id is None:
-            conversation_id = generate_random_message_id("GETPNR-")
-        if new_session:
-            status_session = "Start"
-            security_part = self.new_transaction_chunk(self.username, self.nonce, self.password_digest)
-        else:
-            status_session = "InSeries"
-            security_part = self.continue_transaction_chunk("", "", token)
+        # if message_id is None:
+        #     message_id = generate_random_message_id("GETPNR-")
+        # if new_session:
+        #     status_session = "Start"
+        #     security_part = self.new_transaction_chunk(self.username, self.nonce, self.digested_password)
+        # else:
+        #     status_session = "InSeries"
+        #     security_part = self.continue_transaction_chunk("", "", token)
+
+
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-            <add:MessageID>{conversation_id}</add:MessageID>
-            <add:Action>http://webservices.amadeus.com/PNRRET_17_1_1A</add:Action>
-            <add:To>{self.endpoint}/{self.wsap}</add:To>
-                {security_part}
-            <awsse:Session TransactionStatusCode="{status_session}" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"/>
-            </soapenv:Header>
-            <soapenv:Body>
-                <PNR_Retrieve>
-                    <retrievalFacts>
-                        <retrieve>
-                        <type>2</type>
-                        </retrieve>
-                        <reservationOrProfileIdentifier>
-                        <reservation>
-                            <controlNumber>{record_locator}</controlNumber>
-                        </reservation>
-                        </reservationOrProfileIdentifier>
-                    </retrievalFacts>
-                </PNR_Retrieve>
-            </soapenv:Body>
-        </soapenv:Envelope>
+   <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+	<add:MessageID>{message_id}</add:MessageID>
+	<add:Action>http://webservices.amadeus.com/PNRRET_17_1_1A</add:Action>
+	<add:To>{self.endpoint}/{self.wsap}</add:To>
+	<oas:Security xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:oas1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+		<oas:UsernameToken oas1:Id="UsernameToken-1">
+			<oas:Username>{self.username}</oas:Username>
+			<oas:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">{self.nonce}</oas:Nonce>
+			<oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">{self.digested_password}</oas:Password>
+			<oas1:Created>{self.created_date_time}</oas1:Created>
+		</oas:UsernameToken>
+	</oas:Security>
+	<AMA_SecurityHostedUser xmlns="http://xml.amadeus.com/2010/06/Security_v1">
+		<UserID AgentDutyCode="SU" RequestorType="U" PseudoCityCode="{office_id}" POS_Type="1"/>
+	</AMA_SecurityHostedUser>
+	<awsse:Session TransactionStatusCode="Start" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"/>
+</soapenv:Header>
+   <soapenv:Body>
+      <PNR_Retrieve>
+         <retrievalFacts>
+            <retrieve>
+               <type>2</type>
+            </retrieve>
+            <reservationOrProfileIdentifier>
+               <reservation>
+                  <controlNumber>{pnr_number}</controlNumber>
+               </reservation>
+            </reservationOrProfileIdentifier>
+         </retrievalFacts>
+      </PNR_Retrieve>
+   </soapenv:Body>
+</soapenv:Envelope>
         """
