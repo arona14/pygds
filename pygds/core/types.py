@@ -14,11 +14,16 @@ class BasicDataObject(object):
         raise NotImplementedError(" this is not yet implemented")
 
     def toJson(self):
-
+        """
+            Dumps the object to json string
+        """
         return json.dumps(self.toData(), indent=4)
 
 
 class FlightPointDetails(BasicDataObject):
+    """
+        Information about flight point details (on departure or arrival)
+    """
     def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None, gate: str = None, terminal: str = None):
         self.date = date
         self.time = time
@@ -41,6 +46,9 @@ class FlightPointDetails(BasicDataObject):
 
 
 class FlightSegment(BasicDataObject):
+    """
+        Holds information about a segment
+    """
     def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
         self.sequence = sequence
         self.departure = departure
@@ -63,12 +71,18 @@ class FlightSegment(BasicDataObject):
 
 
 class Itinerary(BasicDataObject):
+    """
+        Holds information about an itinerary
+    """
     def __init__(self, itineraryType: str = None):
         self.segments: List[FlightSegment] = []
         self.itineraryType = itineraryType
         self.elapsedTime = None
 
     def addSegment(self, segment: FlightSegment):
+        """
+            Adds a new segment to an itinerary
+        """
         self.segments.append(segment)
         return self
 
@@ -81,6 +95,9 @@ class Itinerary(BasicDataObject):
 
 
 class PassengerPreferences(BasicDataObject):
+    """
+        This is for holding preferences of a passenger
+    """
     def __init__(self, prefs: dict = {}):
         self.prefs = prefs
 
@@ -89,6 +106,9 @@ class PassengerPreferences(BasicDataObject):
 
 
 class Passenger(BasicDataObject):
+    """
+        A class to keep information about a passenger
+    """
     def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None, passengerType: str = None, preferences=None):
         self.firstName = firstName
         self.lastName = lastName
@@ -99,6 +119,9 @@ class Passenger(BasicDataObject):
         self.retrievePassengerType()
 
     def retrievePassengerType(self):
+        """
+            This method retrieves the passenger type from the age
+        """
         if self.dateOfBirth is not None:
             age = datetime.date.today() - datetime.date.fromisoformat(self.dateOfBirth)
             age = age.days / 365
@@ -123,18 +146,30 @@ class Passenger(BasicDataObject):
 
 
 class FormOfPayment(BasicDataObject):
+    """
+        Keeps information about form of payments
+    """
     pass
 
 
 class PriceQuote(BasicDataObject):
+    """
+        This is to represent a price quote object
+    """
     pass
 
 
 class TicketingInfo(BasicDataObject):
+    """
+        Represents a ticketing information
+    """
     pass
 
 
 class Reservation(BasicDataObject):
+    """
+        A class to keep all data about reservation
+    """
     def __init__(self):
         self.itineraries: List[Itinerary] = []
         self.passengers: List[Passenger] = []
@@ -143,14 +178,23 @@ class Reservation(BasicDataObject):
         self.ticketingInfo: TicketingInfo = None
 
     def addItinerary(self, itnr: Itinerary):
+        """
+            Add a new itinerary to the reservation
+        """
         self.itineraries.append(itnr)
         return self
 
     def addPassenger(self, psgr: Passenger):
+        """
+            Adding passenger to the reservation
+        """
         self.passengers.append(psgr)
         return self
 
     def addFormOfPayment(self, fp: FormOfPayment):
+        """
+            Add a form of payment to the reservation
+        """
         self.formOfPayments.append(fp)
         return self
 
@@ -165,6 +209,9 @@ class Reservation(BasicDataObject):
 
 
 def test_me():
+    """
+        This function is for testing purpose. It would be removed later.
+    """
     r = Reservation()
     p1 = Passenger("Mariama", "KHAN", "F", "2017-03-23", preferences={"hublot": True, "alchol": False})
     p2 = Passenger("Elodie", "DIOUF", "F", "1987-04-04")
