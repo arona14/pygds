@@ -32,6 +32,8 @@ def password_digest(password: str, nonce: str, created: str):
     """
         Digest a password as needed by Amadeus. The digest is based on password, nonce and created datetie
     """
+    if None in (password, nonce, created):
+        raise ValueError("password, nonce or created cannot be null")
     shaPwd = sha1()
     shaPwd.update(password.encode('utf-8'))
     result = sha1()
