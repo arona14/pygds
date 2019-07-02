@@ -16,5 +16,5 @@ def test():
     print(str(res))
 
 
-if __name__ == "__main__":
-    test()
+# if __name__ == "__main__":
+#     test()

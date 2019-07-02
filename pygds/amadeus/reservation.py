@@ -1,6 +1,5 @@
 # This file will be change for refactoring purpose.
 # This file is for Amadeus reservation classes and functions
-
 import requests
 from xmlbuilders.builder import AmadeusXMLBuilder
 #from amadeus.base_service import BaseServiceAmadeus
