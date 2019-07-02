@@ -2,7 +2,7 @@ from time import gmtime, strftime
 from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
-class AmadeusXMLBuilder():
+class AmadeusXMLBuilder:
     """
     This class is for generating the needed XML for SOAP requests
     """

@@ -7,17 +7,17 @@ class BasicDataObject(object):
     """
         A basic class that contains data.
     """
-    def toData(self):
+    def to_data(self):
         """
             Method that returns a dictionary containing useful data. Must be implemented by sub-classes
         """
         raise NotImplementedError(" this is not yet implemented")
 
-    def toJson(self):
+    def to_json(self):
         """
             Dumps the object to json string
         """
-        return json.dumps(self.toData(), indent=4)
+        return json.dumps(self.to_data(), indent=4)
 
 
 class FlightPointDetails(BasicDataObject):
@@ -33,7 +33,7 @@ class FlightPointDetails(BasicDataObject):
         self.gate = gate
         self.terminal = terminal
 
-    def toData(self):
+    def to_data(self):
         return {
             "date": self.date,
             "time": self.time,
@@ -58,11 +58,11 @@ class FlightSegment(BasicDataObject):
         self.classOfService = classOfService
         self.elapsedTime = elapsedTime
 
-    def toData(self):
+    def to_data(self):
         return {
             "sequence": self.sequence,
-            "departure": self.departure.toData() if self.departure is not None else {},
-            "arrival": self.arrival.toData() if self.arrival is not None else {},
+            "departure": self.departure.to_data() if self.departure is not None else {},
+            "arrival": self.arrival.to_data() if self.arrival is not None else {},
             "airline": self.airline,
             "flightNumber": self.flightNumber,
             "classOfService": self.classOfService,
@@ -86,9 +86,9 @@ class Itinerary(BasicDataObject):
         self.segments.append(segment)
         return self
 
-    def toData(self):
+    def to_data(self):
         return {
-            "segments": [s.toData() for s in self.segments],
+            "segments": [s.to_data() for s in self.segments],
             "itineraryType": self.itineraryType,
             "elapsedTime": self.elapsedTime
         }
@@ -101,7 +101,7 @@ class PassengerPreferences(BasicDataObject):
     def __init__(self, prefs: dict = {}):
         self.prefs = prefs
 
-    def toData(self):
+    def to_data(self):
         return self.prefs
 
 
@@ -134,14 +134,14 @@ class Passenger(BasicDataObject):
             else:
                 self.passengerType = "ADULT"
 
-    def toData(self):
+    def to_data(self):
         return {
             "lastName": self.lastName,
             "firstName": self.firstName,
             "gender": self.gender,
             "dateOfBirth": self.dateOfBirth,
             "passengerType": self.passengerType,
-            "preferences": self.preferences.toData()
+            "preferences": self.preferences.to_data()
         }
 
 
@@ -198,13 +198,13 @@ class Reservation(BasicDataObject):
         self.formOfPayments.append(fp)
         return self
 
-    def toData(self):
+    def to_data(self):
         return {
-            "itineraries": [i.toData() for i in self.itineraries],
-            "passengers": [p.toData() for p in self.passengers],
-            "formOfPayments": [f.toData() for f in self.formOfPayments],
-            "priceQuotes": [p.toData() for p in self.priceQuotes],
-            "ticketingInfo": self.ticketingInfo.toData() if self.ticketingInfo is not None else {}
+            "itineraries": [i.to_data() for i in self.itineraries],
+            "passengers": [p.to_data() for p in self.passengers],
+            "formOfPayments": [f.to_data() for f in self.formOfPayments],
+            "priceQuotes": [p.to_data() for p in self.priceQuotes],
+            "ticketingInfo": self.ticketingInfo.to_data() if self.ticketingInfo is not None else {}
         }
 
 
@@ -222,7 +222,7 @@ def test_me():
     firstItinerary.addSegment(FlightSegment(1, dep, arr, "AA", "1998", "B", "01.54"))
     secondItinerary = Itinerary("INBOUND")
     r.addItinerary(firstItinerary).addItinerary(secondItinerary)
-    print(r.toJson())
+    print(r.to_json())
 
 
 if __name__ == "__main__":
