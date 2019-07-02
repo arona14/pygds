@@ -51,7 +51,6 @@ class AbstractGDS(metaclass=abc.ABCMeta):
     def update_passenger(self, parameter_list):
         raise NotImplementedError("This method is not yet implemented in the specific GDS")
 
-
     @staticmethod
     def of(key: str):
         """
