@@ -18,9 +18,38 @@ class AbstractGDS(metaclass=abc.ABCMeta):
         self.gds_name = name
         super().__init__()
 
-    @abc.abstractmethod
+    def search_flights(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
     def get_reservation(self, pnr: str, pcc: str, conversation_id: str):
-        pass
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def create_reservation(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def price(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def ticket(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def void(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def cancel(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def exchange_segment(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def refund(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def rebook_segment(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
+
+    def update_passenger(self, parameter_list):
+        raise NotImplementedError("This method is not yet implemented in the specific GDS")
 
     @staticmethod
     def of(key: str):
