@@ -932,9 +932,9 @@ class TestFormatSoapAmadeus(TestCase):
         result = FormatSoapAmadeus().get_segments(self.json_object)
         self.assertIsNotNone(result)
 
-    def test_get_passengers(self):
-        result = FormatSoapAmadeus().get_passengers(self.json_object)
-        self.assertIsNotNone(result)
+    # def test_get_passengers(self):
+    #     result = FormatSoapAmadeus().get_passengers(self.json_object)
+    #     self.assertIsNotNone(result)
 
     # def test_get_pnr_infos(self):
     #     result = FormatSoapAmadeus().get_pnr_infos(self.json_object)

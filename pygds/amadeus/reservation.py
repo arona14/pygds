@@ -2,13 +2,12 @@
 # This file is for Amadeus reservation classes and functions
 import requests
 from .xmlbuilders.builder import AmadeusXMLBuilder
-# from amadeus.base_service import BaseServiceAmadeus
-# from amadeus.helpers import FormatSoapAmadeus
+from .helpers import FormatSoapAmadeus
 from .env_settings_ import get_setting
 
 
-class AmadeusReservation():
-    """This class contains all the services for manipulation a reservation.token= 1ED1LY2NGF8EG3LTQIXYZ738HZ"""
+class AmadeusReservation:
+    """The class contains the functions that make getReservation for example the get function which is responsible for sending us a pnr"""
 
     def get(self, pcc, conversation_id, status_session):
         """Return the reservation data."""
@@ -17,15 +16,15 @@ class AmadeusReservation():
         endpoint = get_setting("AMADEUS_ENDPOINT_URL")
         username = get_setting("AMADEUS_USERNAME")
         password = get_setting("AMADEUS_PASSWORD")
-        office_id = "DTW1S210B"  # get_setting("AMADEUS_OFFICE_ID")
+        office_id = "DTW1S210B" 
         wsap = get_setting("AMADEUS_WSAP")
         record_locator = "RLIQBP"
+        Token_session = "26K97CWQWTL9F1PP67LMZHJSXC"
         try:
-            token_session = "26K97CWQWTL9F1PP67LMZHJSXC"  # AmadeusSession().open(pcc, conversation_id)
+            token_session = Token_session#AmadeusSession().open(pcc, conversation_id)
             get_reservation = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap).getReservationRQ(pcc, conversation_id, token_session, record_locator, status_session)
-            # print(get_reservation)
             response = requests.post(url, data=get_reservation, headers=header)
-            to_return_dict = response.content  # FormatSoapAmadeus().get_reservation_response(response)
+            to_return_dict = FormatSoapAmadeus().get_reservation_response(response.content)
         except Exception as e:
             print(e)
             # TODO: Capture the real exception not the general one

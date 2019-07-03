@@ -14,7 +14,5 @@ class TestAmadeusReservation(TestCase):
     def test_get(self):
         result = AmadeusReservation().get(self.pcc, self.conversation_id, self.status_session)
         self.assertTrue(isinstance(result, object))
-        # self.assertIsNotNone(result)
-        # self.assertNotEquals(result['itineraries'], [])
-        # self.assertNotEquals(result['passengers'], [])
-        # self.assertNotEquals(result['form_of_payments'], [])
+        self.assertIsNotNone(result)
+
