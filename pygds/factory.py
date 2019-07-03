@@ -1,23 +1,16 @@
-from pygds.sabre.sabreGDS import SabreGDS
-from pygds.amadeus.amadeusGDS import AmadeusGDS
-from .core.abstractGDSFactory import AbstractGDSFactory
+from pygds.core import abstract_gds as abs_gds
+from pygds.core import abstract_factory as abs_factory
 
 
-class GDS(AbstractGDSFactory):
+class GDS(abs_factory.AbstractFactory):
 
     def __init__(self, gds: str):
-        if gds.upper() == 'SABRE':
-            super(GDS, self).__init__(SabreGDS())
+        super().__init__(abs_gds.AbstractGDS.of(gds)())
 
-        elif gds.upper() == 'AMADEUS':
-            super(GDS, self).__init__(AmadeusGDS())
 
-        else:
-            super(GDS, self).__init__()
+def main():
+    pass
 
-    def get_reservation(self, pnr):
-        if self.gds_handler is not None:
-            self.gds_handler.get_reservation(pnr)
 
-        else:
-            raise NotImplementedError
+if __name__ == '__main__':
+    main()

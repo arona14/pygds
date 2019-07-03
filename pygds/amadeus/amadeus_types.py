@@ -1,4 +1,4 @@
-class AmadeusSessionInfo():
+class AmadeusSessionInfo:
     """
     This class is for containing information for a session
     """
