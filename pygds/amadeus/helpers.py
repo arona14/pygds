@@ -13,7 +13,7 @@ class FormatSoapAmadeus:
     def soap_service_to_json(self, xml_object):
         """Transform a amadeus soap api response to json format"""
         try:
-            json_data = json.loads(json.dumps(xmltodict.parse(xml_object)))  
+            json_data = json.loads(json.dumps(xmltodict.parse(xml_object)))
         except:
             json_data = None
         return json_data
@@ -93,12 +93,15 @@ class FormatSoapAmadeus:
         """ Transform a amadeus json and reponse to json pricequotes infos list"""
         price_quotes = []
         try:
-            for data in dispaly_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]['pricingRecordGroup']['productPricingQuotationRecord']:
+            for data in display_pnr["soapenv:Envelope"]["soapenv:Body"]["PNR_Reply"]['pricingRecordGroup']['productPricingQuotationRecord']:
                 price_quotes_details = {}
                 pricing_record_id = data['pricingRecordId']
                 passenger_tattoos = data['passengerTattoos']
                 total_fare = data['documentDetailsGroup']['totalFare']
-
+                price_quotes_details['pricing_record_id'] = pricing_record_id
+                price_quotes_details['passenger_tattoos'] = passenger_tattoos
+                price_quotes_details['total_fare'] = total_fare
+                price_quotes.append(price_quotes_details)
         except:
             price_quotes = None
         return price_quotes

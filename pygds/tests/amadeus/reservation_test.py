@@ -15,4 +15,3 @@ class TestAmadeusReservation(TestCase):
         result = AmadeusReservation().get(self.pcc, self.conversation_id, self.status_session)
         self.assertTrue(isinstance(result, object))
         self.assertIsNotNone(result)
-

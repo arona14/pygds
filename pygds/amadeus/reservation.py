@@ -3,7 +3,7 @@
 import requests
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .helpers import FormatSoapAmadeus
-from .env_settings_ import get_setting
+from ..env_settings import get_setting
 
 
 class AmadeusReservation:
@@ -16,12 +16,12 @@ class AmadeusReservation:
         endpoint = get_setting("AMADEUS_ENDPOINT_URL")
         username = get_setting("AMADEUS_USERNAME")
         password = get_setting("AMADEUS_PASSWORD")
-        office_id = "DTW1S210B" 
+        office_id = "DTW1S210B"
         wsap = get_setting("AMADEUS_WSAP")
         record_locator = "RLIQBP"
         Token_session = "26K97CWQWTL9F1PP67LMZHJSXC"
         try:
-            token_session = Token_session#AmadeusSession().open(pcc, conversation_id)
+            token_session = Token_session
             get_reservation = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap).getReservationRQ(pcc, conversation_id, token_session, record_locator, status_session)
             response = requests.post(url, data=get_reservation, headers=header)
             to_return_dict = FormatSoapAmadeus().get_reservation_response(response.content)
