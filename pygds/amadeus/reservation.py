@@ -19,7 +19,7 @@ class AmadeusReservation:
         office_id = "DTW1S210B"
         wsap = get_setting("AMADEUS_WSAP")
         record_locator = "RLIQBP"
-        Token_session = "26K97CWQWTL9F1PP67LMZHJSXC"
+        Token_session = "3NW981XMP9CCJ2WBTJMC7R0DHW"
         try:
             token_session = Token_session
             get_reservation = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap).getReservationRQ(pcc, conversation_id, token_session, record_locator, status_session)
@@ -38,6 +38,7 @@ def test():
         This is just for testing and needs to be removed after
     """
     office_id = get_setting("AMADEUS_OFFICE_ID")
+    conversation_id = "S32B6N"
     pnr = "QK2W23"
     status_session = True
     print(AmadeusReservation().get(office_id, pnr, status_session))

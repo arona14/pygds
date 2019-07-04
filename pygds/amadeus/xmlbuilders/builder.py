@@ -1,5 +1,5 @@
 from time import gmtime, strftime
-from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+from security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
 class AmadeusXMLBuilder:
@@ -268,126 +268,69 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def add_form_of_payment(self,):
+    def add_form_of_payment(self,message_id,session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code,carte_number, security_id, expiry_date):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
-        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
+        return f"""
+       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-	<add:MessageID>WbsConsu-lhzuXv0CuR0gcq66YScOwl4xbkOnvsY-Bkg74GrvY</add:MessageID>
+	<add:MessageID>{message_id}</add:MessageID>
 	<add:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</add:Action>
-	<add:To>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</add:To>
-	<awsse:Session TransactionStatusCode="InSeries" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
-		<awsse:SessionId>019Y0HX78L</awsse:SessionId>
-		<awsse:SequenceNumber>3</awsse:SequenceNumber>
-		<awsse:SecurityToken>3IUOX1CTOIVMU1V0M3YHOKWZEZ</awsse:SecurityToken>
-	</awsse:Session>
+	<add:To>{self.endpoint}/{self.wsap}</add:To>
+    {security_part}
 </soapenv:Header>
    <soapenv:Body>
       <FOP_CreateFormOfPayment>
          <transactionContext>
             <transactionDetails>
-               <code>FP</code>
+            <code>{form_of_payment}</code>
             </transactionDetails>
          </transactionContext>
          <fopGroup>
             <fopReference></fopReference>
             <passengerAssociation>
                <passengerReference>
-                  <type>PAX</type>
-                  <value>3</value>
+                  <type>{passenger_reference_type}</type>
+                  <value>{passenger_reference_value}</value>
                </passengerReference>
             </passengerAssociation>
             <mopDescription>
                <fopSequenceNumber>
                   <sequenceDetails>
-                     <number>1</number>
+                     <number>{form_of_payment_sequence_number}</number>
                   </sequenceDetails>
                </fopSequenceNumber>
                <mopDetails>
                   <fopPNRDetails>
                      <fopDetails>
-                        <fopCode>CCVI</fopCode>
+                        <fopCode>{form_of_payment_code}</fopCode>
                      </fopDetails>
                   </fopPNRDetails>
                </mopDetails>
                <paymentModule>
                   <groupUsage>
                      <attributeDetails>
-                        <attributeType>FP</attributeType>
+                        <attributeType>{group_usage_attribute_type}</attributeType>
                      </attributeDetails>
                   </groupUsage>
                   <paymentData>
                      <merchantInformation>
-                        <companyCode>AF</companyCode>
+                        <companyCode>{company_code}</companyCode>
                      </merchantInformation>
                   </paymentData>
                   <mopInformation>
                      <fopInformation>
                         <formOfPayment>
-                           <type>CC</type>
+                           <type>{form_of_payment_type}</type>
                         </formOfPayment>
                      </fopInformation>
                      <dummy/>
                      <creditCardData>
                         <creditCardDetails>
                            <ccInfo>
-                              <vendorCode>VI</vendorCode>
-                              <cardNumber>4988438843884305</cardNumber>
-                              <securityId>737</securityId>
-                              <expiryDate>1020</expiryDate>
-                           </ccInfo>
-                        </creditCardDetails>
-                     </creditCardData>
-                  </mopInformation>
-                  <dummy/>
-               </paymentModule>
-            </mopDescription>
-         </fopGroup>
-         <fopGroup>
-            <fopReference></fopReference>
-            <passengerAssociation>
-               <passengerReference>
-                  <type>PAX</type>
-                  <value>2</value>
-               </passengerReference>
-            </passengerAssociation>
-            <mopDescription>
-               <fopSequenceNumber>
-                  <sequenceDetails>
-                     <number>1</number>
-                  </sequenceDetails>
-               </fopSequenceNumber>
-               <mopDetails>
-                  <fopPNRDetails>
-                     <fopDetails>
-                        <fopCode>CCCA</fopCode>
-                     </fopDetails>
-                  </fopPNRDetails>
-               </mopDetails>
-               <paymentModule>
-                  <groupUsage>
-                     <attributeDetails>
-                        <attributeType>FP</attributeType>
-                     </attributeDetails>
-                  </groupUsage>
-                  <paymentData>
-                     <merchantInformation>
-                        <companyCode>AF</companyCode>
-                     </merchantInformation>
-                  </paymentData>
-                  <mopInformation>
-                     <fopInformation>
-                        <formOfPayment>
-                           <type>CC</type>
-                        </formOfPayment>
-                     </fopInformation>
-                     <dummy/>
-                     <creditCardData>
-                        <creditCardDetails>
-                           <ccInfo>
-                              <vendorCode>CA</vendorCode>
-                              <cardNumber>5100290029002909</cardNumber>
-                              <securityId>737</securityId>
-                              <expiryDate>1020</expiryDate>
+                              <vendorCode>{vendor_code}</vendorCode>
+                              <cardNumber>{carte_number}</cardNumber>
+                              <securityId>{security_id}</securityId>
+                              <expiryDate>{expiry_date}</expiryDate>
                            </ccInfo>
                         </creditCardDetails>
                      </creditCardData>
@@ -398,4 +341,28 @@ class AmadeusXMLBuilder:
          </fopGroup>
       </FOP_CreateFormOfPayment>
    </soapenv:Body>
-</soapenv:Envelope>"""
+</soapenv:Envelope>
+"""
+    def add_ticket_pnr(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+   <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+	<add:MessageID>{message_id}</add:MessageID>
+	<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
+	<add:To>{self.endpoint}/{self.wsap}</add:To>
+    {security_part}
+</soapenv:Header>
+   <soapenv:Body>
+
+<DocIssuance_IssueTicket>
+  <paxSelection>
+    <passengerReference>
+      <type>{passenger_reference_type}</type>
+      <value>{passenger_reference_value}</value>
+    </passengerReference>
+  </paxSelection>
+</DocIssuance_IssueTicket>
+   </soapenv:Body>
+</soapenv:Envelope>
+        """
