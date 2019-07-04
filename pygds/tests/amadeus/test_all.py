@@ -1,9 +1,14 @@
+"""
+    This is for testing purposes like a suite.
+"""
+
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
 
 
 def test():
+    """ A suite of tests """
     endpoint = get_setting("AMADEUS_ENDPOINT_URL")
     username = get_setting("AMADEUS_USERNAME")
     password = get_setting("AMADEUS_PASSWORD")
