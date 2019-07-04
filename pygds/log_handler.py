@@ -13,15 +13,16 @@ def load_file_config(file_name: str):
         logging.config.dictConfig(config)
 
 
-def getLogger(name: str):
+def get_logger(name: str):
     """
+        Get a logger with a given name
     """
     return logging.getLogger(name)
 
 
 def test_logger():
     load_file_config('../log_config.yml')
-    log = getLogger("TestClass")
+    log = get_logger("TestClass")
     log.debug("1- This is a debug")
     log.info("2- This is a info")
     log.warning("3- This is a warn")
