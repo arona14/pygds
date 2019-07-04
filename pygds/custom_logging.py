@@ -2,16 +2,25 @@ import logging
 import logging.config
 import yaml
 
-with open('../log_config.yml', 'r') as f:
-    config = yaml.safe_load(f.read())
-    logging.config.dictConfig(config)
+
+def load_file_config(file_name: str):
+    """
+        This function loads a log config file.
+        To read more about the structure of the log file see https://realpython.com/python-logging/#other-configuration-methods
+    """
+    with open(file_name, 'r') as f:
+        config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
 
 
 def getLogger(name: str):
+    """
+    """
     return logging.getLogger(name)
 
 
 def test_logger():
+    load_file_config('../log_config.yml')
     log = getLogger("TestClass")
     log.debug("1- This is a debug")
     log.info("2- This is a info")
