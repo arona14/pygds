@@ -50,6 +50,14 @@ class AmadeusClient:
         seq, tok, ses = xmlparser.extract_single_elements(response_data, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()")
         return AmadeusSessionInfo(tok, seq, ses)
 
+    def get_reservation(self, pcc, conversation_id, token_session, record_locator, end_session=True):
+        """
+            Return the reservation data from PNR.
+        """
+        request_data = self.xmlbuilder.get_reservation_builder(pcc, conversation_id, token_session, record_locator, end_session)
+        response_data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
+        return response_data
+
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         """
             A method for searching prices of an itinerary
