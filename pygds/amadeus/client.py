@@ -1,8 +1,10 @@
-from .xmlbuilders.builder import AmadeusXMLBuilder
+# coding: utf-8
 import requests
-import xmltodict
-from jsonpath import jsonpath
+from ..core import xmlparser
+
 from .errors import ClientError, ServerError
+from .xmlbuilders.builder import AmadeusXMLBuilder
+from .amadeus_types import AmadeusSessionInfo
 
 
 class AmadeusClient:
@@ -30,12 +32,11 @@ class AmadeusClient:
         response = requests.post(self.endpoint, data=request_data, headers=headers)
         status = response.status_code
         print(f"{method_name} status: {status}")
-        response_data = xmltodict.parse(response.content)
+        response_data = xmlparser.parse_xml(response.content)
         if status == 500:
-            # handle errors by building the correspondig Exception object
-            error_element = jsonpath(response_data, "$..soap:Fault")[0]
-            print(f"error_element: {error_element}")
-            raise ServerError(status, error_element['faultcode'], error_element['faultstring'])
+            faultcode, faultstring = xmlparser.extract_single_elements(response_data, "//faultcode/text()", "//faultstring/text()")
+            print(f"faultcode: {faultcode}, faultstring: {faultstring}")
+            raise ServerError(status, faultcode, faultstring)
         elif status == 400:
             raise ClientError(status, "Client Error")
         return response_data
@@ -46,6 +47,15 @@ class AmadeusClient:
         """
         request_data = self.xmlbuilder.start_transaction(None, self.office_id, self.username, self.password, None, None)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
+        seq, tok, ses = xmlparser.extract_single_elements(response_data, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()")
+        return AmadeusSessionInfo(tok, seq, ses)
+
+    def get_reservation(self, pcc, conversation_id, token_session, record_locator, end_session=True):
+        """
+            Return the reservation data from PNR.
+        """
+        request_data = self.xmlbuilder.get_reservation_builder(pcc, conversation_id, token_session, record_locator, end_session)
+        response_data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
         return response_data
 
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):

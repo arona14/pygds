@@ -84,7 +84,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def getReservationRQ(self, office_id, message_id, token, pnr_number, new_session=True):
+    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True):
         """
         Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
