@@ -22,7 +22,7 @@ class AmadeusReservation:
         Token_session = "3NW981XMP9CCJ2WBTJMC7R0DHW"
         try:
             token_session = Token_session
-            get_reservation = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap).getReservationRQ(pcc, conversation_id, token_session, record_locator, status_session)
+            get_reservation = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap).get_reservation_builder(pcc, conversation_id, token_session, record_locator, status_session)
             response = requests.post(url, data=get_reservation, headers=header)
             to_return_dict = FormatSoapAmadeus().get_reservation_response(response.content)
         except Exception as e:
@@ -38,7 +38,6 @@ def test():
         This is just for testing and needs to be removed after
     """
     office_id = get_setting("AMADEUS_OFFICE_ID")
-    conversation_id = "S32B6N"
     pnr = "QK2W23"
     status_session = True
     print(AmadeusReservation().get(office_id, pnr, status_session))

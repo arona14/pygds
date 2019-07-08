@@ -1,5 +1,5 @@
 from time import gmtime, strftime
-from security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
 class AmadeusXMLBuilder:
@@ -84,19 +84,10 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True):
+    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True): 
         """
-        Create XML request body for SOAP Operation getReservation. We use a given endpoint
+            Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
-        # if message_id is None:
-        #     message_id = generate_random_message_id("GETPNR-")
-        # if new_session:
-        #     status_session = "Start"
-        #     security_part = self.new_transaction_chunk(self.username, self.nonce, self.digested_password)
-        # else:
-        #     status_session = "InSeries"
-        #     security_part = self.continue_transaction_chunk("", "", token)
-
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -268,16 +259,16 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def add_form_of_payment(self,message_id,session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code,carte_number, security_id, expiry_date):
+    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-	<add:MessageID>{message_id}</add:MessageID>
-	<add:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</add:Action>
-	<add:To>{self.endpoint}/{self.wsap}</add:To>
-    {security_part}
-</soapenv:Header>
+   <add:MessageID>{message_id}</add:MessageID>
+   <add:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</add:Action>
+   <add:To>{self.endpoint}/{self.wsap}</add:To>
+   {security_part}
+   </soapenv:Header>
    <soapenv:Body>
       <FOP_CreateFormOfPayment>
          <transactionContext>
@@ -341,20 +332,19 @@ class AmadeusXMLBuilder:
          </fopGroup>
       </FOP_CreateFormOfPayment>
    </soapenv:Body>
-</soapenv:Envelope>
+   </soapenv:Envelope>
 """
-    def add_ticket_pnr(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
+
+    def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-   <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
 	<add:MessageID>{message_id}</add:MessageID>
 	<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
-	<add:To>{self.endpoint}/{self.wsap}</add:To>
-    {security_part}
+	<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
 </soapenv:Header>
-   <soapenv:Body>
-
+<soapenv:Body>
 <DocIssuance_IssueTicket>
   <paxSelection>
     <passengerReference>
@@ -363,6 +353,46 @@ class AmadeusXMLBuilder:
     </passengerReference>
   </paxSelection>
 </DocIssuance_IssueTicket>
+   </soapenv:Body>
+</soapenv:Envelope>
+"""
+
+    def pnr_add_multi_element_builder(self,session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        return f"""
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+	<add:MessageID>{message_id}</add:MessageID>
+	<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
+	<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
+</soapenv:Header>
+<soapenv:Body>
+        <PNR_AddMultiElements>
+  <pnrActions>
+    <optionCode>{option_code}</optionCode>
+  </pnrActions>
+  <dataElementsMaster>
+    <marker1 />
+    <dataElementsIndiv>
+      <elementManagementData>
+        <segmentName>{segment_name}</segmentName>
+      </elementManagementData>
+      <formOfPayment>
+        <fop>
+          <identification>{identification}</identification>
+          <creditCardCode>{credit_card_code}</creditCardCode>
+          <accountNumber>{account_number}</accountNumber>
+          <expiryDate>{expiry_date}</expiryDate>
+          <currencyCode>{currency_code}</currencyCode>
+        </fop>
+        # <fop>
+        #   <identification>CA</identification>
+        #   <amount>96.46</amount>
+        # </fop>
+      </formOfPayment>
+    </dataElementsIndiv>
+  </dataElementsMaster>
+</PNR_AddMultiElements>
    </soapenv:Body>
 </soapenv:Envelope>
         """
