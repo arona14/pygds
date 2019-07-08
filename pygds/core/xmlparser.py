@@ -41,4 +41,5 @@ def extract_single_elements(tree_data, *x_path_expressions):
         :param *x_path_expressions: is a list of XPATH expressions
         :return: Returns a tuple containing single elements corresponding to XPATH expressions retrieved
     """
-    return (tree_data.xpath(x)[0] for x in x_path_expressions)
+    # return (elms[0] if len(elms) > 0 else None for elms in tree_data.xpath(x) for x in x_path_expressions)
+    return (x[0] if len(x) > 0 else None for x in extract_list_elements(tree_data, *x_path_expressions))
