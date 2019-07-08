@@ -14,7 +14,7 @@
   "environments": {
     "test": {
       "scripts": {
-        "test-setup": "python manage.py collectstatic --noinput",
+        "test-setup": "pip install nose coverage flake8",
         "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests"
       }
     }
