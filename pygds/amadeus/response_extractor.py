@@ -89,7 +89,6 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 flightIndexes = [x["refNumber"] for x in flightIndexes if x["refQualifier"] == 'S']
                 for idx, val in enumerate(flightIndexes):
                     legs = []
-                    segment = idx + 1
                     flightDetails = flights[idx]["groupOfFlights"][int(val) - 1]["flightDetails"]
                     flightDetails = helpers.ensure_list(flightDetails)
                     for leg, flight in enumerate(flightDetails):
