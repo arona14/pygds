@@ -15,6 +15,7 @@
     "test": {
       "scripts": {
         "test-setup": "pip install nose coverage flake8",
+        "lint": "flake8 pygds",
         "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests"
       }
     }
