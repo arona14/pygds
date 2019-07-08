@@ -4,38 +4,53 @@ from .amadeus_types import AmadeusSessionInfo
 
 
 class BaseResponseExtractor(object):
+    """
+        This is a base class for all response extractor. A helpful class to extract useful info from an XML.
+    """
     def __init__(self, xml_content: str):
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
 
     def parse(self):
+        """
+            If not already done, it parses the XML content to JSON and save it.
+        """
         if not self.parsed:
             print(".parse called")
             self.tree = xmlparser.parse_xml(self.xml_content)
             self.parsed = True
 
     def extract(self):
+        """
+            The public method to call when extracting useful data.
+        """
         print(".extract called")
         self.parse()
         return self._extract()
 
     def _extract(self):
+        """
+            A private method that does the work of extracting usefull data.
+        """
         raise NotImplementedError("Sub class must implement '_extract' method")
 
 
 class ErrorExtractor(BaseResponseExtractor):
-
+    """
+        Extractor for error
+    """
     def __init__(self, xml_content: str):
         super().__init__(xml_content)
 
     def _extract(self):
-        print("ErrorExtractor._extract called")
         return xmlparser.extract_single_elements(self.tree, "//faultcode/text()", "//faultstring/text()")
 
 
 class SessionExtractor(BaseResponseExtractor):
-
+    """
+        Class to extract session information from XML response
+    """
     def __init__(self, xml_content: str):
         super().__init__(xml_content)
 
@@ -46,22 +61,14 @@ class SessionExtractor(BaseResponseExtractor):
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
-
+    """
+        Class to extract price search information from XML Response
+    """
     def __init__(self, xml_content: str):
         super().__init__(xml_content)
+        self.parsed = True
 
     def _extract(self):
-        print("PriceSearchExtractor._extract called")
-        response = []
-        # recommendations = xmlparser.extract_list_elements(self.tree, "//recommendation")
-        # for recommendation in recommendations:
-        #     id, = xmlparser.extract_single_elements(recommendation, "//itemNumber/itemNumberId/number/text()")
-        #     response.append(id)
-        id, = xmlparser.extract_list_elements(self.tree, "//itemNumber/itemNumberId/number/text()")
-        response.append(id)
-        return response
-
-    def extract(self):
         payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_MasterPricerTravelBoardSearchReply")
         recommendations = helpers.get_data_from_json(payload, "recommendation")
         recommendations = helpers.ensure_list(recommendations)
@@ -69,23 +76,18 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
         flights = helpers.get_data_from_json(payload, "flightIndex")
         flights = helpers.ensure_list(flights)
-        print(f"number of recommendations : {len(recommendations)}")
         for rec in recommendations:
             prices = helpers.get_data_from_json(rec, "recPriceInfo", "monetaryDetail")  # [0].amount
             price = helpers.ensure_list(prices)[0]["amount"]
             segmentFlights = helpers.get_data_from_json(rec, "segmentFlightRef")
             segmentFlights = helpers.ensure_list(segmentFlights)
-            # print(f"> Number of segments: {len(segmentFlights)}")
             for seg in segmentFlights:
                 reco = {"price": price}
                 segs = []
                 flightIndexes = helpers.get_data_from_json(seg, "referencingDetail")
                 flightIndexes = helpers.ensure_list(flightIndexes)
-                # print(f">> flight indexes objects: {flightIndexes}")
                 flightIndexes = [x["refNumber"] for x in flightIndexes if x["refQualifier"] == 'S']
-                # print(f">> flight indexes: {flightIndexes}")
                 for idx, val in enumerate(flightIndexes):
-                    segment = idx + 1
                     legs = []
                     flightDetails = flights[idx]["groupOfFlights"][int(val) - 1]["flightDetails"]
                     flightDetails = helpers.ensure_list(flightDetails)

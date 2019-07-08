@@ -8,7 +8,6 @@ def get_data_from_json(json_data, *paths):
     """
     value = json_data
     for path in paths:
-        # print(f"path: {path}")
         if value is None:
             return None
         value = value[path]
