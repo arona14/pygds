@@ -208,6 +208,18 @@ class Reservation(BasicDataObject):
         }
 
 
+class SellItinerary(BasicDataObject):
+
+    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+        self.origin = origin
+        self.destination = destination
+        self.departure_date = departure_date
+        self.company = company
+        self.flight_number = flight_number
+        self.booking_class = booking_class
+        self.quantity = quantity
+
+
 def test_me():
     """
         This function is for testing purpose. It would be removed later.

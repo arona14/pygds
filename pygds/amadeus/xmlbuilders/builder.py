@@ -84,6 +84,25 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
+    def end_transaction(self, message_id, session_id, sequence_number, security_token):
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:vls="http://xml.amadeus.com/VLSSOQ_04_1_1A">
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/VLSSOQ_04_1_1A</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                <awsse:Session TransactionStatusCode="End" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
+                    <awsse:SessionId>{session_id}</awsse:SessionId>
+                    <awsse:SequenceNumber>{sequence_number}</awsse:SequenceNumber>
+                    <awsse:SecurityToken>{security_token}</awsse:SecurityToken>
+                </awsse:Session>
+            </soapenv:Header>
+            <soapenv:Body>
+                <Security_SignOut></Security_SignOut>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
     def getReservationRQ(self, office_id, message_id, token, pnr_number, new_session=True):
         """
         Create XML request body for SOAP Operation getReservation. We use a given endpoint
@@ -289,4 +308,73 @@ class AmadeusXMLBuilder:
                 </Ticket_CreateTSTFromPricing>
             </soapenv:Body>
         </soapenv:Envelope>
+        """
+
+    def sell_from_recomendation(self, itineraries):
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password, created_date_time)
+
+        itineraries_details = []
+        for it in itineraries:
+            itineraries_details.append(self.itenerary_details(it.origin, it.destination, it.departure_date, it.company, it.flight_number, it.booking_class, it.quantity))
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/ITAREQ_05_2_IA</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security_part}
+                <awsse:Session TransactionStatusCode="Start" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"/>
+            </soapenv:Header>
+            <soapenv:Body>
+                <Air_SellFromRecommendation>
+                    <messageActionDetails>
+                        <messageFunctionDetails>
+                        <messageFunction>183</messageFunction>
+                        <additionalMessageFunction>M1</additionalMessageFunction>
+                        </messageFunctionDetails>
+                    </messageActionDetails>
+                    {''.join(itineraries_details)}
+                </Air_SellFromRecommendation>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def itenerary_details(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+        return f"""
+        <itineraryDetails>
+            <originDestinationDetails>
+            <origin>{origin}</origin>
+            <destination>{destination}</destination>
+            </originDestinationDetails>
+            <message>
+            <messageFunctionDetails>
+                <messageFunction>183</messageFunction>
+            </messageFunctionDetails>
+            </message>
+            <segmentInformation>
+            <travelProductInformation>
+                <flightDate>
+                    <departureDate>{departure_date}</departureDate>
+                </flightDate>
+                <boardPointDetails>
+                    <trueLocationId>{origin}</trueLocationId>
+                </boardPointDetails>
+                <offpointDetails>
+                    <trueLocationId>{destination}</trueLocationId>
+                </offpointDetails>
+                <companyDetails>
+                    <marketingCompany>{company}</marketingCompany>
+                </companyDetails>
+                <flightIdentification>
+                    <flightNumber>{flight_number}</flightNumber>
+                    <bookingClass>{booking_class}</bookingClass>
+                </flightIdentification>
+            </travelProductInformation>
+            <relatedproductInformation>
+                <quantity>{quantity}</quantity>
+                <statusCode>NN</statusCode>
+            </relatedproductInformation>
+            </segmentInformation>
+        </itineraryDetails>
         """

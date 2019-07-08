@@ -111,7 +111,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
                         legd = {
                             "fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
-                            "flight_nunber": flight_nunber, "departure_date": departure_date,
+                            "flight_number": flight_nunber, "departure_date": departure_date,
                             "departure_time": departure_time, "marketing_company": market_company,
                             "operator_company": oper_company, "book_class": book_class
                         }
@@ -120,3 +120,20 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 reco["segments"] = segs
                 recs.append(reco)
         return recs
+
+
+class PricePNRExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+        self.parsed = True
+
+    def _extract(self):
+        payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_PricePNRWithBookingClassReply")
+        fare_list = helpers.ensure_list(payload["fareList"])
+        tst_references = []
+        for idx, fare in enumerate(fare_list):
+            ref = fare["fareReference"]
+            ref_type = ref["referenceType"]
+            if ref_type.upper() == "TST":
+                tst_references.append(ref["uniqueReference"])
+        return tst_references

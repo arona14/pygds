@@ -10,7 +10,7 @@ __status__ = "Development"
 
 import requests
 
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor
+from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, PricePNRExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .sessions import SessionHolder
@@ -58,6 +58,11 @@ class AmadeusClient:
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
+    def end_transaction(self, message_id, session_id, sequence_number, security_token):
+        request_data = self.xmlbuilder.end_transaction(message_id, session_id, sequence_number, security_token)
+        response_data = self.__request_wrapper("end_transaction", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
+        return response_data
+
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         """
             A method for searching prices of an itinerary.
@@ -67,6 +72,11 @@ class AmadeusClient:
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
+    def sell_from_recommandation(self, itineraries):
+        request_data = self.xmlbuilder.sell_from_recomendation(itineraries)
+        response_data = self.__request_wrapper("sell_from_recommandation", request_data, 'http://webservices.amadeus.com/ITAREQ_05_2_IA')
+        return SessionExtractor(response_data).extract()
+
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
         """
             Price a PNR with a booking class.
@@ -74,7 +84,8 @@ class AmadeusClient:
         """
         request_data = self.xmlbuilder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        return response_data
+        print(response_data)
+        return PricePNRExtractor(response_data).extract()
 
     def ticket_create_TST_from_price(self, message_id, session_id, sequence_number, security_token, tst_reference):
         """
