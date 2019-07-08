@@ -15,7 +15,10 @@
     "test": {
       "scripts": {
         "test-setup": "pip install nose coverage flake8",
-        "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests"
+        "test": [
+          "flake8 pygds",
+          "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests"
+        ]
       }
     }
   }
