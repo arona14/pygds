@@ -1,0 +1,35 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  middle-format:
+    format: '%(asctime)s - %(name)s - %(module)s - %(filename)s - %(levelname)s - %(message)s'
+  stack-format:
+    format: '%(asctime)s - %(name)s - %(module)s - %(filename)s - %(funcName)s (line %(lineno)d)- %(levelname)s - %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  log-file:
+    class: logging.FileHandler
+    level: INFO
+    formatter: middle-format
+    filename: ./mylog.log
+    mode: a
+    # delay: 2
+  stack-trace:
+    class: logging.FileHandler
+    level: CRITICAL
+    formatter: stack-format
+    filename: ./stack-trace.log
+    mode: a
+loggers:
+  sampleLogger:
+    level: DEBUG
+    handlers: [console,log-file, stack-trace]
+    propagate: True
+root:
+  level: DEBUG
+  handlers: [console, log-file, stack-trace]
