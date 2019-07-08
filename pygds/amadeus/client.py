@@ -73,3 +73,12 @@ class AmadeusClient:
         request_data = self.xmlbuilder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return response_data
+
+    def ticket_create_TST_from_price(self, message_id, session_id, sequence_number, security_token, tst_reference):
+        """
+            Creates a TST from TST reference
+        """
+        request_data = self.xmlbuilder.ticket_create_TST_from_price(message_id, session_id, sequence_number, security_token, tst_reference)
+        print(request_data)
+        response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data, 'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
+        return response_data

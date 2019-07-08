@@ -267,3 +267,26 @@ class AmadeusXMLBuilder:
             </soapenv:Body>
         </soapenv:Envelope>
         """
+
+    def ticket_create_TST_from_price(self, message_id, session_id, sequence_number, security_token, tst_reference):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/TAUTCQ_04_1_1A</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security_part}
+            </soapenv:Header>
+            <soapenv:Body>
+                <Ticket_CreateTSTFromPricing>
+                    <psaList>
+                        <itemReference>
+                        <referenceType>TST</referenceType>
+                        <uniqueReference>{tst_reference}</uniqueReference>
+                        </itemReference>
+                    </psaList>
+                </Ticket_CreateTSTFromPricing>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
