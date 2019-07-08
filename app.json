@@ -13,10 +13,16 @@
   },
   "environments": {
     "test": {
-      "scripts": {
-        "test-setup": "pip install nose coverage flake8",
-        "test": "flake8 pygds"
-      }
+      "scripts": [
+        {
+          "test-setup": "pip install flake8",
+          "test": "flake8 pygds"
+        },
+        {
+          "test-setup": "pip install nose coverage",
+          "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=40 --cover-tests"
+        }
+      ]
     }
   }
 }
