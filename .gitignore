@@ -131,4 +131,5 @@ dmypy.json
 bin/**
 include/**
 man/**
-
+#
+.pytest_cache/**
