@@ -10,11 +10,14 @@ from decimal import Decimal
 import json, operator '''
 
 
-class FormatSoapSabre():
-    # def __init__(self):
-    #     pass
-    def get_segment(self, segment_data):
+class SabreReservationFormatter():
+    def __init__(self):
+        pass
 
+    def get_segment(self, segment_data):
+        '''
+        This method returns all the segments of a given itineraries
+        '''
         segment_datas = segment_data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Segments"]["stl18:Segment"]
         segment_list = []
         if type(segment_datas) == list:
@@ -107,11 +110,17 @@ class FormatSoapSabre():
             return 'Sun'
     
     def itineraryInfo(self, itinerary):
+        '''
+        This method returns all the itineraries of a given sabre response 
+        itinerary = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
+        '''
         origin_destination_option = []
         flight_segment = []
         if itinerary is None:
             return origin_destination_option
         segments = itinerary['stl18:Segment']
+        # if not isinstance(segments, list):
+        #     segments = [segments]
         if type(segments) == list:
             for i in segments:
                 if 'stl18:Air' in i:
@@ -178,7 +187,7 @@ class FormatSoapSabre():
                 
         return origin_destination_option
                 
-    def get_passengers(data):
+    def get_passengers(self, data):
         passengers_data = data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Passengers"]
         passenger_list = []
         if type(passengers_data) == list:
