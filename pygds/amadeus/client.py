@@ -10,7 +10,7 @@ __status__ = "Development"
 
 import requests
 
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, PricePNRExtractor
+from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, PricePNRExtractor, AddMultiElementExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .sessions import SessionHolder
@@ -83,6 +83,7 @@ class AmadeusClient:
             The PNR is supposed to be supplied in the session on a previous call.
         """
         request_data = self.xmlbuilder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
+        # print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         print(response_data)
         return PricePNRExtractor(response_data).extract()
@@ -92,6 +93,16 @@ class AmadeusClient:
             Creates a TST from TST reference
         """
         request_data = self.xmlbuilder.ticket_create_TST_from_price(message_id, session_id, sequence_number, security_token, tst_reference)
-        print(request_data)
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data, 'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
         return response_data
+
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
+        """
+            add passenger info and create the PNR
+        """
+        request_data = self.xmlbuilder.add_passenger_info(office_id, message_id, session_id, sequence_number, security_token, infos)
+        # print(request_data)
+        response_data = self.__request_wrapper("add_passenger_info", request_data, 'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        return AddMultiElementExtractor(response_data).extract()
+
+

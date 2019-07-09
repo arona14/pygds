@@ -378,3 +378,152 @@ class AmadeusXMLBuilder:
             </segmentInformation>
         </itineraryDetails>
         """
+
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        passenger_infos = []
+        for i in infos:
+            passenger_infos.append(self.traveller_info(i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type))
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security_part}
+            </soapenv:Header>
+            <soapenv:Body>
+                <PNR_AddMultiElements>
+                    <pnrActions>
+                        <optionCode>0</optionCode>
+                    </pnrActions>
+                    {''.join(passenger_infos)}
+                    <dataElementsMaster>
+                        <marker1/>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>RF</segmentName>
+                        </elementManagementData>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>3</subjectQualifier>
+                                <type>P22</type>
+                            </freetextDetail>
+                            <longFreetext>{office_id}</longFreetext>
+                        </freetextData>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>OP</segmentName>
+                        </elementManagementData>
+                        <optionElement>
+                            <optionDetail>
+                                <officeId>{office_id}</officeId>
+                            </optionDetail>
+                        </optionElement>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>AP</segmentName>
+                        </elementManagementData>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>7</subjectQualifier>
+                                <type>6</type>
+                            </freetextDetail>
+                            <longFreetext>0722541415</longFreetext>
+                        </freetextData>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>AP</segmentName>
+                        </elementManagementData>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>7</subjectQualifier>
+                                <type>7</type>
+                            </freetextDetail>
+                            <longFreetext>0722541415</longFreetext>
+                        </freetextData>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>AP</segmentName>
+                        </elementManagementData>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>7</subjectQualifier>
+                                <type>P02</type>
+                            </freetextDetail>
+                            <longFreetext>cjebelean@xvalue.ro</longFreetext>
+                        </freetextData>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>TK</segmentName>
+                        </elementManagementData>
+                        <ticketElement>
+                            <ticket>
+                                <indicator>OK</indicator>
+                            </ticket>
+                        </ticketElement>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>FP</segmentName>
+                        </elementManagementData>
+                        <formOfPayment>
+                            <fop>
+                                <identification>CA</identification>
+                            </fop>
+                        </formOfPayment>
+                        </dataElementsIndiv>
+                        <dataElementsIndiv>
+                        <elementManagementData>
+                            <reference>
+                                <qualifier>OT</qualifier>
+                                <number>1</number>
+                            </reference>
+                            <segmentName>FM</segmentName>
+                        </elementManagementData>
+                        <commission>
+                            <commissionInfo>
+                                <percentage>5</percentage>
+                            </commissionInfo>
+                        </commission>
+                        </dataElementsIndiv>
+                    </dataElementsMaster>
+                </PNR_AddMultiElements>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def traveller_info(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+        return f"""
+        <travellerInfo>
+            <elementManagementPassenger>
+            <reference>
+                <qualifier>PR</qualifier>
+                <number>{ref_number}</number>
+            </reference>
+            <segmentName>NM</segmentName>
+            </elementManagementPassenger>
+            <passengerData>
+            <travellerInformation>
+                <traveller>
+                    <surname>{surname}</surname>
+                    <quantity>1</quantity>
+                </traveller>
+                <passenger>
+                    <firstName>{first_name}</firstName>
+                    <type>{pax_type}</type>
+                </passenger>
+            </travellerInformation>
+            <dateOfBirth>
+                <dateAndTimeDetails>
+                    <date>{date_of_birth}</date>
+                </dateAndTimeDetails>
+            </dateOfBirth>
+            </passengerData>
+        </travellerInfo>
+        """

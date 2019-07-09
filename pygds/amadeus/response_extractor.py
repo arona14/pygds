@@ -56,8 +56,8 @@ class SessionExtractor(BaseResponseExtractor):
 
     def _extract(self):
         print("SessionExtractor._extract called")
-        seq, tok, ses = xmlparser.extract_single_elements(self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()")
-        return AmadeusSessionInfo(tok, seq, ses)
+        seq, tok, ses, mes_id = xmlparser.extract_single_elements(self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()")
+        return AmadeusSessionInfo(tok, int(seq), ses, mes_id)
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
@@ -120,6 +120,47 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 reco["segments"] = segs
                 recs.append(reco)
         return recs
+
+
+class AddMultiElementExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+        self.parsed = True
+
+    def _extract(self):
+        payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        pnr = helpers.get_data_from_json(payload, "pnrHeader", "reservationInfo", "reservation")  # , "controlNumber")
+        pnr_data = {"pnr_number": pnr}
+        travellers_info = helpers.get_data_from_json(payload, "travellerInfo")
+        passengers = []
+        travellers_info = helpers.ensure_list(travellers_info)
+        for idx, pax in enumerate(travellers_info):
+            info = helpers.get_data_from_json(pax, "passengerData", "travellerInformation")
+            surname = helpers.get_data_from_json(info, "traveller", "surname")
+            name = helpers.get_data_from_json(info, "passenger", "firstName")
+            passenge_type = helpers.get_data_from_json(info, "passenger", "type")
+            date_of_birth = ""  # helpers.get_data_from_json(pax, "passengerData", "dateOfBirth", "dateAndTimeDetails", "date")
+            passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
+        pnr_data["passengers"] = passengers
+
+        itineraries_info = helpers.get_data_from_json(payload, "originDestinationDetails", "itineraryInfo")
+        itineraries_info = helpers.ensure_list(itineraries_info)
+        segments = []
+        for idx, seg in enumerate(itineraries_info):
+            travel_details = helpers.get_data_from_json(seg, "travelProduct")
+            from_city = helpers.get_data_from_json(travel_details, "boardpointDetail", "cityCode")
+            to_city = helpers.get_data_from_json(travel_details, "offpointDetail", "cityCode")
+            company = helpers.get_data_from_json(travel_details, "companyDetail", "identification")
+            product = helpers.get_data_from_json(travel_details, "product")
+            dep_date = helpers.get_data_from_json(product, "depDate")
+            dep_time = helpers.get_data_from_json(product, "depTime")
+            arr_date = helpers.get_data_from_json(product, "arrDate")
+            arr_time = helpers.get_data_from_json(product, "arrTime")
+
+            fligth_number = helpers.get_data_from_json(travel_details, "productDetails", "identification")
+            segments.append({"from_city": from_city, "to_city": to_city, "company": company, "dep_date": dep_date, "dep_time": dep_time, "arr_date": arr_date, "arr_time": arr_time, "fligth_number": fligth_number})
+        pnr_data["segments"] = segments
+        return pnr_data
 
 
 class PricePNRExtractor(BaseResponseExtractor):
