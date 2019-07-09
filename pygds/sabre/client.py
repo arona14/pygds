@@ -32,4 +32,3 @@ class SabreClient(BaseService):
             # TODO: Capture the real exception not the general one
             to_return_dict = None
         return to_return_dict
-    
