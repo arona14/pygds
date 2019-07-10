@@ -84,7 +84,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True): 
+    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True):
         """
             Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
@@ -337,34 +337,33 @@ class AmadeusXMLBuilder:
 
     def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
-        return f"""
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-	<add:MessageID>{message_id}</add:MessageID>
-	<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
-	<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
+        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+<soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
+<add:MessageID>{message_id}</add:MessageID>
+<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
 </soapenv:Header>
 <soapenv:Body>
 <DocIssuance_IssueTicket>
-  <paxSelection>
-    <passengerReference>
-      <type>{passenger_reference_type}</type>
-      <value>{passenger_reference_value}</value>
-    </passengerReference>
-  </paxSelection>
+<paxSelection>
+<passengerReference>
+<type>{passenger_reference_type}</type>
+<value>{passenger_reference_value}</value>
+</passengerReference>
+</paxSelection>
 </DocIssuance_IssueTicket>
-   </soapenv:Body>
+</soapenv:Body>
 </soapenv:Envelope>
 """
 
-    def pnr_add_multi_element_builder(self,session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
+    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-	<add:MessageID>{message_id}</add:MessageID>
-	<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
-	<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
+<soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+<add:MessageID>{message_id}</add:MessageID>
+<add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
+<add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
 </soapenv:Header>
 <soapenv:Body>
         <PNR_AddMultiElements>
@@ -394,5 +393,4 @@ class AmadeusXMLBuilder:
   </dataElementsMaster>
 </PNR_AddMultiElements>
    </soapenv:Body>
-</soapenv:Envelope>
-        """
+</soapenv:Envelope> """

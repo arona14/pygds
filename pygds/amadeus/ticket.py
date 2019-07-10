@@ -72,25 +72,24 @@ if __name__ == "__main__":
     test()
 
 
-#%% 
 def tester():
-    import requests
-    url = "https://nodeD1.test.webservices.amadeus.com"
-    header = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate', 'SOAPAction': 'http://webservices.amadeus.com/PNRADD_17_1_1A'}
-    data_ =  f"""
+   import requests
+   url = "https://nodeD1.test.webservices.amadeus.com"
+   header = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate', 'SOAPAction': 'http://webservices.amadeus.com/PNRADD_17_1_1A'}
+   data_ = f"""
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-	<add:MessageID>WbsConsu-qz237F9j1KUhvBhBQH12jJ6E5bCfIrB-RzIWG9Egc</add:MessageID>
-	<add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
-	<add:To>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</add:To>
-	<awsse:Session TransactionStatusCode="InSeries" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
-		<awsse:SessionId>01EJ9C3WFR</awsse:SessionId>
-		<awsse:SequenceNumber>2</awsse:SequenceNumber>
+<add:MessageID>WbsConsu-qz237F9j1KUhvBhBQH12jJ6E5bCfIrB-RzIWG9Egc</add:MessageID>
+<add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
+<add:To>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</add:To>
+<awsse:Session TransactionStatusCode="InSeries" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
+<awsse:SessionId>01EJ9C3WFR</awsse:SessionId>
+<awsse:SequenceNumber>2</awsse:SequenceNumber>
 <awsse:SecurityToken>30VLLG44XVNY419E1CR1DEU5QL</awsse:SecurityToken>
 </awsse:Session>
 </soapenv:Header>
 <soapenv:Body>
-      <PNR_AddMultiElements>
+<PNR_AddMultiElements>
          <pnrActions>
             <optionCode>0</optionCode>
          </pnrActions>
@@ -235,6 +234,5 @@ def tester():
    </soapenv:Body>
 </soapenv:Envelope>
     """
-    response = requests.post(url, data=data_, headers=header)
-    return response.content
-print(tester())
+   response = requests.post(url, data=data_, headers=header)
+   return response.content
