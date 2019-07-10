@@ -1,4 +1,6 @@
 # coding: utf-8
+from pygds.core.types import TravellerNumbering
+
 __author__ = "Mouhamad Ndiankho THIAM"
 __copyright__ = "Copyright 2019, CTS"
 __credits__ = ["Mouhamad Ndiankho THIAM", "Demba FALL", "Saliou"]
@@ -63,11 +65,11 @@ class AmadeusClient:
         response_data = self.__request_wrapper("end_transaction", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return response_data
 
-    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
+    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date, numbering: TravellerNumbering):
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xmlbuilder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date)
+        request_data = self.xmlbuilder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date, numbering)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data, 'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()

@@ -1,4 +1,6 @@
 from time import gmtime, strftime
+
+from pygds.core.types import TravellerNumbering
 from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -67,7 +69,8 @@ class AmadeusXMLBuilder:
             Example
         AmadeusXMLBuilder().start_transaction("WbsConsu-w5D0dntND8rNwtYwxewE5AdIsEJYqx9-vc69HKdaM", "DTW1S210B", "WSCSOCTS", "KsU6KnFHNIV8zcVoZC8ZYQ==", "mBzu72QJUIWMrdWW63dTpfj8HxY=",, "2017-05-29T14:44:41.457Z")
         """
-        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(message_id, nonce, created_date_time)
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(message_id, nonce,
+                                                                                                  created_date_time)
         security_part = self.new_transaction_chunk(office_id, username, nonce, digested_password, created_date_time)
 
         return f"""
@@ -152,12 +155,13 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date):
+    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date, traveller_numbering: TravellerNumbering, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
         """
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
-        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password, created_date_time)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                                   created_date_time)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -170,23 +174,15 @@ class AmadeusXMLBuilder:
                 <Fare_MasterPricerTravelBoardSearch>
                     <numberOfUnit>
                         <unitNumberDetail>
-                        <numberOfUnits>2</numberOfUnits>
-                        <typeOfUnit>PX</typeOfUnit>
+                            <numberOfUnits>{traveller_numbering.total_seats()}</numberOfUnits>
+                            <typeOfUnit>PX</typeOfUnit>
                         </unitNumberDetail>
                         <unitNumberDetail>
-                        <numberOfUnits>100</numberOfUnits>
-                        <typeOfUnit>RC</typeOfUnit>
+                            <numberOfUnits>{result_count}</numberOfUnits>
+                            <typeOfUnit>RC</typeOfUnit>
                         </unitNumberDetail>
                     </numberOfUnit>
-                    <paxReference>
-                        <ptc>ADT</ptc>
-                        <traveller>
-                        <ref>1</ref>
-                        </traveller>
-                        <traveller>
-                        <ref>2</ref>
-                        </traveller>
-                    </paxReference>
+                    {self.generate_seat_traveller_numbering(traveller_numbering)}
                     <fareOptions>
                         <pricingTickInfo>
                         <pricingTicketing>
@@ -230,34 +226,69 @@ class AmadeusXMLBuilder:
                     </itinerary>
                     <itinerary>
                         <requestedSegmentRef>
-                        <segRef>1</segRef>
+                            <segRef>1</segRef>
                         </requestedSegmentRef>
                         <departureLocalization>
-                        <depMultiCity>
-                            <locationId>{destination}</locationId>
-                            <airportCityQualifier>C</airportCityQualifier>
-                        </depMultiCity>
+                            <depMultiCity>
+                                <locationId>{destination}</locationId>
+                                <airportCityQualifier>C</airportCityQualifier>
+                            </depMultiCity>
                         </departureLocalization>
                         <arrivalLocalization>
-                        <arrivalMultiCity>
-                            <locationId>{origin}</locationId>
-                            <airportCityQualifier>C</airportCityQualifier>
-                        </arrivalMultiCity>
+                            <arrivalMultiCity>
+                                <locationId>{origin}</locationId>
+                                <airportCityQualifier>C</airportCityQualifier>
+                            </arrivalMultiCity>
                         </arrivalLocalization>
                         <timeDetails>
-                        <firstDateTimeDetail>
-                            <date>{arrival_date}</date>
-                        </firstDateTimeDetail>
-                        <rangeOfDate>
-                            <rangeQualifier>M</rangeQualifier>
-                            <dayInterval>2</dayInterval>
-                        </rangeOfDate>
+                            <firstDateTimeDetail>
+                                <date>{arrival_date}</date>
+                            </firstDateTimeDetail>
+                            <rangeOfDate>
+                                <rangeQualifier>M</rangeQualifier>
+                                <dayInterval>2</dayInterval>
+                            </rangeOfDate>
                         </timeDetails>
                     </itinerary>
 
                 </Fare_MasterPricerTravelBoardSearch>
             </soapenv:Body>
             </soapenv:Envelope>
+        """
+
+    def generate_seat_traveller_numbering(self, traveller_numbering: TravellerNumbering):
+        adults = ""
+        children = ""
+        infants = ""
+        if traveller_numbering.adults != 0:
+            adults = self._traveler_ref("ADT", 1, traveller_numbering.adults)
+        if traveller_numbering.children != 0:
+            children = self._traveler_ref("CH", traveller_numbering.adults + 1, traveller_numbering.children)
+        if traveller_numbering.infants != 0:
+            infants = self._traveler_ref("INF", 1, traveller_numbering.infants)
+        return f"""
+        {adults}
+        {children}
+        {infants}
+        """
+
+    def _traveler_ref(self, pax_type, begin, pax_number):
+        travellers = ""
+        infant_indicator = ""
+        if pax_type == 'INF':
+            infant_indicator = "<infantIndicator>1</infantIndicator>"
+        for ref in range(begin, begin + pax_number):
+            travellers += f"""
+            <traveller>
+                <ref>{ref}</ref>
+                {infant_indicator}
+            </traveller>
+            """
+        return f"""
+        <paxReference>
+            <ptc>{pax_type}</ptc>
+            {travellers}
+        </paxReference>
         """
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
@@ -312,11 +343,14 @@ class AmadeusXMLBuilder:
 
     def sell_from_recomendation(self, itineraries):
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
-        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password, created_date_time)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                                   created_date_time)
 
         itineraries_details = []
         for it in itineraries:
-            itineraries_details.append(self.itenerary_details(it.origin, it.destination, it.departure_date, it.company, it.flight_number, it.booking_class, it.quantity))
+            itineraries_details.append(
+                self.itenerary_details(it.origin, it.destination, it.departure_date, it.company, it.flight_number,
+                                       it.booking_class, it.quantity))
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -383,7 +417,8 @@ class AmadeusXMLBuilder:
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
         for i in infos:
-            passenger_infos.append(self.traveller_info(i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type))
+            passenger_infos.append(
+                self.traveller_info(i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type))
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
