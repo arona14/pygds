@@ -1,6 +1,6 @@
 from ..core import xmlparser
 from ..core import helpers
-from .amadeus_types import AmadeusSessionInfo
+from .amadeus_types import AmadeusSessionInfo, AmadeusAddFormOfPayment
 
 
 class BaseResponseExtractor(object):
@@ -120,3 +120,39 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 reco["segments"] = segs
                 recs.append(reco)
         return recs
+
+class FormOfPaymentExtractor(BaseResponseExtractor):
+    """
+        Class to extract form of payment information from XML response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+
+    def _extract(self):
+        fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description =  xmlparser.extract_single_elements(self.tree, "//*[local-name()='qualifier']/text()", "//*[local-name()='number']/text()", "//*[local-name()='type']/text()", "//*[local-name()='value']/text()", "//*[local-name()='number']/text()", "//*[local-name()='fopCode']/text()", "//*[local-name()='fopStatus']/text()", "//*[local-name()='fopEdiCode']/text()", "//*[local-name()='fopReportingCode']/text()", "//*[local-name()='fopElecTicketingCode']/text()", "//*[local-name()='criteriaSetType']/text()", "//*[local-name()='attributeType']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeDescription']/text()")  
+        return AmadeusAddFormOfPayment(fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description)
+
+class AddMultiElementExtractor(BaseResponseExtractor):
+    """
+        Class to extract add multi element information from XML response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+    
+    def _extract(self):
+        pass
+
+    pass
+
+
+class TicketingExtractor(BaseResponseExtractor):
+    """
+        Class to extract ticketing information from XML response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+    
+    def _extract(self):
+        pass
+
+    pass
