@@ -25,7 +25,7 @@ class SabreReservationFormatter():
                 if "stl18:Air" in segment:
                     s = {}
                     m = {}
-                    s['Code'] = segment['stl18:Air']['Code']
+                    s['Code'] = segment['stl18:Air']['Code'] 
                     s['ResBookDesigCode'] = segment['stl18:Air']['ResBookDesigCode']
                     s['StopQuantity'] = segment['stl18:Air']['StopQuantity']
                     s['DepartureAirport'] = segment['stl18:Air']['stl18:DepartureAirport']
@@ -209,20 +209,21 @@ class SabreReservationFormatter():
                     p['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry'] = p_to
                     passenger_list.append(p)
         else:
-            if "stl18:Passenger" in passengers:
+            if "stl18:Passenger" in passengers_data:
                 p = {}
                 p_to = {}
-                p['NameAssocId'] = passengers['stl18:Passenger']['nameAssocId']
-                p['LastName'] = passengers['stl18:Passenger']['stl18:LastName']
-                p['FirstName'] = passengers['stl18:Passenger']['stl18:FirstName']
-                p_to['DateOfBirth'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:DateOfBirth']
-                p_to['Gender'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Gender']
-                p_to['Surname'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Surname']
-                p_to['Forename'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Forename']
-                p_to['MiddleName'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:MiddleName']
-                p_to['ActionCode'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:ActionCode']
-                p_to['NumberInParty'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:NumberInParty']
-                p_to['VendorCode'] = passengers['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:VendorCode']
-                p['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry'] = p_to
+                p['NameAssocId'] = passengers_data['stl18:Passenger']['nameAssocId']
+                p['passengerType'] = passengers_data['stl18:Passenger']['passengerType']
+                p['LastName'] = passengers_data['stl18:Passenger']['stl18:LastName']
+                p['FirstName'] = passengers_data['stl18:Passenger']['stl18:FirstName']
+                p['DateOfBirth'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:DateOfBirth']
+                p['Gender'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Gender']
+                p['Surname'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Surname']
+                p['Forename'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Forename']
+                p['MiddleName'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:MiddleName']
+                p['ActionCode'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:ActionCode']
+                p['NumberInParty'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:NumberInParty']
+                p['VendorCode'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:VendorCode']
+                # p['SpecialRequests'] = p_to
                 passenger_list.append(p)
         return passenger_list

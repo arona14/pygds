@@ -109,11 +109,17 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None, passengerType: str = None, preferences=None):
+    def __init__(self, firstName: str = None, lastName: str = None, dateOfBirth: str = None, gender: str = None, Surname: str = None, Forename: str = None, MiddleName: str = None, ActionCode: str = None, NumberInParty: str = None, VendorCode: str = None, passengerType: str = None, preferences=None):
         self.firstName = firstName
         self.lastName = lastName
-        self.gender = gender
         self.dateOfBirth = dateOfBirth
+        self.gender = gender
+        self.Surname = Surname
+        self.Forename = Forename
+        self.MiddleName = MiddleName
+        self.ActionCode = ActionCode
+        self.NumberInParty = NumberInParty
+        self.VendorCode = VendorCode
         self.passengerType = passengerType
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
         self.retrievePassengerType()
