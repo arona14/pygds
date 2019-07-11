@@ -18,6 +18,9 @@ class BasicDataObject(object):
             Dumps the object to json string
         """
         return json.dumps(self.to_data(), indent=4)
+    
+    def __repr__(self):
+        return self.to_json()
 
 
 class FlightPointDetails(BasicDataObject):
@@ -109,18 +112,19 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, firstName: str = None, lastName: str = None, dateOfBirth: str = None, gender: str = None, Surname: str = None, Forename: str = None, MiddleName: str = None, ActionCode: str = None, NumberInParty: str = None, VendorCode: str = None, passengerType: str = None, preferences=None):
-        self.firstName = firstName
-        self.lastName = lastName
-        self.dateOfBirth = dateOfBirth
+    def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, sur_name: str = None, fore_name: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
+        self.name_id = name_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.date_of_birth = date_of_birth
         self.gender = gender
-        self.Surname = Surname
-        self.Forename = Forename
-        self.MiddleName = MiddleName
-        self.ActionCode = ActionCode
-        self.NumberInParty = NumberInParty
-        self.VendorCode = VendorCode
-        self.passengerType = passengerType
+        self.sur_name = sur_name
+        self.fore_name = fore_name
+        self.middle_name = middle_name
+        self.action_code = action_code
+        self.number_in_party = number_in_party
+        self.vendor_code = vendor_code
+        self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
         self.retrievePassengerType()
 
@@ -128,25 +132,25 @@ class Passenger(BasicDataObject):
         """
             This method retrieves the passenger type from the age
         """
-        if self.dateOfBirth is not None:
-            age = datetime.date.today() - datetime.date.fromisoformat(self.dateOfBirth)
+        if self.date_of_birth is not None:
+            age = datetime.date.today() - datetime.date.fromisoformat(self.date_of_birth)
             age = age.days / 365
             if age < 0:
-                self.passengerType = None
+                self.passenger_type = None
             elif age <= 2:
-                self.passengerType = "INFANT"
+                self.passenger_type = "INFANT"
             elif age <= 12:
-                self.passengerType = "CHILD"
+                self.passenger_type = "CHILD"
             else:
-                self.passengerType = "ADULT"
+                self.passenger_type = "ADULT"
 
     def to_data(self):
         return {
-            "lastName": self.lastName,
-            "firstName": self.firstName,
+            "lastName": self.last_name,
+            "firstName": self.first_name,
             "gender": self.gender,
-            "dateOfBirth": self.dateOfBirth,
-            "passengerType": self.passengerType,
+            "dateOfBirth": self.date_of_birth,
+            "passengerType": self.passenger_type,
             "preferences": self.preferences.to_data()
         }
 

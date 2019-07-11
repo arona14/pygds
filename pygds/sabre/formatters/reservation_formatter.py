@@ -1,3 +1,4 @@
+from pygds.core.types import Passenger
 """from pygds.sabre.base_service import BaseService
 from pygds.sabre.session import SabreSession
 from ..core import xmlparser
@@ -210,20 +211,18 @@ class SabreReservationFormatter():
                     passenger_list.append(p)
         else:
             if "stl18:Passenger" in passengers_data:
-                p = {}
-                p_to = {}
-                p['NameAssocId'] = passengers_data['stl18:Passenger']['nameAssocId']
-                p['passengerType'] = passengers_data['stl18:Passenger']['passengerType']
-                p['LastName'] = passengers_data['stl18:Passenger']['stl18:LastName']
-                p['FirstName'] = passengers_data['stl18:Passenger']['stl18:FirstName']
-                p['DateOfBirth'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:DateOfBirth']
-                p['Gender'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Gender']
-                p['Surname'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Surname']
-                p['Forename'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Forename']
-                p['MiddleName'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:MiddleName']
-                p['ActionCode'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:ActionCode']
-                p['NumberInParty'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:NumberInParty']
-                p['VendorCode'] = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:VendorCode']
-                # p['SpecialRequests'] = p_to
+                name_id = passengers_data['stl18:Passenger']['nameId']
+                pax_type = passengers_data['stl18:Passenger']['passengerType']
+                last_name = passengers_data['stl18:Passenger']['stl18:LastName']
+                first_name = passengers_data['stl18:Passenger']['stl18:FirstName']
+                date_ofBirth = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:DateOfBirth']
+                gender = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Gender']
+                surname = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Surname']
+                forename = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:Forename']
+                middle_name = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:MiddleName']
+                action_code = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:ActionCode']
+                number_in_party = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:NumberInParty']
+                vendor_code = passengers_data['stl18:Passenger']['stl18:SpecialRequests']['stl18:APISRequest']['stl18:DOCSEntry']['stl18:VendorCode']
+                p = Passenger(name_id, first_name, last_name, date_ofBirth, gender, surname, forename, middle_name, action_code, number_in_party, vendor_code, pax_type)
                 passenger_list.append(p)
         return passenger_list
