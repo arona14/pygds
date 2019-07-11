@@ -17,6 +17,7 @@ class AmadeusSessionInfo:
     def __str__(self):
         return str(self.__repr__())
 
+
 class AmadeusAddFormOfPayment:
     """
     This class is for containing information for add form of payment
@@ -33,7 +34,7 @@ class AmadeusAddFormOfPayment:
         self.fop_pnr_details_reporting_code = fop_pnr_details_reporting_code
         self.fop_pnr_details_elec_ticketing_code = fop_pnr_details_elec_ticketing_code
         self.old_fop_free_flow_text_subject_qualifier = old_fop_free_flow_text_subject_qualifier
-        self.old_fop_free_flow_source = old_fop_free_flow_source 
+        self.old_fop_free_flow_source = old_fop_free_flow_source
         self.old_fop_free_flow_encoding = old_fop_free_flow_encoding
         self.free_text = free_text
         self.criteria_set_type = criteria_set_type
@@ -57,13 +58,13 @@ class AmadeusAddFormOfPayment:
             "fop_sequence_number": self.fop_sequence_number,
             "fop_pnr_details_code": self.fop_pnr_details_code,
             "fop_pnr_details_status": self.fop_pnr_details_status,
-            "fop_pnr_details_edi_code": self.fop_pnr_details_edi_code, 
-            "fop_pnr_details_reporting_code": self.fop_pnr_details_reporting_code, 
-            "fop_pnr_details_elec_ticketing_code": self.fop_pnr_details_elec_ticketing_code, 
-            "old_fop_free_flow_text_subject_qualifier": self.old_fop_free_flow_text_subject_qualifier, 
-            "old_fop_free_flow_source": self.old_fop_free_flow_source,  
-            "old_fop_free_flow_encoding": self.old_fop_free_flow_encoding, 
-            "free_text": self.free_text, 
+            "fop_pnr_details_edi_code": self.fop_pnr_details_edi_code,
+            "fop_pnr_details_reporting_code": self.fop_pnr_details_reporting_code,
+            "fop_pnr_details_elec_ticketing_code": self.fop_pnr_details_elec_ticketing_code,
+            "old_fop_free_flow_text_subject_qualifier": self.old_fop_free_flow_text_subject_qualifier,
+            "old_fop_free_flow_source": self.old_fop_free_flow_source,
+            "old_fop_free_flow_encoding": self.old_fop_free_flow_encoding,
+            "free_text": self.free_text,
             "criteria_set_type": self.criteria_set_type,
             "criteria_details_attribute_type": self.criteria_details_attribute_type,
             "criteria_details_attribute_description": self.criteria_details_attribute_description,
@@ -76,7 +77,7 @@ class AmadeusAddFormOfPayment:
             "fortknox_ids_type": self.fortknox_ids_type,
             "fortknox_ids_value": self.fortknox_ids_value
         }
-    
+
     def __str__(self):
         return str(self.__repr__())
 
@@ -89,12 +90,12 @@ class AmadeusAddMultiElement:
     def __init__(self, response):
         self.response = response
 
-
     def __repr__(self):
-        return {"response":self.response}
+        return {"response": self.response}
 
     def __str__(self):
         return str(self.__repr__())
+
 
 class AmadeusTicketing:
     """
@@ -106,16 +107,17 @@ class AmadeusTicketing:
         self.text_subject_qualifier = text_subject_qualifier
         self.source = source
         self.encoding = encoding
-        self.freetext = freetext 
+        self.freetext = freetext
 
     def __repr__(self):
-        return {"status_code" : self.status_code,
-                "error_code" : self.error_code,
-                "text_subject_qualifier" : self.text_subject_qualifier,
-                "source" : self.source,
-                "encoding" : self.encoding,
-                "freetext" : self.freetext
-            }
+        return {
+            "status_code": self.status_code,
+            "error_code": self.error_code,
+            "text_subject_qualifier": self.text_subject_qualifier,
+            "source": self.source,
+            "encoding": self.encoding,
+            "freetext": self.freetext
+        }
 
     def __str__(self):
         return str(self.__repr__())

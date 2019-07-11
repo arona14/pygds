@@ -121,6 +121,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 recs.append(reco)
         return recs
 
+
 class FormOfPaymentExtractor(BaseResponseExtractor):
     """
         Class to extract form of payment information from XML response
@@ -129,8 +130,9 @@ class FormOfPaymentExtractor(BaseResponseExtractor):
         super().__init__(xml_content)
 
     def _extract(self):
-        fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description, group_usage_attribute_type, payment_data_company_code, form_of_payment_type, credit_card_details_vendor_code, credit_card_details_card_number, credit_card_details_expiry_date, fortknox_ids_type, fortknox_ids_value =  xmlparser.extract_single_elements(self.tree, "//*[local-name()='qualifier']/text()", "//*[local-name()='number']/text()", "//*[local-name()='type']/text()", "//*[local-name()='value']/text()", "//*[local-name()='number']/text()", "//*[local-name()='fopCode']/text()", "//*[local-name()='fopStatus']/text()", "//*[local-name()='fopEdiCode']/text()", "//*[local-name()='fopReportingCode']/text()", "//*[local-name()='fopElecTicketingCode']/text()", "//*[local-name()='textSubjectQualifier']/text()", "//*[local-name()='source']/text()", "//*[local-name()='encoding']/text()", "//*[local-name()='freeText']/text()", "//*[local-name()='criteriaSetType']/text()", "//*[local-name()='attributeType']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeType']/text()", "//*[local-name()='companyCode']/text()", "//*[local-name()='type']/text()", "//*[local-name()='vendorCode']/text()", "//*[local-name()='cardNumber']/text()", "//*[local-name()='expiryDate']/text()", "//*[local-name()='type']/text()", "//*[local-name()='value']/text()")  
+        fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description, group_usage_attribute_type, payment_data_company_code, form_of_payment_type, credit_card_details_vendor_code, credit_card_details_card_number, credit_card_details_expiry_date, fortknox_ids_type, fortknox_ids_value = xmlparser.extract_single_elements(self.tree, "//*[local-name()='qualifier']/text()", "//*[local-name()='number']/text()", "//*[local-name()='type']/text()", "//*[local-name()='value']/text()", "//*[local-name()='number']/text()", "//*[local-name()='fopCode']/text()", "//*[local-name()='fopStatus']/text()", "//*[local-name()='fopEdiCode']/text()", "//*[local-name()='fopReportingCode']/text()", "//*[local-name()='fopElecTicketingCode']/text()", "//*[local-name()='textSubjectQualifier']/text()", "//*[local-name()='source']/text()", "//*[local-name()='encoding']/text()", "//*[local-name()='freeText']/text()", "//*[local-name()='criteriaSetType']/text()", "//*[local-name()='attributeType']/text()", "//*[local-name()='attributeDescription']/text()", "//*[local-name()='attributeType']/text()", "//*[local-name()='companyCode']/text()", "//*[local-name()='type']/text()", "//*[local-name()='vendorCode']/text()", "//*[local-name()='cardNumber']/text()", "//*[local-name()='expiryDate']/text()", "//*[local-name()='type']/text()", "//*[local-name()='value']/text()")
         return AmadeusAddFormOfPayment(fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description, group_usage_attribute_type, payment_data_company_code, form_of_payment_type, credit_card_details_vendor_code, credit_card_details_card_number, credit_card_details_expiry_date, fortknox_ids_type, fortknox_ids_value)
+
 
 class AddMultiElementExtractor(BaseResponseExtractor):
     """
@@ -138,7 +140,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
     """
     def __init__(self, xml_content: str):
         super().__init__(xml_content)
-    
+
     def _extract(self):
         pass
 
@@ -149,7 +151,7 @@ class TicketingExtractor(BaseResponseExtractor):
     """
     def __init__(self, xml_content: str):
         super().__init__(xml_content)
-    
+
     def _extract(self):
-        status_code, error_code, text_subject_qualifier, source, encoding, freetext = xmlparser.extract_single_elements(self.tree, "//*[local-name()='statusCode']/text()", "//*[local-name()='errorCode']/text()", "//*[local-name()='textSubjectQualifier']/text()", "//*[local-name()='source']/text()", "//*[local-name()='encoding']/text()",  "//*[local-name()='freeText']/text()")
+        status_code, error_code, text_subject_qualifier, source, encoding, freetext = xmlparser.extract_single_elements(self.tree, "//*[local-name()='statusCode']/text()", "//*[local-name()='errorCode']/text()", "//*[local-name()='textSubjectQualifier']/text()", "//*[local-name()='source']/text()", "//*[local-name()='encoding']/text()", "//*[local-name()='freeText']/text()")
         return AmadeusTicketing(status_code, error_code, text_subject_qualifier, source, encoding, freetext)

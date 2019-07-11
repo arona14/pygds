@@ -73,10 +73,9 @@ if __name__ == "__main__":
 
 
 def tester():
-   import requests
-   url = "https://nodeD1.test.webservices.amadeus.com"
-   header = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate', 'SOAPAction': 'http://webservices.amadeus.com/PNRADD_17_1_1A'}
-   data_ = f"""
+    url = "https://nodeD1.test.webservices.amadeus.com"
+    header = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate', 'SOAPAction': 'http://webservices.amadeus.com/PNRADD_17_1_1A'}
+    data_ = f"""
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
 <add:MessageID>WbsConsu-qz237F9j1KUhvBhBQH12jJ6E5bCfIrB-RzIWG9Egc</add:MessageID>
@@ -234,5 +233,5 @@ def tester():
    </soapenv:Body>
 </soapenv:Envelope>
     """
-   response = requests.post(url, data=data_, headers=header)
-   return response.content
+    response = requests.post(url, data=data_, headers=header)
+    return response.content
