@@ -10,23 +10,19 @@ __status__ = "Development"
 
 import requests
 
+from pygds.core.client import BaseClient
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
-from .sessions import SessionHolder
 
 
-class AmadeusClient:
+class AmadeusClient(BaseClient):
     """
         This is the main class to make calls to Amadeus API
     """
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str):
-        self.endpoint = endpoint
-        self.username = username
-        self.password = password
-        self.office_id = office_id
+        super().__init__(endpoint, username, password, office_id, wsap)
         self.xmlbuilder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
-        self.session_holder = SessionHolder()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
 
     def __request_wrapper(self, method_name, request_data, soap_action):
@@ -37,9 +33,7 @@ class AmadeusClient:
             3- look status code and handle exceptions
             4- parse response and return it
         """
-        headers = self.header_template
-        headers["SOAPAction"] = soap_action
-        response = requests.post(self.endpoint, data=request_data, headers=headers)
+        response = self._request_wrapper(method_name, request_data, soap_action)
         status = response.status_code
         print(f"{method_name} status: {status}")
         if status == 500:
