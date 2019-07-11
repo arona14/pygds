@@ -71,12 +71,14 @@ class AmadeusClient:
         """
         request_data = self.xmlbuilder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date, numbering)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data, 'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
+        print(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
     def sell_from_recommandation(self, itineraries):
         request_data = self.xmlbuilder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data, 'http://webservices.amadeus.com/ITAREQ_05_2_IA')
+        # print(response_data)
         return SessionExtractor(response_data).extract()
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
