@@ -1,5 +1,7 @@
 # coding: utf-8
-from pygds.core.types import TravellerNumbering
+from typing import List
+
+from pygds.core.types import TravellerNumbering, Itinerary
 
 __author__ = "Mouhamad Ndiankho THIAM"
 __copyright__ = "Copyright 2019, CTS"
@@ -71,9 +73,19 @@ class AmadeusClient:
         """
         request_data = self.xmlbuilder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date, numbering)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data, 'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
+        # print(response_data)
+        extractor = PriceSearchExtractor(response_data)
+        return extractor.extract()
+
+    def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
+        request_data = self.xmlbuilder.fare_informative_price_without_pnr(numbering, itineraries)
+        response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data, 'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
         print(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
+
+    def fare_check_rules(self):
+        return None
 
     def sell_from_recommandation(self, itineraries):
         request_data = self.xmlbuilder.sell_from_recomendation(itineraries)

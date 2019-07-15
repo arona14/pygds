@@ -1,4 +1,98 @@
-from pygds.core.types import TravellerNumbering
+from typing import List
+
+from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
+
+
+def mptbs_itinerary(segment: FlightSegment):
+    origin = segment.departure.airport if segment.departure.airport is not None else segment.departure.city
+    destination = segment.arrival.airport if segment.arrival.airport is not None else segment.arrival.city
+    departure_date = segment.departure.date
+    return f"""
+    <itinerary>
+        <requestedSegmentRef>
+            <segRef>{segment.sequence}</segRef>
+        </requestedSegmentRef>
+        <departureLocalization>
+            <depMultiCity>
+                <locationId>{origin}</locationId>
+                <airportCityQualifier>C</airportCityQualifier>
+            </depMultiCity>
+        </departureLocalization>
+        <arrivalLocalization>
+            <arrivalMultiCity>
+                <locationId>{destination}</locationId>
+                <airportCityQualifier>C</airportCityQualifier>
+            </arrivalMultiCity>
+        </arrivalLocalization>
+        <timeDetails>
+            <firstDateTimeDetail>
+                <date>{departure_date}</date>
+            </firstDateTimeDetail>
+            <rangeOfDate>
+                <rangeQualifier>M</rangeQualifier>
+                <dayInterval>2</dayInterval>
+            </rangeOfDate>
+        </timeDetails>
+    </itinerary>
+    """
+
+
+def mptbs_price_to_beat(price: float):
+    return f"""
+    <priceToBeat>
+        <moneyInfo>
+            <amount>{price}</amount>
+        </moneyInfo>
+    </priceToBeat>
+    """
+
+
+def mptbs_currency_conversion(currency: str):
+    """
+        Must be in <fareOptions>. And CUC must be specified in priceType
+        <fareOptions>
+            <pricingTickInfo>
+                <pricingTicketing>
+                    <priceType>CUC</priceType>
+    """
+    if currency is None:
+        return ''
+    return f"""
+    <conversionRate>
+        <conversionRateDetail>
+            <currency>{currency}</currency>
+        </conversionRateDetail>
+    </conversionRate>
+    """
+
+
+def mptbs_pricing_types(types: List[str]):
+    price_types = "\n".join([f"<priceType>{p_type}</priceType>" for p_type in types])
+    return f"""
+    <pricingTicketing>
+        {price_types}
+    </pricingTicketing>
+    """
+
+
+def mptbs_exclude_point(point: str):
+    """ Must be in <flightInfo> """
+    return f"""
+    <exclusionDetail>
+        <exclusionIdentifier>X</exclusionIdentifier>
+        <locationId>{point}</locationId>
+    </exclusionDetail>
+    """
+
+
+def mptbs_include_point(point: str):
+    """ Must be in <flightInfo> """
+    return f"""
+     <inclusionDetail>
+        <inclusionIdentifier>M</inclusionIdentifier>
+        <locationId>{point}</locationId>
+    </inclusionDetail>
+    """
 
 
 def sell_from_recommendation_itinerary_details(origin, destination, segments):
@@ -52,27 +146,43 @@ def sell_from_recommendation_segment(origin, destination, departure_date, compan
     """
 
 
-def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name, date_of_birth, pax_type,
+                                      infant_name=None):
+    quantity = 1
+    infant_part = ""
+    infant_indicator = ""
+    if infant_name is not None:
+        quantity = 2
+        infant_part = f"""
+        <passenger>
+            <firstName>{infant_name}</firstName>
+            <type>INF</type>
+        </passenger>
+        """
+        infant_indicator = "<infantIndicator>2</infantIndicator>"
+
     return f"""
         <travellerInfo>
             <elementManagementPassenger>
-            <reference>
-                <qualifier>PR</qualifier>
-                <number>{ref_number}</number>
-            </reference>
-            <segmentName>NM</segmentName>
+                <reference>
+                    <qualifier>PR</qualifier>
+                    <number>{ref_number}</number>
+                </reference>
+                <segmentName>NM</segmentName>
             </elementManagementPassenger>
             <passengerData>
-            <travellerInformation>
-                <traveller>
-                    <surname>{surname}</surname>
-                    <quantity>1</quantity>
-                </traveller>
-                <passenger>
-                    <firstName>{first_name}</firstName>
-                    <type>{pax_type}</type>
-                </passenger>
-            </travellerInformation>
+                <travellerInformation>
+                    <traveller>
+                        <surname>{surname}</surname>
+                        <quantity>{quantity}</quantity>
+                    </traveller>
+                    <passenger>
+                        <firstName>{first_name}</firstName>
+                        <type>{pax_type}</type>
+                        {infant_indicator}
+                    </passenger>
+                    {infant_part}
+                </travellerInformation>
             <dateOfBirth>
                 <dateAndTimeDetails>
                     <date>{date_of_birth}</date>
@@ -118,3 +228,126 @@ def _traveler_ref(pax_type, begin, pax_number):
             {travellers}
         </paxReference>
         """
+
+
+def add_multi_element_data_element(segment_name, qualifier, data_type, free_text):
+    return f"""
+    <dataElementsIndiv>
+        <elementManagementData>
+            <segmentName>{segment_name}</segmentName>
+        </elementManagementData>
+        <freetextData>
+            <freetextDetail>
+                <subjectQualifier>{qualifier}</subjectQualifier>
+                <type>{data_type}</type>
+            </freetextDetail>
+            <longFreetext>{free_text}</longFreetext>
+        </freetextData>
+    </dataElementsIndiv>
+    """
+
+
+def add_multi_element_contact_element(contact_type, passenger_ref, contact):
+    return add_multi_element_data_element("AP", passenger_ref, contact_type, contact)
+
+
+def fare_informative_price_passengers(travellers_info: TravellerNumbering):
+    seq = 1
+    adults, children, infants = "", "", ""
+    start = 1
+    if travellers_info.adults > 0:
+        adults = _fare_informative_price_passenger_group(seq, start, travellers_info.adults, 'ADT')
+        start = travellers_info.adults
+        seq += 1
+    if travellers_info.children > 0:
+        children = _fare_informative_price_passenger_group(seq, start, travellers_info.children, 'CH')
+        seq += 1
+    if travellers_info.infants > 0:
+        infants = _fare_informative_price_passenger_group(seq, 1, travellers_info.infants, 'INF')
+    return f"""
+    {adults}
+    {children}
+    {infants}
+    """
+
+
+def fare_informative_price_segments(itineraries: List[Itinerary]):
+    result = ""
+    segment_idx = 1
+    itinerary_idx = 1
+    for itinerary in itineraries:
+        segments = ""
+        for segment in itinerary.segments:
+            segments += _fare_informative_price_segment(segment, itinerary_idx, segment_idx)
+            segment_idx += 1
+        result += f"""
+        <segmentGroup>
+            {segments}
+        </segmentGroup>
+        """
+        itinerary_idx += 1
+    return result
+
+
+def _fare_informative_price_segment(segment: FlightSegment, itinerary_no: int, segment_global_no: int):
+    return f"""
+    <segmentInformation>
+       <flightDate>
+            <departureDate>{segment.departure.date}</departureDate>
+            <departureTime>{segment.departure.time}</departureTime>
+        </flightDate>
+        <boardPointDetails>
+            <trueLocationId>{segment.departure.airport}</trueLocationId>
+        </boardPointDetails>
+        <offpointDetails>
+            <trueLocationId>{segment.arrival.airport}</trueLocationId>
+        </offpointDetails>
+        <companyDetails>
+            <marketingCompany>{segment.airline}</marketingCompany>
+        </companyDetails>
+        <flightIdentification>
+            <flightNumber>{segment.flightNumber}</flightNumber>
+            <bookingClass>{segment.classOfService}</bookingClass>
+        </flightIdentification>
+        <flightTypeDetails>
+            <flightIndicator>{itinerary_no}</flightIndicator>
+        </flightTypeDetails>
+        <itemNumber>{segment_global_no}</itemNumber>
+    </segmentInformation>
+    """
+
+
+def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type):
+    if count is None or count == 0:
+        return ""
+    travellers = ""
+    for i in range(start, count + start):
+        travellers += f"""
+        <travellerDetails>
+              <measurementValue>{i}</measurementValue>
+       </travellerDetails>
+        """
+    infant_indicator = ""
+    if pax_type == "INF":
+        infant_indicator = """
+        <fareDetails>
+          <qualifier>766</qualifier>
+        </fareDetails>
+        """
+    return f"""
+    <passengersGroup>
+        <segmentRepetitionControl>
+           <segmentControlDetails>
+              <quantity>{sequence_no}</quantity>
+              <numberOfUnits>{count}</numberOfUnits>
+           </segmentControlDetails>
+        </segmentRepetitionControl>
+        <travellersID>
+           {travellers}
+        </travellersID>
+        <discountPtc>
+           <valueQualifier>{pax_type}</valueQualifier>
+           {infant_indicator}
+        </discountPtc>
+     </passengersGroup>
+    """

@@ -28,9 +28,9 @@ def test():
     try:
         # session_info = client.start_new_session()
         # print(session_info)
-        origin, destination, date_dep, date_arr = ("JFK", "WAW", "050819", "100819")
+        origin, destination, date_dep, date_arr = ("LON", "TYO", "050819", "100819")
         log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2, 1, 1))
+        search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
         log.debug(search_results)
         segments = search_results[0]["segments"]
         log.debug(f"sement length: {len(segments)}")

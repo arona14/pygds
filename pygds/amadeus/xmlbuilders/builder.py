@@ -1,7 +1,8 @@
 from time import gmtime, strftime
+from typing import List
 
 from pygds.amadeus.xmlbuilders import sub_parts
-from pygds.core.types import TravellerNumbering
+from pygds.core.types import TravellerNumbering, Itinerary
 from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -34,7 +35,7 @@ class AmadeusXMLBuilder:
         if nonce is None:
             nonce = generate_nonce()
         digested_password = password_digest(self.password, nonce, created_date_time)
-        return (message_id, nonce, created_date_time, digested_password)
+        return message_id, nonce, created_date_time, digested_password
 
     def new_transaction_chunk(self, office_id, username, nonce, digested_password, created_date_time):
         """
@@ -156,13 +157,26 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date, traveller_numbering: TravellerNumbering, result_count=250):
+    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date, numbering: TravellerNumbering, with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
         """
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time)
+        currency_conversion: str = None
+        stop_option = ""
+        if not with_stops:
+            stop_option = """
+            <travelFlightInfo>
+                <flightDetail>
+                    <flightType>N</flightType>
+                </flightDetail>
+            </travelFlightInfo>
+            """
+        pricing_options = ["ET", "RP", "RU", "TAC"]
+        if currency_conversion:
+            pricing_options.append("CUC")
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -175,7 +189,7 @@ class AmadeusXMLBuilder:
                 <Fare_MasterPricerTravelBoardSearch>
                     <numberOfUnit>
                         <unitNumberDetail>
-                            <numberOfUnits>{traveller_numbering.total_seats()}</numberOfUnits>
+                            <numberOfUnits>{numbering.total_seats()}</numberOfUnits>
                             <typeOfUnit>PX</typeOfUnit>
                         </unitNumberDetail>
                         <unitNumberDetail>
@@ -183,25 +197,17 @@ class AmadeusXMLBuilder:
                             <typeOfUnit>RC</typeOfUnit>
                         </unitNumberDetail>
                     </numberOfUnit>
-                    {sub_parts.generate_seat_traveller_numbering(traveller_numbering)}
+                    {sub_parts.generate_seat_traveller_numbering(numbering)}
                     <fareOptions>
                         <pricingTickInfo>
-                            <pricingTicketing>
-                                <priceType>ET</priceType>
-                                <priceType>RP</priceType>
-                                <priceType>RU</priceType>
-                                <priceType>TAC</priceType>
-                            </pricingTicketing>
+                            {sub_parts.mptbs_pricing_types(pricing_options)}
                         </pricingTickInfo>
+                        {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
-                    <travelFlightInfo>
-                        <flightDetail>
-                            <flightType>N</flightType>
-                        </flightDetail>
-                    </travelFlightInfo>
+                    {stop_option}
                     <itinerary>
                         <requestedSegmentRef>
-                        <segRef>1</segRef>
+                            <segRef>1</segRef>
                         </requestedSegmentRef>
                         <departureLocalization>
                         <depMultiCity>
@@ -228,6 +234,32 @@ class AmadeusXMLBuilder:
                 </Fare_MasterPricerTravelBoardSearch>
             </soapenv:Body>
             </soapenv:Envelope>
+        """
+
+    def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
+        security = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password, created_date_time)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+           <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+            <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/TIPNRQ_18_1_1A</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security}
+            <awsse:Session TransactionStatusCode="Start" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"/>
+            </soapenv:Header>
+           <soapenv:Body>
+              <Fare_InformativePricingWithoutPNR>
+                 {sub_parts.fare_informative_price_passengers(numbering)}
+                 {sub_parts.fare_informative_price_segments(itineraries)}
+              </Fare_InformativePricingWithoutPNR>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+
+    def fare_check_rules(self):
+        return f"""
         """
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
@@ -377,18 +409,7 @@ class AmadeusXMLBuilder:
                     {''.join(passenger_infos)}
                     <dataElementsMaster>
                         <marker1/>
-                        <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>RF</segmentName>
-                        </elementManagementData>
-                        <freetextData>
-                            <freetextDetail>
-                                <subjectQualifier>3</subjectQualifier>
-                                <type>P22</type>
-                            </freetextDetail>
-                            <longFreetext>{office_id}</longFreetext>
-                        </freetextData>
-                        </dataElementsIndiv>
+                        {sub_parts.add_multi_element_data_element("RF", 3, "P22", office_id)}
                         <dataElementsIndiv>
                         <elementManagementData>
                             <segmentName>OP</segmentName>
@@ -399,75 +420,42 @@ class AmadeusXMLBuilder:
                             </optionDetail>
                         </optionElement>
                         </dataElementsIndiv>
+                        {sub_parts.add_multi_element_contact_element(7, "6", "0722541415")}
+                        {sub_parts.add_multi_element_contact_element(7, "7", "0722541415")}
+                        {sub_parts.add_multi_element_contact_element(7, "P02", "cjebelean@xvalue.ro")}
                         <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>AP</segmentName>
-                        </elementManagementData>
-                        <freetextData>
-                            <freetextDetail>
-                                <subjectQualifier>7</subjectQualifier>
-                                <type>6</type>
-                            </freetextDetail>
-                            <longFreetext>0722541415</longFreetext>
-                        </freetextData>
+                            <elementManagementData>
+                                <segmentName>TK</segmentName>
+                            </elementManagementData>
+                            <ticketElement>
+                                <ticket>
+                                    <indicator>OK</indicator>
+                                </ticket>
+                            </ticketElement>
                         </dataElementsIndiv>
                         <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>AP</segmentName>
-                        </elementManagementData>
-                        <freetextData>
-                            <freetextDetail>
-                                <subjectQualifier>7</subjectQualifier>
-                                <type>7</type>
-                            </freetextDetail>
-                            <longFreetext>0722541415</longFreetext>
-                        </freetextData>
+                            <elementManagementData>
+                                <segmentName>FP</segmentName>
+                            </elementManagementData>
+                            <formOfPayment>
+                                <fop>
+                                    <identification>CA</identification>
+                                </fop>
+                            </formOfPayment>
                         </dataElementsIndiv>
                         <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>AP</segmentName>
-                        </elementManagementData>
-                        <freetextData>
-                            <freetextDetail>
-                                <subjectQualifier>7</subjectQualifier>
-                                <type>P02</type>
-                            </freetextDetail>
-                            <longFreetext>cjebelean@xvalue.ro</longFreetext>
-                        </freetextData>
-                        </dataElementsIndiv>
-                        <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>TK</segmentName>
-                        </elementManagementData>
-                        <ticketElement>
-                            <ticket>
-                                <indicator>OK</indicator>
-                            </ticket>
-                        </ticketElement>
-                        </dataElementsIndiv>
-                        <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>FP</segmentName>
-                        </elementManagementData>
-                        <formOfPayment>
-                            <fop>
-                                <identification>CA</identification>
-                            </fop>
-                        </formOfPayment>
-                        </dataElementsIndiv>
-                        <dataElementsIndiv>
-                        <elementManagementData>
-                            <reference>
-                                <qualifier>OT</qualifier>
-                                <number>1</number>
-                            </reference>
-                            <segmentName>FM</segmentName>
-                        </elementManagementData>
-                        <commission>
-                            <commissionInfo>
-                                <percentage>5</percentage>
-                            </commissionInfo>
-                        </commission>
+                            <elementManagementData>
+                                <reference>
+                                    <qualifier>OT</qualifier>
+                                    <number>1</number>
+                                </reference>
+                                <segmentName>FM</segmentName>
+                            </elementManagementData>
+                            <commission>
+                                <commissionInfo>
+                                    <percentage>5</percentage>
+                                </commissionInfo>
+                            </commission>
                         </dataElementsIndiv>
                     </dataElementsMaster>
                 </PNR_AddMultiElements>
