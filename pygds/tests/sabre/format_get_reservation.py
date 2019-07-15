@@ -9,21 +9,21 @@ with open(file_path) as f:
     object_sabre = json.load(f)
 
 
-# def test_segments():
-#     segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
-#     formatter = SabreReservationFormatter()
-#     itinerary_info = formatter.itineraryInfo(segments)
-#     print(itinerary_info)
-
-
-# if __name__ == "__main__":
-#     test_segments()
-
-
-def test_passenger():
-    passenger_info = SabreReservationFormatter().get_passengers(object_sabre)
-    print(passenger_info)
+def test_segments():
+    segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
+    formatter = SabreReservationFormatter()
+    itinerary_info = formatter.itineraryInfo(segments)
+    print(itinerary_info)
 
 
 if __name__ == "__main__":
-    test_passenger()
+    test_segments()
+
+
+# def test_passenger():
+#     passenger_info = SabreReservationFormatter().get_passengers(object_sabre)
+#     print(passenger_info)
+
+
+# if __name__ == "__main__":
+#     test_passenger()
