@@ -32,8 +32,8 @@ def test():
         log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
         search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
         log.debug(search_results)
-        segments = search_results[0]["segments"]
-        log.debug(f"sement length: {len(segments)}")
+        segments = search_results[0]["itineraries"]
+        log.debug(f"segment length: {len(segments)}")
         itineraries = []
         for s in segments:
             seg = s[0]

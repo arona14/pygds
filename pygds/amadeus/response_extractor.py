@@ -1,3 +1,4 @@
+# from pygds.core.types import FlightSegment, FlightPointDetails
 from ..core import xmlparser
 from ..core import helpers
 from .amadeus_types import AmadeusSessionInfo
@@ -84,12 +85,12 @@ class PriceSearchExtractor(BaseResponseExtractor):
             segment_flights = helpers.ensure_list(segment_flights)
             for seg in segment_flights:
                 reco = {"price": price, "currency": currency}
-                segs = []
+                itineraries = []
                 flight_indexes = helpers.get_data_from_json(seg, "referencingDetail")
                 flight_indexes = helpers.ensure_list(flight_indexes)
                 flight_indexes = [x["refNumber"] for x in flight_indexes if x["refQualifier"] == 'S']
                 for idx, val in enumerate(flight_indexes):
-                    legs = []
+                    segments = []
                     flight_details = flights[idx]["groupOfFlights"][int(val) - 1]["flightDetails"]
                     flight_details = helpers.ensure_list(flight_details)
                     for leg, flight in enumerate(flight_details):
@@ -102,6 +103,8 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         dep_date_time = flight_info["productDateTime"]
                         departure_date = dep_date_time["dateOfDeparture"]
                         departure_time = dep_date_time["timeOfDeparture"]
+                        arrival_date = dep_date_time["dateOfArrival"]
+                        arrival_time = dep_date_time["timeOfArrival"]
                         company_info = flight_info["companyId"]
                         market_company = company_info["marketingCarrier"]
                         oper_company = company_info["marketingCarrier"]
@@ -110,15 +113,19 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         product_detail = helpers.ensure_list(fare_details[idx]["groupOfFares"])[leg]["productInformation"]
                         book_class = product_detail["cabinProduct"]["rbd"]
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
-                        legd = {
+                        # departure = FlightPointDetails(departure_date, departure_time, 0, "", board_airport, "", "")
+                        # arrival = FlightPointDetails(arrival_date, arrival_time, 0, "", off_airport, "", "")
+                        # segment = FlightSegment(0, departure, arrival, market_company, flight_number, book_class, "")
+                        segment = {
                             "fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
                             "flight_number": flight_number, "departure_date": departure_date,
-                            "departure_time": departure_time, "marketing_company": market_company,
-                            "operator_company": oper_company, "book_class": book_class
+                            "departure_time": departure_time, "arrival_date": arrival_date, "arrival_time": arrival_time
+                            , "marketing_company": market_company, "operator_company": oper_company,
+                            "book_class": book_class
                         }
-                        legs.append(legd)
-                    segs.append(legs)
-                reco["segments"] = segs
+                        segments.append(segment)
+                    itineraries.append(segments)
+                reco["itineraries"] = itineraries
                 recs.append(reco)
         return recs
 
@@ -171,7 +178,8 @@ class PricePNRExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_PricePNRWithBookingClassReply")
-        fare_list = helpers.ensure_list(payload["fareList"])
+        fare_list = helpers.get_data_from_json(payload, "fareList")
+        fare_list = helpers.ensure_list(fare_list)
         tst_references = []
         for idx, fare in enumerate(fare_list):
             ref = fare["fareReference"]
