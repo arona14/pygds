@@ -1,5 +1,5 @@
 from pygds.core.types import Passenger
-from pygds.core.types import Itinerary, FlightSegment, FlightPointDetails
+from pygds.core.types import Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks
 """from pygds.sabre.base_service import BaseService
 from pygds.sabre.session import SabreSession
 from ..core import xmlparser
@@ -171,7 +171,78 @@ class SabreReservationFormatter():
                 if out_bound_connection == "false":  # end of an itinerary
                     result.append(current_itinerary)
         return result
-                
+
+    def formofpayment(self, forms_of_payment):
+        formof_payment_list = []
+        if forms_of_payment is None:
+            return formof_payment_list
+        short_text = forms_of_payment['stl18:FormsOfPayment']
+        if not isinstance(short_text, list):
+            short_text = [short_text]
+        result = []
+        for i in short_text:
+            if 'stl18:CreditCardPayment' in i:
+                if 'ShortText' in i['stl18:CreditCardPayment']:
+                    sh_text = i['stl18:CreditCardPayment']['ShortText']
+                else:
+                    sh_text = ""
+            objet = FormOfPayment(sh_text)
+            result.append(objet)
+        return result
+
+    def ticketing_info(self, ticket):
+        list_ticket = []
+        if ticket is None:
+            return list_ticket
+        ticket_info = ticket['stl18:TicketingInfo']
+        if not isinstance(ticket_info, list):
+            ticket_info = [ticket_info]
+        result = []
+        for tick in ticket_info:
+            if 'stl18:FutureTicketing' in tick:
+                id_ticket = tick['stl18:FutureTicketing']['id']
+                index = tick['stl18:FutureTicketing']['index']
+                element_id = tick['stl18:FutureTicketing']['elementId']
+                code = tick['stl18:FutureTicketing']['stl18:Code']
+                branch_pcc = tick['stl18:FutureTicketing']['stl18:BranchPCC']
+                date = tick['stl18:FutureTicketing']['stl18:Date']
+                time = tick['stl18:FutureTicketing']['stl18:Time']
+                queue_number = tick['stl18:FutureTicketing']['stl18:QueueNumber']
+                comment = tick['stl18:FutureTicketing']['stl18:Comment']
+                ticketinf = TicketingInfo(id_ticket, index, element_id, code, branch_pcc, date, time, queue_number, comment)
+                result.append(ticketinf)
+        return result
+
+    def get_remarks(self, remarks_data):
+        remark_list = []
+        if remarks_data is None:
+            return remark_list
+        remarks = remarks_data['stl18:Remarks']['stl18:Remark']
+        if not isinstance(remarks, list):
+            remarks = [remarks]
+        # print(f"length of remarks: {len(remarks)}")
+        result = []
+        index = 0
+        for remark in remarks:
+            print(remark)
+            # if 'stl18:Remark' in remark:
+            if 'type' in remark:
+                type_rem = remark['type']
+            else:
+                type_rem = ""
+            if 'elementId' in remark:
+                element_id = remark['elementId']
+            else:
+                element_id = ""
+            # if 'stl18:Text' in remark:
+            text = remark['stl18:RemarkLines']['stl18:RemarkLine']['stl18:Text']
+            # else:
+            # text = ""
+            index += 1
+            remark_objet = Remarks(index, type_rem, element_id, text)
+            result.append(remark_objet)
+        return result 
+
     def get_passengers(self, data):
         passengers_data = data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Passengers"]
         passenger_list = []

@@ -200,7 +200,13 @@ class FormOfPayment(BasicDataObject):
     """
         Keeps information about form of payments
     """
-    pass
+    def __init__(self, short_text: str = None):
+        self.short_text = short_text
+
+    def to_data(self):
+        return{
+            "short_text": self.short_text
+        }
 
 
 class PriceQuote(BasicDataObject):
@@ -214,7 +220,48 @@ class TicketingInfo(BasicDataObject):
     """
         Represents a ticketing information
     """
-    pass
+    def __init__(self, id: str = None, index: str = None, element_id: str = None, code: str = None, branch_pcc: str = None, date: str = None, time: str = None, queue_number: str = None, comment: str = None):
+        self.id = id
+        self.index = index
+        self.element_id = element_id
+        self.code = code
+        self.branch_pcc = branch_pcc
+        self.date = date
+        self.time = time
+        self.queue_number = queue_number
+        self.comment = comment
+
+    def to_data(self):
+        return{
+            "id": self.id,
+            "index": self.index,
+            "element_id": self.element_id,
+            "code": self.code,
+            "branch_pcc": self.branch_pcc,
+            "date": self.date,
+            "time": self.time,
+            "queue_number": self.queue_number,
+            "comment": self.comment,
+        }
+
+
+class Remarks(BasicDataObject):
+    """
+     feep informations about remarks
+    """
+    def __init__(self, sequence: int = 1, type_remark: str = None, element_id: str = None, text: str = None):
+        self.sequence = sequence
+        self.type_remark = type_remark
+        self.element_id = element_id
+        self.text = text
+
+    def to_data(self):
+        return{
+            "sequence": self.sequence,
+            "type_remark": self.type_remark,
+            "element_id": self.element_id,
+            "text": self.text
+        }
 
 
 class Reservation(BasicDataObject):
