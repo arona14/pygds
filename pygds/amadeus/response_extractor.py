@@ -11,6 +11,7 @@ class BaseResponseExtractor(object):
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
+        self.session_info = None
 
     def parse(self):
         """
@@ -23,10 +24,14 @@ class BaseResponseExtractor(object):
 
     def extract(self):
         """
-            The public method to call when extracting useful data.
+        The public method to call when extracting useful data.
+        :return: tuple(session_info, useful_data) except for SessionExtractor class
         """
-        print(".extract called")
+        print(f"{self.__class__}.extract called")
         self.parse()
+        if self.session_info is None and not isinstance(self, SessionExtractor):
+            self.session_info = SessionExtractor(self.xml_content).extract()
+            return self.session_info, self._extract()
         return self._extract()
 
     def _extract(self):
