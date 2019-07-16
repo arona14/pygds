@@ -122,3 +122,17 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 reco["segments"] = segs
                 recs.append(reco)
         return recs
+
+
+class CommandReplyExtractor(BaseResponseExtractor):
+    """
+        Class command reply from XML Response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+        self.parsed = True
+
+    def _extract(self):
+        payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Command_CrypticReply")
+        return helpers.get_data_from_json(payload, "longTextString", "textStringDetails")
+
