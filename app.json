@@ -1,0 +1,22 @@
+{
+  "name": "Pygds",
+  "description": "Pygds package",
+  "image": "heroku/python",
+  "repository": "https://github.com/cosmopolitan-travel-serivce/pygds",
+  "keywords": ["python"],
+  "addons": [],
+  "env": {
+    "SECRET_KEY": {
+      "description": "The secret key for the pygds package.",
+      "generator": "secret"
+    }
+  },
+  "environments": {
+    "test": {
+      "scripts": {
+          "test-setup": "flake8 pygds",
+          "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=70 --cover-tests"
+        }
+    }
+  }
+}
