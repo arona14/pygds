@@ -10,7 +10,7 @@ __status__ = "Development"
 
 import requests
 
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor
+from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .sessions import SessionHolder
@@ -40,14 +40,16 @@ class AmadeusClient:
         headers = self.header_template
         headers["SOAPAction"] = soap_action
         response = requests.post(self.endpoint, data=request_data, headers=headers)
+        # print(response.content)
         status = response.status_code
         print(f"{method_name} status: {status}")
         if status == 500:
-            faultcode, faultstring = ErrorExtractor(response.content).extract()
+            sess, (faultcode, faultstring) = ErrorExtractor(response.content).extract()
             print(f"faultcode: {faultcode}, faultstring: {faultstring}")
-            raise ServerError(status, faultcode, faultstring)
+            raise ServerError(sess, status, faultcode, faultstring)
         elif status == 400:
-            raise ClientError(status, "Client Error")
+            sess = SessionExtractor(response.content).extract()
+            raise ClientError(sess, status, "Client Error")
         return response.content
 
     def start_new_session(self):
@@ -55,6 +57,11 @@ class AmadeusClient:
             This method starts a new session to Amadeus.
         """
         request_data = self.xmlbuilder.start_transaction(None, self.office_id, self.username, self.password, None, None)
+        response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
+        return SessionExtractor(response_data).extract()
+
+    def end_session(self, message_id, session_id, sequence_number, security_token):
+        request_data = self.xmlbuilder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
@@ -75,3 +82,14 @@ class AmadeusClient:
         request_data = self.xmlbuilder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return response_data
+
+    def send_command(self, command: str, message_id: str = None, session_id: str = None, sequence_number: str = None,
+                     security_token: str = None, close_trx: bool = False):
+        """
+            Send a command to Amadeus API
+        """
+        # TODO : log before and after sending command
+        request_data = self.xmlbuilder.send_command(command, message_id, session_id, sequence_number, security_token, close_trx)
+        # print(request_data)
+        response_data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
+        return CommandReplyExtractor(response_data).extract()

@@ -1,7 +1,7 @@
 """
     This is for testing purposes like a suite.
 """
-
+from pygds.amadeus.amadeus_types import AmadeusSessionInfo
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
@@ -17,15 +17,35 @@ def test():
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap)
     try:
-        session_info = client.start_new_session()
+        # session_info: AmadeusSessionInfo = client.end_session("1444d25f-6a41-453d-b470-40b11800b1c4", "0040OA0Z0U", "2", "18S22N1IEJ6AX4DW6X7U04RJ9")
+        # session_info: AmadeusSessionInfo = client.start_new_session()
+        # print(session_info)
+        # # s_id, seq, tok, m_id = ("01QRI3RJ49", "2", "3HYKHH9PY33Q2PUMO2PCZTLK2", "Test-me")
+        # sess, search = client.fare_master_pricer_travel_board_search("PAR", "WAW", "050819", "100819")
+        # s_id, seq, tok, m_id = (sess.session_id, sess.sequence_number, sess.security_token, sess.message_id)
+        # s_id, seq, tok, m_id = (None, None, None, None)
+        s_id, seq, tok, m_id = ("01R2UJ60FW", "3", "2DLL3YL8ZO5KJHV3SR88J33F5", "WbsConsu-8avfVe16eb9d45D4UXEgm35mIJGhtia-Pb4V00Rhb")
+        pnr = "Q68EFX"
+        session_info, command_response = client.send_command(f"RT{pnr}", m_id, s_id, seq, tok)
         print(session_info)
-        res = client.fare_master_pricer_travel_board_search("PAR", "WAW", "050819", "100819")
-        # res = client.fare_price_pnr_with_booking_class("WbsConsu-BKqflYaGY0WAgxkCQ00ACBQ20GM3Jit-Yhnyfq1dH", session_info.session_id, "4", session_info.security_token)
-        print(str(res))
+        print(command_response)
+        session_info, command_response = client.send_command(f"IR", m_id, s_id, seq, tok)
+        print(session_info)
+        print(command_response)
+        # s_id, seq, tok, m_id = (session_info.session_id, session_info.sequence_number, session_info.security_token, session_info.message_id)
+        # client.end_session(m_id, s_id, seq, tok)
+        # s_id, seq, tok, m_id = (session_info.session_id, int(session_info.sequence_number) + 1, session_info.security_token, session_info.message_id)
+        # command_response, _ = client.send_command(f"IR", m_id, s_id, seq, tok)
+        # print(command_response)
+        # # res = client.fare_master_pricer_travel_board_search("PAR", "WAW", "050819", "100819")
+        # # res = client.fare_price_pnr_with_booking_class("WbsConsu-BKqflYaGY0WAgxkCQ00ACBQ20GM3Jit-Yhnyfq1dH", session_info.session_id, "4", session_info.security_token)
+        # # print(str(res))
     except ClientError as ce:
         print(f"client_error: {ce}")
+        print(f"session: {ce.session_info}")
     except ServerError as se:
         print(f"server_error: {se}")
+        print(f"session: {se.session_info}")
 
 
 if __name__ == "__main__":
