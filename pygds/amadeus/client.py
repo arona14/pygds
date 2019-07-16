@@ -9,6 +9,7 @@ __email__ = "mohamed@ctsfares.com"
 __status__ = "Development"
 
 import requests
+import logging
 
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor
 from .errors import ClientError, ServerError
@@ -28,6 +29,7 @@ class AmadeusClient:
         self.xmlbuilder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
         self.session_holder = SessionHolder()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
+        self.log = logging.getLogger("AmadeusClient")
 
     def __request_wrapper(self, method_name, request_data, soap_action):
         """
@@ -42,10 +44,10 @@ class AmadeusClient:
         response = requests.post(self.endpoint, data=request_data, headers=headers)
         # print(response.content)
         status = response.status_code
-        print(f"{method_name} status: {status}")
+        self.log.info(f"{method_name} status: {status}")
         if status == 500:
             sess, (faultcode, faultstring) = ErrorExtractor(response.content).extract()
-            print(f"faultcode: {faultcode}, faultstring: {faultstring}")
+            self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
             raise ServerError(sess, status, faultcode, faultstring)
         elif status == 400:
             sess = SessionExtractor(response.content).extract()
@@ -86,10 +88,18 @@ class AmadeusClient:
     def send_command(self, command: str, message_id: str = None, session_id: str = None, sequence_number: str = None,
                      security_token: str = None, close_trx: bool = False):
         """
-            Send a command to Amadeus API
+        Send a command to Amadeus API
+        :param command: the command to send as str
+        :param message_id: The message id as str. Can be None if starting a new session
+        :param session_id: The session id as str. Can be None if starting a new session
+        :param sequence_number: The sequence number as int of the flow. Can be None if starting a new session
+        :param security_token: The security token as str. Can be None if starting a new session
+        :param close_trx: boolean telling if we are ending or not the current session
+        :return: Tuple(session_info: AmadeusSessionInfo, reply: str)
         """
-        # TODO : log before and after sending command
+        self.log.info(f"Sending command '{command}' to Amadeus server.")
         request_data = self.xmlbuilder.send_command(command, message_id, session_id, sequence_number, security_token, close_trx)
-        # print(request_data)
+        if security_token is None:
+            self.log.warning("A new session will be created when sending the command.")
         response_data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(response_data).extract()

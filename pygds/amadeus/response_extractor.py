@@ -18,7 +18,6 @@ class BaseResponseExtractor(object):
             If not already done, it parses the XML content to JSON and save it.
         """
         if not self.parsed:
-            print(".parse called")
             self.tree = xmlparser.parse_xml(self.xml_content)
             self.parsed = True
 
@@ -27,7 +26,6 @@ class BaseResponseExtractor(object):
         The public method to call when extracting useful data.
         :return: tuple(session_info, useful_data) except for SessionExtractor class
         """
-        print(f"{self.__class__}.extract called")
         self.parse()
         if self.session_info is None and not isinstance(self, SessionExtractor):
             self.session_info = SessionExtractor(self.xml_content).extract()
@@ -60,7 +58,6 @@ class SessionExtractor(BaseResponseExtractor):
         super().__init__(xml_content)
 
     def _extract(self):
-        print("SessionExtractor._extract called")
         seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()", "//*[local-name()='Session']/@TransactionStatusCode")
