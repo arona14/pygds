@@ -16,7 +16,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'pandas',
-        'psycopg2',
         'jxmlease',
         'xmltodict',
         'requests'
