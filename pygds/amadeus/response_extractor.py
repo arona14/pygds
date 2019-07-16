@@ -56,8 +56,10 @@ class SessionExtractor(BaseResponseExtractor):
 
     def _extract(self):
         print("SessionExtractor._extract called")
-        seq, tok, ses = xmlparser.extract_single_elements(self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()")
-        return AmadeusSessionInfo(tok, seq, ses)
+        seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
+            self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
+            "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()", "//*[local-name()='Session']/@TransactionStatusCode")
+        return AmadeusSessionInfo(tok, int(seq), ses, m_id, status)
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
