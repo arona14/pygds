@@ -70,14 +70,14 @@ class AmadeusClient:
         """
             add the payment form to the PNR.
         """
-
         request_data = self.xmlbuilder.add_form_of_payment_builder(message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date)
         response_data = self.__request_wrapper("add_form_of_payment", request_data, 'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
         return response_data
 
     def pnr_add_multi_element(self, session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
         """
-            add multi elements to the PNR."""
+            add multi elements to the PNR.
+        """
         request_data = self.xmlbuilder.pnr_add_multi_element_builder(session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code)
         response_data = self.__request_wrapper("pnr_add_multi_element", request_data, 'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return response_data
