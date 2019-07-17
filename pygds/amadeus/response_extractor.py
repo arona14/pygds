@@ -141,4 +141,3 @@ class CommandReplyExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Command_CrypticReply")
         return helpers.get_data_from_json(payload, "longTextString", "textStringDetails")
-

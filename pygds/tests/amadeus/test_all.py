@@ -3,7 +3,7 @@
 """
 
 import os
-from pygds.amadeus.amadeus_types import AmadeusSessionInfo
+# from pygds.amadeus.amadeus_types import AmadeusSessionInfo
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
