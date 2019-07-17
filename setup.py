@@ -18,6 +18,7 @@ setuptools.setup(
         'pandas',
         'jxmlease',
         'xmltodict',
+        'lxml',
         'requests'
     ],
     test_suite='nose.collector',
