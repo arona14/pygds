@@ -21,7 +21,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
     log = log_handler.get_logger("test_all")
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
     try:
         # session_info: AmadeusSessionInfo = client.end_session("1444d25f-6a41-453d-b470-40b11800b1c4", "0040OA0Z0U", "2", "18S22N1IEJ6AX4DW6X7U04RJ9")
         # session_info: AmadeusSessionInfo = client.start_new_session()

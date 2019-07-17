@@ -21,7 +21,7 @@ class AmadeusClient:
     """
         This is the main class to make calls to Amadeus API
     """
-    def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str):
+    def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str, debug: bool = False):
         self.endpoint = endpoint
         self.username = username
         self.password = password
@@ -30,6 +30,7 @@ class AmadeusClient:
         self.session_holder = SessionHolder()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
         self.log = logging.getLogger("AmadeusClient")
+        self.is_debugging = debug
 
     def __request_wrapper(self, method_name: str, request_data: str, soap_action: str):
         """
@@ -46,9 +47,11 @@ class AmadeusClient:
         headers = self.header_template
         headers["SOAPAction"] = soap_action
         response = requests.post(self.endpoint, data=request_data, headers=headers)
-        # log.debug(response.content)
         status = response.status_code
-        self.log.info(f"{method_name} status: {status}")
+        if self.is_debugging:
+            self.log.debug(request_data)
+            self.log.debug(response.content)
+            self.log.debug(f"{method_name} status: {status}")
         if status == 500:
             sess, (faultcode, faultstring) = ErrorExtractor(response.content).extract()
             self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
