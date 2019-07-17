@@ -1,6 +1,6 @@
-from ..core import xmlparser
-from ..core import helpers
-from .amadeus_types import AmadeusSessionInfo
+from pygds.core import xmlparser
+from pygds.core import helpers
+from pygds.amadeus.amadeus_types import AmadeusSessionInfo
 
 
 class BaseResponseExtractor(object):
