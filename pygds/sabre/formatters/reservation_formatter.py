@@ -27,7 +27,7 @@ class SabreReservationFormatter():
                 if "stl18:Air" in segment:
                     s = {}
                     m = {}
-                    s['Code'] = segment['stl18:Air']['Code'] 
+                    s['Code'] = segment['stl18:Air']['Code']
                     s['ResBookDesigCode'] = segment['stl18:Air']['ResBookDesigCode']
                     s['StopQuantity'] = segment['stl18:Air']['StopQuantity']
                     s['DepartureAirport'] = segment['stl18:Air']['stl18:DepartureAirport']
@@ -110,10 +110,10 @@ class SabreReservationFormatter():
             return 'Sat'
         if weekday == 6:
             return 'Sun'
-    
+
     def itineraryInfo(self, itinerary):
         '''
-        This method returns all the itineraries of a given sabre response 
+        This method returns all the itineraries of a given sabre response
         itinerary = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
         '''
         origin_destination_option = []
@@ -132,14 +132,14 @@ class SabreReservationFormatter():
                 if 'Code' in i['stl18:Air']:
                     code = i['stl18:Air']['Code']
                 else:
-                    code = ""                        
-                # res_book_desig_code = i['stl18:Air']['ResBookDesigCode']                   
+                    code = ""
+                # res_book_desig_code = i['stl18:Air']['ResBookDesigCode']
                 departure_airport = i['stl18:Air']['stl18:DepartureAirport']
                 arrival_airport = i['stl18:Air']['stl18:ArrivalAirport']
                 operating_airline_code = i['stl18:Air']['stl18:OperatingAirlineCode']
                 marketing_airline_code = i['stl18:Air']['stl18:MarketingAirlineCode']
                 equipment_type = i['stl18:Air']['stl18:EquipmentType']
-                departure_terminal_code = i['stl18:Air']['stl18:DepartureTerminalCode'] 
+                departure_terminal_code = i['stl18:Air']['stl18:DepartureTerminalCode']
                 if 'stl18:ArrivalTerminalCode' in i['stl18:Air']:
                     arrival_terminal_code = i['stl18:Air']['stl18:ArrivalTerminalCode']
                 else:
@@ -152,7 +152,7 @@ class SabreReservationFormatter():
                 number_in_party = i['stl18:Air']['stl18:NumberInParty']
                 out_bound_connection = i['stl18:Air']['stl18:outboundConnection']
                 in_bound_connection = i['stl18:Air']['stl18:inboundConnection']
-                airline_ref_id = str(i['stl18:Air']['stl18:AirlineRefId']).split('*')[1] 
+                airline_ref_id = str(i['stl18:Air']['stl18:AirlineRefId']).split('*')[1]
                 if 'stl18:ElapsedTime' in i['stl18:Air']:
                     elapsed_time = i['stl18:Air']['stl18:ElapsedTime']
                 else:
@@ -224,8 +224,6 @@ class SabreReservationFormatter():
         result = []
         index = 0
         for remark in remarks:
-            print(remark)
-            # if 'stl18:Remark' in remark:
             if 'type' in remark:
                 type_rem = remark['type']
             else:
@@ -234,14 +232,11 @@ class SabreReservationFormatter():
                 element_id = remark['elementId']
             else:
                 element_id = ""
-            # if 'stl18:Text' in remark:
             text = remark['stl18:RemarkLines']['stl18:RemarkLine']['stl18:Text']
-            # else:
-            # text = ""
             index += 1
             remark_objet = Remarks(index, type_rem, element_id, text)
             result.append(remark_objet)
-        return result 
+        return result
 
     def get_passengers(self, data):
         passengers_data = data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Passengers"]

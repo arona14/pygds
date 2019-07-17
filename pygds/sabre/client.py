@@ -7,9 +7,6 @@ from pygds.sabre.helpers import soap_service_to_json
 
 
 class SabreClient(BaseService):
-    # def __init__(self):
-    #     pass
-
     def open_session(self, pcc, conversation_id):
         SabreSession().open(pcc, conversation_id)
 
@@ -31,5 +28,4 @@ class SabreClient(BaseService):
         except:
             # TODO: Capture the real exception not the general one
             to_return_dict = None
-
         return to_return_dict

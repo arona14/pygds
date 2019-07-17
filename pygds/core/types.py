@@ -18,7 +18,7 @@ class BasicDataObject(object):
             Dumps the object to json string
         """
         return json.dumps(self.to_data(), indent=4)
-    
+
     def __repr__(self):
         """
         method that redefined the string type
@@ -55,16 +55,16 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
-    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, marketing_airline_code: str = None, operating_airline_code: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None):
+    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, marketing_airline_code: str = None, operating_airline_code: str = None, flight_number: str = None, class_of_service: str = None, elapsed_time: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None):
         self.sequence = sequence
         self.departure = departure
         self.arrival = arrival
         self.airline = airline
         self.marketing_airline_code = marketing_airline_code
         self.operating_airline_code = operating_airline_code
-        self.flightNumber = flightNumber
-        self.classOfService = classOfService
-        self.elapsedTime = elapsedTime
+        self.flight_number = flight_number
+        self.class_of_service = class_of_service
+        self.elapsed_time = elapsed_time
         self.equipment_type = equipment_type
         self.eticket = eticket
         self.number_in_party = number_in_party
@@ -78,9 +78,9 @@ class FlightSegment(BasicDataObject):
             "airline": self.airline,
             "marketing_airline": self.marketing_airline_code,
             "operating_airline": self.operating_airline_code,
-            "flightNumber": self.flightNumber,
-            "classOfService": self.classOfService,
-            "elapsedTime": self.elapsedTime,
+            "flightNumber": self.flight_number,
+            "classOfService": self.class_of_service,
+            "elapsedTime": self.elapsed_time,
             "equipment_type": self.equipment_type,
             "eticket": self.eticket,
             "number_in_party": self.number_in_party,
@@ -93,10 +93,10 @@ class Itinerary(BasicDataObject):
     """
         Holds information about an itinerary
     """
-    def __init__(self, itineraryType: str = None, elapsed_time: str = None):
+    def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
 
         self.segments: List[FlightSegment] = []
-        self.itineraryType = itineraryType
+        self.itinerary_type = itinerary_type
         self.elapsed_time = elapsed_time
 
     def addSegment(self, segment: FlightSegment):
@@ -126,7 +126,7 @@ class Itinerary(BasicDataObject):
             # "airlineRefId": self.air_line_ref_id,
             # "elapsedTime": self.elapsed_time,
             "segments": [s.to_data() for s in self.segments],
-            "itineraryType": self.itineraryType,
+            "itineraryType": self.itinerary_type,
             "elapsed_time": self.elapsed_time
         }
 
@@ -160,9 +160,9 @@ class Passenger(BasicDataObject):
         self.vendor_code = vendor_code
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrievePassengerType()
+        self.retrieve_passenger_type()
 
-    def retrievePassengerType(self):
+    def retrieve_passenger_type(self):
         """
             This method retrieves the passenger type from the age
         """
