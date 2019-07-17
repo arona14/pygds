@@ -4,17 +4,18 @@ import base64
 import pandas as pd
 
 
-def sabre_credentials(pcc):
+conn = {}
 
-    credentials = None
+credentials = {
+    "WR17": {}
+}
+
+
+def sabre_credentials(pcc):
     try:
-        query = f"""select "User","Password1" from portal_sabrecredentials where "Pcc" ='{pcc}' """
-        if query is not None:
-            credentials = pd.read_sql(sql=query, con=None)
-    except:
-        # TODO: Capture the real exception not the general one
-        pass
-    return credentials
+        return credentials[pcc]
+    except KeyError:
+        return None
 
 
 def decode_base64(source):
