@@ -1,6 +1,6 @@
 from pygds.core import xmlparser
 from pygds.core import helpers
-from pygds.amadeus.amadeus_types import AmadeusSessionInfo
+from pygds.amadeus.amadeus_types import AmadeusSessionInfo, GdsResponse
 
 
 class BaseResponseExtractor(object):
@@ -8,6 +8,10 @@ class BaseResponseExtractor(object):
         This is a base class for all response extractor. A helpful class to extract useful info from an XML.
     """
     def __init__(self, xml_content: str):
+        """
+        constructor for base class
+        :param xml_content: The content as XML
+        """
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
@@ -24,13 +28,13 @@ class BaseResponseExtractor(object):
     def extract(self):
         """
         The public method to call when extracting useful data.
-        :return: tuple(session_info, useful_data) except for SessionExtractor class
+        :return: GdsResponse
         """
         self.parse()
         if self.session_info is None and not isinstance(self, SessionExtractor):
-            self.session_info = SessionExtractor(self.xml_content).extract()
-            return self.session_info, self._extract()
-        return self._extract()
+            self.session_info = SessionExtractor(self.xml_content).extract().session_info
+            return GdsResponse(self.session_info, self._extract())
+        return GdsResponse(self._extract())
 
     def _extract(self):
         """

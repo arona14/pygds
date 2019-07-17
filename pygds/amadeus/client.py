@@ -26,23 +26,27 @@ class AmadeusClient:
         self.username = username
         self.password = password
         self.office_id = office_id
-        self.xmlbuilder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
+        self.xml_builder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
         self.session_holder = SessionHolder()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
         self.log = logging.getLogger("AmadeusClient")
 
-    def __request_wrapper(self, method_name, request_data, soap_action):
+    def __request_wrapper(self, method_name: str, request_data: str, soap_action: str):
         """
-            This wrapper method helps wrap request with:
+        This wrapper method helps wrap request with:
             1- creating request and calling it
             2- read status code
             3- look status code and handle exceptions
             4- parse response and return it
+        :param method_name: The name of the method. useful for logging purposes
+        :param request_data: the XML containing the request data
+        :param soap_action: The SAOP action
+        :return: the contain of the response
         """
         headers = self.header_template
         headers["SOAPAction"] = soap_action
         response = requests.post(self.endpoint, data=request_data, headers=headers)
-        # print(response.content)
+        # log.debug(response.content)
         status = response.status_code
         self.log.info(f"{method_name} status: {status}")
         if status == 500:
@@ -58,12 +62,12 @@ class AmadeusClient:
         """
             This method starts a new session to Amadeus.
         """
-        request_data = self.xmlbuilder.start_transaction(None, self.office_id, self.username, self.password, None, None)
+        request_data = self.xml_builder.start_transaction(None, self.office_id, self.username, self.password, None, None)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
         return SessionExtractor(response_data).extract()
 
     def end_session(self, message_id, session_id, sequence_number, security_token):
-        request_data = self.xmlbuilder.end_session(message_id, session_id, sequence_number, security_token)
+        request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
@@ -71,7 +75,7 @@ class AmadeusClient:
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xmlbuilder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date)
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data, 'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
@@ -81,7 +85,7 @@ class AmadeusClient:
             Price a PNR with a booking class.
             The PNR is supposed to be supplied in the session on a previous call.
         """
-        request_data = self.xmlbuilder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
+        request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return response_data
 
@@ -95,11 +99,12 @@ class AmadeusClient:
         :param sequence_number: The sequence number as int of the flow. Can be None if starting a new session
         :param security_token: The security token as str. Can be None if starting a new session
         :param close_trx: boolean telling if we are ending or not the current session
-        :return: Tuple(session_info: AmadeusSessionInfo, reply: str)
+        :return: GdsResponse with the response of the command as payload
         """
         self.log.info(f"Sending command '{command}' to Amadeus server.")
-        request_data = self.xmlbuilder.send_command(command, message_id, session_id, sequence_number, security_token, close_trx)
+        request_data = self.xml_builder.send_command(command, message_id, session_id, sequence_number, security_token,
+                                                     close_trx)
         if security_token is None:
             self.log.warning("A new session will be created when sending the command.")
-        response_data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
-        return CommandReplyExtractor(response_data).extract()
+        data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
+        return CommandReplyExtractor(data).extract()
