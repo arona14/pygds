@@ -1,7 +1,6 @@
 # This file will be change for refactoring purpose.
 
 import base64
-import pandas as pd
 
 
 conn = {}
