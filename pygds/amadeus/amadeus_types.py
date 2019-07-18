@@ -2,16 +2,21 @@ class AmadeusSessionInfo:
     """
     This class is for containing information for a session
     """
-    def __init__(self, security_token, sequence_number, session_id):
+
+    def __init__(self, security_token: str, sequence_number: int, session_id: str, message_id: str, session_ended: str = True):
         self.security_token = security_token
         self.sequence_number = sequence_number
         self.session_id = session_id
+        self.message_id = message_id
+        self.session_ended = session_ended
 
     def __repr__(self):
         return {
             "security_token": self.security_token,
             "sequence_number": self.sequence_number,
-            "session_id": self.session_id
+            "session_id": self.session_id,
+            "message_id": self.message_id,
+            "session_ended": self.session_ended
         }
 
     def __str__(self):
@@ -22,6 +27,7 @@ class AmadeusAddFormOfPayment:
     """
     This class is for containing information for add form of payment
     """
+
     def __init__(self, fop_reference_qualifier, fop_reference_number, passenger_reference_type, passenger_reference_value, fop_sequence_number, fop_pnr_details_code, fop_pnr_details_status, fop_pnr_details_edi_code, fop_pnr_details_reporting_code, fop_pnr_details_elec_ticketing_code, old_fop_free_flow_text_subject_qualifier, old_fop_free_flow_source, old_fop_free_flow_encoding, free_text, criteria_set_type, criteria_details_attribute_type, criteria_details_attribute_description, group_usage_attribute_type, payment_data_company_code, form_of_payment_type, credit_card_details_vendor_code, credit_card_details_card_number, credit_card_details_expiry_date, fortknox_ids_type, fortknox_ids_value):
         self.fop_reference_qualifier = fop_reference_qualifier
         self.fop_reference_number = fop_reference_number
@@ -101,6 +107,7 @@ class AmadeusTicketing:
     """
     This class is for containing information for add ticketing
     """
+
     def __init__(self, status_code, error_code, text_subject_qualifier, source, encoding, freetext):
         self.status_code = status_code
         self.error_code = error_code
@@ -121,3 +128,13 @@ class AmadeusTicketing:
 
     def __str__(self):
         return str(self.__repr__())
+
+
+class GdsResponse:
+    """
+    This class is for holding a parsed response from GDS. It will include the session information and the useful data (payload)
+    """
+
+    def __init__(self, session_info: AmadeusSessionInfo, payload=None):
+        self.session_info = session_info
+        self.payload = payload
