@@ -2,7 +2,8 @@ class SessionInfo:
     """
     This class is for containing information for a session
     """
-    def __init__(self, security_token: str, sequence_number: int, session_id: str, message_id: str, session_ended: str = True):
+    def __init__(self, security_token: str, sequence_number: int, session_id: str, message_id: str,
+                 session_ended: bool = True):
         self.security_token = security_token
         self.sequence_number = sequence_number
         self.session_id = session_id
@@ -25,7 +26,7 @@ class SessionInfo:
 class SessionHolder(object):
     """
         This class is for holding information for sessions.
-        The real use case is that we don't really need to hold all the info, but just the session id.
+        The real use case is that we don't really need to hold all the info, but just the message id.
 
     """
     def __init__(self):
@@ -37,33 +38,33 @@ class SessionHolder(object):
         """
         if session_info is None:
             raise ValueError("The session info cannot be null")
-        self.current_sessions[session_info.session_id] = session_info
+        self.current_sessions[session_info.message_id] = session_info
 
-    def get_session_info(self, session_id: str) -> SessionInfo:
+    def get_session_info(self, message_id: str) -> SessionInfo:
         """
-            Get the session object by giving the session id
+            Get the session object by giving the message id
         """
         try:
-            return self.current_sessions[session_id]
+            return self.current_sessions[message_id]
         except KeyError:
             return None
 
-    def remove_session(self, session_id: str) -> None:
+    def remove_session(self, message_id: str) -> None:
         """
-            Remove a session by giving it's session id
+            Remove a session by giving it's message id
         """
-        if self.contains_session(session_id):
-            del self.current_sessions[session_id]
+        if self.contains_session(message_id):
+            del self.current_sessions[message_id]
 
-    def update_session_sequence(self, session_id: str, sequence_number: int) -> None:
+    def update_session_sequence(self, message_id: str, sequence_number: int) -> None:
         """
             Update the sequence number of a session
         """
-        if self.contains_session(session_id):
-            self.current_sessions[session_id].sequence_number = sequence_number
+        if self.contains_session(message_id):
+            self.current_sessions[message_id].sequence_number = sequence_number
 
-    def contains_session(self, session_id: str) -> bool:
+    def contains_session(self, message_id: str) -> bool:
         """
-            Tells weather the holder contains a session id or not.
+            Tells weather the holder contains a message id or not.
         """
-        return self.current_sessions.__contains__(session_id)
+        return self.current_sessions.__contains__(message_id)

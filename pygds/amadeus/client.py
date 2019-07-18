@@ -51,7 +51,8 @@ class AmadeusClient(BaseClient):
             self.log.debug(response.content)
             self.log.debug(f"{method_name} status: {status}")
         if status == 500:
-            sess, (faultcode, faultstring) = ErrorExtractor(response.content).extract()
+            error = ErrorExtractor(response.content).extract()
+            sess, (faultcode, faultstring) = error.session_info, error.payload
             self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
             raise ServerError(sess, status, faultcode, faultstring)
         elif status == 400:
@@ -68,7 +69,7 @@ class AmadeusClient(BaseClient):
         return SessionExtractor(response_data).extract()
 
     def end_session(self, message_id):
-        session_id, sequence_number, security_token = self.get_or_create_session_info(message_id)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
@@ -87,7 +88,7 @@ class AmadeusClient(BaseClient):
             Price a PNR with a booking class.
             The PNR is supposed to be supplied in the session on a previous call.
         """
-        session_id, sequence_number, security_token = self.get_or_create_session_info(message_id)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data, 'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return response_data
@@ -100,7 +101,7 @@ class AmadeusClient(BaseClient):
         :param close_trx: boolean telling if we are ending or not the current session
         :return: GdsResponse with the response of the command as payload
         """
-        session_id, sequence_number, security_token = self.get_or_create_session_info(message_id)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         self.log.info(f"Sending command '{command}' to Amadeus server.")
         request_data = self.xml_builder.send_command(command, message_id, session_id, sequence_number, security_token,
                                                      close_trx)

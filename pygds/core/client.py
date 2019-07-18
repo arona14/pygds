@@ -2,19 +2,22 @@ import logging
 
 import requests
 
-from pygds.core.sessions import SessionHolder
+from pygds.core.sessions import SessionHolder, SessionInfo
 
 
 class BaseClient:
     """
         This is the main class to make calls to API of GDS
+    """
+    def __init__(self, endpoint: str, username: str, password: str, office_id: str, debug: bool = False):
+        """
+        Init the GDS
         :param endpoint: The url of the endpoint. It can be on test, or production
         :param username: The username to authenticate to the Amadeus Server
         :param password: The password to authenticate to the Amadeus Server
         :param office_id: The office_id (or PCC)
         :param debug: Telling if the client is debugging requests and responses.
     """
-    def __init__(self, endpoint: str, username: str, password: str, office_id: str, debug: bool = False):
         self.endpoint = endpoint
         self.username = username
         self.password = password
@@ -24,15 +27,37 @@ class BaseClient:
         self.is_debugging = debug
         self.log = logging.getLogger(str(self.__class__))
 
-    def get_session_info(self, message_id):
+    def get_session_info(self, message_id) -> SessionInfo:
+        """
+        get the session info associated to the message id
+        :param message_id: The message id
+        :return: SessionInfo
+        """
         return self.session_holder.get_session_info(message_id)
 
-    def get_or_create_session_info(self, message_id):
+    def get_or_create_session_details(self, message_id) -> tuple:
+        """
+        get session details as tuple if exists, otherwise return empty ones.
+        :param message_id: The message id associated to the supposed session
+        :return: tuple(session_id, sequence_number, security_token) or (None, None, None)
+        """
         session = self.get_session_info(message_id)
         if session is None:
             return None, None, None
         else:
             return session.session_id, session.sequence_number + 1, session.security_token
+
+    def add_session(self, session_info: SessionInfo) -> bool:
+        """
+        Add a session info to the holder
+        :param session_info: SessionInfo info object
+        :return: bool (telling whether or not this is added)
+        """
+        if session_info is None or session_info.session_ended is False:
+            return False
+        else:
+            self.session_holder.add_session(session_info)
+            return True
 
     def _request_wrapper(self, request_data, soap_action):
         """
