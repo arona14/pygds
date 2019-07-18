@@ -22,6 +22,15 @@ class AmadeusClient:
         This is the main class to make calls to Amadeus API
     """
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str, debug: bool = False):
+        """
+        Create a new Amadeus client that is independent to do every request permitted by it's access level.
+        :param endpoint: The url of the endpoint. It can be on test, or production
+        :param username: The username to authenticate to the Amadeus Server
+        :param password: The password to authenticate to the Amadeus Server
+        :param office_id: The office_id (or PCC)
+        :param wsap: The Amadeus Wep Service Access Point
+        :param debug: Telling if the client is debugging requests and responses.
+        """
         self.endpoint = endpoint
         self.username = username
         self.password = password
