@@ -38,7 +38,7 @@ class BaseResponseExtractor(object):
 
     def _extract(self):
         """
-            A private method that does the work of extracting usefull data.
+            A private method that does the work of extracting useful data.
         """
         raise NotImplementedError("Sub class must implement '_extract' method")
 
