@@ -32,7 +32,7 @@ class SessionHolder(object):
     def __init__(self):
         self.current_sessions = {}
 
-    def add_session(self, session_info: SessionInfo):
+    def add_session(self, session_info: SessionInfo) -> None:
         """
             Add a new session object to the holder.
         """

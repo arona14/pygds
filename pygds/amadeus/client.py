@@ -109,5 +109,5 @@ class AmadeusClient(BaseClient):
             self.log.warning("A new session will be created when sending the command.")
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         res = CommandReplyExtractor(data).extract()
-        self.session_holder.add_session(res.session_info)
+        self.add_session(res.session_info)
         return res

@@ -20,7 +20,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
     log = log_handler.get_logger("test_all")
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         s_id, seq, tok, m_id = (None, None, None, None)
         pnr = "Q68EFX"
@@ -29,13 +29,20 @@ def test():
         log.info(session_info)
         log.info(command_response)
 
+        m_id = session_info.message_id
         res_command = client.send_command("IR", m_id)
         session_info, command_response = (res_command.session_info, res_command.payload)
         log.info(session_info)
         log.info(command_response)
 
         m_id = session_info.message_id
-        res_command = client.send_command("AD23OCTDTWATH", m_id)
+        res_command = client.send_command("AD23OCTDTWATH/AAF", m_id)
+        session_info, command_response = (res_command.session_info, res_command.payload)
+        log.info(session_info)
+        log.info(command_response)
+
+        m_id = session_info.message_id
+        res_command = client.send_command("SS1X4", m_id)
         session_info, command_response = (res_command.session_info, res_command.payload)
         log.info(session_info)
         log.info(command_response)
