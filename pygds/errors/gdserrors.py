@@ -1,4 +1,4 @@
-from pygds.amadeus.amadeus_types import AmadeusSessionInfo
+from pygds.core.sessions import SessionInfo
 
 
 class GDSError(Exception):
@@ -6,7 +6,7 @@ class GDSError(Exception):
         This is a base class for every error from GDS.
         It will take in account the session used.
     """
-    def __init__(self, session_info: AmadeusSessionInfo, error_code: str, error_message: str):
+    def __init__(self, session_info: SessionInfo, error_code: str, error_message: str):
         """
         Initialization of a new GDSError
         :param session_info: the session info object
