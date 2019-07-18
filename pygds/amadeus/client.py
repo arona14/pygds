@@ -8,11 +8,7 @@ __maintainer__ = "Mouhamad Ndiankho THIAM"
 __email__ = "mohamed@ctsfares.com"
 __status__ = "Development"
 
-import requests
-import logging
-
 from pygds.core.client import BaseClient
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
