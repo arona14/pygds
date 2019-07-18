@@ -12,11 +12,11 @@ def generate_random_message_id(prefix: str = ""):
     return prefix + str(uuid.uuid4())
 
 
-def generate_nonce(nBytes=16):
+def generate_nonce(n_bytes=16):
     """
         This function generates a nonce value and base64 encode it
     """
-    nonce = base64.encodebytes(secrets.token_bytes(nBytes))
+    nonce = base64.encodebytes(secrets.token_bytes(n_bytes))
     return str(nonce)[2:-3]
 
 
@@ -34,28 +34,12 @@ def password_digest(password: str, nonce: str, created: str):
     """
     if None in (password, nonce, created):
         raise ValueError("password, nonce or created cannot be null")
-    shaPwd = sha1()
-    shaPwd.update(password.encode('utf-8'))
+    sha_pwd = sha1()
+    sha_pwd.update(password.encode('utf-8'))
     result = sha1()
     result.update(base64.b64decode(nonce))
     result.update(created.encode('utf-8'))
-    result.update(shaPwd.digest())
+    result.update(sha_pwd.digest())
     hashed = base64.b64encode(result.digest())
     hashed = str(hashed)[2:-1]
     return hashed
-
-
-def test():
-    """
-        This is for test purpose. To remove after
-    """
-    nonce = generate_nonce()
-    messageId = generate_random_message_id()
-    print(f"none: {nonce}")
-    print(f"messageId: {messageId}")
-    created = generate_created()
-    print(f"created: {created}")
-
-
-if __name__ == "__main__":
-    test()

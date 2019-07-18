@@ -42,4 +42,4 @@ class SessionHolder(object):
         """
             Tells wehter the holder contains a session id or not.
         """
-        return self.current_sessions[session_id] is not None
+        return self.current_sessions.__contains__(session_id)

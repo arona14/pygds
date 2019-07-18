@@ -1,6 +1,6 @@
-from ..core import xmlparser
-from ..core import helpers
-from .amadeus_types import AmadeusSessionInfo
+from pygds.core import xmlparser
+from pygds.core import helpers
+from pygds.amadeus.amadeus_types import AmadeusSessionInfo, GdsResponse
 
 
 class BaseResponseExtractor(object):
@@ -8,30 +8,37 @@ class BaseResponseExtractor(object):
         This is a base class for all response extractor. A helpful class to extract useful info from an XML.
     """
     def __init__(self, xml_content: str):
+        """
+        constructor for base class
+        :param xml_content: The content as XML
+        """
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
+        self.session_info = None
 
     def parse(self):
         """
             If not already done, it parses the XML content to JSON and save it.
         """
         if not self.parsed:
-            print(".parse called")
             self.tree = xmlparser.parse_xml(self.xml_content)
             self.parsed = True
 
     def extract(self):
         """
-            The public method to call when extracting useful data.
+        The public method to call when extracting useful data.
+        :return: GdsResponse
         """
-        print(".extract called")
         self.parse()
-        return self._extract()
+        if self.session_info is None and not isinstance(self, SessionExtractor):
+            self.session_info = SessionExtractor(self.xml_content).extract().session_info
+            return GdsResponse(self.session_info, self._extract())
+        return GdsResponse(self._extract())
 
     def _extract(self):
         """
-            A private method that does the work of extracting usefull data.
+            A private method that does the work of extracting useful data.
         """
         raise NotImplementedError("Sub class must implement '_extract' method")
 
@@ -55,9 +62,10 @@ class SessionExtractor(BaseResponseExtractor):
         super().__init__(xml_content)
 
     def _extract(self):
-        print("SessionExtractor._extract called")
-        seq, tok, ses = xmlparser.extract_single_elements(self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()", "//*[local-name()='SessionId']/text()")
-        return AmadeusSessionInfo(tok, seq, ses)
+        seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
+            self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
+            "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()", "//*[local-name()='Session']/@TransactionStatusCode")
+        return AmadeusSessionInfo(tok, int(seq), ses, m_id, status)
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
@@ -120,3 +128,16 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 reco["segments"] = segs
                 recs.append(reco)
         return recs
+
+
+class CommandReplyExtractor(BaseResponseExtractor):
+    """
+        Class command reply from XML Response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+        self.parsed = True
+
+    def _extract(self):
+        payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Command_CrypticReply")
+        return helpers.get_data_from_json(payload, "longTextString", "textStringDetails")
