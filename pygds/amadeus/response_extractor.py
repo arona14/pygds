@@ -66,7 +66,7 @@ class SessionExtractor(BaseResponseExtractor):
         seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()", "//*[local-name()='Session']/@TransactionStatusCode")
-        return SessionInfo(tok, int(seq), ses, m_id, status)
+        return SessionInfo(tok, int(seq), ses, m_id, status != "InSeries")
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
