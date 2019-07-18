@@ -2,6 +2,9 @@ from pygds.core import abstract_gds
 
 
 class AmadeusGDS(abstract_gds.AbstractGDS):
+    """
+     The handler of Amadeus GDS.
+    """
 
     def __init__(self):
         super().__init__("AMADEUS")
