@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from requests import Response
 
 from pygds.core.sessions import SessionHolder, SessionInfo
 
@@ -53,13 +54,13 @@ class BaseClient:
         :param session_info: SessionInfo info object
         :return: bool (telling whether or not this is added)
         """
-        if session_info is None or session_info.session_ended is False:
+        if session_info is None or session_info.session_ended is True:
             return False
         else:
             self.session_holder.add_session(session_info)
             return True
 
-    def _request_wrapper(self, request_data, soap_action):
+    def _request_wrapper(self, request_data, soap_action) -> Response:
         """
             This wrapper method helps wrap request with
         """
@@ -96,7 +97,7 @@ class ClientPool:
             raise ValueError("The client object cannot be null")
         self.clients[client.office_id] = client
 
-    def get_client(self, office_id: str):
+    def get_client(self, office_id: str) -> BaseClient:
         """ Get the client form the pool by giving the :office_id:. Will return None if not found."""
         try:
             return self.clients[office_id]
