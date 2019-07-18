@@ -51,16 +51,42 @@ class AmadeusXMLBuilder:
         </AMA_SecurityHostedUser>
        """
 
-    def continue_transaction_chunk(self, session_id, sequence_number, security_token):
+    def continue_transaction_chunk(self, session_id, sequence_number, security_token, close_trx: bool = False):
         """
             This method generates a chunk XML part for every endpoint that continues a transaction
         """
         return f"""
-        <awsse:Session TransactionStatusCode="InSeries" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
+        <awsse:Session TransactionStatusCode="{'End' if close_trx else 'InSeries'}" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
             <awsse:SessionId>{session_id}</awsse:SessionId>
             <awsse:SequenceNumber>{sequence_number}</awsse:SequenceNumber>
             <awsse:SecurityToken>{security_token}</awsse:SecurityToken>
         </awsse:Session>"""
+
+    def generate_header(self, action, message_id, session_id, sequence_number, security_token, close_trx: bool = False):
+        """
+        This method generates the security part in SAOP Header.
+        :param action: The Amadeus Soap Action code (without the whole URL)
+        :param message_id: The message Id
+        :param session_id: str the session id when continuing the transaction
+        :param sequence_number: the sequence number when continuing the transaction
+        :param security_token:
+        :param close_trx:
+        :return:
+        """
+        security = None
+        if session_id is None:
+            message_id, nonce, dt, dp = self.ensure_security_parameters(None, None, None)
+            security = self.new_transaction_chunk(self.office_id, self.username, nonce, dp, dt)
+        else:
+            security = self.continue_transaction_chunk(session_id, sequence_number, security_token, close_trx)
+        return f"""
+        <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+            <add:MessageID>{message_id}</add:MessageID>
+            <add:Action>http://webservices.amadeus.com/{action}</add:Action>
+            <add:To>{self.endpoint}/{self.wsap}</add:To>
+            {security}
+        </soapenv:Header>
+        """
 
     def start_transaction(self, message_id, office_id, username, password, nonce, created_date_time):
         """
@@ -74,12 +100,37 @@ class AmadeusXMLBuilder:
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:vls="http://xml.amadeus.com/VLSSOQ_04_1_1A">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
                 <add:MessageID>{message_id}</add:MessageID>
-                <add:Action>http://webservices.amadeus.com/VLSSOQ_04_1_1A</add:Action>
+                <add:Action>http://webservices.amadeus.com/VLSSLQ_06_1_1A</add:Action>
                 <add:To>{self.endpoint}/{self.wsap}</add:To>
                 {security_part}
             </soapenv:Header>
             <soapenv:Body>
-                <vls:Security_SignOut/>
+                <Security_Authenticate xmlns="http://xml.amadeus.com/VLSSLQ_06_1_1A" >
+                    <userIdentifier>
+                        <originatorTypeCode>U</originatorTypeCode>
+                        <originator>{self.username}</originator>
+                    </userIdentifier>
+                    <dutyCode>
+                        <dutyCodeDetails>
+                            <referenceQualifier>DUT</referenceQualifier>
+                            <referenceIdentifier>SU</referenceIdentifier>
+                        </dutyCodeDetails>
+                    </dutyCode>
+                </Security_Authenticate>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def end_session(self, message_id, session_id, sequence_number, security_token):
+        """
+
+        """
+        header = self.generate_header("VLSSOQ_04_1_1A", message_id, session_id, sequence_number, security_token, True)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:vls="http://xml.amadeus.com/VLSSOQ_04_1_1A">
+            {header}
+            <soapenv:Body>
+                <Security_SignOut></Security_SignOut>
             </soapenv:Body>
         </soapenv:Envelope>
         """
@@ -155,7 +206,7 @@ class AmadeusXMLBuilder:
                         <typeOfUnit>PX</typeOfUnit>
                         </unitNumberDetail>
                         <unitNumberDetail>
-                        <numberOfUnits>100</numberOfUnits>
+                        <numberOfUnits>5</numberOfUnits>
                         <typeOfUnit>RC</typeOfUnit>
                         </unitNumberDetail>
                     </numberOfUnit>
@@ -264,6 +315,26 @@ class AmadeusXMLBuilder:
                         </pricingOptionKey>
                     </pricingOptionGroup>
                 </Fare_PricePNRWithBookingClass>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def send_command(self, command: str, message_id: str = None, session_id: str = None, sequence_number: str = None,
+                     security_token: str = None, close_trx: bool = False):
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {self.generate_header("HSFREQ_07_3_1A", message_id, session_id, sequence_number, security_token, close_trx)}
+            <soapenv:Body>
+                <Command_Cryptic>
+                    <messageAction>
+                        <messageFunctionDetails>
+                            <messageFunction>M</messageFunction>
+                        </messageFunctionDetails>
+                    </messageAction>
+                    <longTextString>
+                        <textStringDetails>{command}</textStringDetails>
+                    </longTextString>
+                </Command_Cryptic>
             </soapenv:Body>
         </soapenv:Envelope>
         """
