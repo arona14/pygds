@@ -26,7 +26,7 @@ def test():
 
     try:
         res_reservation = client.get_reservation(office_id, None, None, pnr, True)
-        print(res_reservation.status_code)
+        print(res_reservation)
         res_command = client.send_command(f"RT{pnr}", m_id)
         session_info, command_response = (res_command.session_info, res_command.payload)
         log.info(session_info)
