@@ -1,6 +1,7 @@
-from pygds.amadeus.amadeus_types import AmadeusSessionInfo, GdsResponse, AmadeusAddFormOfPayment, AmadeusTicketing
+from pygds.amadeus.amadeus_types import GdsResponse, AmadeusAddFormOfPayment, AmadeusTicketing
 from pygds.core import xmlparser
 from pygds.core import helpers
+from pygds.core.sessions import SessionInfo
 
 
 class BaseResponseExtractor(object):
@@ -68,7 +69,7 @@ class SessionExtractor(BaseResponseExtractor):
         seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()", "//*[local-name()='Session']/@TransactionStatusCode")
-        return AmadeusSessionInfo(tok, int(seq), ses, m_id, status)
+        return SessionInfo(tok, int(seq), ses, m_id, status != "InSeries")
 
 
 class PriceSearchExtractor(BaseResponseExtractor):

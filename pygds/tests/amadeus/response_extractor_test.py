@@ -1,6 +1,5 @@
 from unittest import TestCase
-
-from pygds.amadeus.response_extractor import ErrorExtractor, TicketingExtractor, FormOfPaymentExtractor
+from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor
 
 
 class TestErrorExtractorCan(TestCase):

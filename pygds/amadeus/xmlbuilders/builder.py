@@ -49,6 +49,7 @@ class AmadeusXMLBuilder:
         <AMA_SecurityHostedUser xmlns="http://xml.amadeus.com/2010/06/Security_v1">
             <UserID AgentDutyCode="SU" RequestorType="U" PseudoCityCode="{office_id}" POS_Type="1"/>
         </AMA_SecurityHostedUser>
+        <ses:Session xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" TransactionStatusCode="Start" />
        """
 
     def continue_transaction_chunk(self, session_id, sequence_number, security_token, close_trx: bool = False):
