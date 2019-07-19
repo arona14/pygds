@@ -1,20 +1,10 @@
-class AmadeusSessionInfo:
-    """
-    This class is for containing information for a session
-    """
-    def __init__(self, security_token, sequence_number, session_id, message_id):
-        self.security_token = security_token
-        self.sequence_number = sequence_number
-        self.session_id = session_id
-        self.message_id = message_id
+from pygds.core.sessions import SessionInfo
 
-    def __repr__(self):
-        return {
-            "security_token": self.security_token,
-            "sequence_number": self.sequence_number,
-            "session_id": self.session_id,
-            "message_id": self.message_id
-        }
 
-    def __str__(self):
-        return str(self.__repr__())
+class GdsResponse:
+    """
+    This class is for holding a parsed response from GDS. It will include the session information and the useful data (payload)
+    """
+    def __init__(self, session_info: SessionInfo, payload=None):
+        self.session_info = session_info
+        self.payload = payload
