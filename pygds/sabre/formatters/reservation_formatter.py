@@ -1,5 +1,5 @@
 from pygds.core.types import Passenger
-from pygds.core.types import Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks
+from pygds.core.types import Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp
 """from pygds.sabre.base_service import BaseService
 from pygds.sabre.session import SabreSession
 from ..core import xmlparser
@@ -16,84 +16,84 @@ class SabreReservationFormatter():
     def __init__(self):
         pass
 
-    def get_segment(self, segment_data):
-        '''
-        This method returns all the segments of a given itineraries
-        '''
-        segment_datas = segment_data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Segments"]["stl18:Segment"]
-        segment_list = []
-        if type(segment_datas) == list:
-            for segment in segment_datas:
-                if "stl18:Air" in segment:
-                    s = {}
-                    m = {}
-                    s['Code'] = segment['stl18:Air']['Code']
-                    s['ResBookDesigCode'] = segment['stl18:Air']['ResBookDesigCode']
-                    s['StopQuantity'] = segment['stl18:Air']['StopQuantity']
-                    s['DepartureAirport'] = segment['stl18:Air']['stl18:DepartureAirport']
-                    s['DepartureAirportCodeContext'] = segment['stl18:Air']['stl18:DepartureAirportCodeContext']
-                    s['DepartureTerminalName'] = segment['stl18:Air']['stl18:DepartureTerminalName']
-                    s['DepartureTerminalCode'] = segment['stl18:Air']['stl18:DepartureTerminalCode']
-                    s['ArrivalAirport'] = segment['stl18:Air']['stl18:ArrivalAirport']
-                    s['ArrivalAirportCodeContext'] = segment['stl18:Air']['stl18:ArrivalAirportCodeContext']
-                    if "stl18:ArrivalTerminalName" in segment['stl18:Air']:
-                        s['ArrivalTerminalName'] = segment['stl18:Air']['stl18:ArrivalTerminalName']
-                    else:
-                        s['ArrivalTerminalName'] = ""
-                    if "stl18:ArrivalTerminalCode" in segment['stl18:Air']:
-                        s['ArrivalTerminalCode'] = segment['stl18:Air']['stl18:ArrivalTerminalCode']
-                    else:
-                        s['ArrivalTerminalCode'] = ""
-                    s['OperatingAirlineCode'] = segment['stl18:Air']['stl18:OperatingAirlineCode']
-                    s['OperatingAirlineShortName'] = segment['stl18:Air']['stl18:OperatingAirlineShortName']
-                    s['OperatingFlightNumber'] = segment['stl18:Air']['stl18:OperatingFlightNumber']
-                    s['EquipmentType'] = segment['stl18:Air']['stl18:EquipmentType']
-                    s['MarketingAirlineCode'] = segment['stl18:Air']['stl18:MarketingAirlineCode']
-                    s['MarketingFlightNumber'] = segment['stl18:Air']['stl18:MarketingFlightNumber']
-                    s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
-                    s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
-                    s['MarketingClassOfService'] = segment['stl18:Air']['stl18:MarketingClassOfService']
-                    m['Ind'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
-                    m['Group'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
-                    m['Sequence'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
-                    s['MarriageGrp'] = m
-                    segment_list.append(s)
-        else:
-            if "stl18:Air" in segment_datas:
-                s = {}
-                m = {}
-                s['Code'] = segment_datas['stl18:Air']['Code']
-                s['ResBookDesigCode'] = segment_datas['stl18:Air']['ResBookDesigCode']
-                s['StopQuantity'] = segment_datas['stl18:Air']['StopQuantity']
-                s['DepartureAirport'] = segment_datas['stl18:Air']['stl18:DepartureAirport']
-                s['DepartureAirportCodeContext'] = segment_datas['stl18:Air']['stl18:DepartureAirportCodeContext']
-                s['DepartureTerminalName'] = segment_datas['stl18:Air']['stl18:DepartureTerminalName']
-                s['DepartureTerminalCode'] = segment_datas['stl18:Air']['stl18:DepartureTerminalCode']
-                s['ArrivalAirport'] = segment_datas['stl18:Air']['stl18:ArrivalAirport']
-                s['ArrivalAirportCodeContext'] = segment_datas['stl18:Air']['stl18:ArrivalAirportCodeContext']
-                if "stl18:ArrivalTerminalName" in segment_datas['stl18:Air']:
-                    s['ArrivalTerminalName'] = segment_datas['stl18:Air']['stl18:ArrivalTerminalName']
-                else:
-                    s['ArrivalTerminalName'] = ""
-                if "stl18:ArrivalTerminalCode" in segment_datas['stl18:Air']:
-                    s['ArrivalTerminalCode'] = segment_datas['stl18:Air']['stl18:ArrivalTerminalCode']
-                else:
-                    s['ArrivalTerminalCode'] = ""
-                s['OperatingAirlineCode'] = segment_datas['stl18:Air']['stl18:OperatingAirlineCode']
-                s['OperatingAirlineShortName'] = segment_datas['stl18:Air']['stl18:OperatingAirlineShortName']
-                s['OperatingFlightNumber'] = segment_datas['stl18:Air']['stl18:OperatingFlightNumber']
-                s['EquipmentType'] = segment_datas['stl18:Air']['stl18:EquipmentType']
-                s['MarketingAirlineCode'] = segment_datas['stl18:Air']['stl18:MarketingAirlineCode']
-                s['MarketingFlightNumber'] = segment_datas['stl18:Air']['stl18:MarketingFlightNumber']
-                s['OperatingClassOfService'] = segment_datas['stl18:Air']['stl18:OperatingClassOfService']
-                s['OperatingClassOfService'] = segment_datas['stl18:Air']['stl18:OperatingClassOfService']
-                s['MarketingClassOfService'] = segment_datas['stl18:Air']['stl18:MarketingClassOfService']
-                m['Ind'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
-                m['Group'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
-                m['Sequence'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
-                s['MarriageGrp'] = m
-                segment_list.append(s)
-        return segment_list
+    # def get_segment(self, segment_data):
+    #     '''
+    #     This method returns all the segments of a given itineraries
+    #     '''
+    #     segment_datas = segment_data["stl18:Reservation"]["stl18:PassengerReservation"]["stl18:Segments"]["stl18:Segment"]
+    #     segment_list = []
+    #     if type(segment_datas) == list:
+    #         for segment in segment_datas:
+    #             if "stl18:Air" in segment:
+    #                 s = {}
+    #                 m = {}
+    #                 s['Code'] = segment['stl18:Air']['Code']
+    #                 s['ResBookDesigCode'] = segment['stl18:Air']['ResBookDesigCode']
+    #                 s['StopQuantity'] = segment['stl18:Air']['StopQuantity']
+    #                 s['DepartureAirport'] = segment['stl18:Air']['stl18:DepartureAirport']
+    #                 s['DepartureAirportCodeContext'] = segment['stl18:Air']['stl18:DepartureAirportCodeContext']
+    #                 s['DepartureTerminalName'] = segment['stl18:Air']['stl18:DepartureTerminalName']
+    #                 s['DepartureTerminalCode'] = segment['stl18:Air']['stl18:DepartureTerminalCode']
+    #                 s['ArrivalAirport'] = segment['stl18:Air']['stl18:ArrivalAirport']
+    #                 s['ArrivalAirportCodeContext'] = segment['stl18:Air']['stl18:ArrivalAirportCodeContext']
+    #                 if "stl18:ArrivalTerminalName" in segment['stl18:Air']:
+    #                     s['ArrivalTerminalName'] = segment['stl18:Air']['stl18:ArrivalTerminalName']
+    #                 else:
+    #                     s['ArrivalTerminalName'] = ""
+    #                 if "stl18:ArrivalTerminalCode" in segment['stl18:Air']:
+    #                     s['ArrivalTerminalCode'] = segment['stl18:Air']['stl18:ArrivalTerminalCode']
+    #                 else:
+    #                     s['ArrivalTerminalCode'] = ""
+    #                 s['OperatingAirlineCode'] = segment['stl18:Air']['stl18:OperatingAirlineCode']
+    #                 s['OperatingAirlineShortName'] = segment['stl18:Air']['stl18:OperatingAirlineShortName']
+    #                 s['OperatingFlightNumber'] = segment['stl18:Air']['stl18:OperatingFlightNumber']
+    #                 s['EquipmentType'] = segment['stl18:Air']['stl18:EquipmentType']
+    #                 s['MarketingAirlineCode'] = segment['stl18:Air']['stl18:MarketingAirlineCode']
+    #                 s['MarketingFlightNumber'] = segment['stl18:Air']['stl18:MarketingFlightNumber']
+    #                 s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
+    #                 s['OperatingClassOfService'] = segment['stl18:Air']['stl18:OperatingClassOfService']
+    #                 s['MarketingClassOfService'] = segment['stl18:Air']['stl18:MarketingClassOfService']
+    #                 m['Ind'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
+    #                 m['Group'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
+    #                 m['Sequence'] = segment['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
+    #                 s['MarriageGrp'] = m
+    #                 segment_list.append(s)
+    #     else:
+    #         if "stl18:Air" in segment_datas:
+    #             s = {}
+    #             m = {}
+    #             s['Code'] = segment_datas['stl18:Air']['Code']
+    #             s['ResBookDesigCode'] = segment_datas['stl18:Air']['ResBookDesigCode']
+    #             s['StopQuantity'] = segment_datas['stl18:Air']['StopQuantity']
+    #             s['DepartureAirport'] = segment_datas['stl18:Air']['stl18:DepartureAirport']
+    #             s['DepartureAirportCodeContext'] = segment_datas['stl18:Air']['stl18:DepartureAirportCodeContext']
+    #             s['DepartureTerminalName'] = segment_datas['stl18:Air']['stl18:DepartureTerminalName']
+    #             s['DepartureTerminalCode'] = segment_datas['stl18:Air']['stl18:DepartureTerminalCode']
+    #             s['ArrivalAirport'] = segment_datas['stl18:Air']['stl18:ArrivalAirport']
+    #             s['ArrivalAirportCodeContext'] = segment_datas['stl18:Air']['stl18:ArrivalAirportCodeContext']
+    #             if "stl18:ArrivalTerminalName" in segment_datas['stl18:Air']:
+    #                 s['ArrivalTerminalName'] = segment_datas['stl18:Air']['stl18:ArrivalTerminalName']
+    #             else:
+    #                 s['ArrivalTerminalName'] = ""
+    #             if "stl18:ArrivalTerminalCode" in segment_datas['stl18:Air']:
+    #                 s['ArrivalTerminalCode'] = segment_datas['stl18:Air']['stl18:ArrivalTerminalCode']
+    #             else:
+    #                 s['ArrivalTerminalCode'] = ""
+    #             s['OperatingAirlineCode'] = segment_datas['stl18:Air']['stl18:OperatingAirlineCode']
+    #             s['OperatingAirlineShortName'] = segment_datas['stl18:Air']['stl18:OperatingAirlineShortName']
+    #             s['OperatingFlightNumber'] = segment_datas['stl18:Air']['stl18:OperatingFlightNumber']
+    #             s['EquipmentType'] = segment_datas['stl18:Air']['stl18:EquipmentType']
+    #             s['MarketingAirlineCode'] = segment_datas['stl18:Air']['stl18:MarketingAirlineCode']
+    #             s['MarketingFlightNumber'] = segment_datas['stl18:Air']['stl18:MarketingFlightNumber']
+    #             s['OperatingClassOfService'] = segment_datas['stl18:Air']['stl18:OperatingClassOfService']
+    #             s['OperatingClassOfService'] = segment_datas['stl18:Air']['stl18:OperatingClassOfService']
+    #             s['MarketingClassOfService'] = segment_datas['stl18:Air']['stl18:MarketingClassOfService']
+    #             m['Ind'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
+    #             m['Group'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
+    #             m['Sequence'] = segment_datas['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
+    #             s['MarriageGrp'] = m
+    #             segment_list.append(s)
+    #     return segment_list
 
     def days(self, weekday):
         if weekday == 0:
@@ -133,10 +133,22 @@ class SabreReservationFormatter():
                     code = i['stl18:Air']['Code']
                 else:
                     code = ""
-                # res_book_desig_code = i['stl18:Air']['ResBookDesigCode']
-                departure_airport = i['stl18:Air']['stl18:DepartureAirport']
-                arrival_airport = i['stl18:Air']['stl18:ArrivalAirport']
+                res_book_desig_code = i['stl18:Air']['ResBookDesigCode']
+                code_disclosure_carrier = i['stl18:Air']['stl18:DisclosureCarrier']['Code']
+                dot = i['stl18:Air']['stl18:DisclosureCarrier']['DOT']
+                banner = i['stl18:Air']['stl18:DisclosureCarrier']['stl18:Banner']
+                ind = i['stl18:Air']['stl18:MarriageGrp']['stl18:Ind']
+                group = i['stl18:Air']['stl18:MarriageGrp']['stl18:Group']
+                sequence = i['stl18:Air']['stl18:MarriageGrp']['stl18:Sequence']
+                content = ""
+                depart_airport = i['stl18:Air']['stl18:DepartureAirport']
+                arriv_airport = i['stl18:Air']['stl18:ArrivalAirport']
                 operating_airline_code = i['stl18:Air']['stl18:OperatingAirlineCode']
+                operating_short_name = i['stl18:Air']['stl18:OperatingAirlineShortName']
+                if 'stl18:MarktingAirlineShortName' in i['stl18:Air']:
+                    markting_short_name = i['stl18:Air']['stl18:MarktingAirlineShortName']
+                else:
+                    markting_short_name = ""
                 marketing_airline_code = i['stl18:Air']['stl18:MarketingAirlineCode']
                 equipment_type = i['stl18:Air']['stl18:EquipmentType']
                 departure_terminal_code = i['stl18:Air']['stl18:DepartureTerminalCode']
@@ -148,7 +160,11 @@ class SabreReservationFormatter():
                 departure_date_time = i['stl18:Air']['stl18:DepartureDateTime']
                 arrival_date_time = i['stl18:Air']['stl18:ArrivalDateTime']
                 flight_number = i['stl18:Air']['stl18:FlightNumber']
+                markting_flight_number = i['stl18:Air']['stl18:MarketingFlightNumber']
+                operating_flight_number = i['stl18:Air']['stl18:OperatingFlightNumber']
                 class_of_service = i['stl18:Air']['stl18:ClassOfService']
+                operating_class_of_service = i['stl18:Air']['stl18:OperatingClassOfService']
+                markting_class_of_service = i['stl18:Air']['stl18:MarketingClassOfService']
                 number_in_party = i['stl18:Air']['stl18:NumberInParty']
                 out_bound_connection = i['stl18:Air']['stl18:outboundConnection']
                 in_bound_connection = i['stl18:Air']['stl18:inboundConnection']
@@ -157,13 +173,23 @@ class SabreReservationFormatter():
                     elapsed_time = i['stl18:Air']['stl18:ElapsedTime']
                 else:
                     elapsed_time = ""
-                time_zone = ""
+                seats = i['stl18:Air']['stl18:Seats']
+                segment_special_requests = i['stl18:Air']['stl18:SegmentSpecialRequests']
+                schedule_change_indicator = i['stl18:Air']['stl18:ScheduleChangeIndicator']
+                segment_booked_date = i['stl18:Air']['stl18:SegmentBookedDate']
+                air_miles_flown = i['stl18:Air']['stl18:AirMilesFlown']
+                funnel_flight = i['stl18:Air']['stl18:FunnelFlight']
+                change_of_gauge = i['stl18:Air']['stl18:ChangeOfGauge']
                 # print(f"inbound: {in_bound_connection is True}, outbound: {out_bound_connection}")
                 # itin = Itineraries(code, res_book_desig_code, departure_airport, arrival_airport, operating_airline_code, marketing_airline_code, equipment_type, eticket, departure_date_time, arrival_date_time, flight_number, class_of_service, number_in_party, out_bound_connection, in_bound_connection, airline_ref_id, elapsed_time)
-                departure = FlightPointDetails(departure_date_time, time_zone, "", "", departure_airport, "", departure_terminal_code)
-                arrival = FlightPointDetails(arrival_date_time, time_zone, "", "", arrival_airport, "", arrival_terminal_code)
+                departure_airport = FlightPointDetails(content, depart_airport, departure_terminal_code)
+                arrival_airport = FlightPointDetails(content, arriv_airport, arrival_terminal_code)
+                marketing = FlightAirlineDetails(marketing_airline_code, markting_flight_number, markting_short_name, markting_class_of_service)
+                operating = FlightAirlineDetails(operating_airline_code, operating_flight_number, operating_short_name, operating_class_of_service)
+                disclosure_carrier = FlightDisclosureCarrier(code_disclosure_carrier, dot, banner)
+                mariage_grp = FlightMarriageGrp(ind, group, sequence)
                 index += 1
-                segment = FlightSegment(index, departure, arrival, airline_ref_id, marketing_airline_code, operating_airline_code, flight_number, class_of_service, elapsed_time, equipment_type, eticket, number_in_party, code)
+                segment = FlightSegment(index, res_book_desig_code, departure_date_time, departure_airport, arrival_date_time, arrival_airport, airline_ref_id, marketing, operating, disclosure_carrier, mariage_grp, seats, segment_special_requests, schedule_change_indicator, segment_booked_date, air_miles_flown, funnel_flight, change_of_gauge, flight_number, class_of_service, elapsed_time, equipment_type, eticket, number_in_party, code)
                 if in_bound_connection == "false":  # begining of an itinerary
                     current_itinerary = Itinerary()
                     index = 0

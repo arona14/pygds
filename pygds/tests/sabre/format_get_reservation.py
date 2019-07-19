@@ -9,15 +9,26 @@ with open(file_path) as f:
     object_sabre = json.load(f)
 
 
-def test_remarks():
-    remark_object = object_sabre["stl18:Reservation"]
+def test_segments():
+    segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
     formatter = SabreReservationFormatter()
-    remark_info = formatter.get_remarks(remark_object)
-    print(remark_info)
+    itinerary_info = formatter.itineraryInfo(segments)
+    print(itinerary_info)
 
 
 if __name__ == "__main__":
-    test_remarks()
+    test_segments()
+
+
+# def test_remarks():
+#     remark_object = object_sabre["stl18:Reservation"]
+#     formatter = SabreReservationFormatter()
+#     remark_info = formatter.get_remarks(remark_object)
+#     print(remark_info)
+
+
+# if __name__ == "__main__":
+#     test_remarks()
 
 # def test_ticketing_info():
 #     result = object_sabre["stl18:Reservation"]["stl18:PassengerReservation"]
@@ -40,14 +51,6 @@ if __name__ == "__main__":
 # if __name__ == "__main__":
 #     test_form_of_payment()
 
-# def test_segments():
-#     segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
-#     formatter = SabreReservationFormatter()
-#     itinerary_info = formatter.itineraryInfo(segments)
-#     print(itinerary_info)
-
-# if __name__ == "__main__":
-#     test_segments()
 
 # def test_passenger():
 #     passenger_info = SabreReservationFormatter().get_passengers(object_sabre)
