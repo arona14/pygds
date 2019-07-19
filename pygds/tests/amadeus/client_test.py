@@ -19,10 +19,10 @@ class ClientCan(TestCase):
         log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
         self.log = log_handler.get_logger("client_test")
 
-    def send_command(self):
-        s_id, seq, tok, m_id = (None, None, None, None)
+    def test_send_command(self):
+        seq, m_id = (None, None)
         pnr = "Q68EFX"
-        res_command = self.client.send_command(f"RT{pnr}", m_id, s_id, seq, tok)
+        res_command = self.client.send_command(f"RT{pnr}", m_id, seq)
         self.assertIsNotNone(res_command, "The result of send command is none")
         session_info, command_response = (res_command.session_info, res_command.payload)
         self.assertIsNotNone(session_info, "The session information is none")
