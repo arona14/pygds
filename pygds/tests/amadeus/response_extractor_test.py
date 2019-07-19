@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from pygds.amadeus.response_extractor import ErrorExtractor
+from pygds.amadeus.response_extractor import ErrorExtractor, TicketingExtractor, FormOfPaymentExtractor
 
 
-class ErrorExtractorCan(TestCase):
+class TestErrorExtractorCan(TestCase):
     def setUp(self) -> None:
         self.xml = ""
         self.extractor = ErrorExtractor(self.xml)
@@ -21,3 +21,20 @@ class ErrorExtractorCan(TestCase):
         extracted = self.extractor.extract()
         self.assertIsNotNone(extracted, "The extracted error is none")
         self.assertIsNotNone(extracted.session_info)
+
+
+class TestFormOfPaymentExtractor(TestCase):
+    def setUp(self) -> None:
+        self.xml = ""
+        self.fop_extractor = FormOfPaymentExtractor(self.xml)
+
+    def init(self):
+        fop_extractor = FormOfPaymentExtractor(self.xml)
+        self.assertIsNotNone(fop_extractor)
+
+    def extract(self):
+        pass
+
+
+class TestTicketingExtractor(TestCase):
+    pass
