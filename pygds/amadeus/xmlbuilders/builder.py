@@ -136,29 +136,13 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def get_reservation_builder(self, office_id, message_id, token, pnr_number, new_session=True):
+    def get_reservation_builder(self, pnr_number: str, message_id: str = None, session_id: str = None, sequence_number: str = None, security_token: str = None, close_trx: bool = False):
         """
             Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-                <add:MessageID>{message_id}</add:MessageID>
-                <add:Action>http://webservices.amadeus.com/PNRRET_17_1_1A</add:Action>
-                <add:To>{self.endpoint}/{self.wsap}</add:To>
-                <oas:Security xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:oas1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-                    <oas:UsernameToken oas1:Id="UsernameToken-1">
-                        <oas:Username>{self.username}</oas:Username>
-                        <oas:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">{self.nonce}</oas:Nonce>
-                        <oas:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">{self.digested_password}</oas:Password>
-                        <oas1:Created>{self.created_date_time}</oas1:Created>
-                    </oas:UsernameToken>
-                </oas:Security>
-                <AMA_SecurityHostedUser xmlns="http://xml.amadeus.com/2010/06/Security_v1">
-                    <UserID AgentDutyCode="SU" RequestorType="U" PseudoCityCode="{office_id}" POS_Type="1"/>
-                </AMA_SecurityHostedUser>
-                <awsse:Session TransactionStatusCode="Start" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"/>
-            </soapenv:Header>
+             {self.generate_header("PNRRET_17_1_1A", message_id, session_id, sequence_number, security_token, close_trx)}
             <soapenv:Body>
                 <PNR_Retrieve>
                     <retrievalFacts>

@@ -71,14 +71,15 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
-    def get_reservation(self, office_id, conversation_id, token_session, record_locator, end_session=True):
+    def get_reservation(self, record_locator: str, message_id: str = None, close_trx: bool = False):
         """
             Return the reservation data from PNR.
         """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         self.log.info(f"Retreive pnr '{record_locator}'.")
-        request_data = self.xml_builder.get_reservation_builder(office_id, conversation_id, token_session, record_locator, end_session)
+        request_data = self.xml_builder.get_reservation_builder(record_locator, message_id, session_id, sequence_number, security_token, close_trx)
 
-        if token_session is None:
+        if security_token is None:
             self.log.warning("A new session will be created when retreive pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
         return data

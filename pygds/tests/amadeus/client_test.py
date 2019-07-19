@@ -1,6 +1,5 @@
 import os
 from unittest import TestCase
-
 from pygds.amadeus.client import AmadeusClient
 from pygds.env_settings import get_setting
 from pygds import log_handler

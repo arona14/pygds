@@ -83,7 +83,9 @@ class AmadeusAddMultiElement:
 
 class AmadeusTicketing:
     """
-    This class is for containing information for add ticketing
+    : This class is for containing information for the response add ticketing
+    : It returns an object with the ticket number with the key freetext
+    : And an error_code ok if all is done
     """
 
     def __init__(self, status_code, error_code, text_subject_qualifier, source, encoding, freetext):
