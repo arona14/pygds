@@ -87,7 +87,7 @@ class FormatSoapAmadeus:
         return pnr_infos
 
     def get_form_of_payments(self, dispaly_pnr):
-        pass
+        return None
 
     def get_price_quotes(self, display_pnr):
         """ Transform a amadeus json and reponse to json pricequotes infos list"""

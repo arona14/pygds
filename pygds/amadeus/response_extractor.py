@@ -1,3 +1,5 @@
+import time
+
 from pygds.amadeus.amadeus_types import GdsResponse, AmadeusAddFormOfPayment, AmadeusTicketing
 from pygds.core import xmlparser
 from pygds.core import helpers
@@ -185,3 +187,98 @@ class CommandReplyExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Command_CrypticReply")
         return helpers.get_data_from_json(payload, "longTextString", "textStringDetails")
+
+
+class GetPnrResponseExtractor(BaseResponseExtractor):
+    """
+        A class to extract Reservation from response of retrieve PNR.
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content)
+        self.parsed = True
+
+    def _extract(self):
+        payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        self.payload = payload
+        return {
+            'itineraries': self._segments(),
+            'passengers': self._passengers(),
+            'form_of_payments': self._form_of_payments(),
+            'price_quotes': self._price_quotes(),
+            'ticketing_info': self._ticketing_info()
+        }
+
+    def _segments(self):
+        segments_list = []
+        for data in self.payload["originDestinationDetails"]["itineraryInfo"]:
+            segment_data = {}
+            dep_date = data["travelProduct"]["product"]["depDate"]
+            dep_time = data["travelProduct"]["product"]["depTime"]
+
+            arr_date = data["travelProduct"]["product"]["arrDate"]
+            arr_time = data["travelProduct"]["product"]["arrTime"]
+
+            segment_data["departure_airport"] = data["travelProduct"]["boardpointDetail"]["cityCode"]
+            segment_data["arrival_airport"] = data["travelProduct"]["offpointDetail"]["cityCode"]
+            segment_data["departure_dateTime"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.strptime(dep_date + dep_time, "%d%m%y%H%M"))
+            segment_data["arrival_date_time"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.strptime(arr_date + arr_time, "%d%m%y%H%M"))
+            segment_data['equipment_type'] = data["flightDetail"]["productDetails"]["equipment"]
+            segment_data['class_of_service'] = data["travelProduct"]["productDetails"]["classOfService"]
+
+            segments_list.append(segment_data)
+        return segments_list
+
+    def _passengers(self):
+        passengers_list = []
+        for traveller in helpers.ensure_list(helpers.get_data_from_json(self.payload, "travellerInfo")):
+            passenger_data = {}
+            data = helpers.get_data_from_json(traveller, "passengerData")
+            traveller_info = helpers.get_data_from_json(data, "travellerInformation")
+            trvl = helpers.get_data_from_json(traveller_info, "traveller")
+            psngr = helpers.get_data_from_json(traveller_info, "passenger")
+            date_of_birth_tag = helpers.get_data_from_json(data, "dateOfBirth", "dateAndTimeDetails")
+
+            date = helpers.get_data_from_json(date_of_birth_tag, "date")
+            date_of_birth = time.strftime("%Y-%m-%d", time.strptime(date, "%d%m%Y"))
+            passenger_data['surname'] = helpers.get_data_from_json(trvl, "surname")
+            passenger_data['quantity'] = helpers.get_data_from_json(trvl, "quantity")
+            passenger_data['firstname'] = helpers.get_data_from_json(psngr, "firstName")
+            passenger_data['type'] = helpers.get_data_from_json(psngr, "type")
+            passenger_data['qualifier'] = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
+            passenger_data['date_of_birth'] = date_of_birth
+            passengers_list.append(passenger_data)
+        return passengers_list
+
+    def _pnr_info(self):
+        pnr_infos = []
+        for data in self.payload["pnrHeader"]["reservationInfo"]["reservation"]:
+            reservation_info = {
+                'compagny_id': data["companyId"],
+                'control_number': data["reservationInfo"]["reservation"]["controlNumber"]
+            }
+
+            res_date = data["reservationInfo"]["reservation"]["date"]
+            res_time = data["reservationInfo"]["reservation"]["time"]
+            date_time = time.strftime("%Y-%m-%dT%H:%M:%S.%zZ", time.strptime(res_date + res_time, "%d%m%y%H%M"))
+            reservation_info['date_time'] = date_time
+            pnr_infos.append(reservation_info)
+        return pnr_infos
+
+    def _price_quotes(self):
+        price_quotes = []
+        pqs = helpers.get_data_from_json(self.payload, "pricingRecordGroup", "productPricingQuotationRecord")
+        pqs = helpers.ensure_list(pqs)
+        for data in pqs:
+            price_quotes_details = {
+                'pricing_record_id': data['pricingRecordId'],
+                'passenger_tattoos': data['passengerTattoos'],
+                'total_fare': data['documentDetailsGroup']['totalFare']
+            }
+            price_quotes.append(price_quotes_details)
+        return price_quotes
+
+    def _form_of_payments(self):
+        return None
+
+    def _ticketing_info(self):
+        return None

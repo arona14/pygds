@@ -9,7 +9,8 @@ __email__ = "mohamed@ctsfares.com"
 __status__ = "Development"
 
 from pygds.core.client import BaseClient
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor
+from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
+    GetPnrResponseExtractor
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
 
@@ -80,9 +81,9 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.get_reservation_builder(record_locator, message_id, session_id, sequence_number, security_token, close_trx)
 
         if security_token is None:
-            self.log.warning("A new session will be created when retreive pnr.")
+            self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
-        return data
+        return GetPnrResponseExtractor(data).extract()
 
     def add_form_of_payment(self, message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date):
         """

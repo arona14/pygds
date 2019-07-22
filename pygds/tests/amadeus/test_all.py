@@ -25,30 +25,32 @@ def test():
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
-        res_reservation = client.get_reservation(pnr, None, True)
-        print(res_reservation)
-        res_command = client.send_command(f"RT{pnr}", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
+        res_reservation = client.get_reservation(pnr, None, False)
+        session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
-        log.info(command_response)
-
-        m_id = session_info.message_id
-        res_command = client.send_command("IR", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
-        log.info(session_info)
-        log.info(command_response)
-
-        m_id = session_info.message_id
-        res_command = client.send_command("AD23OCTDTWATH/AAF", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
-        log.info(session_info)
-        log.info(command_response)
-
-        m_id = session_info.message_id
-        res_command = client.send_command("SS1X4", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
-        log.info(session_info)
-        log.info(command_response)
+        log.info(res_reservation)
+        # res_command = client.send_command(f"RT{pnr}", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
+        # m_id = session_info.message_id
+        # res_command = client.send_command("IR", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
+        # m_id = session_info.message_id
+        # res_command = client.send_command("AD23OCTDTWATH/AAF", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
+        # m_id = session_info.message_id
+        # res_command = client.send_command("SS1X4", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")
