@@ -209,7 +209,8 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date, numbering: TravellerNumbering, with_stops=True, result_count=250):
+    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date,
+                                               numbering: TravellerNumbering, with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
         """
@@ -315,25 +316,20 @@ class AmadeusXMLBuilder:
         """
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
-        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-                <add:MessageID>{message_id}</add:MessageID>
-                <add:Action>http://webservices.amadeus.com/TPCBRQ_18_1_1A</add:Action>
-                <add:To>{self.endpoint}/{self.wsap}</add:To>
-                {security_part}
-            </soapenv:Header>
+            {header}
             <soapenv:Body>
                 <Fare_PricePNRWithBookingClass>
                     <pricingOptionGroup>
                         <pricingOptionKey>
-                        <pricingOptionKey>RP</pricingOptionKey>
+                            <pricingOptionKey>RP</pricingOptionKey>
                         </pricingOptionKey>
                     </pricingOptionGroup>
                     <pricingOptionGroup>
                         <pricingOptionKey>
-                        <pricingOptionKey>RU</pricingOptionKey>
+                            <pricingOptionKey>RU</pricingOptionKey>
                         </pricingOptionKey>
                     </pricingOptionGroup>
                 </Fare_PricePNRWithBookingClass>
@@ -341,7 +337,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def ticket_create_TST_from_price(self, message_id, session_id, sequence_number, security_token, tst_reference):
+    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_reference):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">

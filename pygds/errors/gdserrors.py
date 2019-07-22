@@ -31,3 +31,9 @@ class GDSNotFoundError(GDSError):
     def __init__(self, gds_code):
         super(GDSNotFoundError, self).__init__(None, "GDS_NOT_FOUND_ERROR", f"GDS with code {gds_code} not found in the resgistry.")
         self.gds_code = gds_code
+
+
+class NoSessionError(GDSError):
+
+    def __init__(self, message_id):
+        super().__init__(None, "NO_SESSION", f"no session associated with the message {message_id}")
