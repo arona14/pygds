@@ -20,7 +20,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
     log = log_handler.get_logger("test_all")
     pnr = "Q68EFX"
-    m_id = None
+    # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 

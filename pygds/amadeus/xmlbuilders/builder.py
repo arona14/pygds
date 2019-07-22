@@ -295,7 +295,8 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number,
+    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,
+                                    passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number,
                                     form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type,
                                     vendor_code, carte_number, security_id, expiry_date):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
