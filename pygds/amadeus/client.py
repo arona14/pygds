@@ -85,11 +85,17 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
         return GetPnrResponseExtractor(data).extract()
 
-    def add_form_of_payment(self, message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date):
+    def add_form_of_payment(self, message_id, form_of_payment, passenger_reference_type, passenger_reference_value,
+                            form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type,
+                            company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date):
         """
             add the payment form to the PNR.
         """
-        request_data = self.xml_builder.add_form_of_payment_builder(message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.add_form_of_payment_builder(
+            message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type,
+            passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type,
+            company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date)
         response_data = self.__request_wrapper("add_form_of_payment", request_data, 'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
         return response_data
 
@@ -101,11 +107,13 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("pnr_add_multi_element", request_data, 'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return response_data
 
-    def ticketing_pnr(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
+    def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
             PNR ticketing process.
         """
-        request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token,
+                                                           passenger_reference_type, passenger_reference_value)
         response_data = self.__request_wrapper("ticketing_pnr", request_data, 'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
         return response_data
 

@@ -295,7 +295,9 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number, form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, vendor_code, carte_number, security_id, expiry_date):
+    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number,
+                                    form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type,
+                                    vendor_code, carte_number, security_id, expiry_date):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
@@ -371,7 +373,8 @@ class AmadeusXMLBuilder:
    </soapenv:Envelope>
 """
 
-    def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type, passenger_reference_value):
+    def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type,
+                           passenger_reference_value):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
 <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -392,7 +395,9 @@ class AmadeusXMLBuilder:
 </soapenv:Envelope>
 """
 
-    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
+    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code,
+                                      segment_name, identification, credit_card_code, account_number, expiry_date,
+                                      currency_code):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
