@@ -1,5 +1,3 @@
-import time
-
 from pygds.amadeus.amadeus_types import GdsResponse, AmadeusAddFormOfPayment, AmadeusTicketing
 from pygds.core import xmlparser
 from pygds.core import helpers
@@ -220,8 +218,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
             segment_data["departure_airport"] = data["travelProduct"]["boardpointDetail"]["cityCode"]
             segment_data["arrival_airport"] = data["travelProduct"]["offpointDetail"]["cityCode"]
-            segment_data["departure_dateTime"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.strptime(dep_date + dep_time, "%d%m%y%H%M"))
-            segment_data["arrival_date_time"] = time.strftime("%Y-%m-%dT%H:%M:%S", time.strptime(arr_date + arr_time, "%d%m%y%H%M"))
+            segment_data["departure_dateTime"] = helpers.reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            segment_data["arrival_date_time"] = helpers.reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             segment_data['equipment_type'] = data["flightDetail"]["productDetails"]["equipment"]
             segment_data['class_of_service'] = data["travelProduct"]["productDetails"]["classOfService"]
 
@@ -239,7 +237,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             date_of_birth_tag = helpers.get_data_from_json(data, "dateOfBirth", "dateAndTimeDetails")
 
             date = helpers.get_data_from_json(date_of_birth_tag, "date")
-            date_of_birth = time.strftime("%Y-%m-%d", time.strptime(date, "%d%m%Y"))
+            date_of_birth = helpers.reformat_date(date, "%d%m%Y", "%Y-%m-%d")
             passenger_data['surname'] = helpers.get_data_from_json(trvl, "surname")
             passenger_data['quantity'] = helpers.get_data_from_json(trvl, "quantity")
             passenger_data['firstname'] = helpers.get_data_from_json(psngr, "firstName")
@@ -259,7 +257,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
             res_date = data["reservationInfo"]["reservation"]["date"]
             res_time = data["reservationInfo"]["reservation"]["time"]
-            date_time = time.strftime("%Y-%m-%dT%H:%M:%S.%zZ", time.strptime(res_date + res_time, "%d%m%y%H%M"))
+            date_time = helpers.reformat_date(res_date + res_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             reservation_info['date_time'] = date_time
             pnr_infos.append(reservation_info)
         return pnr_infos
