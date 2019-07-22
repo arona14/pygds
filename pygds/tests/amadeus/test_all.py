@@ -25,7 +25,7 @@ def test():
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
-        res_reservation = client.get_reservation(office_id, None, None, pnr, True)
+        res_reservation = client.get_reservation(pnr, None, True)
         print(res_reservation)
         res_command = client.send_command(f"RT{pnr}", m_id)
         session_info, command_response = (res_command.session_info, res_command.payload)
