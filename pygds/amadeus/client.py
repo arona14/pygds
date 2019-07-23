@@ -15,6 +15,7 @@ __status__ = "Development"
 
 from pygds.core.client import BaseClient
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, PricePNRExtractor, AddMultiElementExtractor
+from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
 
@@ -29,6 +30,7 @@ class AmadeusClient(BaseClient):
         :param wsap: The Amadeus Wep Service Access Point
         :param debug: Telling if the client is debugging requests and responses.
     """
+
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str, debug: bool = False):
         super().__init__(endpoint, username, password, office_id, debug)
         self.xml_builder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
@@ -70,10 +72,60 @@ class AmadeusClient(BaseClient):
         return SessionExtractor(response_data).extract()
 
     def end_session(self, message_id):
+        """
+        This is for ending a current session
+        :param message_id: the message id associated to that session
+        :return: A GdsResponse containing the session info
+        """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
+
+    def get_reservation(self, record_locator: str, message_id: str = None, close_trx: bool = False):
+        """
+            Return the reservation data from PNR.
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        self.log.info(f"Retreive pnr '{record_locator}'.")
+        request_data = self.xml_builder.get_reservation_builder(record_locator, message_id, session_id, sequence_number, security_token, close_trx)
+
+        if security_token is None:
+            self.log.warning("A new session will be created when retrieve pnr.")
+        data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
+        return GetPnrResponseExtractor(data).extract()
+
+    def add_form_of_payment(self, message_id, form_of_payment, passenger_reference_type, passenger_reference_value,
+                            form_of_payment_sequence_number, group_usage_attribute_type, fop: FormOfPayment):
+        """
+            This method adds a form of payment to a PNR.
+            The session must exists and a current PNR defined.
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.add_form_of_payment_builder(
+            message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type,
+            passenger_reference_value, form_of_payment_sequence_number, group_usage_attribute_type,
+            fop)
+        response_data = self.__request_wrapper("add_form_of_payment", request_data, 'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
+        return response_data
+
+    def pnr_add_multi_element(self, session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
+        """
+            This method modifies the elements of a PNR (passengers, etc.)
+        """
+        request_data = self.xml_builder.pnr_add_multi_element_builder(session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code)
+        response_data = self.__request_wrapper("pnr_add_multi_element", request_data, 'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        return response_data
+
+    def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
+        """
+            PNR ticketing process.
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token,
+                                                           passenger_reference_type, passenger_reference_value)
+        response_data = self.__request_wrapper("ticketing_pnr", request_data, 'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
+        return response_data
 
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         """
