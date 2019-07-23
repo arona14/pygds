@@ -1,4 +1,6 @@
 from time import gmtime, strftime
+
+from pygds.core.payment import FormOfPayment
 from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -297,9 +299,16 @@ class AmadeusXMLBuilder:
 
     def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,
                                     passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number,
-                                    form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type,
-                                    vendor_code, carte_number, security_id, expiry_date):
+                                    group_usage_attribute_type, fop: FormOfPayment):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+
+        form_of_payment_code = None
+        company_code = None
+        form_of_payment_type = None
+        vendor_code = None
+        carte_number = None
+        security_id = None
+        expiry_date = None
         return f"""
        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">

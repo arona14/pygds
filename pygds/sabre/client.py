@@ -11,12 +11,33 @@ class SabreClient(BaseService):
     #     pass
 
     def open_session(self, pcc, conversation_id):
+        """
+        This will open a new session
+        :param pcc: The PCC
+        :param conversation_id: the conversion id
+        :return: a token session
+        """
         SabreSession().open(pcc, conversation_id)
 
     def close_session(self, pcc, conversation_id, token_session):
+        """
+        A method to close a session
+        :param pcc: The PCC
+        :param conversation_id: the conversation id
+        :param token_session: the token session
+        :return: None
+        """
         SabreSession().close(pcc, conversation_id, token_session)
 
     def get_reservation(self, pnr: str, pcc: str, conversation_id: str, need_close=True):
+        """
+        retrieve PNR
+        :param pnr: the record locator
+        :param pcc: the PCC
+        :param conversation_id: The conversation id
+        :param need_close: close or not the session
+        :return: a Reservation object
+        """
         try:
             token_session = self.open_session(pcc, conversation_id)
 
