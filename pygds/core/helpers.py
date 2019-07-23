@@ -16,6 +16,13 @@ def get_data_from_json(json_data, *paths):
     return value
 
 
+def get_data_from_json_safe(json_data, *paths):
+    try:
+        return get_data_from_json(json_data, *paths)
+    except KeyError:
+        return None
+
+
 def get_data_from_xml(xml_data, *paths):
     """
         Same as get_data_from_json but works on XML
