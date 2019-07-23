@@ -1,23 +1,63 @@
 from unittest import TestCase
+from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor
 
-from pygds.amadeus.response_extractor import ErrorExtractor
 
-
-class ErrorExtractorCan(TestCase):
+class TestErrorExtractorCan(TestCase):
     def setUp(self) -> None:
-        self.xml = ""
+        self.xml = """<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <soap:Header>
+        <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:From>
+            <wsa:Address>https://nodeD1.test.webservices.amadeus.com/PII</wsa:Address>
+        </wsa:From>
+        <wsa:Action>http://webservices.amadeus.com/HSFREQ_07_3_1A</wsa:Action>
+        <wsa:MessageID>urn:uuid:edf933c3-fdc1-8f14-853b-9170fbb7bc3d</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">
+            e9bd2743-8806-48f0-8a16-7c06079fff50
+        </wsa:RelatesTo>
+        <awsse:Session TransactionStatusCode="End">
+            <awsse:SessionId>Sessw</awsse:SessionId>
+            <awsse:SequenceNumber>1</awsse:SequenceNumber>
+            <awsse:SecurityToken>Tok34344e3</awsse:SecurityToken>
+        </awsse:Session>
+    </soap:Header>
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Client</faultcode>
+            <faultstring>11|Session|</faultstring>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>"""
         self.extractor = ErrorExtractor(self.xml)
 
-    def init(self):
+    def test_init(self):
         extractor = ErrorExtractor(self.xml)
         self.assertIsNotNone(extractor)
         self.assertFalse(extractor.parsed, "The error extractor is parsed on init")
 
-    def parse(self):
+    def test_parse(self):
         self.extractor.parse()
         self.assertTrue(self.extractor.parsed, "The error extractor is not pared after calling .parse method")
 
-    def extract(self):
+    def test_extract(self):
         extracted = self.extractor.extract()
         self.assertIsNotNone(extracted, "The extracted error is none")
         self.assertIsNotNone(extracted.session_info)
+
+
+class TestFormOfPaymentExtractor(TestCase):
+    def setUp(self) -> None:
+        self.xml = ""
+        self.fop_extractor = FormOfPaymentExtractor(self.xml)
+
+    def test_init(self):
+        fop_extractor = FormOfPaymentExtractor(self.xml)
+        self.assertIsNotNone(fop_extractor)
+
+    def test_extract(self):
+        pass
+
+
+class TestTicketingExtractor(TestCase):
+    pass

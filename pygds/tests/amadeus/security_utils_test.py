@@ -7,19 +7,19 @@ class SecurityUtilCan(TestCase):
     def setUp(self) -> None:
         self.su = security_utils
 
-    def generate_random_message_id(self):
+    def test_generate_random_message_id(self):
         rand_msg = self.su.generate_random_message_id()
         self.assertIsNotNone(rand_msg, "Cannot generate random message id")
 
-    def generate_nonce(self):
+    def test_generate_nonce(self):
         nonce = self.su.generate_nonce()
         self.assertIsNotNone(nonce, "Cannot generate nonce")
 
-    def generate_created(self):
+    def test_generate_created(self):
         created = self.su.generate_created()
         self.assertIsNotNone(created, "Cannot generate created")
 
-    def normally_digest_message(self):
+    def test_normally_digest_message(self):
         nonce = self.su.generate_nonce()
         created = self.su.generate_created()
         password = "You have to ignore me"

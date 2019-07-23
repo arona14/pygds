@@ -13,7 +13,7 @@ class TestFactory(unittest.TestCase):
 
         print(SabreGDS)
         print(AmadeusGDS)
-        self.assertIsNotNone(factory.GDS('sabre').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))
+        self.assertIsNotNone(factory.GDS('amadeus').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))
 
 
 if __name__ == '__main__':

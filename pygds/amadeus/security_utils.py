@@ -24,7 +24,6 @@ def generate_created():
     """
         Generates the created date of a nonce based on the current datetime and format it
     """
-    # 2017-05-29T14:44:41.457Z
     return str(strftime("%Y-%m-%dT%H:%M:%S.%zZ", gmtime()))
 
 
