@@ -275,11 +275,107 @@ class FormOfPayment(BasicDataObject):
         }
 
 
+class FlightPriceQuote(BasicDataObject):
+    """[summary]
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, latest_pq_flag: str = None, number: str = None, pricing_type: str = None, status: str = None, type_pq: str = None, itinerary_type: str = None, validating_carrier: str = None, local_create_date_time: str = None):
+        self.latest_pq_flag = latest_pq_flag
+        self.number = number
+        self.pricing_type = pricing_type
+        self.status = status
+        self.type_pq = type_pq
+        self.itinerary_type = itinerary_type
+        self.validating_carrier = validating_carrier
+        self.local_create_date_time = local_create_date_time
+
+    def to_data(self):
+        return{
+            "latest_pq_flag": self.latest_pq_flag,
+            "number": self.number,
+            "pricing_type": self.pricing_type,
+            "status": self.status,
+            "type_pq": self.type_pq,
+            "itinerary_type": self.itinerary_type,
+            "validating_carrier": self.validating_carrier,
+            "local_create_date_time": self.local_create_date_time
+        }
+
+
+class FlightAmounts(BasicDataObject):
+    """[summary]
+
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, currency_code: str = None, decimal_place: str = None, text: str = None):
+        self.currency_code = currency_code
+        self.decimal_place = decimal_place
+        self.text = text
+
+    def to_data(self):
+        return{
+            "currency_code": self.currency_code,
+            "decimal_place": self.decimal_place,
+            "amounts": self.text
+        }
+
+
+class FlightPassenger_pq(BasicDataObject):
+    """[summary]
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, passenger_type_count: str = None, requested_type: str = None, type_passenger: str = None):
+        self.passenger_type_count = passenger_type_count
+        self.requested_type = requested_type
+        self.type_passenger = type_passenger
+
+    def to_data(self):
+        return{
+            "passenger_type_count": self.passenger_type_count,
+            "request_type": self.requested_type,
+            "type_passenger": self.type_passenger
+        }
+
+
+class FlightSummary(BasicDataObject):
+    """
+    Holds informations Nameassociation for passengers
+    """
+    def __init__(self, first_name: str = None, last_name: str = None, name_id: str = None, name_number: str = None, pq: FlightPriceQuote = None, passenger: FlightPassenger_pq = None, amounts: FlightAmounts = None):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.name_id = name_id
+        self.name_number = name_number
+        self.pq = pq
+        self.passenger = passenger
+        self.amounts = amounts
+
+    def to_data(self):
+        return{
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "name_id": self.name_id,
+            "name_number": self.name_number,
+            "price_quote": None if self.pq is None else self.pq.to_data(),
+            "passenger": None if self.passenger is None else self.passenger.to_data(),
+            "amounts": None if self.amounts is None else self.amounts.to_data()
+        }
+
+
 class PriceQuote(BasicDataObject):
     """
         This is to represent a price quote object
     """
-    pass
+    def __init__(self, summary: FlightSummary = None):
+        self.summary = summary
+
+    def to_data(self):
+        return{
+            "summary": None if self.summary is None else self.summary.to_data()
+        }
 
 
 class TicketingInfo(BasicDataObject):

@@ -9,15 +9,37 @@ with open(file_path) as f:
     object_sabre = json.load(f)
 
 
-def test_segments():
-    segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
+def test_price_quote():
+    result = object_sabre["or112:PriceQuote"]
+    print(result)
     formatter = SabreReservationFormatter()
-    itinerary_info = formatter.itineraryInfo(segments)
-    print(itinerary_info)
+    pricingquote = formatter.price_quote(result)
+    print(pricingquote)
 
 
 if __name__ == "__main__":
-    test_segments()
+    test_price_quote()
+
+# def test_form_of_payment():
+#     result = object_sabre["stl18:Reservation"]["stl18:PassengerReservation"]
+#     formatter = SabreReservationFormatter()
+#     short_text = formatter.formofpayment(result)
+#     print(short_text)
+
+
+# if __name__ == "__main__":
+#     test_form_of_payment()
+
+
+# def test_segments():
+#     segments = object_sabre['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']
+#     formatter = SabreReservationFormatter()
+#     itinerary_info = formatter.itineraryInfo(segments)
+#     print(itinerary_info)
+
+
+# if __name__ == "__main__":
+#     test_segments()
 
 
 # def test_remarks():

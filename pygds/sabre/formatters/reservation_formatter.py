@@ -1,5 +1,5 @@
 from pygds.core.types import Passenger
-from pygds.core.types import Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp
+from pygds.core.types import Itinerary, FlightPriceQuote, FlightSummary, FlightAmounts, FlightPassenger_pq, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, PriceQuote
 """from pygds.sabre.base_service import BaseService
 from pygds.sabre.session import SabreSession
 from ..core import xmlparser
@@ -197,6 +197,91 @@ class SabreReservationFormatter():
                 if out_bound_connection == "false":  # end of an itinerary
                     result.append(current_itinerary)
         return result
+
+    def price_quote(self, pricing_quote):
+        price_data = []
+        if pricing_quote is None:
+            return price_data
+        price_info = pricing_quote['PriceQuoteInfo']
+        if not isinstance(price_info, list):
+            price_info = [price_info]
+        result = []
+        for price in price_info:
+            if 'Summary' in price:
+                first_name = price['Summary']['NameAssociation']['firstName']
+                last_name = price['Summary']['NameAssociation']['lastName']
+                name_id = price['Summary']['NameAssociation']['nameId']
+                name_number = price['Summary']['NameAssociation']['nameNumber']
+                latest_pq_flag = price['Summary']['NameAssociation']['PriceQuote']['latestPQFlag']
+                number = price['Summary']['NameAssociation']['PriceQuote']['number']
+                pricing_type = price['Summary']['NameAssociation']['PriceQuote']['pricingType']
+                status = price['Summary']['NameAssociation']['PriceQuote']['status']
+                type_price_quote = price['Summary']['NameAssociation']['PriceQuote']['type']
+                passenger_type_count = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['passengerTypeCount']
+                requested_type = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['requestedType']
+                type_passenger = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['type']
+                itinerary_type = price['Summary']['NameAssociation']['PriceQuote']['ItineraryType']
+                validating_carrier = price['Summary']['NameAssociation']['PriceQuote']['ValidatingCarrier']
+                currency_code = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['currencyCode']
+                decimal_place = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['decimalPlace']
+                text = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['#text']
+                local_create_date_time = price['Summary']['NameAssociation']['PriceQuote']['LocalCreateDateTime']
+                passengers = FlightPassenger_pq(currency_code, decimal_place, text)
+                pq = FlightPriceQuote(latest_pq_flag, number, pricing_type, status, type_price_quote, itinerary_type, validating_carrier, local_create_date_time)
+                amounts = FlightAmounts(passenger_type_count, requested_type, type_passenger)
+                summary = FlightSummary(first_name, last_name, name_id, name_number, pq, passengers, amounts)
+                pricequote = PriceQuote(summary)
+                result.append(pricequote)
+        return result
+
+        # details
+        """
+                number = 
+                passenger_type = 
+                pricing_type = 
+                status = 
+                type_details = 
+                # AgentInfo
+                duty = 
+                sine = 
+                home_location =
+                work_location = 
+                # TransactionInfo
+                create_date_time = 
+                update_date_time = 
+                last_date_to_purchase = 
+                local_creat_date_time = 
+                input_entry = 
+                # NameAssociationInfo
+                first_name = 
+                last_name = 
+                name_id = 
+                name_number = 
+                # SegmentInfo
+                number = 
+                segment_status = 
+                fare_basis = 
+                not_valid_before =
+                not_valid_after = 
+                   # Baggage
+                allowance = 
+                type_bagage = 
+                   # flight
+                connection_indicator = 
+                marketing_flight = 
+                number = 
+                text = 
+                class_of_service =
+                   #departure 
+                date_time = 
+                        # CityCode
+                name = 
+                    # arrival 
+                date_time = 
+                        # CityCode
+                name = 
+                text = 
+            """
 
     def formofpayment(self, forms_of_payment):
         formof_payment_list = []
