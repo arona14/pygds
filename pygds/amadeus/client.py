@@ -14,7 +14,8 @@ __email__ = "mohamed@ctsfares.com"
 __status__ = "Development"
 
 from pygds.core.client import BaseClient
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, PricePNRExtractor, AddMultiElementExtractor
+from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
+    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -93,7 +94,9 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
-        return GetPnrResponseExtractor(data).extract()
+        response = GetPnrResponseExtractor(data).extract()
+        self.add_session(response.session_info)
+        return response
 
     def add_form_of_payment(self, message_id, form_of_payment, passenger_reference_type, passenger_reference_value,
                             form_of_payment_sequence_number, group_usage_attribute_type, fop: FormOfPayment):
@@ -164,7 +167,7 @@ class AmadeusClient(BaseClient):
                                                                           security_token)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        print(response_data)
+        # print(response_data)
         return PricePNRExtractor(response_data).extract()
 
     def ticket_create_tst_from_price(self, message_id, tst_reference):
