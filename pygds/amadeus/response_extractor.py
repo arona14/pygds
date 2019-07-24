@@ -2,6 +2,7 @@ from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core import helpers
 from pygds.core.sessions import SessionInfo
+from pygds.core.types import Passenger
 
 
 class BaseResponseExtractor(object):
@@ -172,6 +173,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = helpers.get_data_from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
+        print(payload)
         return {
             'itineraries': self._segments(),
             'passengers': self._passengers(),
@@ -203,22 +205,35 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _passengers(self):
         passengers_list = []
         for traveller in helpers.ensure_list(helpers.get_data_from_json(self.payload, "travellerInfo")):
-            passenger_data = {}
+            # passenger_data = {}
             data = helpers.get_data_from_json(traveller, "passengerData")
             traveller_info = helpers.get_data_from_json(data, "travellerInformation")
-            trvl = helpers.get_data_from_json(traveller_info, "traveller")
+            # trvl = helpers.get_data_from_json(traveller_info, "traveller")
             psngr = helpers.get_data_from_json(traveller_info, "passenger")
             date_of_birth_tag = helpers.get_data_from_json(data, "dateOfBirth", "dateAndTimeDetails")
-
             date = helpers.get_data_from_json(date_of_birth_tag, "date")
             date_of_birth = helpers.reformat_date(date, "%d%m%Y", "%Y-%m-%d")
-            passenger_data['surname'] = helpers.get_data_from_json(trvl, "surname")
-            passenger_data['quantity'] = helpers.get_data_from_json(trvl, "quantity")
-            passenger_data['firstname'] = helpers.get_data_from_json(psngr, "firstName")
-            passenger_data['type'] = helpers.get_data_from_json(psngr, "type")
-            passenger_data['qualifier'] = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
-            passenger_data['date_of_birth'] = date_of_birth
-            passengers_list.append(passenger_data)
+            # passenger_data['surname'] = helpers.get_data_from_json(trvl, "surname")
+            # passenger_data['quantity'] = helpers.get_data_from_json(trvl, "quantity")
+            # passenger_data['firstname'] = helpers.get_data_from_json(psngr, "firstName")
+            # passenger_data['type'] = helpers.get_data_from_json(psngr, "type")
+            # passenger_data['qualifier'] = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
+            # passenger_data['date_of_birth'] = date_of_birth
+            # surname = helpers.get_data_from_json(trvl, "surname")
+            # quantity = helpers.get_data_from_json(trvl, "quantity")
+            firstname = helpers.get_data_from_json(psngr, "firstName")
+            lastname = helpers.get_data_from_json(psngr, "lastName")
+            gender = helpers.get_data_from_json(psngr, "lastName")
+            forename = helpers.get_data_from_json(psngr, "lastName")
+            middlename = helpers.get_data_from_json(psngr, "lastName")
+            action_code = helpers.get_data_from_json(psngr, "lastName")
+            number_in_party = helpers.get_data_from_json(psngr, "lastName")
+            vendor_code = helpers.get_data_from_json(psngr, "lastName")
+            type_passenger = helpers.get_data_from_json(psngr, "type")
+            # qualifier = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
+            date_of_birth = date_of_birth
+            passsenger = Passenger(psngr, firstname, lastname, date_of_birth, gender, forename, middlename, action_code, number_in_party, vendor_code, type_passenger)
+            passengers_list.append(passsenger)
         return passengers_list
 
     def _pnr_info(self):

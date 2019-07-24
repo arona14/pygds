@@ -19,29 +19,77 @@ class BasicDataObject(object):
         """
         return json.dumps(self.to_data(), indent=4)
 
+    def __repr__(self):
+        """
+        method that redefined the string type
+        """
+        return self.to_json()
+
 
 class FlightPointDetails(BasicDataObject):
     """
         Information about flight point details (on departure or arrival)
     """
-    def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None, gate: str = None, terminal: str = None):
-        self.date = date
-        self.time = time
-        self.gmtOffset = gmtOffset
-        self.city = city
+    def __init__(self, content: str = None, airport: str = None, terminal: str = None):
+        self.content = content
         self.airport = airport
-        self.gate = gate
         self.terminal = terminal
 
     def to_data(self):
         return {
-            "date": self.date,
-            "time": self.time,
-            "gmtOffset": self.gmtOffset,
-            "city": self.city,
-            "airport": self.airport,
-            "gate": self.gate,
+            "content": self.content,
+            "location_code": self.airport,
             "terminal": self.terminal
+        }
+
+
+class FlightAirlineDetails():
+    """
+    Holds informations about airline
+    """
+    def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None, class_of_service: str = None):
+        self.airline_code = airline_code
+        self.flight_number = flight_number
+        self.airline_short_name = airline_short_name
+        self.class_of_service = class_of_service
+
+    def to_data(self):
+        return{
+            "airline_code": self.airline_code,
+            "flight_number": self.flight_number,
+            "airline_short_name": self.airline_short_name,
+            "class_of_service": self.class_of_service
+        }
+
+
+class FlightDisclosureCarrier(BasicDataObject):
+    def __init__(self, code: str = None, dot: str = None, banner: str = None):
+        self.code = code
+        self.dot = dot
+        self.banner = banner
+
+    def to_data(self):
+        return{
+            "code": self.code,
+            "dot": self.dot,
+            "banner": self.banner
+        }
+
+
+class FlightMarriageGrp(BasicDataObject):
+    """
+    Holds information of MariageGroup
+    """
+    def __init__(self, ind: str = None, group: str = None, sequence: str = None):
+        self.ind = ind
+        self.group = group
+        self.sequence = sequence
+
+    def to_data(self):
+        return{
+            "ind": self.ind,
+            "group": self.group,
+            "sequence": self.sequence
         }
 
 
@@ -49,35 +97,73 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
-    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
+    def __init__(self, sequence: int = 1, res_book_desig_code: str = None, departure_date_time: str = None, departure_airport: FlightPointDetails = None, arrival_date_time: str = None, arrival_airpot: FlightPointDetails = None, airline: str = None, marketing: FlightAirlineDetails = None, operating: FlightAirlineDetails = None, disclosure_carrier: FlightDisclosureCarrier = None, mariage_group: FlightMarriageGrp = None, seats: str = None, action_code: str = None, segment_special_requests: str = None, schedule_change_indicator: str = None, segment_booked_date: str = None, air_miles_flown: str = None, funnel_flight: str = None, change_of_gauge: str = None, flight_number: str = None, class_of_service: str = None, elapsed_time: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None):
         self.sequence = sequence
-        self.departure = departure
-        self.arrival = arrival
+        self.res_book_desig_code = res_book_desig_code
+        self.departure_date_time = departure_date_time
+        self.departure_airport = departure_airport
+        self.arrival_date_time = arrival_date_time
+        self.arrival_airpot = arrival_airpot
         self.airline = airline
-        self.flightNumber = flightNumber
-        self.classOfService = classOfService
-        self.elapsedTime = elapsedTime
+        self.marketing = marketing
+        self.operating = operating
+        self.disclosure_carrier = disclosure_carrier
+        self.mariage_group = mariage_group
+        self.seats = seats
+        self.segment_special_requests = segment_special_requests
+        self.schedule_change_indicator = schedule_change_indicator
+        self.segment_booked_date = segment_booked_date
+        self.air_miles_flown = air_miles_flown
+        self.funnel_flight = funnel_flight
+        self.change_of_gauge = change_of_gauge
+        self.flight_number = flight_number
+        self.class_of_service = class_of_service
+        self.elapsed_time = elapsed_time
+        self.equipment_type = equipment_type
+        self.eticket = eticket
+        self.number_in_party = number_in_party
+        self.code = code
 
     def to_data(self):
         return {
             "sequence": self.sequence,
-            "departure": self.departure.to_data() if self.departure is not None else {},
-            "arrival": self.arrival.to_data() if self.arrival is not None else {},
-            "airline": self.airline,
-            "flightNumber": self.flightNumber,
-            "classOfService": self.classOfService,
-            "elapsedTime": self.elapsedTime
+            "res_book_desig_code": self.res_book_desig_code,
+            "departure_date_time": self.departure_date_time,
+            "departure_airpot": self.departure_airport.to_data() if self.departure_airport is not None else {},
+            "arrival_date_time": self.arrival_date_time,
+            "arrival_airpot": self.arrival_airpot.to_data() if self.arrival_airpot is not None else {},
+            "airline_ref_id": self.airline,
+            "marketing": self.marketing.to_data() if self.marketing is not None else {},
+            "operating": self.operating.to_data() if self.operating is not None else {},
+            "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier is not None else {},
+            "mariage_group": self.mariage_group.to_data() if self.mariage_group is not None else {},
+            "seats": self.seats,
+            "segment_special_requests": self.segment_special_requests,
+            "schedule_change_indicator": self.schedule_change_indicator,
+            "segment_booked_date": self.segment_booked_date,
+            "air_miles_flown": self.air_miles_flown,
+            "funnel_flight": self.funnel_flight,
+            "change_of_gauge": self.change_of_gauge,
+            "flight_number": self.flight_number,
+            "class_of_service": self.class_of_service,
+            "elapsed_time": self.elapsed_time,
+            "equipment_type": self.equipment_type,
+            "eticket": self.eticket,
+            "number_in_party": self.number_in_party,
+            "code": self.code,
         }
 
 
 class Itinerary(BasicDataObject):
+
     """
         Holds information about an itinerary
     """
-    def __init__(self, itineraryType: str = None):
+    def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
+
         self.segments: List[FlightSegment] = []
-        self.itineraryType = itineraryType
-        self.elapsedTime = None
+        self.itinerary_type = itinerary_type
+        self.elapsed_time = elapsed_time
 
     def addSegment(self, segment: FlightSegment):
         """
@@ -88,9 +174,26 @@ class Itinerary(BasicDataObject):
 
     def to_data(self):
         return {
+            # "code": self.code,
+            # "resBookDesigCode": self.res_book_desig_code,
+            # "departureAirport": self.departure_airport,
+            # "arrivalAirport": self.arrival_airport,
+            # "operatingAirlineCode": self.operating_airline_code,
+            # "marketingAirlineCode": self.marketing_airline_code,
+            # "equipmentType": self.equipment_type,
+            # "eticket": self.eticket,
+            # "departureDateTime": self.departure_date_time,
+            # "arrivalDateTime": self.arrival_date_time,
+            # "flightNumber": self.flight_number,
+            # "classOfService": self.class_of_service,
+            # "numberInParty": self.number_in_party,
+            # "onBoundConnection": self.out_bound_connection,
+            # "inBoundConnection": self.in_bound_connection,
+            # "airlineRefId": self.air_line_ref_id,
+            # "elapsedTime": self.elapsed_time,
             "segments": [s.to_data() for s in self.segments],
-            "itineraryType": self.itineraryType,
-            "elapsedTime": self.elapsedTime
+            "itineraryType": self.itinerary_type,
+            "elapsed_time": self.elapsed_time
         }
 
 
@@ -109,38 +212,52 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None, passengerType: str = None, preferences=None):
-        self.firstName = firstName
-        self.lastName = lastName
+    def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, sur_name: str = None, fore_name: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
+        self.name_id = name_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.date_of_birth = date_of_birth
         self.gender = gender
-        self.dateOfBirth = dateOfBirth
-        self.passengerType = passengerType
+        self.sur_name = sur_name
+        self.fore_name = fore_name
+        self.middle_name = middle_name
+        self.action_code = action_code
+        self.number_in_party = number_in_party
+        self.vendor_code = vendor_code
+        self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrievePassengerType()
+        self.retrieve_passenger_type()
 
-    def retrievePassengerType(self):
+    def retrieve_passenger_type(self):
         """
             This method retrieves the passenger type from the age
         """
-        if self.dateOfBirth is not None:
-            age = datetime.date.today() - datetime.date.fromisoformat(self.dateOfBirth)
+        if self.date_of_birth is not None:
+            age = datetime.date.today() - datetime.date.fromisoformat(self.date_of_birth)
             age = age.days / 365
             if age < 0:
-                self.passengerType = None
+                self.passenger_type = None
             elif age <= 2:
-                self.passengerType = "INFANT"
+                self.passenger_type = "INF"
             elif age <= 12:
-                self.passengerType = "CHILD"
+                self.passenger_type = "CNN"
             else:
-                self.passengerType = "ADULT"
+                self.passenger_type = "ADT"
 
     def to_data(self):
         return {
-            "lastName": self.lastName,
-            "firstName": self.firstName,
+            "name_id": self.name_id,
+            "last_name": self.last_name,
+            "first_name": self.first_name,
             "gender": self.gender,
-            "dateOfBirth": self.dateOfBirth,
-            "passengerType": self.passengerType,
+            "surname": self.sur_name,
+            "middle_name": self.middle_name,
+            "forename": self.fore_name,
+            "action_code": self.action_code,
+            "number_in_party": self.number_in_party,
+            "vendor_code": self.vendor_code,
+            "date_of_birth": self.date_of_birth,
+            "passenger_type": self.passenger_type,
             "preferences": self.preferences.to_data()
         }
 
@@ -149,21 +266,164 @@ class FormOfPayment(BasicDataObject):
     """
         Keeps information about form of payments
     """
-    pass
+    def __init__(self, short_text: str = None):
+        self.short_text = short_text
+
+    def to_data(self):
+        return{
+            "short_text": self.short_text
+        }
+
+
+class FlightPriceQuote(BasicDataObject):
+    """[summary]
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, latest_pq_flag: str = None, number: str = None, pricing_type: str = None, status: str = None, type_pq: str = None, itinerary_type: str = None, validating_carrier: str = None, local_create_date_time: str = None):
+        self.latest_pq_flag = latest_pq_flag
+        self.number = number
+        self.pricing_type = pricing_type
+        self.status = status
+        self.type_pq = type_pq
+        self.itinerary_type = itinerary_type
+        self.validating_carrier = validating_carrier
+        self.local_create_date_time = local_create_date_time
+
+    def to_data(self):
+        return{
+            "latest_pq_flag": self.latest_pq_flag,
+            "number": self.number,
+            "pricing_type": self.pricing_type,
+            "status": self.status,
+            "type_pq": self.type_pq,
+            "itinerary_type": self.itinerary_type,
+            "validating_carrier": self.validating_carrier,
+            "local_create_date_time": self.local_create_date_time
+        }
+
+
+class FlightAmounts(BasicDataObject):
+    """[summary]
+
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, currency_code: str = None, decimal_place: str = None, text: str = None):
+        self.currency_code = currency_code
+        self.decimal_place = decimal_place
+        self.text = text
+
+    def to_data(self):
+        return{
+            "currency_code": self.currency_code,
+            "decimal_place": self.decimal_place,
+            "amounts": self.text
+        }
+
+
+class FlightPassenger_pq(BasicDataObject):
+    """[summary]
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init__(self, passenger_type_count: str = None, requested_type: str = None, type_passenger: str = None):
+        self.passenger_type_count = passenger_type_count
+        self.requested_type = requested_type
+        self.type_passenger = type_passenger
+
+    def to_data(self):
+        return{
+            "passenger_type_count": self.passenger_type_count,
+            "request_type": self.requested_type,
+            "type_passenger": self.type_passenger
+        }
+
+
+class FlightSummary(BasicDataObject):
+    """
+    Holds informations Nameassociation for passengers
+    """
+    def __init__(self, first_name: str = None, last_name: str = None, name_id: str = None, name_number: str = None, pq: FlightPriceQuote = None, passenger: FlightPassenger_pq = None, amounts: FlightAmounts = None):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.name_id = name_id
+        self.name_number = name_number
+        self.pq = pq
+        self.passenger = passenger
+        self.amounts = amounts
+
+    def to_data(self):
+        return{
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "name_id": self.name_id,
+            "name_number": self.name_number,
+            "price_quote": None if self.pq is None else self.pq.to_data(),
+            "passenger": None if self.passenger is None else self.passenger.to_data(),
+            "amounts": None if self.amounts is None else self.amounts.to_data()
+        }
 
 
 class PriceQuote(BasicDataObject):
     """
         This is to represent a price quote object
     """
-    pass
+    def __init__(self, summary: FlightSummary = None):
+        self.summary = summary
+
+    def to_data(self):
+        return{
+            "summary": None if self.summary is None else self.summary.to_data()
+        }
 
 
 class TicketingInfo(BasicDataObject):
     """
         Represents a ticketing information
     """
-    pass
+    def __init__(self, id: str = None, index: str = None, element_id: str = None, code: str = None, branch_pcc: str = None, date: str = None, time: str = None, queue_number: str = None, comment: str = None):
+        self.id = id
+        self.index = index
+        self.element_id = element_id
+        self.code = code
+        self.branch_pcc = branch_pcc
+        self.date = date
+        self.time = time
+        self.queue_number = queue_number
+        self.comment = comment
+
+    def to_data(self):
+        return{
+            "id": self.id,
+            "index": self.index,
+            "element_id": self.element_id,
+            "code": self.code,
+            "branch_pcc": self.branch_pcc,
+            "date": self.date,
+            "time": self.time,
+            "queue_number": self.queue_number,
+            "comment": self.comment,
+        }
+
+
+class Remarks(BasicDataObject):
+    """
+     feep informations about remarks
+    """
+    def __init__(self, sequence: int = 1, type_remark: str = None, element_id: str = None, text: str = None):
+        self.sequence = sequence
+        self.type_remark = type_remark
+        self.element_id = element_id
+        self.text = text
+
+    def to_data(self):
+        return{
+            "sequence": self.sequence,
+            "type_remark": self.type_remark,
+            "element_id": self.element_id,
+            "text": self.text
+        }
 
 
 class Reservation(BasicDataObject):
@@ -171,7 +431,7 @@ class Reservation(BasicDataObject):
         A class to keep all data about reservation
     """
     def __init__(self):
-        self.itineraries: List[Itinerary] = []
+        self.itinerary: List[Itinerary] = []
         self.passengers: List[Passenger] = []
         self.formOfPayments: List[FormOfPayment] = []
         self.priceQuotes: List[PriceQuote] = []
@@ -181,7 +441,7 @@ class Reservation(BasicDataObject):
         """
             Add a new itinerary to the reservation
         """
-        self.itineraries.append(itnr)
+        self.itinerary.append(itnr)
         return self
 
     def addPassenger(self, psgr: Passenger):

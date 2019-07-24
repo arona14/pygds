@@ -9,6 +9,14 @@ from pygds.env_settings import get_setting
 from pygds import log_handler
 
 
+def test_passenger():
+    pass
+
+
+if __name__ == "__main__":
+    test_passenger()
+
+
 def test():
     """ A suite of tests """
     endpoint = get_setting("AMADEUS_ENDPOINT_URL")
