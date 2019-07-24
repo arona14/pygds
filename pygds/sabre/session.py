@@ -13,16 +13,18 @@ from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 class SabreSession(BaseService):
 
-    def open(self, pcc, conversation_id):
+    def __init__(self, pcc, user_name, password, conversation_id, url, headers):
+        self.pcc = pcc
+        self.user_name = user_name
+        self.password = password
+        self.conversation_id = conversation_id
+        self.url = url
+        self.headers = headers
 
-        sabre_credential = sabre_credentials(pcc)
-
+    def open(self):
         try:
-            user_name = sabre_credential["User"][0]
-            password = decode_base64(sabre_credential["Password1"][0])
-
             open_session_xml = SabreXMLBuilder().session_create_rq(
-                pcc, user_name, password, conversation_id)
+                self.pcc, self.user_name, self.password, self.conversation_id)
 
             response = requests.post(self.url, data=open_session_xml, headers=self.headers)
             r = jxmlease.parse(response.content)
