@@ -20,7 +20,7 @@ def test():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"
+    pnr = "RH3WOD"  # "Q68EFX", "RI3B6D"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
@@ -28,25 +28,33 @@ def test():
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
-        log.info(command_response)
-
+        log.info(res_reservation)
         m_id = session_info.message_id
-        res_command = client.send_command("IR", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
-        log.info(session_info)
-        log.info(command_response)
 
-        m_id = session_info.message_id
-        res_command = client.send_command("AD23OCTDTWATH/AAF", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
+        res_price = client.fare_price_pnr_with_booking_class(m_id)
+        session_info, res_price = (res_price.session_info, res_price.payload)
         log.info(session_info)
-        log.info(command_response)
-
-        m_id = session_info.message_id
-        res_command = client.send_command("SS1X4", m_id)
-        session_info, command_response = (res_command.session_info, res_command.payload)
-        log.info(session_info)
-        log.info(command_response)
+        log.info(res_price[0])
+        # m_id = session_info.message_id
+        # res_tst = client.ticket_create_tst_from_price(m_id, res_price[0])
+        # log.debug(res_tst)
+        # res_command = client.send_command("IR", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
+        # m_id = session_info.message_id
+        # res_command = client.send_command("AD23OCTDTWATH/AAF", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
+        # m_id = session_info.message_id
+        # client.fare_price_pnr_with_booking_class(m_id)
+        # res_command = client.send_command("SS1X4", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
         # origin, destination, date_dep, date_arr = ("LON", "TYO", "050819", "100819")
         # log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
         # search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
