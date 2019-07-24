@@ -35,7 +35,7 @@ def ensure_list(elem):
     """
         This function ensures that a given parameter is a list by creating a list of signe element if it is not.
     """
-    return elem if isinstance(elem, list) else [elem]
+    return elem if isinstance(elem, list) else [elem] if elem else []
 
 
 def reformat_date(date_time, input_format: str, output_format: str):
