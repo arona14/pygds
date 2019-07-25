@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor
 
@@ -65,7 +66,9 @@ class TestTicketingExtractor(TestCase):
 
 class TestPricePnrExtractor(TestCase):
     def setUp(self) -> None:
-        with open("resources/amadeus_price_pnr_with_booking_class_response.xml") as f:
+        xml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "resources/amadeus_price_pnr_with_booking_class_response.xml")
+        with open(xml_path) as f:
             self.xml = ''.join(f.readlines())
             self.price_extractor = PricePNRExtractor(self.xml)
 
