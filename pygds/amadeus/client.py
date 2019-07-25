@@ -213,4 +213,3 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return AddMultiElementExtractor(response_data).extract()
-

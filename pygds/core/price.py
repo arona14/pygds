@@ -1,6 +1,6 @@
 from typing import List
-
 from datetime import date
+
 
 class PriceInfoBasic:
     def __str__(self):
@@ -37,11 +37,11 @@ class TaxInformation(PriceInfoBasic):
 
     def __repr__(self):
         return {
-             "tax_qualifier": self.tax_qualifier,
-             "tax_identifier": self.tax_identifier,
-             "tax_type": self.tax_type,
-             "tax_nature": self.tax_nature,
-             "tax_amount": None if not self.tax_amount else self.tax_amount.__repr__()
+            "tax_qualifier": self.tax_qualifier,
+            "tax_identifier": self.tax_identifier,
+            "tax_type": self.tax_type,
+            "tax_nature": self.tax_nature,
+            "tax_amount": None if not self.tax_amount else self.tax_amount.__repr__()
         }
 
 
@@ -99,7 +99,7 @@ class FareComponent(PriceInfoBasic):
             "item_type": self.item_type,
             "departure": self.departure,
             "arrival": self.arrival,
-            "monetary_info": None if not  self.monetary_info else self.monetary_info.__repr__(),
+            "monetary_info": None if not self.monetary_info else self.monetary_info.__repr__(),
             "rate_tariff_class": self.rate_tariff_class,
             "fare_qualifier": self.fare_qualifier,
             "fare_family_name": self.fare_family_name,
@@ -183,4 +183,3 @@ class Fare(PriceInfoBasic):
             "segment_infos": [s.__repr__() for s in self.segment_infos],
             "fare_components": [c.__repr__() for c in self.fare_components]
         }
-
