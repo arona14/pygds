@@ -247,8 +247,9 @@ class Passenger(BasicDataObject):
     def to_data(self):
         return {
             "name_id": self.name_id,
-            "last_name": self.last_name,
             "first_name": self.first_name,
+            "last_name": self.last_name,
+            "date_of_birth": self.date_of_birth,
             "gender": self.gender,
             "surname": self.sur_name,
             "middle_name": self.middle_name,
@@ -256,7 +257,6 @@ class Passenger(BasicDataObject):
             "action_code": self.action_code,
             "number_in_party": self.number_in_party,
             "vendor_code": self.vendor_code,
-            "date_of_birth": self.date_of_birth,
             "passenger_type": self.passenger_type,
             "preferences": self.preferences.to_data()
         }
