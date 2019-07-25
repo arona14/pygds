@@ -1,30 +1,22 @@
 import requests
+import json
 from .helpers import soap_service_to_json
 from .session import SabreSession
 from pygds import env_settings
-from pygds.sabre.config import sabre_credentials, decode_base64
-import json
+from pygds.sabre.config import decode_base64
+from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
 
+request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
+                { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}],"adult": 1,"child":0,
+                "infant": 0,"csv": "Y", "pcc": "WR17", "alternatePcc": [],"requestType": "200ITINS", "agencyId": "68277",
+                "preferredAirlines": ["GF"],"baggagePref": false,"excludeBasicEconomy": true }"""
 
-my_json = """{
+request_json = json.loads(request)
+# print(request_json)
+
+final_object = """{
     "OTA_AirLowFareSearchRQ": {
-        "POS": {
-            "Source": [
-                {
-                    "RequestorID": {
-                        "CompanyName": {
-                            "Code": "TN",
-                            "content": "Context"
-                        },
-                        "URL": "http://www.sabre.com/",
-                        "Type": "1",
-                        "ID": "1"
-                    },
-                    "PseudoCityCode": "WR17",
-                    "ISOCountry": "US"
-                }
-            ]
-        },
+        "POS" : "SabreBFMBuilder().pos()",
         "OriginDestinationInformation": [
             {
                 "TPA_Extensions": {
@@ -400,7 +392,7 @@ my_json = """{
                         "MultipleBrandedFares": false
                     }
                 },
-                "NegotiatedFaresOnly": false
+                "NegotiatedFaresOnly": "false"
             }
         },
         "TPA_Extensions": {
@@ -423,8 +415,11 @@ my_json = """{
     }
 }
 """
+final_object_json = json.loads(final_object)
 
-urlpattern = "https://api.havail.sabre.com" + "/v1/offers/shop"
+# print(final_object_json)
+
+urlpattern = "https://api.havail.sabre.com" + "/v4.3.0/shop/flights?mode=live"
 
 
 class My_test:
@@ -442,16 +437,20 @@ class My_test:
 
         header = {
             'Authorization': "Bearer " + token,
-            'Content-Type': 'application/json',
-            'Accept-Encoding': 'gzip,deflate',
+            'Content-Type': 'application/json'
         }
         response = requests.post(urlpattern, data=datas, headers=header)
-        response = json.loads(response.content)
+        response = json.loads(response.text)
         return response
 
 
+"""
+result = My_test().post(my_json)
+result = str(result)
+with open("myResult.text", 'w') as myFile:
+myFile.write(result)
+myFile.close()
+"""
 if __name__ == "__main__":
-    result = My_test().post(my_json)
-    result = str(result)
-    with open("myResult.json", 'w') as myFile:
-        myFile.write(result)
+    print(str(True).lower())
+    print(SabreBFMBuilder(request_json).search_flight())                                                                                                                                                                                                                                                                                
