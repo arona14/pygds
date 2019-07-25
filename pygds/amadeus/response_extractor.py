@@ -21,7 +21,7 @@ class BaseResponseExtractor(object):
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
-        self.session_info = None
+        self.session_info: SessionInfo = None
         self.log = logging.getLogger(str(self.__class__))
 
     def parse(self):
@@ -135,13 +135,12 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         # departure = FlightPointDetails(departure_date, departure_time, 0, "", board_airport, "", "")
                         # arrival = FlightPointDetails(arrival_date, arrival_time, 0, "", off_airport, "", "")
                         # segment = FlightSegment(0, departure, arrival, market_company, flight_number, book_class, "")
-                        segment = {
-                            "fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
-                            "flight_number": flight_number, "departure_date": departure_date,
-                            "departure_time": departure_time, "arrival_date": arrival_date, "arrival_time": arrival_time
-                            , "marketing_company": market_company, "operator_company": oper_company,
-                            "book_class": book_class
-                        }
+                        segment = {"fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
+                                   "flight_number": flight_number, "departure_date": departure_date,
+                                   "departure_time": departure_time, "arrival_date": arrival_date,
+                                   "arrival_time": arrival_time, "marketing_company": market_company,
+                                   "operator_company": oper_company, "book_class": book_class
+                                   }
                         segments.append(segment)
                     itineraries.append(segments)
                 reco["itineraries"] = itineraries
@@ -216,100 +215,12 @@ class PricePNRExtractor(BaseResponseExtractor):
             _fare.destination = places[1]
             _fare.validating_carrier = from_json_safe(fare, "validatingCarrier", "carrierInformation", "carrierCode")
             _fare.banker_rate = from_json_safe(fare, "bankerRates", "firstRateDetail", "amount")
-
-            # look for passenger references
-            for pax_ref in ensure_list(from_json(fare, "paxSegReference", "refDetails")):
-                if pax_ref["refQualifier"] == 'PA':
-                    _fare.pax_references.append(pax_ref["refNumber"])
-
-            # look for fare amounts
-            fare_amounts = from_json(fare, "fareDataInformation")
-            fare_main = from_json(fare_amounts, "fareDataMainInformation")
-            fare_amounts = ensure_list(from_json(fare_amounts, "fareDataSupInformation"))
-            fare_amounts.append(fare_main)
-            for am in fare_amounts:
-                _fare.fare_amounts.append(self._extract_amount(am))
-
-            # look for taxes
-            for tax_info in ensure_list(from_json(fare, "taxInformation")):
-                tax: TaxInformation = TaxInformation()
-                tax_details = from_json(tax_info, "taxDetails")
-                tax.tax_qualifier = from_json_safe(tax_details, "taxQualifier")
-                tax.tax_identifier = from_json_safe(tax_details, "taxIdentification", "taxIdentifier")
-                tax.tax_type = from_json_safe(tax_details, "taxType", "isoCountry")
-                tax.tax_nature = from_json_safe(tax_details, "taxNature")
-                tax.tax_amount = self._extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
-                _fare.tax_infos.append(tax)
-
-            # look for warnings
-            for warning_info in ensure_list(from_json(fare, "warningInformation")):
-                warning: WarningInformation = WarningInformation()
-                details = from_json_safe(warning_info, "warningCode", "applicationErrorDetail")
-                warning.error_code = from_json_safe(details, "applicationErrorCode")
-                warning.qualifier = from_json_safe(details, "codeListQualifier")
-                warning.responsible_agency = from_json_safe(details, "codeListResponsibleAgency")
-                warning.warning = from_json_safe(warning_info, "warningText", "errorFreeText")
-                _fare.warning_infos.append(warning)
-
-            # looking for Fare Components
-            for comp in ensure_list(from_json(fare, "fareComponentDetailsGroup")):
-                fare_component: FareComponent = FareComponent()
-                item_details = from_json_safe(comp, "fareComponentID", "itemNumberDetails")
-                fare_component.item_number = from_json_safe(item_details, "number")
-                fare_component.item_type = from_json_safe(item_details, "type")
-
-                places = from_json(comp, "marketFareComponent")
-                fare_component.departure = from_json(places, "boardPointDetails", "trueLocationId")
-                fare_component.arrival = from_json(places, "offpointDetails", "trueLocationId")
-                fare_component.monetary_info = self._extract_amount(
-                    from_json_safe(comp, "monetaryInformation", "monetaryDetails"),
-                    "typeQualifier", "amount", "currency")
-                fare_component.rate_tariff_class = from_json_safe(comp, "componentClassInfo", "fareBasisDetails",
-                                                                  "rateTariffClass")
-                fare_component.fare_qualifier = from_json_safe(comp, "fareQualifiersDetail", "discountDetails",
-                                                               "fareQualifier")
-                f_details = from_json_safe(comp, "fareFamilyDetails")
-                fare_component.fare_family_name = from_json_safe(f_details, "fareFamilyname")
-                fare_component.fare_family_hierarchy = from_json_safe(f_details, "hierarchy")
-                fare_component.fare_family_owner = from_json_safe(comp, "fareFamilyOwner", "companyIdentification",
-                                                                  "otherCompany")
-                # let's get coupons
-                for coupon_info in ensure_list(from_json_safe(comp, "couponDetailsGroup")):
-                    coupon: CouponDetails = CouponDetails()
-                    info = from_json_safe(coupon_info, "productId", "referenceDetails")
-                    coupon.coupon_product_type = from_json_safe(info, "type")
-                    coupon.coupon_product_id = from_json_safe(info, "value")
-                    fare_component.coupons.append(coupon)
-                _fare.fare_components.append(fare_component)
-
-            # retrieve segments
-            for sg in ensure_list(from_json(fare, "segmentInformation")):
-                segment: SegmentInformation = SegmentInformation()
-                s_ref = from_json(sg, "segmentReference", "refDetails")
-                if s_ref and s_ref["refQualifier"] == "S":
-                    segment.segment_reference = s_ref["refNumber"]
-                segment.segment_sequence_number = from_json_safe(sg, "sequenceInformation", "sequenceSection",
-                                                                 "sequenceNumber")
-                segment.connection_type = from_json(sg, "connexInformation", "connecDetails", "connexType")
-                segment.class_of_service = from_json(sg, "segDetails", "segmentDetail", "classOfService")
-
-                fare_basis = from_json(sg, "fareQualifier", "fareBasisDetails")
-                segment.fare_basis_primary_code = from_json(fare_basis, "primaryCode")
-                segment.fare_basis_code = from_json(fare_basis, "fareBasisCode")
-                segment.fare_basis_ticket_designator = from_json(fare_basis, "discTktDesignator")
-
-                baggage_allowance = from_json(sg, "bagAllowanceInformation", "bagAllowanceDetails")
-                segment.baggage_allowance_quantity = from_json(baggage_allowance, "baggageQuantity")
-                segment.baggage_allowance_type = from_json(baggage_allowance, "baggageType")
-
-                for validity in ensure_list(from_json(sg, "validityInformation")):
-                    validity_info: ValidityInformation = ValidityInformation()
-                    validity_info.business_semantic = from_json_safe(validity, "businessSemantic")
-                    dt = from_json_safe(validity, "dateTime")
-                    if dt:
-                        validity_info.date = f"{dt['year']}-{dt['month']}-{dt['day']}"
-                    segment.validity_infos.append(validity_info)
-                _fare.segment_infos.append(segment)
+            _fare.pax_references = self._pax_refs(fare)
+            _fare.fare_amounts = self._amounts(fare)
+            _fare.tax_infos = self._taxes(fare)
+            _fare.warning_infos = self._warnings(fare)
+            _fare.fare_components = self._components(fare)
+            _fare.segment_infos = self.__segments(fare)
             fares.append(_fare)
         return fares
 
@@ -320,6 +231,142 @@ class PricePNRExtractor(BaseResponseExtractor):
         fare_amount.amount = from_json_safe(amount_info, amount_key)
         fare_amount.currency = from_json_safe(amount_info, currency_key)
         return fare_amount
+
+    def _pax_refs(self, fare):
+        """
+        look for passenger references
+        :param fare: a dictionary containing fare info
+        :return: List[str]
+        """
+        refs = []
+        for pax_ref in ensure_list(from_json(fare, "paxSegReference", "refDetails")):
+            if pax_ref["refQualifier"] == 'PA':
+                refs.append(pax_ref["refNumber"])
+        return refs
+
+    def _amounts(self, fare):
+        """
+        look for amounts
+        :param fare: a dictionary containing fare info
+        :return: List[Amount]
+        """
+        amounts = []
+        fare_amounts = from_json(fare, "fareDataInformation")
+        fare_main = from_json(fare_amounts, "fareDataMainInformation")
+        fare_amounts = ensure_list(from_json(fare_amounts, "fareDataSupInformation"))
+        fare_amounts.append(fare_main)
+        for am in fare_amounts:
+            amounts.append(self._extract_amount(am))
+        return amounts
+
+    def _taxes(self, fare):
+        """
+        look for taxes
+        :param fare: a dictionary containing fare info
+        :return: List[Amount]
+        """
+        taxes = []
+        for tax_info in ensure_list(from_json(fare, "taxInformation")):
+            tax: TaxInformation = TaxInformation()
+            tax_details = from_json(tax_info, "taxDetails")
+            tax.tax_qualifier = from_json_safe(tax_details, "taxQualifier")
+            tax.tax_identifier = from_json_safe(tax_details, "taxIdentification", "taxIdentifier")
+            tax.tax_type = from_json_safe(tax_details, "taxType", "isoCountry")
+            tax.tax_nature = from_json_safe(tax_details, "taxNature")
+            tax.tax_amount = self._extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
+            taxes.append(tax)
+        return taxes
+
+    def _warnings(self, fare):
+        """
+        look for warnings
+        :param fare: a dictionary containing fare info
+        :return: List[Amount]
+        """
+        warnings = []
+        for warning_info in ensure_list(from_json(fare, "warningInformation")):
+            warning: WarningInformation = WarningInformation()
+            details = from_json_safe(warning_info, "warningCode", "applicationErrorDetail")
+            warning.error_code = from_json_safe(details, "applicationErrorCode")
+            warning.qualifier = from_json_safe(details, "codeListQualifier")
+            warning.responsible_agency = from_json_safe(details, "codeListResponsibleAgency")
+            warning.warning = from_json_safe(warning_info, "warningText", "errorFreeText")
+            warnings.append(warning)
+        return warnings
+
+    def _components(self, fare):
+        """
+        look for components
+        :param fare: a dictionary containing fare info
+        :return: List[Amount]
+        """
+        components = []
+        for comp in ensure_list(from_json(fare, "fareComponentDetailsGroup")):
+            fare_component: FareComponent = FareComponent()
+            item_details = from_json_safe(comp, "fareComponentID", "itemNumberDetails")
+            fare_component.item_number = from_json_safe(item_details, "number")
+            fare_component.item_type = from_json_safe(item_details, "type")
+
+            places = from_json(comp, "marketFareComponent")
+            fare_component.departure = from_json(places, "boardPointDetails", "trueLocationId")
+            fare_component.arrival = from_json(places, "offpointDetails", "trueLocationId")
+            fare_component.monetary_info = self._extract_amount(
+                from_json_safe(comp, "monetaryInformation", "monetaryDetails"),
+                "typeQualifier", "amount", "currency")
+            fare_component.rate_tariff_class = from_json_safe(comp, "componentClassInfo", "fareBasisDetails",
+                                                              "rateTariffClass")
+            fare_component.fare_qualifier = from_json_safe(comp, "fareQualifiersDetail", "discountDetails",
+                                                           "fareQualifier")
+            f_details = from_json_safe(comp, "fareFamilyDetails")
+            fare_component.fare_family_name = from_json_safe(f_details, "fareFamilyname")
+            fare_component.fare_family_hierarchy = from_json_safe(f_details, "hierarchy")
+            fare_component.fare_family_owner = from_json_safe(comp, "fareFamilyOwner", "companyIdentification",
+                                                              "otherCompany")
+            # let's get coupons
+            for coupon_info in ensure_list(from_json_safe(comp, "couponDetailsGroup")):
+                coupon: CouponDetails = CouponDetails()
+                info = from_json_safe(coupon_info, "productId", "referenceDetails")
+                coupon.coupon_product_type = from_json_safe(info, "type")
+                coupon.coupon_product_id = from_json_safe(info, "value")
+                fare_component.coupons.append(coupon)
+            components.append(fare_component)
+        return components
+
+    def __segments(self, fare):
+        """
+        look for segments
+        :param fare: a dictionary containing fare info
+        :return: List[Amount]
+        """
+        segments = []
+        for sg in ensure_list(from_json(fare, "segmentInformation")):
+            segment: SegmentInformation = SegmentInformation()
+            s_ref = from_json(sg, "segmentReference", "refDetails")
+            if s_ref and s_ref["refQualifier"] == "S":
+                segment.segment_reference = s_ref["refNumber"]
+            segment.segment_sequence_number = from_json_safe(sg, "sequenceInformation", "sequenceSection",
+                                                             "sequenceNumber")
+            segment.connection_type = from_json(sg, "connexInformation", "connecDetails", "connexType")
+            segment.class_of_service = from_json(sg, "segDetails", "segmentDetail", "classOfService")
+
+            fare_basis = from_json(sg, "fareQualifier", "fareBasisDetails")
+            segment.fare_basis_primary_code = from_json(fare_basis, "primaryCode")
+            segment.fare_basis_code = from_json(fare_basis, "fareBasisCode")
+            segment.fare_basis_ticket_designator = from_json(fare_basis, "discTktDesignator")
+
+            baggage_allowance = from_json(sg, "bagAllowanceInformation", "bagAllowanceDetails")
+            segment.baggage_allowance_quantity = from_json(baggage_allowance, "baggageQuantity")
+            segment.baggage_allowance_type = from_json(baggage_allowance, "baggageType")
+
+            for validity in ensure_list(from_json(sg, "validityInformation")):
+                validity_info: ValidityInformation = ValidityInformation()
+                validity_info.business_semantic = from_json_safe(validity, "businessSemantic")
+                dt = from_json_safe(validity, "dateTime")
+                if dt:
+                    validity_info.date = f"{dt['year']}-{dt['month']}-{dt['day']}"
+                segment.validity_infos.append(validity_info)
+            segments.append(segment)
+        return segments
 
 
 class CommandReplyExtractor(BaseResponseExtractor):
