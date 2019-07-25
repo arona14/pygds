@@ -1,5 +1,5 @@
 from unittest import TestCase
-from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor
+from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor
 
 
 class TestErrorExtractorCan(TestCase):
@@ -61,3 +61,25 @@ class TestFormOfPaymentExtractor(TestCase):
 
 class TestTicketingExtractor(TestCase):
     pass
+
+
+class TestPricePnrExtractor(TestCase):
+    def setUp(self) -> None:
+        with open("resources/amadeus_price_pnr_with_booking_class_response.xml") as f:
+            self.xml = ''.join(f.readlines())
+            self.price_extractor = PricePNRExtractor(self.xml)
+
+    def test_init(self):
+        self.assertIsNotNone(self.price_extractor.xml_content)
+
+    def test_extract(self):
+        response = self.price_extractor.extract()
+        self.assertIsNotNone(response)
+
+        session = response.session_info
+        self.assertIsNotNone(session)
+        self.assertFalse(session.session_ended)
+
+        fares = response.payload
+        self.assertIsNotNone(fares)
+        self.assertEqual(len(fares), 1)
