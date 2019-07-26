@@ -1,9 +1,7 @@
-import os
 from unittest import TestCase
 from pygds.amadeus.client import AmadeusClient
 from pygds.core.price import Fare
 from pygds.env_settings import get_setting
-from pygds import log_handler
 from pygds.errors.gdserrors import NoSessionError
 
 
@@ -15,10 +13,6 @@ class ClientCan(TestCase):
         office_id = get_setting("AMADEUS_OFFICE_ID")
         wsap = get_setting("AMADEUS_WSAP")
         self.client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
-
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
-        self.log = log_handler.get_logger("client_test")
 
     def test_send_command(self):
         seq, m_id = (None, None)
