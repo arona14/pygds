@@ -54,4 +54,3 @@ class ClientCan(TestCase):
         self.assertGreaterEqual(len(fares), 1)
         first_fare = fares[0]
         self.assertIsInstance(first_fare, Fare)
-
