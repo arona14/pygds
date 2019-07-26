@@ -133,3 +133,4 @@ include/**
 man/**
 #
 .pytest_cache/**
+out/**
