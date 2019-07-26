@@ -16,6 +16,13 @@ def get_data_from_json(json_data, *paths):
     return value
 
 
+def get_data_from_json_safe(json_data, *paths):
+    try:
+        return get_data_from_json(json_data, *paths)
+    except KeyError:
+        return None
+
+
 def get_data_from_xml(xml_data, *paths):
     """
         Same as get_data_from_json but works on XML
@@ -28,7 +35,7 @@ def ensure_list(elem):
     """
         This function ensures that a given parameter is a list by creating a list of signe element if it is not.
     """
-    return elem if isinstance(elem, list) else [elem]
+    return elem if isinstance(elem, list) else [elem] if elem else []
 
 
 def reformat_date(date_time, input_format: str, output_format: str):

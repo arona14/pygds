@@ -16,14 +16,14 @@ handlers:
     class: logging.FileHandler
     level: INFO
     formatter: middle-format
-    filename: ./mylog.log
+    filename: out/mylog.log
     mode: a
     # delay: 2
   stack-trace:
     class: logging.FileHandler
     level: CRITICAL
     formatter: stack-format
-    filename: ./stack-trace.log
+    filename: out/stack-trace.log
     mode: a
 loggers:
   sampleLogger:

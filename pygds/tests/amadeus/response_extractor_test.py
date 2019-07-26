@@ -1,5 +1,8 @@
+import os
 from unittest import TestCase
-from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor
+import json
+
+from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor
 
 
 class TestErrorExtractorCan(TestCase):
@@ -61,3 +64,40 @@ class TestFormOfPaymentExtractor(TestCase):
 
 class TestTicketingExtractor(TestCase):
     pass
+
+
+class TestPricePnrExtractor(TestCase):
+    def setUp(self) -> None:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        xml_path = os.path.join(base_path, "resources/amadeus_price_pnr_with_booking_class_response.xml")
+        json_path = os.path.join(base_path, "resources/amadeus_price_pnr_with_booking_class_fares.json")
+        with open(xml_path) as f:
+            self.xml = ''.join(f.readlines())
+            self.price_extractor = PricePNRExtractor(self.xml)
+        with open(json_path) as j:
+            self.fare_data = json.load(j)
+
+    def test_init(self):
+        self.assertIsNotNone(self.price_extractor.xml_content)
+
+    def test_pax_refs(self):
+        refs = self.price_extractor._pax_refs(self.fare_data)
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(refs[0], "1")
+
+    def test_fare_amounts(self):
+        amounts = self.price_extractor._amounts(self.fare_data)
+        self.assertEqual(len(amounts), 3)
+        self.assertEqual(amounts[0].qualifier, "B")
+
+    def test_extract(self):
+        response = self.price_extractor.extract()
+        self.assertIsNotNone(response)
+
+        session = response.session_info
+        self.assertIsNotNone(session)
+        self.assertFalse(session.session_ended)
+
+        fares = response.payload
+        self.assertIsNotNone(fares)
+        self.assertEqual(len(fares), 1)

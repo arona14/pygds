@@ -7,6 +7,7 @@ class BasicDataObject(object):
     """
         A basic class that contains data.
     """
+
     def to_data(self):
         """
             Method that returns a dictionary containing useful data. Must be implemented by sub-classes
@@ -24,7 +25,9 @@ class FlightPointDetails(BasicDataObject):
     """
         Information about flight point details (on departure or arrival)
     """
-    def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None, gate: str = None, terminal: str = None):
+
+    def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None,
+                 gate: str = None, terminal: str = None):
         self.date = date
         self.time = time
         self.gmtOffset = gmtOffset
@@ -49,7 +52,9 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
-    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None, airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
+
+    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None,
+                 airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
         self.sequence = sequence
         self.departure = departure
         self.arrival = arrival
@@ -74,6 +79,7 @@ class Itinerary(BasicDataObject):
     """
         Holds information about an itinerary
     """
+
     def __init__(self, itineraryType: str = None):
         self.segments: List[FlightSegment] = []
         self.itineraryType = itineraryType
@@ -98,6 +104,7 @@ class PassengerPreferences(BasicDataObject):
     """
         This is for holding preferences of a passenger
     """
+
     def __init__(self, prefs: dict = {}):
         self.prefs = prefs
 
@@ -109,13 +116,16 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None, passengerType: str = None, preferences=None):
+
+    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None,
+                 passengerType: str = None, preferences=None):
         self.firstName = firstName
         self.lastName = lastName
         self.gender = gender
         self.dateOfBirth = dateOfBirth
         self.passengerType = passengerType
-        self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
+        self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(
+            preferences) if isinstance(preferences, dict) else PassengerPreferences({})
         self.retrievePassengerType()
 
     def retrievePassengerType(self):
@@ -170,6 +180,7 @@ class Reservation(BasicDataObject):
     """
         A class to keep all data about reservation
     """
+
     def __init__(self):
         self.itineraries: List[Itinerary] = []
         self.passengers: List[Passenger] = []
@@ -206,6 +217,52 @@ class Reservation(BasicDataObject):
             "priceQuotes": [p.to_data() for p in self.priceQuotes],
             "ticketingInfo": self.ticketingInfo.to_data() if self.ticketingInfo is not None else {}
         }
+
+
+class SellItinerary(BasicDataObject):
+
+    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+        self.origin = origin
+        self.destination = destination
+        self.departure_date = departure_date
+        self.company = company
+        self.flight_number = flight_number
+        self.booking_class = booking_class
+        self.quantity = quantity
+
+
+class TravellerInfo(BasicDataObject):
+    def to_data(self):
+        pass
+
+    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+        self.ref_number = ref_number
+        self.first_name = first_name
+        self.surname = surname
+        self.last_name = last_name
+        self.date_of_birth = date_of_birth
+        self.pax_type = pax_type
+
+
+class TravellerNumbering(BasicDataObject):
+    """
+        This class is for holding information about the numbering of traveller.
+    """
+    def to_data(self):
+        return {"adults": self.adults, "children": self.children, "infants": self.infants}
+
+    def __init__(self, adults: int, children: int = 0, infants: int = 0):
+        self.adults = adults
+        self.children = children
+        self.infants = infants
+
+    """ Gives the total number of traveller"""
+    def total_travellers(self):
+        return self.adults + self.children + self.infants
+
+    """ Gives the total number of seats to occupy"""
+    def total_seats(self):
+        return self.adults + self.children
 
 
 def test_me():
