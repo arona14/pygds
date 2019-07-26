@@ -79,6 +79,8 @@ class AmadeusClient(BaseClient):
         :return: A GdsResponse containing the session info
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
