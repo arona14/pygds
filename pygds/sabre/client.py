@@ -1,23 +1,31 @@
 import requests
 
-from pygds.sabre.base_service import BaseService
+from pygds.core.client import BaseClient
 from pygds.sabre.session import SabreSession
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.sabre.helpers import soap_service_to_json
 
 
-class SabreClient(BaseService):
-    # def __init__(self):
-    #     pass
+class SabreClient(BaseClient):
+    """
+    A class to interact with Sabre GDS
+    """
+    def __init__(self, url: str, username: str, password: str, pcc: str, debug: bool = False):
+        super().__init__(url, username, password, pcc, debug)
+        self.xml_builder = SabreXMLBuilder(url, username, password, pcc)
+        self.header_template = {'content-type': 'text/xml; charset=utf-8'}
 
-    def open_session(self, pcc, conversation_id):
+    def open_session(self):
         """
         This will open a new session
-        :param pcc: The PCC
-        :param conversation_id: the conversion id
         :return: a token session
         """
-        SabreSession().open(pcc, conversation_id)
+        open_session_xml = self.xml_builder.session_create_rq()
+        response = self._request_wrapper(open_session_xml, None)
+        return response.content
+
+        # r = jxmlease.parse(response.content)
+        # token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
 
     def close_session(self, pcc, conversation_id, token_session):
         """

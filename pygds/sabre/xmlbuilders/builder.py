@@ -1,14 +1,21 @@
 from time import gmtime, strftime
 
+from pygds.core.security_utils import generate_random_message_id, generate_created
+
 
 class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
 
-    def __init__(self):
+    def __init__(self, url: str, username: str, password: str, pcc: str):
         self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
+        self.url = url
+        self.username = username
+        self.password = password
+        self.pcc = pcc
 
-    def session_create_rq(self, pcc, user_name, password, conversation_id):
+    def session_create_rq(self):
         """Return the xml request to create a session."""
+        conversation_id = generate_random_message_id()
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
@@ -20,7 +27,7 @@ class SabreXMLBuilder:
                         <eb:To>
                             <eb:PartyId />
                         </eb:To>
-                        <eb:CPAId>{pcc}</eb:CPAId>
+                        <eb:CPAId>{self.pcc}</eb:CPAId>
                         <eb:ConversationId>{conversation_id}</eb:ConversationId>
                         <eb:Service>SessionCreateRQ</eb:Service>
                         <eb:Action>SessionCreateRQ</eb:Action>
@@ -31,9 +38,9 @@ class SabreXMLBuilder:
                     </eb:MessageHeader>
                     <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
                         <wsse:UsernameToken>
-                            <wsse:Username>{user_name}</wsse:Username>
-                            <wsse:Password>{password}</wsse:Password>
-                            <Organization>{pcc}</Organization>
+                            <wsse:Username>{self.username}</wsse:Username>
+                            <wsse:Password>{self.password}</wsse:Password>
+                            <Organization>{self.pcc}</Organization>
                             <Domain>DEFAULT</Domain>
                         </wsse:UsernameToken>
                     </wsse:Security>
@@ -44,7 +51,7 @@ class SabreXMLBuilder:
                     </eb:Manifest>
                     <SessionCreateRQ>
                         <POS>
-                            <Source PseudoCityCode="{pcc}"/>
+                            <Source PseudoCityCode="{self.pcc}"/>
                         </POS>
                     </SessionCreateRQ>
                     <ns:SessionCreateRQ xmlns:ns="http://www.opentravel.org/OTA/2002/11" />
