@@ -5,6 +5,7 @@ from .session import SabreSession
 from pygds import env_settings
 from pygds.sabre.config import decode_base64
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
+from pygds.sabre.flight_search import  SearchFlightRequest
 
 request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
                 { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}],"adult": 1,"child":0,
@@ -452,5 +453,5 @@ myFile.write(result)
 myFile.close()
 """
 if __name__ == "__main__":
-    print(str(True).lower())
-    print(SabreBFMBuilder(request_json).search_flight())                                                                                                                                                                                                                                                                                
+    datas = SearchFlightRequest(request_json["itineraries"])
+    print(SabreBFMBuilder(datas).search_flight())                                                                                                                                                                                                                                                                                

@@ -1,12 +1,13 @@
+from pygds.sabre.flight_search import SearchFlightRequest
 
 
 class SabreBFMBuilder:
     """This class can generate JSON needed for sabre search flight requests."""
 
-    def __init__(self, search_request="", target: str = "Production", AvailableFlightsOnly: bool = True):
+    def __init__(self, search_request:SearchFlightRequest  , target: str = "Production", AvailableFlightsOnly: bool = True):
         self.target = target
         self.AvailableFlightsOnly = True
-        self.search_request = search_request
+        self.search_request: SearchFlightRequest = search_request
 
     def pos(self):
         return {
@@ -21,7 +22,7 @@ class SabreBFMBuilder:
                         "Type": "1",
                         "ID": "1"
                     },
-                    "PseudoCityCode": self.search_request["pcc"],
+                    "PseudoCityCode": self.search_request.to_data()["pcc"],
                     "ISOCountry": "US"
                 }
             ]
@@ -29,7 +30,7 @@ class SabreBFMBuilder:
 
     def origin_destination_information(self):
         my_return = []
-        itinaries = self.search_request["itineraries"]
+        itinaries = self.search_request.to_data()["itineraries"]
         for i in itinaries:
             my_return.append(
                 {
@@ -38,7 +39,7 @@ class SabreBFMBuilder:
                             "Code": "O"
                         },
                         "CabinPref": {
-                            "Cabin": self.search_request["csv"]
+                            "Cabin": self.search_request.to_data()["csv"]
                         }
                     },
                     "RPH": str(itinaries.index(i) + 1),
@@ -164,7 +165,7 @@ class SabreBFMBuilder:
             "OTA_AirLowFareSearchRQ":{
                 "POS":self.pos(),
                 "OriginDestinationInformation": self.origin_destination_information(),
-                "TravelPreferences": self.travel_preferences(),
+                "TravelPreferences": "",
                 "TravelerInfoSummary": self.travel_info_summary(),
                 "TPA_Extensions": self.tpa_extensions(),
                 "Target": "Production",
