@@ -443,13 +443,11 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             traveller_info = from_json(data, "travellerInformation")
             trvl = from_json(traveller_info, "traveller")
             psngr = from_json(traveller_info, "passenger")
-            try:
-                date_of_birth_tag = from_json(data, "dateOfBirth", "dateAndTimeDetails", "date")
+            # get date of birth
+            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
+            if date_of_birth_tag:
                 date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d")
-                passenger_data['qualifier'] = from_json(date_of_birth_tag, "qualifier")
                 passenger_data['date_of_birth'] = date_of_birth
-            except KeyError:
-                pass
 
             passenger_data['surname'] = from_json_safe(trvl, "surname")
             passenger_data['quantity'] = from_json_safe(trvl, "quantity")
