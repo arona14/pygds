@@ -4,6 +4,7 @@ from pygds.amadeus.client import AmadeusClient
 from pygds.core.price import Fare
 from pygds.env_settings import get_setting
 from pygds import log_handler
+from pygds.errors.gdserrors import NoSessionError
 
 
 class ClientCan(TestCase):
@@ -54,3 +55,18 @@ class ClientCan(TestCase):
         self.assertGreaterEqual(len(fares), 1)
         first_fare = fares[0]
         self.assertIsInstance(first_fare, Fare)
+
+    def test_end_session(self):
+        res_command = self.client.send_command("HELP")
+        self.assertIsNotNone(res_command)
+        session = res_command.session_info
+        self.assertIsNotNone(session)
+        self.assertFalse(session.session_ended)
+        res_end_session = self.client.end_session(session.message_id)
+        self.assertIsNotNone(res_end_session)
+        session = res_end_session.session_info
+        self.assertIsNotNone(session)
+        self.assertTrue(session.session_ended)
+
+    def test_end_session_not_exists(self):
+        self.assertRaises(NoSessionError, self.client.end_session, "fake-message-id")
