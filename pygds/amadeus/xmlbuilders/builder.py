@@ -38,9 +38,17 @@ class AmadeusXMLBuilder:
         digested_password = password_digest(self.password, nonce, created_date_time)
         return message_id, nonce, created_date_time, digested_password
 
-    def new_transaction_chunk(self, office_id, username, nonce, digested_password, created_date_time):
+    def new_transaction_chunk(self, office_id, username, nonce, digested_password, created_date_time,
+                              close_trx: bool = False):
         """
-            This method generates a chunk XML part for every endpoint that starts a new transaction.
+        This method generates a chunk XML part for every endpoint that starts a new transaction.
+        :param office_id: The office id
+        :param username: The usernme
+        :param nonce: The nonce
+        :param digested_password: The password digested
+        :param created_date_time: The created date time
+        :param close_trx: close or not the transaction
+        :return: a str containing the XML part
         """
         return f"""
         <oas:Security xmlns:oas="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:oas1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -82,7 +90,7 @@ class AmadeusXMLBuilder:
         security = None
         if session_id is None:
             message_id, nonce, dt, dp = self.ensure_security_parameters(None, None, None)
-            security = self.new_transaction_chunk(self.office_id, self.username, nonce, dp, dt)
+            security = self.new_transaction_chunk(self.office_id, self.username, nonce, dp, dt, close_trx)
         else:
             security = self.continue_transaction_chunk(session_id, sequence_number, security_token, close_trx)
         return f"""
@@ -161,7 +169,8 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def get_reservation_builder(self, pnr_number: str, message_id: str = None, session_id: str = None, sequence_number: str = None, security_token: str = None, close_trx: bool = False):
+    def get_reservation_builder(self, pnr_number: str, message_id: str = None, session_id: str = None,
+                                sequence_number: str = None, security_token: str = None, close_trx: bool = False):
         """
             Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
