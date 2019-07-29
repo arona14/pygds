@@ -3,7 +3,7 @@ from pygds.core import xmlparser
 from pygds.core import helpers
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import Passenger
-from pygds.core.types import TicketingInfo
+from pygds.core.types import TicketingInfo, FlightSegment, Remarks
 
 
 class BaseResponseExtractor(object):
@@ -180,26 +180,27 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'passengers': self._passengers(),
             'form_of_payments': self._form_of_payments(),
             'price_quotes': self._price_quotes(),
-            'ticketing_info': self._ticketing_info()
+            'ticketing_info': self._ticketing_info(),
+            'remarks': self._remark()
         }
 
     def _segments(self):
         segments_list = []
+        index = 1
         for data in self.payload["originDestinationDetails"]["itineraryInfo"]:
-            segment_data = {}
+            # segment_data = {}
             dep_date = data["travelProduct"]["product"]["depDate"]
             dep_time = data["travelProduct"]["product"]["depTime"]
-
             arr_date = data["travelProduct"]["product"]["arrDate"]
             arr_time = data["travelProduct"]["product"]["arrTime"]
-
-            segment_data["departure_airport"] = data["travelProduct"]["boardpointDetail"]["cityCode"]
-            segment_data["arrival_airport"] = data["travelProduct"]["offpointDetail"]["cityCode"]
-            segment_data["departure_dateTime"] = helpers.reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            segment_data["arrival_date_time"] = helpers.reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            segment_data['equipment_type'] = data["flightDetail"]["productDetails"]["equipment"]
-            segment_data['class_of_service'] = data["travelProduct"]["productDetails"]["classOfService"]
-
+            departure_airport = data["travelProduct"]["boardpointDetail"]["cityCode"]
+            arrival_airport = data["travelProduct"]["offpointDetail"]["cityCode"]
+            departure_dateTime = helpers.reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            arrival_date_time = helpers.reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            equipment_type = data["flightDetail"]["productDetails"]["equipment"]
+            class_of_service = data["travelProduct"]["productDetails"]["classOfService"]
+            segment_data = FlightSegment(index, "", departure_dateTime, departure_airport, arrival_date_time, arrival_airport, "", "", "", "", "", "", "", "", "", "", "", "", "", "", class_of_service, "", equipment_type, "", "", "")
+            index += 1
             segments_list.append(segment_data)
         return segments_list
 
@@ -271,24 +272,32 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _ticketing_info(self):
         list_ticket = []
-        for ticket in helpers.ensure_list(
-                helpers.get_data_from_json(self.payload, "dataElementsMaster")):
-            data_element = helpers.get_data_from_json(ticket, "dataElementsIndiv")
-            if not isinstance(data_element, list):
-                data_element = [data_element]
-                element_management_data = helpers.get_data_from_json(
-                    data_element, "elementManagementData"
-                )
-                ticket_element = helpers.get_data_from_json(
-                    element_management_data, "ticketElement"
-                )
-                print(ticket_element)
-                ticket = helpers.get_data_from_json(ticket_element, "ticket")
-                element_id = helpers.get_data_from_json(ticket, "officeId")
-                date = helpers.get_data_from_json(ticket, "date")
-                comment = helpers.get_data_from_json(ticket, "indicator")
-                ticketing = TicketingInfo(
-                    element_id, "", "", "", "", date, "", "", comment
-                )
-                list_ticket.append(ticketing)
+        for ticket in helpers.ensure_list(helpers.get_data_from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+            for elem_tick in ticket:
+                if "ticketElement" in elem_tick:
+                    data_element = helpers.get_data_from_json(ticket, "ticketElement")
+                    ticket_element = helpers.get_data_from_json(data_element, "ticket")
+                    element_id = helpers.get_data_from_json(ticket_element, "officeId")
+                    date = helpers.get_data_from_json(ticket_element, "date")
+                    comment = helpers.get_data_from_json(ticket_element, "indicator")
+                    code = helpers.get_data_from_json(ticket_element, "airlineCode")
+                    ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
+                    list_ticket.append(ticketing)
         return list_ticket
+
+    def _remark(self):
+        list_remark = []
+        sequence = 1
+        for data_element in helpers.ensure_list(helpers.get_data_from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+            for remarks in data_element:
+                if "miscellaneousRemarks" in remarks:
+                    data_remarks = helpers.get_data_from_json(remarks, "miscellaneousRemarks")
+                    print(data_remarks)
+                    rems = helpers.get_data_from_json(data_remarks, "remarks")
+                    remark_type = helpers.get_data_from_json(rems, "type")
+                    categorie = helpers.get_data_from_json(rems, "category")
+                    text = helpers.get_data_from_json(rems, "freetext")
+                    remarks_object = Remarks(sequence, remark_type, categorie, text)
+                    sequence += 1
+                    list_remark.append(remarks_object)
+        return list_remark

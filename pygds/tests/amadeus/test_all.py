@@ -35,7 +35,8 @@ def test():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"
+    pnr = "TSYX56"  # "Q68EFX"  # "TSYX56"
+    # pnr = "TSYX56"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
@@ -44,7 +45,7 @@ def test():
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # print("itineraries data")
-        print(res_reservation["ticketing_info"])
+        print(res_reservation["remarks"])
         # log.info(session_info)
         # log.info(res_reservation)
         # res_command = client.send_command(f"RT{pnr}", m_id)
