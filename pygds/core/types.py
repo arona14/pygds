@@ -31,18 +31,8 @@ class FlightPointDetails(BasicDataObject):
     """
         Information about flight point details (on departure or arrival)
     """
-<<<<<<< HEAD
     def __init__(self, content: str = None, airport: str = None, terminal: str = None):
         self.content = content
-=======
-
-    def __init__(self, date: str = None, time: str = None, gmtOffset: int = None, city: str = None, airport: str = None,
-                 gate: str = None, terminal: str = None):
-        self.date = date
-        self.time = time
-        self.gmtOffset = gmtOffset
-        self.city = city
->>>>>>> develop
         self.airport = airport
         self.terminal = terminal
 
@@ -108,13 +98,7 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
-<<<<<<< HEAD
     def __init__(self, sequence: int = 1, res_book_desig_code: str = None, departure_date_time: str = None, departure_airport: FlightPointDetails = None, arrival_date_time: str = None, arrival_airpot: FlightPointDetails = None, airline: str = None, marketing: FlightAirlineDetails = None, operating: FlightAirlineDetails = None, disclosure_carrier: FlightDisclosureCarrier = None, mariage_group: FlightMarriageGrp = None, seats: str = None, action_code: str = None, segment_special_requests: str = None, schedule_change_indicator: str = None, segment_booked_date: str = None, air_miles_flown: str = None, funnel_flight: str = None, change_of_gauge: str = None, flight_number: str = None, class_of_service: str = None, elapsed_time: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None):
-=======
-
-    def __init__(self, sequence: int = 1, departure: FlightPointDetails = None, arrival: FlightPointDetails = None,
-                 airline: str = None, flightNumber: str = None, classOfService: str = None, elapsedTime: str = None):
->>>>>>> develop
         self.sequence = sequence
         self.res_book_desig_code = res_book_desig_code
         self.departure_date_time = departure_date_time
@@ -176,13 +160,8 @@ class Itinerary(BasicDataObject):
     """
         Holds information about an itinerary
     """
-<<<<<<< HEAD
     def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
 
-=======
-
-    def __init__(self, itineraryType: str = None):
->>>>>>> develop
         self.segments: List[FlightSegment] = []
         self.itinerary_type = itinerary_type
         self.elapsed_time = elapsed_time
@@ -235,7 +214,6 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-<<<<<<< HEAD
     def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, sur_name: str = None, fore_name: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
         self.name_id = name_id
         self.first_name = first_name
@@ -251,19 +229,6 @@ class Passenger(BasicDataObject):
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
         self.retrieve_passenger_type()
-=======
-
-    def __init__(self, firstName: str = None, lastName: str = None, gender: str = None, dateOfBirth: str = None,
-                 passengerType: str = None, preferences=None):
-        self.firstName = firstName
-        self.lastName = lastName
-        self.gender = gender
-        self.dateOfBirth = dateOfBirth
-        self.passengerType = passengerType
-        self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(
-            preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrievePassengerType()
->>>>>>> develop
 
     def retrieve_passenger_type(self):
         """

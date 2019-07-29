@@ -1,10 +1,12 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
+# from pygds.core import helpers
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
     SegmentInformation, ValidityInformation
 from pygds.core.sessions import SessionInfo
+import logging
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks
 
@@ -422,86 +424,54 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         segments_list = []
         index = 1
         for data in self.payload["originDestinationDetails"]["itineraryInfo"]:
-            # segment_data = {}
             dep_date = data["travelProduct"]["product"]["depDate"]
             dep_time = data["travelProduct"]["product"]["depTime"]
             arr_date = data["travelProduct"]["product"]["arrDate"]
             arr_time = data["travelProduct"]["product"]["arrTime"]
-<<<<<<< HEAD
             departure_airport = data["travelProduct"]["boardpointDetail"]["cityCode"]
             arrival_airport = data["travelProduct"]["offpointDetail"]["cityCode"]
-            departure_dateTime = helpers.reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            arrival_date_time = helpers.reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            departure_dateTime = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             equipment_type = data["flightDetail"]["productDetails"]["equipment"]
             class_of_service = data["travelProduct"]["productDetails"]["classOfService"]
             segment_data = FlightSegment(index, "", departure_dateTime, departure_airport, arrival_date_time, arrival_airport, "", "", "", "", "", "", "", "", "", "", "", "", "", "", class_of_service, "", equipment_type, "", "", "")
             index += 1
-=======
-
-            segment_data["departure_airport"] = data["travelProduct"]["boardpointDetail"]["cityCode"]
-            segment_data["arrival_airport"] = data["travelProduct"]["offpointDetail"]["cityCode"]
-            segment_data["departure_dateTime"] = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            segment_data["arrival_date_time"] = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            segment_data['equipment_type'] = data["flightDetail"]["productDetails"]["equipment"]
-            segment_data['class_of_service'] = data["travelProduct"]["productDetails"]["classOfService"]
-
->>>>>>> develop
             segments_list.append(segment_data)
         return segments_list
 
     def _passengers(self):
         passengers_list = []
-<<<<<<< HEAD
-        for traveller in helpers.ensure_list(helpers.get_data_from_json(self.payload, "travellerInfo")):
+        for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
             # passenger_data = {}
-            data = helpers.get_data_from_json(traveller, "passengerData")
-            traveller_info = helpers.get_data_from_json(data, "travellerInformation")
-            # trvl = helpers.get_data_from_json(traveller_info, "traveller")
-            psngr = helpers.get_data_from_json(traveller_info, "passenger")
-            travel = helpers.get_data_from_json(traveller_info, "traveller")
-            date_of_birth_tag = helpers.get_data_from_json(data, "dateOfBirth", "dateAndTimeDetails")
-            date = helpers.get_data_from_json(date_of_birth_tag, "date")
-            date_of_birth = helpers.reformat_date(date, "%d%m%Y", "%Y-%m-%d")
-            # passenger_data['surname'] = helpers.get_data_from_json(trvl, "surname")
-            # passenger_data['quantity'] = helpers.get_data_from_json(trvl, "quantity")
-            # passenger_data['firstname'] = helpers.get_data_from_json(psngr, "firstName")
-            # passenger_data['type'] = helpers.get_data_from_json(psngr, "type")
-            # passenger_data['qualifier'] = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
+            data = from_json(traveller, "passengerData")
+            traveller_info = from_json(data, "travellerInformation")
+            # trvl = from_json(traveller_info, "traveller")
+            psngr = from_json(traveller_info, "passenger")
+            travel = from_json(traveller_info, "traveller")
+            date_of_birth_tag = from_json(data, "dateOfBirth", "dateAndTimeDetails")
+            date = from_json(date_of_birth_tag, "date")
+            date_of_birth = reformat_date(date, "%d%m%Y", "%Y-%m-%d")
+            # passenger_data['surname'] = from_json(trvl, "surname")
+            # passenger_data['quantity'] = from_json(trvl, "quantity")
+            # passenger_data['firstname'] = from_json(psngr, "firstName")
+            # passenger_data['type'] = from_json(psngr, "type")
+            # passenger_data['qualifier'] = from_json(date_of_birth_tag, "qualifier")
             # passenger_data['date_of_birth'] = date_of_birth
-            # surname = helpers.get_data_from_json(trvl, "surname")
-            # quantity = helpers.get_data_from_json(trvl, "quantity")
-            firstname = helpers.get_data_from_json(psngr, "firstName")
-            lastname = helpers.get_data_from_json(travel, "surname")
-            # gender = helpers.get_data_from_json(psngr, "firstName")
-            # forename = helpers.get_data_from_json(psngr, "firstName")
-            # middlename = helpers.get_data_from_json(psngr, "firstName")
-            action_code = helpers.get_data_from_json(psngr, "firstName")
-            number_in_party = helpers.get_data_from_json(travel, "quantity")
-            # vendor_code = helpers.get_data_from_json(psngr, "firstName")
-            type_passenger = helpers.get_data_from_json(psngr, "type")
-            # qualifier = helpers.get_data_from_json(date_of_birth_tag, "qualifier")
+            # surname = from_json(trvl, "surname")
+            # quantity = from_json(trvl, "quantity")
+            firstname = from_json(psngr, "firstName")
+            lastname = from_json(travel, "surname")
+            # gender = from_json(psngr, "firstName")
+            # forename = from_json(psngr, "firstName")
+            # middlename = from_json(psngr, "firstName")
+            action_code = from_json(psngr, "firstName")
+            number_in_party = from_json(travel, "quantity")
+            # vendor_code = from_json(psngr, "firstName")
+            type_passenger = from_json(psngr, "type")
+            # qualifier = from_json(date_of_birth_tag, "qualifier")
             date_of_birth = date_of_birth
             passsenger = Passenger("", firstname, lastname, date_of_birth, "", "", "", action_code, number_in_party, "", type_passenger)
             passengers_list.append(passsenger)
-=======
-        for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
-            passenger_data = {}
-            data = from_json(traveller, "passengerData")
-            traveller_info = from_json(data, "travellerInformation")
-            trvl = from_json(traveller_info, "traveller")
-            psngr = from_json(traveller_info, "passenger")
-            # get date of birth
-            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            if date_of_birth_tag:
-                date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d")
-                passenger_data['date_of_birth'] = date_of_birth
-
-            passenger_data['surname'] = from_json_safe(trvl, "surname")
-            passenger_data['quantity'] = from_json_safe(trvl, "quantity")
-            passenger_data['firstname'] = from_json(psngr, "firstName")
-            passenger_data['type'] = from_json_safe(psngr, "type")
-            passengers_list.append(passenger_data)
->>>>>>> develop
         return passengers_list
 
     def _pnr_info(self):
@@ -537,15 +507,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _ticketing_info(self):
         list_ticket = []
-        for ticket in helpers.ensure_list(helpers.get_data_from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for ticket in ensure_list(from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
             for elem_tick in ticket:
                 if "ticketElement" in elem_tick:
-                    data_element = helpers.get_data_from_json(ticket, "ticketElement")
-                    ticket_element = helpers.get_data_from_json(data_element, "ticket")
-                    element_id = helpers.get_data_from_json(ticket_element, "officeId")
-                    date = helpers.get_data_from_json(ticket_element, "date")
-                    comment = helpers.get_data_from_json(ticket_element, "indicator")
-                    code = helpers.get_data_from_json(ticket_element, "airlineCode")
+                    data_element = from_json(ticket, "ticketElement")
+                    ticket_element = from_json(data_element, "ticket")
+                    element_id = from_json(ticket_element, "officeId")
+                    date = from_json(ticket_element, "date")
+                    comment = from_json(ticket_element, "indicator")
+                    code = from_json(ticket_element, "airlineCode")
                     ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
                     list_ticket.append(ticketing)
         return list_ticket
@@ -553,15 +523,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _remark(self):
         list_remark = []
         sequence = 1
-        for data_element in helpers.ensure_list(helpers.get_data_from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for data_element in ensure_list(from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
             for remarks in data_element:
                 if "miscellaneousRemarks" in remarks:
-                    data_remarks = helpers.get_data_from_json(remarks, "miscellaneousRemarks")
+                    data_remarks = from_json(remarks, "miscellaneousRemarks")
                     print(data_remarks)
-                    rems = helpers.get_data_from_json(data_remarks, "remarks")
-                    remark_type = helpers.get_data_from_json(rems, "type")
-                    categorie = helpers.get_data_from_json(rems, "category")
-                    text = helpers.get_data_from_json(rems, "freetext")
+                    rems = from_json(data_remarks, "remarks")
+                    remark_type = from_json(rems, "type")
+                    categorie = from_json(rems, "category")
+                    text = from_json(rems, "freetext")
                     remarks_object = Remarks(sequence, remark_type, categorie, text)
                     sequence += 1
                     list_remark.append(remarks_object)
