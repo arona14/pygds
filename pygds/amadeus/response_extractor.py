@@ -481,6 +481,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             segment_data["arrival_date_time"] = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             segment_data['equipment_type'] = data["flightDetail"]["productDetails"]["equipment"]
             segment_data['class_of_service'] = data["travelProduct"]["productDetails"]["classOfService"]
+            segment_data["reference"] = from_json_safe(data, "elementManagementItinerary", "reference", "number")
 
             segments_list.append(segment_data)
         return segments_list
@@ -489,6 +490,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         passengers_list = []
         for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
             passenger_data = {}
+            passenger_data["reference"] = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
             data = from_json(traveller, "passengerData")
             traveller_info = from_json(data, "travellerInformation")
             trvl = from_json(traveller_info, "traveller")
