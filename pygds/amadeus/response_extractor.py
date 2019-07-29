@@ -33,6 +33,9 @@ class BaseResponseExtractor(object):
         self.session_info: SessionInfo = None
         self.app_error: ApplicationError = None
 
+    def default_value(self):
+        return None
+
     def parse(self):
         """
             If not already done, it parses the XML content to JSON and save it.
@@ -51,7 +54,8 @@ class BaseResponseExtractor(object):
             self.session_info = SessionExtractor(self.xml_content).extract().session_info
         if self.parse_app_error and self.app_error is None:
             self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
-        return GdsResponse(self.session_info, None if self.app_error else self._extract(), self.app_error)
+        return GdsResponse(self.session_info, self.default_value() if self.app_error else self._extract(),
+                           self.app_error)
 
     def _extract(self):
         """
@@ -237,6 +241,9 @@ class PricePNRExtractor(BaseResponseExtractor):
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="Fare_PricePNRWithBookingClassReply")
         self.parsed = True
+
+    def default_value(self):
+        return []
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_PricePNRWithBookingClassReply")
