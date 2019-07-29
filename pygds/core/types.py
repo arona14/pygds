@@ -228,7 +228,7 @@ class Passenger(BasicDataObject):
         self.vendor_code = vendor_code
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrieve_passenger_type()
+        # self.retrieve_passenger_type()
 
     def retrieve_passenger_type(self):
         """
