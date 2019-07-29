@@ -7,6 +7,21 @@ class PriceInfoBasic:
         return str(self.__repr__())
 
 
+class PriceRequest(PriceInfoBasic):
+    """
+    A class to hold information about request of price PNR with booking class
+    """
+    def __init__(self, passengers: List[str], segments: List[str]):
+        self.passengers = passengers
+        self.segments = segments
+
+    def __repr__(self):
+        return {
+            "passengers": self.passengers,
+            "segments": self.segments
+        }
+
+
 class FareAmount(PriceInfoBasic):
     """
         A class to hold information about an amount and its related currency
