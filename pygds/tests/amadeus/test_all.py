@@ -18,7 +18,9 @@ def test():
     office_id = get_setting("AMADEUS_OFFICE_ID")
     wsap = get_setting("AMADEUS_WSAP")
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
+    dir_path = os.path.join(dir_path, "..", "..", "..")
+    os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
+    log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     pnr = "WKHPRE"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD"
     # m_id = None
