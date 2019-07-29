@@ -146,7 +146,6 @@ class AmadeusClient(BaseClient):
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
         request_data = self.xmlbuilder.fare_informative_price_without_pnr(numbering, itineraries)
         response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data, 'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
-        print(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
@@ -156,7 +155,6 @@ class AmadeusClient(BaseClient):
     def sell_from_recommandation(self, itineraries):
         request_data = self.xmlbuilder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data, 'http://webservices.amadeus.com/ITAREQ_05_2_IA')
-        # print(response_data)
         return SessionExtractor(response_data).extract()
 
     def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest = None):
@@ -174,7 +172,6 @@ class AmadeusClient(BaseClient):
                                                                           security_token, price_request)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        self.log.debug(response_data)
         final_response = PricePNRExtractor(response_data).extract()
         self.add_session(final_response.session_info)
         return final_response
@@ -217,7 +214,6 @@ class AmadeusClient(BaseClient):
         """
         request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
                                                            security_token, infos)
-        # print(request_data)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return AddMultiElementExtractor(response_data).extract()

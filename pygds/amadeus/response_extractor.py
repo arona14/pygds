@@ -1,5 +1,6 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
+from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
@@ -13,16 +14,24 @@ class BaseResponseExtractor(object):
         This is a base class for all response extractor. A helpful class to extract useful info from an XML.
     """
 
-    def __init__(self, xml_content: str):
+    def __init__(self, xml_content: str, parse_session: bool = True, parse_app_error: bool = True,
+                 main_tag: str = None):
         """
         constructor for base class
         :param xml_content: The content as XML
+        :param parse_session: A boolean to tell if we will the session part
+        :param parse_app_error: A boolean to tell if we will parse application error part
+        :param main_tag: The main tag of the reply
         """
         self.xml_content = xml_content
         self.tree = None
         self.parsed = False
-        self.session_info: SessionInfo = None
+        self.parse_session = parse_session
+        self.parse_app_error = parse_app_error
+        self.main_tag = main_tag
         self.log = logging.getLogger(str(self.__class__))
+        self.session_info: SessionInfo = None
+        self.app_error: ApplicationError = None
 
     def parse(self):
         """
@@ -38,10 +47,11 @@ class BaseResponseExtractor(object):
         :return: GdsResponse
         """
         self.parse()
-        if self.session_info is None and not isinstance(self, SessionExtractor):
+        if self.parse_session and self.session_info is None:
             self.session_info = SessionExtractor(self.xml_content).extract().session_info
-            return GdsResponse(self.session_info, self._extract())
-        return GdsResponse(self._extract())
+        if self.parse_app_error and self.app_error is None:
+            self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
+        return GdsResponse(self.session_info, None if self.app_error else self._extract(), self.app_error)
 
     def _extract(self):
         """
@@ -56,10 +66,37 @@ class ErrorExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, True, False)
 
     def _extract(self):
         return xmlparser.extract_single_elements(self.tree, "//faultcode/text()", "//faultstring/text()")
+
+
+class AppErrorExtractor(BaseResponseExtractor):
+    """
+    Extract application error from response
+    """
+
+    def __init__(self, xml_content: str, main_tag: str):
+        super().__init__(xml_content, False, False, main_tag)
+        self.parsed = True
+
+    def extract(self):
+        response = super().extract()
+        response.application_error = response.payload
+        return response
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", self.main_tag)
+        app_error_data = from_json_safe(payload, "applicationError")
+        if not app_error_data:
+            return None
+        details = from_json(app_error_data, "errorOrWarningCodeDetails", "errorDetails")
+        error_code = from_json(details, "errorCode")
+        error_category = from_json(details, "errorCategory")
+        error_owner = from_json(details, "errorCodeOwner")
+        description = from_json_safe(app_error_data, "errorWarningDescription", "freeText")
+        return ApplicationError(error_code, error_category, error_owner, description)
 
 
 class SessionExtractor(BaseResponseExtractor):
@@ -68,7 +105,12 @@ class SessionExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, False, False)
+
+    def extract(self):
+        response = super().extract()
+        response.session_info = response.payload
+        return response
 
     def _extract(self):
         seq, tok, ses, m_id, status = xmlparser.extract_single_elements(
@@ -84,7 +126,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, main_tag="Fare_MasterPricerTravelBoardSearchReply")
         self.parsed = True
 
     def _extract(self):
@@ -150,7 +192,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
 class AddMultiElementExtractor(BaseResponseExtractor):
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, main_tag="PNR_Reply")
         self.parsed = True
 
     def _extract(self):
@@ -193,7 +235,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
 class PricePNRExtractor(BaseResponseExtractor):
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, main_tag="Fare_PricePNRWithBookingClassReply")
         self.parsed = True
 
     def _extract(self):
@@ -222,6 +264,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             _fare.fare_components = self._components(fare)
             _fare.segment_infos = self.__segments(fare)
             fares.append(_fare)
+        print(f"number of fares: {len(fares)}")
         return fares
 
     def _extract_amount(self, amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
@@ -375,7 +418,7 @@ class CommandReplyExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, main_tag="Command_CrypticReply")
         self.parsed = True
 
     def _extract(self):
@@ -401,7 +444,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content: str):
-        super().__init__(xml_content)
+        super().__init__(xml_content, True, True, "PNR_Reply")
         self.parsed = True
 
     def _extract(self):
