@@ -3,6 +3,7 @@ import logging
 import requests
 from requests import Response
 
+from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionHolder, SessionInfo
 
 
@@ -77,7 +78,7 @@ class BaseClient:
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         pass
 
-    def fare_price_pnr_with_booking_class(self, message_id):
+    def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest):
         pass
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
