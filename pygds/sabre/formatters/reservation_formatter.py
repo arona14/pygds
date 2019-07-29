@@ -123,7 +123,6 @@ class SabreReservationFormatter():
         segments = itinerary['stl18:Segment']
         if not isinstance(segments, list):
             segments = [segments]
-        print(f"length of segments: {len(segments)}")
         result = []  # list of itineraries
         current_itinerary = None
         index = 0
@@ -236,51 +235,51 @@ class SabreReservationFormatter():
 
         # details
         """
-                number = 
-                passenger_type = 
-                pricing_type = 
-                status = 
-                type_details = 
+                number =
+                passenger_type =
+                pricing_type =
+                status =
+                type_details =
                 # AgentInfo
-                duty = 
-                sine = 
+                duty =
+                sine =
                 home_location =
-                work_location = 
+                work_location =
                 # TransactionInfo
-                create_date_time = 
-                update_date_time = 
-                last_date_to_purchase = 
-                local_creat_date_time = 
-                input_entry = 
+                create_date_time =
+                update_date_time =
+                last_date_to_purchase =
+                local_creat_date_time =
+                input_entry =
                 # NameAssociationInfo
-                first_name = 
-                last_name = 
-                name_id = 
-                name_number = 
+                first_name =
+                last_name =
+                name_id =
+                name_number =
                 # SegmentInfo
-                number = 
-                segment_status = 
-                fare_basis = 
+                number =
+                segment_status =
+                fare_basis =
                 not_valid_before =
-                not_valid_after = 
+                not_valid_after =
                    # Baggage
-                allowance = 
-                type_bagage = 
+                allowance =
+                type_bagage =
                    # flight
-                connection_indicator = 
-                marketing_flight = 
-                number = 
-                text = 
+                connection_indicator =
+                marketing_flight =
+                number =
+                text =
                 class_of_service =
-                   #departure 
-                date_time = 
+                   # departure
+                date_time =
                         # CityCode
-                name = 
-                    # arrival 
-                date_time = 
+                name =
+                    # arrival
+                date_time =
                         # CityCode
-                name = 
-                text = 
+                name =
+                text =
             """
 
     def formofpayment(self, forms_of_payment):
