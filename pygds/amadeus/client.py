@@ -1,6 +1,7 @@
 # coding: utf-8
 from typing import List
 
+from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.errors.gdserrors import NoSessionError
 
@@ -158,18 +159,22 @@ class AmadeusClient(BaseClient):
         # print(response_data)
         return SessionExtractor(response_data).extract()
 
-    def fare_price_pnr_with_booking_class(self, message_id):
+    def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest = None):
         """
-            Price a PNR with a booking class.
-            The PNR is supposed to be supplied in the session on a previous call.
+        Price a PNR with a booking class.
+        The PNR is supposed to be supplied in the session on a previous call.
+        :param message_id: The message id associated to
+        :param price_request:
+        :return:
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number,
-                                                                          security_token)
+                                                                          security_token, price_request)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
+        self.log.debug(response_data)
         final_response = PricePNRExtractor(response_data).extract()
         self.add_session(final_response.session_info)
         return final_response
