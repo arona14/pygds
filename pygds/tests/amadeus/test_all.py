@@ -23,22 +23,23 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE"
+    pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56"
     # m_id = None
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        print(res_reservation["itineraries"])
         log.info(session_info)
         log.info(res_reservation)
         m_id = session_info.message_id
         seg_refs = []
         pax_refs = []
-        for it in res_reservation["itineraries"]:
-            seg_refs.append(it["reference"])
+        for seg in res_reservation["itineraries"]:
+            seg_refs.append(seg.segment_reference)
         for pax in res_reservation["passengers"]:
-            pax_refs.append(pax["reference"])
+            pax_refs.append(pax.name_id)
         price_request = PriceRequest(pax_refs, seg_refs)
 
         res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
