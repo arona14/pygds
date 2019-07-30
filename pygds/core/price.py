@@ -4,7 +4,10 @@ from datetime import date
 
 class PriceInfoBasic:
     def __str__(self):
-        return str(self.__repr__())
+        return str(self.to_dict())
+    
+    def to_dict(self):
+        raise NotImplementedError("Not implemented")
 
 
 class PriceRequest(PriceInfoBasic):
@@ -15,7 +18,7 @@ class PriceRequest(PriceInfoBasic):
         self.passengers = passengers
         self.segments = segments
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "passengers": self.passengers,
             "segments": self.segments
@@ -31,7 +34,7 @@ class FareAmount(PriceInfoBasic):
         self.amount: float = 0.0    # The amount
         self.currency: str          # the currency specified
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "qualifier": self.qualifier,
             "amount": self.amount,
@@ -50,13 +53,13 @@ class TaxInformation(PriceInfoBasic):
         self.tax_nature: str           # The nature of the tax
         self.tax_amount: FareAmount    # The amount of that tax
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "tax_qualifier": self.tax_qualifier,
             "tax_identifier": self.tax_identifier,
             "tax_type": self.tax_type,
             "tax_nature": self.tax_nature,
-            "tax_amount": None if not self.tax_amount else self.tax_amount.__repr__()
+            "tax_amount": None if not self.tax_amount else self.tax_amount.to_dict()
         }
 
 
@@ -70,7 +73,7 @@ class WarningInformation(PriceInfoBasic):
         self.responsible_agency: str    # The application responsible agency
         self.warning: str               # The text of the warning
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "error_code": self.error_code,
             "qualifier": self.qualifier,
@@ -84,7 +87,7 @@ class CouponDetails(PriceInfoBasic):
         self.coupon_product_type: str       # The product type of the coupon
         self.coupon_product_id: int         # The product id of the coupon
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "coupon_product_type": self.coupon_product_type,
             "coupon_product_id": self.coupon_product_id
@@ -108,19 +111,19 @@ class FareComponent(PriceInfoBasic):
         self.fare_family_owner: str             # The owner of the family fare
         self.coupons: List[CouponDetails] = []  # list of coupons
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "item_number": self.item_number,
             "item_type": self.item_type,
             "departure": self.departure,
             "arrival": self.arrival,
-            "monetary_info": None if not self.monetary_info else self.monetary_info.__repr__(),
+            "monetary_info": None if not self.monetary_info else self.monetary_info.to_dict(),
             "rate_tariff_class": self.rate_tariff_class,
             "fare_qualifier": self.fare_qualifier,
             "fare_family_name": self.fare_family_name,
             "fare_family_hierarchy": self.fare_family_hierarchy,
             "fare_family_owner": self.fare_family_owner,
-            "coupons": [c.__repr__() for c in self.coupons],
+            "coupons": [c.to_dict() for c in self.coupons],
         }
 
 
@@ -132,7 +135,7 @@ class ValidityInformation(PriceInfoBasic):
         self.business_semantic: str     # an internal codification with semantic
         self.date: date                 # The date of validity
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "business_semantic": self.business_semantic,
             "date": self.date
@@ -152,7 +155,7 @@ class SegmentInformation:
         self.baggage_allowance_quantity: int            # quantity of baggage allowance
         self.baggage_allowance_type: str                # type of baggage allowance
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "segment_reference": self.segment_reference,
             "segment_sequence_number": self.segment_sequence_number,
@@ -161,7 +164,7 @@ class SegmentInformation:
             "fare_basis_primary_code": self.fare_basis_primary_code,
             "fare_basis_code": self.fare_basis_code,
             "fare_basis_ticket_designator": self.fare_basis_ticket_designator,
-            "validity_infos": [v.__repr__() for v in self.validity_infos],
+            "validity_infos": [v.to_dict() for v in self.validity_infos],
             "baggage_allowance_quantity": self.baggage_allowance_quantity,
             "baggage_allowance_type": self.baggage_allowance_type
         }
@@ -184,7 +187,7 @@ class Fare(PriceInfoBasic):
         self.segment_infos: List[SegmentInformation] = []    # list of segments
         self.fare_components: List[FareComponent] = []      # list of fare components
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "fare_reference": self.fare_reference,
             "origin": self.origin,
@@ -192,9 +195,9 @@ class Fare(PriceInfoBasic):
             "validating_carrier": self.validating_carrier,
             "banker_rate": self.banker_rate,
             "pax_references": self.pax_references,
-            "fare_amounts": [f.__repr__() for f in self.fare_amounts],
-            "tax_infos": [t.__repr__() for t in self.tax_infos],
-            "warning_infos": [w.__repr__() for w in self.warning_infos],
-            "segment_infos": [s.__repr__() for s in self.segment_infos],
-            "fare_components": [c.__repr__() for c in self.fare_components]
+            "fare_amounts": [f.to_dict() for f in self.fare_amounts],
+            "tax_infos": [t.to_dict() for t in self.tax_infos],
+            "warning_infos": [w.to_dict() for w in self.warning_infos],
+            "segment_infos": [s.to_dict() for s in self.segment_infos],
+            "fare_components": [c.to_dict() for c in self.fare_components]
         }
