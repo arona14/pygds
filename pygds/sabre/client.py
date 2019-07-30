@@ -4,6 +4,10 @@ from pygds.core.client import BaseClient
 from pygds.sabre.session import SabreSession
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
+
+from pygds.core.request import  LowFareSearchRequest
+
 
 
 class SabreClient(BaseClient):
@@ -61,3 +65,17 @@ class SabreClient(BaseClient):
             # TODO: Capture the real exception not the general one
             to_return_dict = None
         return to_return_dict
+
+    def search_flightrq(self,request_searh):
+        """
+        This function is for searching flight
+        :return : available flight for the specific request_search
+        """
+
+        test = SabreBFMBuilder(request_searh).search_flight()
+        #print(test)
+
+
+if __name__ == "__main__":
+    SabreClient("oui","yes","ok",False).search_flightrq({'pcc':"yes"})
+

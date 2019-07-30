@@ -28,7 +28,7 @@ class SearchFlightRequest(BasicDataObject):
         self.itineraries: List[Itinaries] = itineraries
         self.pcc = pcc 
         self.adult = adult
-        self.child = child
+        self.child = child  
         self.infant = infant
         self.csv = csv  
         self.alternatePcc = alternatePcc
@@ -62,4 +62,4 @@ class SearchFlightRequest(BasicDataObject):
 
 if __name__ == "__main__":
     test = SearchFlightRequest([{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"},{"origin": "BLR", "destination": "RDU", "departureDate": "2019-11-22" }]).to_data()["itineraries"]
-    print(len(test))
+    print(test)

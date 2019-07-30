@@ -8,9 +8,9 @@ from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
 from pygds.sabre.flight_search import  SearchFlightRequest
 
 request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
-                { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}],"adult": 1,"child":0,
-                "infant": 0,"csv": "Y", "pcc": "WR17", "alternatePcc": [],"requestType": "200ITINS", "agencyId": "68277",
-                "preferredAirlines": ["GF"],"baggagePref": false,"excludeBasicEconomy": true }"""
+                { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}], "csv": "Y", "pcc": "WR17", "adult": 1,"child":0,
+                "infant": 0,"alternatePcc": [],"requestType": "200ITINS", "preferredAirlines": ["GF"],
+                "baggagePref": false,"excludeBasicEconomy": true }"""
 
 request_json = json.loads(request)
 # print(request_json)
@@ -453,5 +453,6 @@ myFile.write(result)
 myFile.close()
 """
 if __name__ == "__main__":
-    datas = SearchFlightRequest(request_json["itineraries"])
+    datas = SearchFlightRequest(request_json)
+    print(datas)                                                                                                                                                                                                                                           
     print(SabreBFMBuilder(datas).search_flight())                                                                                                                                                                                                                                                                                

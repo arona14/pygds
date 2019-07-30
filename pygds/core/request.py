@@ -2,7 +2,8 @@ from typing import List
 
 from datetime import datetime
 
-from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.types import TravellerNumbering, Itinerary, BasicDataObject
+
 
 
 class RequestFilter:
@@ -34,9 +35,9 @@ class ConnectingPointFilter(RequestFilter):
         self.preferred_connecting_points: List[str] = []
 
 
-class CabinClassFilter(RequestFilter):
+class CabinClassFilter:
     def __init__(self):
-        self.desired_cabin_classes: List[str] = []
+        self.desired_cabin_classes: str = ''
 
 
 class FareTypeFilter(RequestFilter):
@@ -55,40 +56,60 @@ class PriceToBeatFilter(RequestFilter):
 class OriginDestination:
     def __init__(self):
         self.city: str = ''
-        self.airport: str = ''
-        self.alternates: List[str] = []
-        self.radius: float = 0.0  # 300 km maximum
-        self.is_multi_city: bool = False  # like QLA, QSF
-        self.date_time: datetime
-        self.time_window: TimeWindow
 
+class OriginDestination:
+    def __init__(self):
+        self.departure_date: str = ''
 
 class RequestedSegment:
     def __init__(self):
         self.origin: OriginDestination
         self.destination: OriginDestination
-        self.flight_category_filter: FlightCategoryFilter
-        self.connecting_point_filter: ConnectingPointFilter
+        self.departureDate: OriginDestination
 
 
-class RequestedItinerary:
+class ClassOfService:
     def __init__(self):
-        self.segments: List[RequestedSegment] = []
-        self.airline_filter: AirlineFilter
-        self.flight_category_filter: FlightCategoryFilter
-        self.cabin_filter: CabinClassFilter
-        self.fare_filter: FareTypeFilter
-        self.price_to_beat: PriceToBeatFilter
+        self.class_of_sevice: str = ''
 
 
-class LowFareSearchRequest:
-    def __init__(self, itineraries: List[RequestedItinerary], numbering: TravellerNumbering,
-                 filters: List[RequestFilter] = None, currency_conversion: str = None,
-                 maximum_recommendations: int = 200):
-        if filters is None:
-            filters = []
-        self.itineraries: List[RequestedItinerary] = itineraries
-        self.numbering: TravellerNumbering = numbering
-        self.filters: List[RequestFilter] = filters
-        self.currency_conversion: str = currency_conversion
-        self.maximum_recommendations: int = maximum_recommendations
+
+class LowFareSearchRequest(BasicDataObject):
+
+    def __init__(self, itineraries: List[RequestedSegment], csv: str = '',pcc: str = '', 
+                adult: int = 0, child:int = 0, infant: int = 0, alternatePcc: list = [],
+                requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False,
+        excludeBasicEconomy: bool = True):
+
+ 
+        self.itineraries: List[RequestedSegment] = itineraries
+        self.csv: ClassOfService = csv
+        self.pcc = pcc 
+        self.adult = adult
+        self.child = child
+        self.infant = infant 
+        self.alternatePcc = alternatePcc
+        self.requestType = requestType
+        self.preferredAirlines = preferredAirlines
+        self.baggagePref = baggagePref
+        self.excludeBasicEconomy = excludeBasicEconomy
+
+    def to_data(self):
+        return {
+            "itineraries": [i for i in self.itineraries],
+            "pcc": self.pcc,
+            "adult": self.adult,
+            "child" : self.child,
+            "infant" : self.infant,
+            "csv": self.csv,
+            "alternatePcc": [al for al in self.alternatePcc],
+            "requestType" : self.requestType,
+            "preferredAirlines" : self.preferredAirlines,
+            "baggagePref" : self.baggagePref,
+            "excludeBasicEconomy" : self.excludeBasicEconomy
+
+        }
+
+
+if __name__ == "__main__":
+    print(LowFareSearchRequest().to_data())
