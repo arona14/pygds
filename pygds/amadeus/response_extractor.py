@@ -551,7 +551,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     element_id = from_json(ticket_element, "officeId")
                     date = from_json(ticket_element, "date")
                     comment = from_json(ticket_element, "indicator")
-                    code = from_json(ticket_element, "airlineCode")
+                    code = from_json_safe(ticket_element, "airlineCode")
                     ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
                     list_ticket.append(ticketing)
         return list_ticket
