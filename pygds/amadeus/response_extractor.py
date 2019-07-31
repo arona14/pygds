@@ -595,5 +595,3 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
         for p in passengers_data:
             pax_refs.append(from_json(p, "refNumber"))
         return TstInformation(pnr, tst_ref, pax_refs)
-
-
