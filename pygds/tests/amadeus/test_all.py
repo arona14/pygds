@@ -32,7 +32,7 @@ def test():
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # print("itineraries data")
         print(res_reservation["passengers"])
-        # log.info(session_info)
+        log.info(session_info)
         # log.info(res_reservation)
         # res_command = client.send_command(f"RT{pnr}", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
