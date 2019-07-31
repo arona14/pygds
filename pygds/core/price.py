@@ -9,6 +9,9 @@ class PriceInfoBasic:
     def to_dict(self):
         raise NotImplementedError("Not implemented")
 
+    def __repr__(self):
+        return str(self.to_dict())
+
 
 class PriceRequest(PriceInfoBasic):
     """
