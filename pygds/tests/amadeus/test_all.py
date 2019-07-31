@@ -2,7 +2,7 @@
     This is for testing purposes like a suite.
 """
 
-# import os
+import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
@@ -17,24 +17,28 @@ def test():
     password = get_setting("AMADEUS_PASSWORD")
     office_id = get_setting("AMADEUS_OFFICE_ID")
     wsap = get_setting("AMADEUS_WSAP")
-    # dir_path = os.path.dirname(os.path.realpath(__file__))
-    # log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.join(dir_path, "..", "..", "..")
+    os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
+    log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "RH3WOD"  # "Q68EFX", "RI3B6D", "RT67BC"
+    pnr = "Q68EFX"  # "TSYX56"  # "Q68EFX"  # "TSYX56"
+    # pnr = "TSYX56"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        # print("itineraries data")
+        print(res_reservation["itineraries"])
         log.info(session_info)
-        log.info(res_reservation)
-        m_id = session_info.message_id
-
-        res_price = client.fare_price_pnr_with_booking_class(m_id)
-        session_info, res_price = (res_price.session_info, res_price.payload)
-        log.info(session_info)
-        log.info(res_price[0])
+        # log.info(res_reservation)
+        # res_command = client.send_command(f"RT{pnr}", m_id)
+        # session_info, command_response = (res_command.session_info, res_command.payload)
+        # log.info(session_info)
+        # log.info(command_response)
+        #
         # m_id = session_info.message_id
         # res_tst = client.ticket_create_tst_from_price(m_id, res_price[0])
         # log.debug(res_tst)
