@@ -458,6 +458,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
+        print(payload)
         return {
             'itineraries': self._segments(),
             'passengers': self._passengers(),

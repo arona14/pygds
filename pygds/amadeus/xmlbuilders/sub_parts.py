@@ -375,16 +375,16 @@ def ppwbc_passenger_segment_selection(price_request: PriceRequest):
     </pricingOptionGroup>
     """
 
+
 def ppwbc_ref_detail(ref_type, ref_value):
     """
-
-    :param ref_type:
-    :param ref_value:
-    :return:
+    This method generates price reference details for Price Pnr With Booking Class
+    :param ref_type: The reference type (P for Passenger, S for Segment, PA, PI)
+    :param ref_value: The value of the reference
+    :return: an XML portion
     """
     return f"""
     <referenceDetails>
         <type>{ref_type}</type>
         <value>{ref_value}</value>
-    </referenceDetails> 
-    """
+    </referenceDetails>"""
