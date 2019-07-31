@@ -7,6 +7,8 @@ from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformatio
     SegmentInformation, ValidityInformation, TstInformation
 from pygds.core.sessions import SessionInfo
 import logging
+
+from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment  # Remarks
 
@@ -594,3 +596,24 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
         for p in passengers_data:
             pax_refs.append(from_json(p, "refNumber"))
         return TstInformation(pnr, tst_ref, pax_refs)
+
+
+class IssueTicketResponseExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "DocIssuance_IssueTicketReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "DocIssuance_IssueTicketReply")
+        status = from_json_safe(payload, "processingStatus", "statusCode")
+        error_data = from_json_safe(payload, "errorGroup")
+        if error_data:
+            error_code = from_json_safe(error_data, "errorOrWarningCodeDetails", "errorDetails", "errorCode")
+            details = from_json_safe(error_data, "errorWarningDescription")
+            description = from_json_safe(details, "freeText")
+            details = from_json_safe(details, "freeTextDetails")
+            qualifier = from_json_safe(details, "textSubjectQualifier")
+            source = from_json_safe(details, "source")
+            encoding = from_json_safe(details, "encoding")
+        else:
+            error_code, qualifier, source, encoding, description = (None, None, None, None, None)
+        return TicketReply(status, error_code, qualifier, source, encoding, description)

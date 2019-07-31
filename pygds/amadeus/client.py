@@ -16,7 +16,8 @@ __status__ = "Development"
 
 from pygds.core.client import BaseClient
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
-    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor, CreateTstResponseExtractor
+    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor, CreateTstResponseExtractor, \
+    IssueTicketResponseExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -131,8 +132,23 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token,
                                                            passenger_reference_type, passenger_reference_value)
-        response_data = self.__request_wrapper("ticketing_pnr", request_data, 'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
-        return response_data
+        print(request_data)
+        response_data = self.__request_wrapper("ticketing_pnr", request_data,
+                                               'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
+        final_result = IssueTicketResponseExtractor(response_data).extract()
+        self.add_session(final_result.session_info)
+        return final_result
+
+    def issue_ticket_with_retrieve(self, message_id):
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not session_id:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.issue_ticket_retrieve(message_id, security_token, sequence_number, session_id)
+        response_data = self.__request_wrapper("issue_ticket_with_retrieve", request_data,
+                                               'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
+        final_result = IssueTicketResponseExtractor(response_data).extract()
+        self.add_session(final_result.session_info)
+        return final_result
 
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         """
