@@ -17,7 +17,10 @@ request_json = json.loads(request)
 
 final_object = """{
     "OTA_AirLowFareSearchRQ": {
-        "POS" : "SabreBFMBuilder().pos()",
+        {"POS": {"Source": [{"RequestorID":
+         {"CompanyName": {"Code": "TN", "content": "Context"}, 
+         "URL": "http://www.sabre.com/", "Type": "1", "ID": "1"},
+          "PseudoCityCode": "WR17", "ISOCountry": "US"}]},
         "OriginDestinationInformation": [
             {
                 "TPA_Extensions": {

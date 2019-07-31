@@ -110,6 +110,5 @@ class LowFareSearchRequest(BasicDataObject):
 
         }
 
-
 if __name__ == "__main__":
     print(LowFareSearchRequest().to_data())

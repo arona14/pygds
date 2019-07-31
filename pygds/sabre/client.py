@@ -1,4 +1,5 @@
 import requests
+import json
 
 from pygds.core.client import BaseClient
 from pygds.sabre.session import SabreSession
@@ -9,6 +10,12 @@ from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
 from pygds.core.request import  LowFareSearchRequest
 
 
+request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
+                { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}],"adult": 1,"child":0,
+                "infant": 0,"csv": "Y", "pcc": "WR17", "alternatePcc": [],"requestType": "200ITINS", "agencyId": "68277",
+                "preferredAirlines": ["GF"],"baggagePref": false,"excludeBasicEconomy": true }"""
+
+request_json = json.loads(request)
 
 class SabreClient(BaseClient):
     """
@@ -73,9 +80,19 @@ class SabreClient(BaseClient):
         """
 
         test = SabreBFMBuilder(request_searh).search_flight()
-        #print(test)
+        return   test
+    
+    def  session_token(self):
+        """
+        This will open a new session
+        :return: a Session token 
+        """
+        open_session_xml = self.xml_builder.session_token_rq()
+        response = self._request_wrapper(open_session_xml, None)
+        return response.content
 
 
-if __name__ == "__main__":
-    SabreClient("oui","yes","ok",False).search_flightrq({'pcc':"yes"})
+
+#if __name__ == "__main__":
+#print(SabreClient().session_token())
 
