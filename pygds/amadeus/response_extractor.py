@@ -411,7 +411,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             segment.baggage_allowance_quantity = from_json(baggage_allowance, "baggageQuantity")
             segment.baggage_allowance_type = from_json(baggage_allowance, "baggageType")
 
-            for validity in ensure_list(from_json(sg, "validityInformation")):
+            for validity in ensure_list(from_json_safe(sg, "validityInformation")):
                 validity_info: ValidityInformation = ValidityInformation()
                 validity_info.business_semantic = from_json_safe(validity, "businessSemantic")
                 dt = from_json_safe(validity, "dateTime")
