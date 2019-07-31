@@ -124,10 +124,12 @@ class FlightSegment(BasicDataObject):
         self.eticket = eticket
         self.number_in_party = number_in_party
         self.code = code
+        self.segment_reference = None
 
     def to_data(self):
         return {
             "sequence": self.sequence,
+            "segment_reference": self.segment_reference,
             "res_book_desig_code": self.res_book_desig_code,
             "departure_date_time": self.departure_date_time,
             "departure_airpot": self.departure_airport,

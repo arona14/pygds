@@ -320,6 +320,7 @@ class AmadeusXMLBuilder:
                             <pricingOptionKey>RU</pricingOptionKey>
                         </pricingOptionKey>
                     </pricingOptionGroup>
+                    {sub_parts.ppwbc_passenger_segment_selection(price_request)}
                 </Fare_PricePNRWithBookingClass>
             </soapenv:Body>
         </soapenv:Envelope>
