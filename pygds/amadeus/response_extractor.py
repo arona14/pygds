@@ -98,10 +98,10 @@ class AppErrorExtractor(BaseResponseExtractor):
         app_error_data = from_json_safe(payload, "applicationError")
         if not app_error_data:
             return None
-        details = from_json(app_error_data, "errorOrWarningCodeDetails", "errorDetails")
-        error_code = from_json(details, "errorCode")
-        error_category = from_json(details, "errorCategory")
-        error_owner = from_json(details, "errorCodeOwner")
+        details = from_json_safe(app_error_data, "errorOrWarningCodeDetails", "errorDetails")
+        error_code = from_json_safe(details, "errorCode")
+        error_category = from_json_safe(details, "errorCategory")
+        error_owner = from_json_safe(details, "errorCodeOwner")
         description = from_json_safe(app_error_data, "errorWarningDescription", "freeText")
         return ApplicationError(error_code, error_category, error_owner, description)
 
@@ -272,9 +272,8 @@ class PricePNRExtractor(BaseResponseExtractor):
             _fare.tax_infos = self._taxes(fare)
             _fare.warning_infos = self._warnings(fare)
             _fare.fare_components = self._components(fare)
-            _fare.segment_infos = self.__segments(fare)
+            _fare.segment_infos = self._segments(fare)
             fares.append(_fare)
-        print(f"number of fares: {len(fares)}")
         return fares
 
     def _extract_amount(self, amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
@@ -385,7 +384,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             components.append(fare_component)
         return components
 
-    def __segments(self, fare):
+    def _segments(self, fare):
         """
         look for segments
         :param fare: a dictionary containing fare info
@@ -472,9 +471,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _segments(self):
         segments_list = []
         index = 1
-        for data in self.payload["originDestinationDetails"]["itineraryInfo"]:
-            dep_date = data["travelProduct"]["product"]["depDate"]
-            dep_time = data["travelProduct"]["product"]["depTime"]
+        for data in ensure_list(self.payload["originDestinationDetails"]["itineraryInfo"]):
+            dep_date = from_json_safe(data, "travelProduct", "product", "depDate")
+            dep_time = from_json_safe(data, "travelProduct", "product", "depTime")
             arr_date = data["travelProduct"]["product"]["arrDate"]
             arr_time = data["travelProduct"]["product"]["arrTime"]
             departure_airport = data["travelProduct"]["boardpointDetail"]["cityCode"]
