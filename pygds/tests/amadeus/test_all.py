@@ -2,9 +2,10 @@
     This is for testing purposes like a suite.
 """
 
-# import os
+import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
+from pygds.core.price import PriceRequest
 from pygds.env_settings import get_setting
 from pygds import log_handler
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
@@ -17,24 +18,36 @@ def test():
     password = get_setting("AMADEUS_PASSWORD")
     office_id = get_setting("AMADEUS_OFFICE_ID")
     wsap = get_setting("AMADEUS_WSAP")
-    # dir_path = os.path.dirname(os.path.realpath(__file__))
-    # log_handler.load_file_config(os.path.join(dir_path, "..", "..", "..", "log_config.yml"))
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.join(dir_path, "..", "..", "..")
+    os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
+    log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "RH3WOD"  # "Q68EFX", "RI3B6D", "RT67BC"
+    pnr = "SNG6IR"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        print(res_reservation["itineraries"])
         log.info(session_info)
         log.info(res_reservation)
         m_id = session_info.message_id
+        seg_refs = []
+        pax_refs = []
+        for seg in res_reservation["itineraries"]:
+            seg_refs.append(seg.segment_reference)
+        for pax in res_reservation["passengers"]:
+            pax_refs.append(pax.name_id)
+        price_request = PriceRequest(pax_refs, seg_refs)
 
-        res_price = client.fare_price_pnr_with_booking_class(m_id)
-        session_info, res_price = (res_price.session_info, res_price.payload)
+        res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
+        session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
         log.info(session_info)
-        log.info(res_price[0])
+        log.info(app_error)
+        if not app_error:
+            log.info(res_price[0])
         # m_id = session_info.message_id
         # res_tst = client.ticket_create_tst_from_price(m_id, res_price[0])
         # log.debug(res_tst)

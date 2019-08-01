@@ -2,6 +2,7 @@ from time import gmtime, strftime
 from typing import List
 
 from pygds.amadeus.xmlbuilders import sub_parts
+from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.payment import FormOfPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
@@ -176,7 +177,8 @@ class AmadeusXMLBuilder:
         """
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-             {self.generate_header("PNRRET_17_1_1A", message_id, session_id, sequence_number, security_token, close_trx)}
+             {self.generate_header("PNRRET_17_1_1A", message_id, session_id, sequence_number, security_token,
+                                   close_trx)}
             <soapenv:Body>
                 <PNR_Retrieve>
                     <retrievalFacts>
@@ -276,7 +278,8 @@ class AmadeusXMLBuilder:
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
-        security = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password, created_date_time)
+        security = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                              created_date_time)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -299,7 +302,8 @@ class AmadeusXMLBuilder:
         return f"""
         """
 
-    def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token):
+    def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
+                                          price_request: PriceRequest):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
@@ -316,6 +320,7 @@ class AmadeusXMLBuilder:
                             <pricingOptionKey>RU</pricingOptionKey>
                         </pricingOptionKey>
                     </pricingOptionGroup>
+                    {sub_parts.ppwbc_passenger_segment_selection(price_request)}
                 </Fare_PricePNRWithBookingClass>
             </soapenv:Body>
         </soapenv:Envelope>
@@ -424,7 +429,8 @@ class AmadeusXMLBuilder:
         passenger_infos = []
         for i in infos:
             passenger_infos.append(
-                sub_parts.add_multi_elements_traveller_info(i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type))
+                sub_parts.add_multi_elements_traveller_info(i.ref_number, i.first_name, i.surname, i.last_name,
+                                                            i.date_of_birth, i.pax_type))
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -546,7 +552,8 @@ class AmadeusXMLBuilder:
         """
 
     def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,
-                                    passenger_reference_type, passenger_reference_value, form_of_payment_sequence_number,
+                                    passenger_reference_type, passenger_reference_value,
+                                    form_of_payment_sequence_number,
                                     group_usage_attribute_type, fop: FormOfPayment):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
