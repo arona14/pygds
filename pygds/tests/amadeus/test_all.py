@@ -32,7 +32,7 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        g = res_reservation.form_of_payments
+        g = res_reservation.passengers
         print(g)
         # print(res_reservation["passengers"])
         # result = GetPnrResponseExtractor()._passengers()

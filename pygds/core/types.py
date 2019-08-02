@@ -206,9 +206,8 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, name_id: str = None, interface_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
+    def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
         self.name_id = name_id
-        self.interface_id = interface_id
         self.first_name = first_name
         self.last_name = last_name
         self.date_of_birth = date_of_birth
@@ -242,7 +241,6 @@ class Passenger(BasicDataObject):
     def to_data(self):
         return {
             "reference": self.name_id,
-            "interface_id": self.interface_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "date_of_birth": self.date_of_birth,

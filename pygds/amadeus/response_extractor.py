@@ -2,6 +2,7 @@ from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
 from types import SimpleNamespace
+import re
 # from pygds.core import helpers
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
@@ -508,6 +509,16 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             segments_list.append(segment_data)
         return segments_list
 
+    def _gender(self):
+        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+            if "serviceRequest" in data:
+                ssr = from_json_safe(data, "serviceRequest", "ssr")
+                freetext = from_json_safe(ssr, "freeText")
+
+                if re.split("[, /,////?//:;]+", freetext)[2] == "M" or re.split("[, /,////?//: ]+", freetext) == "F":
+                    gender = re.split("[, /,////?//:;]+", freetext)[2]
+        return gender
+
     def _passengers(self):
         passengers_list = []
         for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
@@ -543,7 +554,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             else:
                 type_passenger = ""
             date_of_birth = date_of_birth
-            passsenger = Passenger(ref, firstname, lastname, date_of_birth, "", surname, forename, "", "", number_in_party, "", type_passenger, "")
+            gender = self._gender()
+            print(gender)
+            passsenger = Passenger(ref, firstname, lastname, date_of_birth, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
             passengers_list.append(passsenger)
         return passengers_list
 
