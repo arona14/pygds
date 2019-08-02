@@ -9,6 +9,9 @@ class PriceInfoBasic:
     def to_dict(self):
         raise NotImplementedError("Not implemented")
 
+    def __repr__(self):
+        return str(self.to_dict())
+
 
 class PriceRequest(PriceInfoBasic):
     """
@@ -200,4 +203,27 @@ class Fare(PriceInfoBasic):
             "warning_infos": [w.to_dict() for w in self.warning_infos],
             "segment_infos": [s.to_dict() for s in self.segment_infos],
             "fare_components": [c.to_dict() for c in self.fare_components]
+        }
+
+
+class TstInformation(PriceInfoBasic):
+    """
+    This class will store information about A created TST
+    """
+    def __init__(self, pnr, tst_ref: str, pax_refs: List[str]):
+        """
+        Init
+        :param pnr: The record locator (str)
+        :param tst_ref: the TST reference (str)
+        :param pax_refs: list of passenger references (list of str)
+        """
+        self.pnr = pnr
+        self.tst_reference = tst_ref
+        self.pax_references = pax_refs if pax_refs else []
+
+    def to_dict(self):
+        return {
+            "pnr": self.pnr,
+            "tst_reference": self.tst_reference,
+            "pax_references": self.pax_references
         }

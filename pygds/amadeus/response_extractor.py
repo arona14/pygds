@@ -4,7 +4,7 @@ from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
-    SegmentInformation, ValidityInformation
+    SegmentInformation, ValidityInformation, TstInformation
 from pygds.core.sessions import SessionInfo
 import logging
 from pygds.core.types import Passenger
@@ -572,3 +572,25 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     #                 sequence += 1
     #                 list_remark.append(remarks_object)
     #     return list_remark
+
+
+class CreateTstResponseExtractor(BaseResponseExtractor):
+    """
+    Wil extract response of create TST from price
+    """
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CreateTSTFromPricingReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
+        pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
+        tst_data = from_json(payload, "tstList")
+        tst_ref_data = from_json(tst_data, "tstReference")
+        tst_ref = None
+        if from_json_safe(tst_ref_data, "referenceType") == "TST":
+            tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
+        passengers_data = ensure_list(from_json(tst_data, "paxInformation", "refDetails"))
+        pax_refs = []
+        for p in passengers_data:
+            pax_refs.append(from_json(p, "refNumber"))
+        return TstInformation(pnr, tst_ref, pax_refs)

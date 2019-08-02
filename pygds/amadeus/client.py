@@ -16,7 +16,7 @@ __status__ = "Development"
 
 from pygds.core.client import BaseClient
 from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
-    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor
+    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor, CreateTstResponseExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -187,7 +187,9 @@ class AmadeusClient(BaseClient):
                                                                      security_token, tst_reference)
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
-        return response_data
+        final_response = CreateTstResponseExtractor(response_data).extract()
+        self.add_session(final_response.session_info)
+        return final_response
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         """
