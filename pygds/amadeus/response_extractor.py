@@ -523,6 +523,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _passengers(self):
         passengers_list = []
+        gender = self._gender()
         for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
             # passenger_data = {}
             data = from_json(traveller, "passengerData")
@@ -551,14 +552,12 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             # action_code = from_json(psngr, "firstName")
             number_in_party = from_json(travel, "quantity")
             # vendor_code = from_json(psngr, "firstName")
-            gender = ""
+           
             if "type" in psngr:
                 type_passenger = from_json(psngr, "type")
             else:
                 type_passenger = ""
             date_of_birth = date_of_birth
-            gender = self._gender()
-            print(gender)
             passsenger = Passenger(ref, firstname, lastname, date_of_birth, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
             passengers_list.append(passsenger)
         return passengers_list
