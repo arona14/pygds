@@ -1,9 +1,7 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
-from types import SimpleNamespace
 import re
-# from pygds.core import helpers
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
@@ -461,8 +459,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
-        # print(payload)
-        return SimpleNamespace(**{
+        return {
             'passengers': self._passengers(),
             'itineraries': self._segments(),
             'form_of_payments': self._form_of_payments(),
@@ -470,7 +467,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'ticketing_info': self._ticketing_info(),
             'remarks': self._remark(),
             'dk_number': self._dk_number()
-        })
+        }
 
     def _segments(self):
         segments_list = []
