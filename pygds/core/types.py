@@ -120,10 +120,12 @@ class FlightSegment(BasicDataObject):
         self.equipment_type = equipment_type
         self.eticket = eticket
         self.code = code
+        self.segment_reference = None
 
     def to_data(self):
         return {
             "sequence": self.sequence,
+            "segment_reference": self.segment_reference,
             "res_book_desig_code": self.res_book_desig_code,
             "departure_date_time": self.departure_date_time,
             "departure_airpot": self.departure_airport.to_data() if self.departure_airport.to_data() is not None else {},
