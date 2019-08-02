@@ -1,7 +1,7 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
-from types import SimpleNamespace
+# from types import SimpleNamespace
 import re
 # from pygds.core import helpers
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
@@ -182,9 +182,6 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         product_detail = ensure_list(fare_details[idx]["groupOfFares"])[leg]["productInformation"]
                         book_class = product_detail["cabinProduct"]["rbd"]
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
-                        # departure = FlightPointDetails(departure_date, departure_time, 0, "", board_airport, "", "")
-                        # arrival = FlightPointDetails(arrival_date, arrival_time, 0, "", off_airport, "", "")
-                        # segment = FlightSegment(0, departure, arrival, market_company, flight_number, book_class, "")
                         segment = {"fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
                                    "flight_number": flight_number, "departure_date": departure_date,
                                    "departure_time": departure_time, "arrival_date": arrival_date,
@@ -205,7 +202,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")  # , "controlNumber")
+        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")  
         pnr_data = {"pnr_number": pnr}
         travellers_info = from_json(payload, "travellerInfo")
         passengers = []
@@ -215,7 +212,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
             surname = from_json(info, "traveller", "surname")
             name = from_json(info, "passenger", "firstName")
             passenge_type = from_json(info, "passenger", "type")
-            date_of_birth = ""  # from_json(pax, "passengerData", "dateOfBirth", "dateAndTimeDetails", "date")
+            date_of_birth = ""  
             passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
         pnr_data["passengers"] = passengers
 
@@ -462,7 +459,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
         # print(payload)
-        return SimpleNamespace(**{
+        return {
             'passengers': self._passengers(),
             'itineraries': self._segments(),
             'form_of_payments': self._form_of_payments(),
@@ -470,7 +467,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'ticketing_info': self._ticketing_info(),
             'remarks': self._remark(),
             'dk_number': self._dk_number()
-        })
+        }
 
     def _segments(self):
         segments_list = []
@@ -524,33 +521,19 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         passengers_list = []
         gender = self._gender()
         for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
-            # passenger_data = {}
             data = from_json(traveller, "passengerData")
             reference = from_json(traveller["elementManagementPassenger"], "reference")
             ref = from_json(reference, "number")
             traveller_info = from_json(data, "travellerInformation")
-            # trvl = from_json(traveller_info, "traveller")
             psngr = from_json(traveller_info, "passenger")
             travel = from_json(traveller_info, "traveller")
             date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
             date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
-            # passenger_data['surname'] = from_json(trvl, "surname")
-            # passenger_data['quantity'] = from_json(trvl, "quantity")
-            # passenger_data['firstname'] = from_json(psngr, "firstName")
-            # passenger_data['type'] = from_json(psngr, "type")
-            # passenger_data['qualifier'] = from_json(date_of_birth_tag, "qualifier")
-            # passenger_data['date_of_birth'] = date_of_birth
-            # surname = from_json(trvl, "surname")
-            # quantity = from_json(trvl, "quantity")
             firstname = from_json(psngr, "firstName")
             lastname = from_json(travel, "surname")
-            # middle_name = from_json()
             surname = from_json(travel, "surname")
-            # gender = from_json(psngr, "firstName")
             forename = from_json(psngr, "firstName")
-            # action_code = from_json(psngr, "firstName")
             number_in_party = from_json(travel, "quantity")
-            # vendor_code = from_json(psngr, "firstName")
             if "type" in psngr:
                 type_passenger = from_json(psngr, "type")
             else:
