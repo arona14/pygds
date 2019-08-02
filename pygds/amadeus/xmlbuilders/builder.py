@@ -305,12 +305,12 @@ class AmadeusXMLBuilder:
                                           price_request: PriceRequest):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" 
-            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" 
-            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" 
-            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" 
-            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" 
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
             xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             {header}
             <soapenv:Body>
@@ -710,12 +710,12 @@ class AmadeusXMLBuilder:
 
     def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id):
         return f"""
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-                xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" 
-                xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" 
-                xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" 
-                xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" 
-                xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" 
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+                xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+                xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+                xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+                xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
                 xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
                {self.generate_header("TTKTIQ_15_1_1A", message_id, session_id, sequence_number, security_token, False)}
                <soapenv:Body>
