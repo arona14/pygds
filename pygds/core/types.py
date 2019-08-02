@@ -37,11 +37,7 @@ class FlightPointDetails(BasicDataObject):
         self.terminal = terminal
 
     def to_data(self):
-        return {
-            "content": self.content,
-            "location_code": self.airport,
-            "terminal_name": self.terminal
-        }
+        return self.airport
 
 
 class FlightAirlineDetails():
