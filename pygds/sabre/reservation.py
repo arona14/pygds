@@ -18,8 +18,6 @@ def reformat_sabre_get_reservation(data):
     :param data: raw sabre response (dict/json)
     :return: {dict}
     """
-
-    print(data)
     dict_result = {}
 
     try:

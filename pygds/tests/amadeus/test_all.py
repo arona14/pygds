@@ -30,7 +30,7 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        print(res_reservation["itineraries"])
+        # print(res_reservation["itineraries"])
         log.info(session_info)
         log.info(res_reservation)
         m_id = session_info.message_id
@@ -59,6 +59,17 @@ def test():
         session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
         log.debug(f"session formation from tst: {session_info}")
         log.debug(f"response from tst: {res_tst}")
+        if app_error:
+            log.error(f"Something went wrong on create TST: {app_error}")
+            return
+        # logout
+        # res_end = client.end_session(session_info.message_id)
+        # print(res_end)
+        # res_reservation = client.get_reservation(pnr, None, False)
+        # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])
+        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
+        log.debug(res_issue)
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
