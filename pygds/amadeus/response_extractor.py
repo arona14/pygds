@@ -510,13 +510,16 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return segments_list
 
     def _gender(self):
+        
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "serviceRequest" in data:
                 ssr = from_json_safe(data, "serviceRequest", "ssr")
                 freetext = from_json_safe(ssr, "freeText")
-
                 if re.split("[, /,////?//:;]+", freetext)[2] == "M" or re.split("[, /,////?//: ]+", freetext) == "F":
-                    gender = re.split("[, /,////?//:;]+", freetext)[2]
+                    try:
+                        gender = re.split("[, /,////?//:;]+", freetext)[2]
+                    except:
+                        gender = None
         return gender
 
     def _passengers(self):
@@ -561,6 +564,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return passengers_list
 
     def _dk_number(self):
+        dk = ""
         for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
                 data_account = from_json(data, "accounting")
