@@ -132,7 +132,6 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token,
                                                            passenger_reference_type, passenger_reference_value)
-        print(request_data)
         response_data = self.__request_wrapper("ticketing_pnr", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
         final_result = IssueTicketResponseExtractor(response_data).extract()
