@@ -512,14 +512,20 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "serviceRequest" in data:
+                gender = ""
                 ssr = from_json_safe(data, "serviceRequest", "ssr")
                 freetext = from_json_safe(ssr, "freeText")
-                if re.split("[, /,////?//:;]+", freetext)[2] == "M" or re.split("[, /,////?//: ]+", freetext) == "F":
-                    try:
-                        gender = re.split("[, /,////?//:;]+", freetext)[2]
-                    except:
-                        gender = ""
+                check_gender = re.split("[, /,////?//:;]+", freetext)[2]
+                if check_gender == "M" or check_gender == "F":
+                    gender = check_gender
         return gender
+                # try:
+                    # if check_gender == "M" or check_gender == "F": 
+            #     if re.split("[, /,////?//:;]+", freetext)[2] == "M" or re.split("[, /,////?//: ]+", freetext) == "F":
+            #         try:
+            #         except:
+            #             gender = None
+            # return gender
 
     def _passengers(self):
         passengers_list = []
