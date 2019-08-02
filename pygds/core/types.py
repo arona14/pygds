@@ -188,12 +188,27 @@ class PassengerPreferences(BasicDataObject):
         return self.prefs
 
 
+class Dk_number(BasicDataObject):
+    """
+    this class is implemented to keep interface_id information
+    """
+    def __init__(self, interface_id):
+        self.interface_id = interface_id
+
+    def to_data(self):
+        return{
+            "dk_number": self.interface_id
+
+        }
+
+
 class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
+    def __init__(self, name_id: str = None, interface_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
         self.name_id = name_id
+        self.interface_id = interface_id
         self.first_name = first_name
         self.last_name = last_name
         self.date_of_birth = date_of_birth
@@ -227,6 +242,7 @@ class Passenger(BasicDataObject):
     def to_data(self):
         return {
             "reference": self.name_id,
+            "interface_id": self.interface_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "date_of_birth": self.date_of_birth,
@@ -256,7 +272,7 @@ class FormOfPayment(BasicDataObject):
     def to_data(self):
         return{
             "type_payment": self.type_payment,
-            "short_text": self.short_text,
+            "form_payment": self.short_text,
             "vendor_code": self.vendor_code,
             "credit_card_number": self.credit_card_number,
             "expire_date": self.expire_date

@@ -7,6 +7,8 @@ from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
 from pygds import log_handler
+# from types import SimpleNamespace
+# from pygds.amadeus.response_extractor import GetPnrResponseExtractor
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
@@ -22,7 +24,7 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"  # "TSYX56"  # "Q68EFX"  # "TSYX56"
+    pnr = "SZ6AJN"  # "SNG6IR"  # "SY9LBS"  # "SNG6IR"  # "TSYX56"  # "Q68EFX"  # "TSYX56"
     # pnr = "TSYX56"
     # m_id = None
 
@@ -30,9 +32,12 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        # print("itineraries data")
-        print(res_reservation["passengers"])
-        log.info(session_info)
+        g = res_reservation.form_of_payments
+        print(g)
+        # print(res_reservation["passengers"])
+        # result = GetPnrResponseExtractor()._passengers()
+        # print(result._passengers())
+        # log.info(session_info)
         # log.info(res_reservation)
         # res_command = client.send_command(f"RT{pnr}", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
