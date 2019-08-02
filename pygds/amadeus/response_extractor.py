@@ -11,7 +11,7 @@ from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformatio
 from pygds.core.sessions import SessionInfo
 import logging
 from pygds.core.types import Passenger
-from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, Dk_number, FormOfPayment
+from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, FormOfPayment
 
 
 class BaseResponseExtractor(object):
@@ -462,7 +462,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
         # print(payload)
-        return {
+        return SimpleNamespace(**{
             'passengers': self._passengers(),
             'itineraries': self._segments(),
             'form_of_payments': self._form_of_payments(),
@@ -470,7 +470,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'ticketing_info': self._ticketing_info(),
             'remarks': self._remark(),
             'dk_number': self._dk_number()
-        }
+        })
 
     def _segments(self):
         segments_list = []
@@ -511,21 +511,14 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            if "serviceRequest" in data:
-                gender = ""
-                ssr = from_json_safe(data, "serviceRequest", "ssr")
-                freetext = from_json_safe(ssr, "freeText")
-                check_gender = re.split("[, /,////?//:;]+", freetext)[2]
-                if check_gender == "M" or check_gender == "F":
-                    gender = check_gender
-        return gender
-                # try:
-                    # if check_gender == "M" or check_gender == "F": 
-            #     if re.split("[, /,////?//:;]+", freetext)[2] == "M" or re.split("[, /,////?//: ]+", freetext) == "F":
-            #         try:
-            #         except:
-            #             gender = None
-            # return gender
+            free_text = from_json_safe(data, "serviceRequest", "ssr", "freeText")
+            if free_text:
+                check_gender = re.split("[, /,////?//:; ]+", free_text)
+                if len(check_gender) >= 3:
+                    check_gender = check_gender[2]
+                    if check_gender == "M" or check_gender == "F":
+                        return check_gender
+        return None
 
     def _passengers(self):
         passengers_list = []
@@ -558,7 +551,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             # action_code = from_json(psngr, "firstName")
             number_in_party = from_json(travel, "quantity")
             # vendor_code = from_json(psngr, "firstName")
-           
             if "type" in psngr:
                 type_passenger = from_json(psngr, "type")
             else:

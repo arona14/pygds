@@ -32,12 +32,12 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        g = res_reservation["passengers"]
+        g = res_reservation.passengers
         print(g)
         # print(res_reservation["passengers"])
         # result = GetPnrResponseExtractor()._passengers()
         # print(result._passengers())
-        # log.info(session_info)
+        log.info(session_info)
         # log.info(res_reservation)
         # res_command = client.send_command(f"RT{pnr}", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
