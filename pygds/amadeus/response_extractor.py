@@ -11,7 +11,8 @@ import logging
 
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
-from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, FormOfPayment
+from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
+    FormOfPayment
 
 
 class BaseResponseExtractor(object):
@@ -85,6 +86,7 @@ class AppErrorExtractor(BaseResponseExtractor):
     """
     Extract application error from response
     """
+
     def __init__(self, xml_content: str, main_tag: str):
         super().__init__(xml_content, False, False, main_tag)
         self.parsed = True
@@ -488,8 +490,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             equipment_type = data["flightDetail"]["productDetails"]["equipment"]
             resbook_designator = data["travelProduct"]["productDetails"]["classOfService"]
-            departure_terminal = from_json_safe("flightDetail", "departureInformation", "departTerminal")
-            arrival_terminal = from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
+            departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
+            arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
             departure = FlightPointDetails("", departure_airport, departure_terminal)
             arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
             marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "")
@@ -497,7 +499,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
             segment_data.segment_reference = segment_reference
             index += 1
-
             segments_list.append(segment_data)
         return segments_list
 
@@ -590,7 +591,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     element_id = from_json(ticket_element, "officeId")
                     date = from_json(ticket_element, "date")
                     comment = from_json(ticket_element, "indicator")
-
                     code = from_json_safe(ticket_element, "airlineCode")
                     ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
                     list_ticket.append(ticketing)
@@ -614,3 +614,47 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 else:
                     return "this element: miscellaneousRemarks does'n ixist in remark"
         return list_remark
+
+
+class CreateTstResponseExtractor(BaseResponseExtractor):
+    """
+    Wil extract response of create TST from price
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CreateTSTFromPricingReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
+        pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
+        tst_data = from_json(payload, "tstList")
+        tst_ref_data = from_json(tst_data, "tstReference")
+        tst_ref = None
+        if from_json_safe(tst_ref_data, "referenceType") == "TST":
+            tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
+        passengers_data = ensure_list(from_json(tst_data, "paxInformation", "refDetails"))
+        pax_refs = []
+        for p in passengers_data:
+            pax_refs.append(from_json(p, "refNumber"))
+        return TstInformation(pnr, tst_ref, pax_refs)
+
+
+class IssueTicketResponseExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "DocIssuance_IssueTicketReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "DocIssuance_IssueTicketReply")
+        status = from_json_safe(payload, "processingStatus", "statusCode")
+        error_data = from_json_safe(payload, "errorGroup")
+        if error_data:
+            error_code = from_json_safe(error_data, "errorOrWarningCodeDetails", "errorDetails", "errorCode")
+            details = from_json_safe(error_data, "errorWarningDescription")
+            description = from_json_safe(details, "freeText")
+            details = from_json_safe(details, "freeTextDetails")
+            qualifier = from_json_safe(details, "textSubjectQualifier")
+            source = from_json_safe(details, "source")
+            encoding = from_json_safe(details, "encoding")
+        else:
+            error_code, qualifier, source, encoding, description = (None, None, None, None, None)
+        return TicketReply(status, error_code, qualifier, source, encoding, description)

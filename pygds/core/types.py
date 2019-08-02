@@ -1,3 +1,4 @@
+import time
 from typing import List
 import json
 import datetime
@@ -37,14 +38,10 @@ class FlightPointDetails(BasicDataObject):
         self.terminal = terminal
 
     def to_data(self):
-        return {
-            "content": self.content,
-            "location_code": self.airport,
-            "terminal_name": self.terminal
-        }
+        return self.airport
 
 
-class FlightAirlineDetails():
+class FlightAirlineDetails(BasicDataObject):
     """
     Holds informations about airline
     """
@@ -222,14 +219,14 @@ class Passenger(BasicDataObject):
         self.vendor_code = vendor_code
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        # self.retrieve_passenger_type()
+        self.retrieve_passenger_type()
 
     def retrieve_passenger_type(self):
         """
             This method retrieves the passenger type from the age
         """
         if self.date_of_birth is not None:
-            age = datetime.date.today() - datetime.date.fromisoformat(self.date_of_birth)
+            age = datetime.date.today() - datetime.date(*time.strptime(self.date_of_birth, "%Y-%m-%d")[0:3])
             age = age.days / 365
             if age < 0:
                 self.passenger_type = None
