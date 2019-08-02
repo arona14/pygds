@@ -1,5 +1,6 @@
 from typing import List
 
+from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 
 
@@ -351,3 +352,39 @@ def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type)
         </discountPtc>
      </passengersGroup>
     """
+
+
+def ppwbc_passenger_segment_selection(price_request: PriceRequest):
+    if not price_request or (not price_request.segments and not price_request.passengers):
+        return ""
+    pax_refs = []
+    seg_refs = []
+    for r in price_request.passengers:
+        pax_refs.append(ppwbc_ref_detail("P", r))
+    for s in price_request.segments:
+        seg_refs.append(ppwbc_ref_detail("S", s))
+    return f"""
+    <pricingOptionGroup>
+        <pricingOptionKey>
+            <pricingOptionKey>SEL</pricingOptionKey>
+        </pricingOptionKey>
+        <paxSegTstReference>
+            {"".join(pax_refs)}
+            {"".join(seg_refs)}
+        </paxSegTstReference>
+    </pricingOptionGroup>
+    """
+
+
+def ppwbc_ref_detail(ref_type, ref_value):
+    """
+    This method generates price reference details for Price Pnr With Booking Class
+    :param ref_type: The reference type (P for Passenger, S for Segment, PA, PI)
+    :param ref_value: The value of the reference
+    :return: an XML portion
+    """
+    return f"""
+    <referenceDetails>
+        <type>{ref_type}</type>
+        <value>{ref_value}</value>
+    </referenceDetails>"""

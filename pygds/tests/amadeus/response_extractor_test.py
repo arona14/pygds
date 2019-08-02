@@ -2,7 +2,9 @@ import os
 from unittest import TestCase
 import json
 
-from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor
+from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor, \
+    CreateTstResponseExtractor
+from pygds.core.price import TstInformation
 
 
 class TestErrorExtractorCan(TestCase):
@@ -69,8 +71,8 @@ class TestTicketingExtractor(TestCase):
 class TestPricePnrExtractor(TestCase):
     def setUp(self) -> None:
         base_path = os.path.dirname(os.path.abspath(__file__))
-        xml_path = os.path.join(base_path, "resources/amadeus_price_pnr_with_booking_class_response.xml")
-        json_path = os.path.join(base_path, "resources/amadeus_price_pnr_with_booking_class_fares.json")
+        xml_path = os.path.join(base_path, "resources/ppwbc/amadeus_price_pnr_with_booking_class_response.xml")
+        json_path = os.path.join(base_path, "resources/ppwbc/amadeus_price_pnr_with_booking_class_fares.json")
         with open(xml_path) as f:
             self.xml = ''.join(f.readlines())
             self.price_extractor = PricePNRExtractor(self.xml)
@@ -101,3 +103,29 @@ class TestPricePnrExtractor(TestCase):
         fares = response.payload
         self.assertIsNotNone(fares)
         self.assertEqual(len(fares), 1)
+
+
+class TestCreateTstExtractor(TestCase):
+    def setUp(self) -> None:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        xml_path = os.path.join(base_path, "resources/ctfp/amadeus_create_tst_from_price_response.xml")
+        with open(xml_path) as f:
+            self.xml = ''.join(f.readlines())
+            self.tst_extractor = CreateTstResponseExtractor(self.xml)
+
+    def test_init(self):
+        self.assertIsNotNone(self.tst_extractor.xml_content)
+
+    def test_extract(self):
+        response = self.tst_extractor.extract()
+        self.assertIsNotNone(response)
+
+        session = response.session_info
+        self.assertIsNotNone(session)
+        self.assertFalse(session.session_ended)
+
+        tst_info: TstInformation = response.payload
+        self.assertIsNotNone(tst_info)
+        self.assertEqual(tst_info.pnr, "FAKEPNR")
+        self.assertEqual(tst_info.tst_reference, "3")
+        self.assertEqual(tst_info.pax_references, ["2", "3"])
