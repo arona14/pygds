@@ -561,13 +561,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return passengers_list
 
     def _dk_number(self):
-        dk = []
         for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
                 data_account = from_json(data, "accounting")
-                account = from_json_safe(data_account, "account", "number")
-                dk_object = Dk_number(account)
-                dk.append(dk_object)
+                dk = from_json_safe(data_account, "account", "number")
         return dk
 
     def _pnr_info(self):
