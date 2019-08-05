@@ -204,7 +204,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")  
+        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")
         pnr_data = {"pnr_number": pnr}
         travellers_info = from_json(payload, "travellerInfo")
         passengers = []
@@ -214,7 +214,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
             surname = from_json(info, "traveller", "surname")
             name = from_json(info, "passenger", "firstName")
             passenge_type = from_json(info, "passenger", "type")
-            date_of_birth = ""  
+            date_of_birth = ""
             passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
         pnr_data["passengers"] = passengers
 
