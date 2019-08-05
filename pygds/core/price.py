@@ -50,11 +50,11 @@ class TaxInformation(PriceInfoBasic):
         A class to represent tax information
     """
     def __init__(self):
-        self.tax_qualifier: str        # The internal qualifier of the tax
-        self.tax_identifier: str       # The identifier of the tax
-        self.tax_type: str             # The type of the tax
-        self.tax_nature: str           # The nature of the tax
-        self.tax_amount: FareAmount    # The amount of that tax
+        self.tax_qualifier: str = None       # The internal qualifier of the tax
+        self.tax_identifier: str = None      # The identifier of the tax
+        self.tax_type: str = None            # The type of the tax
+        self.tax_nature: str = None          # The nature of the tax
+        self.tax_amount: FareAmount = None   # The amount of that tax
 
     def to_dict(self):
         return {

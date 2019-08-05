@@ -456,6 +456,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'itineraries': self._segments(),
             'form_of_payments': self._form_of_payments(),
             'price_quotes': self._price_quotes(),
+            'tst_data': self._tst_data(),
             'ticketing_info': self._ticketing_info(),
             'remarks': self._remark(),
             'dk_number': self._dk_number()
@@ -576,7 +577,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 p_code = from_json_safe(fe, "primaryCode")
                 connx = from_json_safe(fe, "connection")
                 n_valid_b = from_json_safe(fe, "notValidBefore")
+                n_valid_b = reformat_date(n_valid_b, "%d%m%y", "%Y-%m-%d") if n_valid_b else None
                 n_valid_a = from_json_safe(fe, "notValidAfter")
+                n_valid_a = reformat_date(n_valid_a, "%d%m%y", "%Y-%m-%d") if n_valid_a else None
                 b_allow = from_json_safe(fe, "baggageAllowance")
                 f_basis = from_json_safe(fe, "fareBasis")
                 f_el = FareElement(p_code, connx, n_valid_b, n_valid_a, b_allow, f_basis)
@@ -587,8 +590,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
             for tax_info in ensure_list(from_json(tst_data, "fareData", "taxFields")):
                 tax: TaxInformation = TaxInformation()
-                tax.tax_qualifier = from_json_safe(tax_info, "taxIndicator")
-                tax.tax_identifier = from_json_safe(tax_info, "taxIndicator")
+                # tax.tax_qualifier = from_json_safe(tax_info, "taxIndicator")
+                # tax.tax_identifier = from_json_safe(tax_info, "taxIndicator")
                 tax.tax_type = from_json_safe(tax_info, "taxCountryCode")
                 tax.tax_nature = from_json_safe(tax_info, "taxNatureCode")
                 tax.tax_amount = _extract_amount(tax_info, "taxIndicator", "taxAmount", "taxCurrency")
@@ -600,6 +603,13 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     pax_refs.append(reference)
                 elif qualifier == "ST":
                     segment_refs.append(reference)
+            return {
+                "passenger_references": pax_refs,
+                "segment_references": segment_refs,
+                "amounts": [am.to_dict() for am in amounts],
+                "taxes": [ta.to_dict() for ta in taxes],
+                "fare_elements": [fe.to_dict() for fe in fare_elements]
+            }
 
     def _form_of_payments(self):
         list_form_payment = []
@@ -694,7 +704,7 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
 def _extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
                     currency_key="fareCurrency") -> FareAmount:
     fare_amount = FareAmount()
-    fare_amount.qualifier = amount_info[type_key]
+    fare_amount.qualifier = from_json_safe(amount_info, type_key)
     fare_amount.amount = from_json_safe(amount_info, amount_key)
     fare_amount.currency = from_json_safe(amount_info, currency_key)
     return fare_amount
