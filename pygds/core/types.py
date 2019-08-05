@@ -394,7 +394,7 @@ class TicketingInfo(BasicDataObject):
         }
 
 
-class Pnr_info(BasicDataObject):
+class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """

@@ -12,7 +12,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment, Pnr_info
+    FormOfPayment, PnrInfo
 
 
 class BaseResponseExtractor(object):
@@ -559,7 +559,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             departure_date_time = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             arrival_airport = from_json_safe(data, "travelProduct", "offpointDetail", "cityCode")
-            info_pnr = Pnr_info(company_id, control_number, dk_number, departure_date_time, arrival_date_time, departure_airport, arrival_airport)
+            info_pnr = PnrInfo(company_id, control_number, dk_number, departure_date_time, arrival_date_time, departure_airport, arrival_airport)
             pnr_infos.append(info_pnr)
         return pnr_infos
 
