@@ -187,26 +187,12 @@ class PassengerPreferences(BasicDataObject):
         return self.prefs
 
 
-class Dk_number(BasicDataObject):
-    """
-    this class is implemented to keep interface_id information
-    """
-    def __init__(self, interface_id):
-        self.interface_id = interface_id
-
-    def to_data(self):
-        return{
-            "dk_number": self.interface_id
-
-        }
-
-
 class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
-    def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
-        self.name_id = name_id
+    def __init__(self, pax_reference: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, surname: str = None, forename: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
+        self.pax_reference = pax_reference
         self.first_name = first_name
         self.last_name = last_name
         self.date_of_birth = date_of_birth
@@ -239,7 +225,7 @@ class Passenger(BasicDataObject):
 
     def to_data(self):
         return {
-            "reference": self.name_id,
+            "pax_reference": self.pax_reference,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "date_of_birth": self.date_of_birth,
@@ -259,9 +245,9 @@ class FormOfPayment(BasicDataObject):
     """
         Keeps information about form of payments
     """
-    def __init__(self, type_payment: str = None, short_text: str = None, vendor_code: str = None, credit_card_number: str = None, expire_date: str = None):
+    def __init__(self, type_payment: str = None, form_payment: str = None, vendor_code: str = None, credit_card_number: str = None, expire_date: str = None):
         self.type_payment = type_payment
-        self.short_text = short_text
+        self.form_payment = form_payment
         self.vendor_code = vendor_code
         self.credit_card_number = credit_card_number
         self.expire_date = expire_date
@@ -269,7 +255,7 @@ class FormOfPayment(BasicDataObject):
     def to_data(self):
         return{
             "type_payment": self.type_payment,
-            "form_payment": self.short_text,
+            "form_payment": self.form_payment,
             "vendor_code": self.vendor_code,
             "credit_card_number": self.credit_card_number,
             "expire_date": self.expire_date
@@ -405,6 +391,31 @@ class TicketingInfo(BasicDataObject):
             "time": self.time,
             "queue_number": self.queue_number,
             "comment": self.comment,
+        }
+
+
+class PnrInfo(BasicDataObject):
+    """
+    This class keep all informations of pnr
+    """
+    def __init__(self, company_id: str = None, control_number: str = None, dk_number: str = None, dep_date: str = None, arriv_date: str = None, dep_airport: str = None, arriv_aiport: str = None):
+        self.company_id = company_id
+        self.control_number = control_number
+        self.dk_number = dk_number
+        self.dep_date = dep_date
+        self.arriv_date = arriv_date
+        self.dep_airport = dep_airport
+        self.arriv_airport = arriv_aiport
+
+    def to_data(self):
+        return{
+            "company_id": self.company_id,
+            "control_number": self.control_number,
+            "dk_number": self.dk_number,
+            "dep_date": self.dep_date,
+            "arriv_date": self.arriv_date,
+            "dep_airport": self.dep_airport,
+            "arriv_airport": self.arriv_airport
         }
 
 
