@@ -504,13 +504,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            free_text = from_json_safe(data, "serviceRequest", "ssr", "freeText")
-            if free_text:
-                check_gender = re.split("[, /,////?//:; ]+", free_text)
-                if len(check_gender) >= 3:
-                    check_gender = check_gender[2]
-                    if check_gender == "M" or check_gender == "F":
-                        return check_gender
+            ssr = from_json_safe(data, "serviceRequest", "ssr")
+            if ssr and from_json_safe(ssr, "type") == "DOCS":
+                free_text = from_json_safe(ssr, "freeText")
+                if free_text:
+                    check_gender = re.split("[, /,////?//:; ]+", free_text)  # to transform the caracter chaine in liste_object
+                    if len(check_gender) >= 3:
+                        check_gender = check_gender[2]
+                        if check_gender == "M" or check_gender == "F":
+                            return check_gender
         return None
 
     def _passengers(self):
