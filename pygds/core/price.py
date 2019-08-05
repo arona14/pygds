@@ -227,3 +227,24 @@ class TstInformation(PriceInfoBasic):
             "tst_reference": self.tst_reference,
             "pax_references": self.pax_references
         }
+
+
+class FareElement(PriceInfoBasic):
+
+    def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
+        self.primary_code = primary_code
+        self.connection = connection
+        self.not_valid_before = not_valid_before
+        self.not_valid_after = not_valid_after
+        self.baggage_allowance = baggage_allowance
+        self.fare_basis = fare_basis
+
+    def to_dict(self):
+        return {
+            "primary_code": self.primary_code,
+            "connection": self.connection,
+            "not_valid_before": self.not_valid_before,
+            "not_valid_after": self.not_valid_after,
+            "baggage_allowance": self.baggage_allowance,
+            "fare_basis": self.fare_basis
+        }
