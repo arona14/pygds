@@ -23,14 +23,15 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
+    pnr = "TSYX56"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        # print(res_reservation["itineraries"])
+        result = res_reservation["pnr_info"]
+        print(result)
         log.info(session_info)
         log.info(res_reservation)
         m_id = session_info.message_id
@@ -39,7 +40,7 @@ def test():
         for seg in res_reservation["itineraries"]:
             seg_refs.append(seg.segment_reference)
         for pax in res_reservation["passengers"]:
-            pax_refs.append(pax.name_id)
+            pax_refs.append(pax.pax_reference)
         price_request = PriceRequest(pax_refs, seg_refs)
 
         res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
@@ -67,9 +68,9 @@ def test():
         # print(res_end)
         # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])
+        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])  # i'm changing this
         # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
-        log.debug(res_issue)
+        log.debug(res_issue)  # i'm changing this
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
