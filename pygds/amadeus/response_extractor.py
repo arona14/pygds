@@ -12,7 +12,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment, Pnr_info
+    FormOfPayment, Pnr_info, FareElement
 
 
 class BaseResponseExtractor(object):
@@ -588,7 +588,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 list_form_payment.append(form_payment)
         return list_form_payment
 
-     def _tst_data(self):
+    def _tst_data(self):
         tst_data = from_json_safe(self.payload, "tstData")
         if tst_data:
             fare_elements = []
@@ -607,10 +607,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 f_basis = from_json_safe(fe, "fareBasis")
                 f_el = FareElement(p_code, connx, n_valid_b, n_valid_a, b_allow, f_basis)
                 fare_elements.append(f_el)
-
             for am in ensure_list(from_json_safe(tst_data, "fareData", "monetaryInfo")):
                 amounts.append(_extract_amount(am, "qualifier", "amount", "currencyCode"))
-
             for tax_info in ensure_list(from_json(tst_data, "fareData", "taxFields")):
                 tax: TaxInformation = TaxInformation()
                 # tax.tax_qualifier = from_json_safe(tax_info, "taxIndicator")
@@ -633,7 +631,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 "taxes": [ta.to_dict() for ta in taxes],
                 "fare_elements": [fe.to_dict() for fe in fare_elements]
             }
-
 
     def _ticketing_info(self):
         list_ticket = []
