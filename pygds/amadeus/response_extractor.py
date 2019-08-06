@@ -12,7 +12,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment, PnrInfo
+    FormOfPayment
 
 
 class BaseResponseExtractor(object):
@@ -487,6 +487,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             control_number = from_json_safe(data, "itineraryReservationInfo", "reservation", "controlNumber")
             flight_number_airline_operat = from_json_safe(data, "travelProduct", "productDetails", "identification")
             arrival_airport = from_json_safe(data, "travelProduct", "offpointDetail", "cityCode")
+            company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
             quantity = from_json_safe(data, "relatedProduct", "quantity")
             status = from_json_safe(data, "relatedProduct", "status")
             segment_reference = from_json_safe(data, "elementManagementItinerary", "reference", "number")
@@ -498,9 +499,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
             departure = FlightPointDetails("", departure_airport, departure_terminal)
             arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
-            marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, control_number)
-            operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, control_number)
-            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
+            marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
+            operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
+            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, company_id, status, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
             segment_data.segment_reference = segment_reference
             index += 1
             segments_list.append(segment_data)
@@ -550,13 +551,12 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return dk
 
     def _pnr_info(self):
-        dk_number = self._dk_number()
-        pnr_infos = []
-        for data in ensure_list(from_json_safe(self.payload, "originDestinationDetails", "itineraryInfo")):
-            company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            info_pnr = PnrInfo(company_id, dk_number)
-            pnr_infos.append(info_pnr)
-        return pnr_infos
+        dk = ""
+        for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+            if "accounting" in data:
+                data_account = from_json(data, "accounting")
+                dk = from_json_safe(data_account, "account", "number")
+        return dk
 
     def _price_quotes(self):
         price_quotes = []
@@ -656,12 +656,3 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         else:
             error_code, qualifier, source, encoding, description = (None, None, None, None, None)
         return TicketReply(status, error_code, qualifier, source, encoding, description)
-
-
-# def _extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
-#                     currency_key="fareCurrency") -> FareAmount:
-#     fare_amount = FareAmount()
-#     fare_amount.qualifier = from_json_safe(amount_info, type_key)
-#     fare_amount.amount = from_json_safe(amount_info, amount_key)
-#     fare_amount.currency = from_json_safe(amount_info, currency_key)
-#     return fare_amount
