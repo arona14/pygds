@@ -100,7 +100,7 @@ class FlightSegment(BasicDataObject):
 
     def __init__(self, sequence: int = 1, res_book_desig_code: str = None, departure_date_time: str = None,
                  departure_airport: FlightPointDetails = None, arrival_date_time: str = None,
-                 arrival_airport: FlightPointDetails = None, status: str = None, quantity: str = None,
+                 arrival_airport: FlightPointDetails = None, status: str = None, company_id: str = None, quantity: str = None,
                  marketing: FlightAirlineDetails = None, operating: FlightAirlineDetails = None,
                  disclosure_carrier: FlightDisclosureCarrier = None, mariage_group: FlightMarriageGrp = None,
                  seats: str = None, action_code: str = None, segment_special_requests: str = None,
@@ -115,6 +115,7 @@ class FlightSegment(BasicDataObject):
         self.arrival_date_time = arrival_date_time
         self.arrival_airport = arrival_airport
         self.status = status
+        self.company_id = company_id
         self.quantity = quantity
         self.marketing = marketing
         self.operating = operating
@@ -144,6 +145,7 @@ class FlightSegment(BasicDataObject):
             "arrival_airport": self.arrival_airport.to_data() if self.arrival_airport is not None else {},
             # "airline_ref_id": self.airline,
             "status": self.status,
+            "company_id": self.company_id,
             "quantity": self.quantity,
             "marketing": self.marketing.to_data() if self.marketing is not None else {},
             "operating": self.operating.to_data() if self.operating is not None else {},
@@ -429,13 +431,11 @@ class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
-    def __init__(self, company_id: str = None, dk_number: str = None):
-        self.company_id = company_id
+    def __init__(self, dk_number: str = None):
         self.dk_number = dk_number
 
     def to_data(self):
         return {
-            "company_id": self.company_id,
             "dk_number": self.dk_number
         }
 
