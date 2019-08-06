@@ -45,16 +45,18 @@ class FlightAirlineDetails(BasicDataObject):
     """
     Holds informations about airline
     """
-    def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None):
+    def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None, control_number: str = None):
         self.airline_code = airline_code
         self.flight_number = flight_number
         self.airline_short_name = airline_short_name
+        self.control_number = control_number
 
     def to_data(self):
         return{
             "airline_code": self.airline_code,
             "flight_number": self.flight_number,
-            "airline_short_name": self.airline_short_name
+            "airline_short_name": self.airline_short_name,
+            "control_number": self.control_number
         }
 
 
@@ -394,28 +396,18 @@ class TicketingInfo(BasicDataObject):
         }
 
 
-class Pnr_info(BasicDataObject):
+class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
-    def __init__(self, company_id: str = None, control_number: str = None, dk_number: str = None, dep_date: str = None, arriv_date: str = None, dep_airport: str = None, arriv_aiport: str = None):
+    def __init__(self, company_id: str = None, dk_number: str = None):
         self.company_id = company_id
-        self.control_number = control_number
         self.dk_number = dk_number
-        self.dep_date = dep_date
-        self.arriv_date = arriv_date
-        self.dep_airport = dep_airport
-        self.arriv_airport = arriv_aiport
 
     def to_data(self):
         return{
             "company_id": self.company_id,
-            "control_number": self.control_number,
-            "dk_number": self.dk_number,
-            "dep_date": self.dep_date,
-            "arriv_date": self.arriv_date,
-            "dep_airport": self.dep_airport,
-            "arriv_airport": self.arriv_airport
+            "dk_number": self.dk_number
         }
 
 
