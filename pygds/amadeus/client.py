@@ -1,22 +1,13 @@
 # coding: utf-8
 from typing import List
 
+from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.errors.gdserrors import NoSessionError
-
-__author__ = "Mouhamad Ndiankho THIAM"
-__copyright__ = "Copyright 2019, CTS"
-__credits__ = ["Mouhamad Ndiankho THIAM", "Demba FALL", "Saliou"]
-__license__ = "MIT"
-__version__ = "0.0.1"
-__maintainer__ = "Mouhamad Ndiankho THIAM"
-__email__ = "mohamed@ctsfares.com"
-__status__ = "Development"
-
 from pygds.core.client import BaseClient
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
-    PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor, CreateTstResponseExtractor, \
+from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
+    CommandReplyExtractor, PricePNRExtractor, AddMultiElementExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
@@ -70,8 +61,10 @@ class AmadeusClient(BaseClient):
         """
             This method starts a new session to Amadeus.
         """
-        request_data = self.xml_builder.start_transaction(None, self.office_id, self.username, self.password, None, None)
-        response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
+        request_data = self.xml_builder.start_transaction(None, self.office_id, self.username, self.password, None,
+                                                          None)
+        response_data = self.__request_wrapper("start_new_session", request_data,
+                                               'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
         return SessionExtractor(response_data).extract()
 
     def end_session(self, message_id):
@@ -84,7 +77,8 @@ class AmadeusClient(BaseClient):
         if not security_token:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
-        response_data = self.__request_wrapper("start_new_session", request_data, 'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
+        response_data = self.__request_wrapper("start_new_session", request_data,
+                                               'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
     def get_reservation(self, record_locator: str, message_id: str = None, close_trx: bool = False):
@@ -114,15 +108,21 @@ class AmadeusClient(BaseClient):
             message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type,
             passenger_reference_value, form_of_payment_sequence_number, group_usage_attribute_type,
             fop)
-        response_data = self.__request_wrapper("add_form_of_payment", request_data, 'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
+        response_data = self.__request_wrapper("add_form_of_payment", request_data,
+                                               'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
         return response_data
 
-    def pnr_add_multi_element(self, session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code):
+    def pnr_add_multi_element(self, session_id, sequence_number, security_token, message_id, option_code, segment_name,
+                              identification, credit_card_code, account_number, expiry_date, currency_code):
         """
             This method modifies the elements of a PNR (passengers, etc.)
         """
-        request_data = self.xml_builder.pnr_add_multi_element_builder(session_id, sequence_number, security_token, message_id, option_code, segment_name, identification, credit_card_code, account_number, expiry_date, currency_code)
-        response_data = self.__request_wrapper("pnr_add_multi_element", request_data, 'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        request_data = self.xml_builder.pnr_add_multi_element_builder(session_id, sequence_number, security_token,
+                                                                      message_id, option_code, segment_name,
+                                                                      identification, credit_card_code, account_number,
+                                                                      expiry_date, currency_code)
+        response_data = self.__request_wrapper("pnr_add_multi_element", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return response_data
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
@@ -153,14 +153,17 @@ class AmadeusClient(BaseClient):
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination, departure_date, arrival_date)
-        response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data, 'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination,
+                                                                               departure_date, arrival_date)
+        response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
+                                               'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
         request_data = self.xmlbuilder.fare_informative_price_without_pnr(numbering, itineraries)
-        response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data, 'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
+        response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data,
+                                               'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
@@ -169,7 +172,8 @@ class AmadeusClient(BaseClient):
 
     def sell_from_recommandation(self, itineraries):
         request_data = self.xmlbuilder.sell_from_recomendation(itineraries)
-        response_data = self.__request_wrapper("sell_from_recommandation", request_data, 'http://webservices.amadeus.com/ITAREQ_05_2_IA')
+        response_data = self.__request_wrapper("sell_from_recommandation", request_data,
+                                               'http://webservices.amadeus.com/ITAREQ_05_2_IA')
         return SessionExtractor(response_data).extract()
 
     def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest = None):
