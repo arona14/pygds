@@ -30,10 +30,8 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        result = res_reservation["pnr_info"]
-        print(result)
         log.info(session_info)
-        # log.info(res_reservation)
+        log.info(res_reservation)
         m_id = session_info.message_id
         seg_refs = []
         pax_refs = []

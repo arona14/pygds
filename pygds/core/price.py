@@ -32,10 +32,10 @@ class FareAmount(PriceInfoBasic):
     """
         A class to hold information about an amount and its related currency
     """
-    def __init__(self):
-        self.qualifier: str         # An internal qualifier
-        self.amount: float = 0.0    # The amount
-        self.currency: str          # the currency specified
+    def __init__(self, qualifier: str = None, amount: float = 0.0, currency: str = None):
+        self.qualifier: str = qualifier         # An internal qualifier
+        self.amount: float = amount             # The amount
+        self.currency: str = currency           # the currency specified
 
     def to_dict(self):
         return {
