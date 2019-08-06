@@ -12,7 +12,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment, PnrInfo  # FareElement
+    FormOfPayment, PnrInfo
 
 
 class BaseResponseExtractor(object):
