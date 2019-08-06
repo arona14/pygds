@@ -15,7 +15,7 @@ __email__ = "mohamed@ctsfares.com"
 __status__ = "Development"
 
 from pygds.core.client import BaseClient
-from .response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
+from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, \
     PricePNRExtractor, AddMultiElementExtractor, GetPnrResponseExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor
 from pygds.core.payment import FormOfPayment
