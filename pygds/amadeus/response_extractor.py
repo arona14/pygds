@@ -12,7 +12,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import Passenger
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment
+    FormOfPayment, PnrInfo
 
 
 class BaseResponseExtractor(object):
@@ -546,17 +546,19 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
                 data_account = from_json(data, "accounting")
-                print(data_account)
                 dk = from_json_safe(data_account, "account", "number")
         return dk
 
     def _pnr_info(self):
         dk = ""
+        dk_list = []
         for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
                 data_account = from_json(data, "accounting")
                 dk = from_json_safe(data_account, "account", "number")
-        return dk
+                dknumber = PnrInfo(dk)
+                dk_list.append(dknumber)
+        return dk_list
 
     def _price_quotes(self):
         price_quotes = []
@@ -602,7 +604,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         sequence = 1
         for data_element in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
             data_remarks = from_json_safe(data_element, "miscellaneousRemarks")
-            print(data_remarks)
             if data_remarks and from_json_safe(data_remarks, "remarks", "type") == "RM":
                 rems = from_json_safe(data_remarks, "remarks")
                 remark_type = from_json_safe(rems, "type")
