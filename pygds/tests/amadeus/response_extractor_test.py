@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 import json
 
-from pygds.amadeus.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor, \
+from pygds.amadeus.xml_parsers.response_extractor import ErrorExtractor, FormOfPaymentExtractor, PricePNRExtractor, \
     CreateTstResponseExtractor
 from pygds.core.price import TstInformation
 

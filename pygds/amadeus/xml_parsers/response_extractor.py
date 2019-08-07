@@ -1,7 +1,7 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
-from pygds.core.app_error import ApplicationError
 import re
+from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
@@ -10,9 +10,9 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
-from pygds.core.types import Passenger
+
 from pygds.core.types import TicketingInfo, FlightSegment, Remarks, FlightAirlineDetails, FlightPointDetails, \
-    FormOfPayment, PnrInfo
+    FormOfPayment, PnrInfo, Passenger
 
 
 class BaseResponseExtractor(object):
@@ -276,14 +276,6 @@ class PricePNRExtractor(BaseResponseExtractor):
             fares.append(_fare)
         return fares
 
-    def _extract_amount(self, amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
-                        currency_key="fareCurrency") -> FareAmount:
-        fare_amount = FareAmount()
-        fare_amount.qualifier = amount_info[type_key]
-        fare_amount.amount = from_json_safe(amount_info, amount_key)
-        fare_amount.currency = from_json_safe(amount_info, currency_key)
-        return fare_amount
-
     def _pax_refs(self, fare):
         """
         look for passenger references
@@ -308,7 +300,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         fare_amounts = ensure_list(from_json(fare_amounts, "fareDataSupInformation"))
         fare_amounts.append(fare_main)
         for am in fare_amounts:
-            amounts.append(self._extract_amount(am))
+            amounts.append(extract_amount(am))
         return amounts
 
     def _taxes(self, fare):
@@ -325,7 +317,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             tax.tax_identifier = from_json_safe(tax_details, "taxIdentification", "taxIdentifier")
             tax.tax_type = from_json_safe(tax_details, "taxType", "isoCountry")
             tax.tax_nature = from_json_safe(tax_details, "taxNature")
-            tax.tax_amount = self._extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
+            tax.tax_amount = extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
             taxes.append(tax)
         return taxes
 
@@ -362,7 +354,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             places = from_json(comp, "marketFareComponent")
             fare_component.departure = from_json(places, "boardPointDetails", "trueLocationId")
             fare_component.arrival = from_json(places, "offpointDetails", "trueLocationId")
-            fare_component.monetary_info = self._extract_amount(
+            fare_component.monetary_info = extract_amount(
                 from_json_safe(comp, "monetaryInformation", "monetaryDetails"),
                 "typeQualifier", "amount", "currency")
             fare_component.rate_tariff_class = from_json_safe(comp, "componentClassInfo", "fareBasisDetails",
@@ -657,3 +649,12 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         else:
             error_code, qualifier, source, encoding, description = (None, None, None, None, None)
         return TicketReply(status, error_code, qualifier, source, encoding, description)
+
+
+def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
+                   currency_key="fareCurrency") -> FareAmount:
+    fare_amount = FareAmount()
+    fare_amount.qualifier = from_json_safe(amount_info, type_key)
+    fare_amount.amount = from_json_safe(amount_info, amount_key)
+    fare_amount.currency = from_json_safe(amount_info, currency_key)
+    return fare_amount

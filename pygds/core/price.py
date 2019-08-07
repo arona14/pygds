@@ -32,10 +32,10 @@ class FareAmount(PriceInfoBasic):
     """
         A class to hold information about an amount and its related currency
     """
-    def __init__(self):
-        self.qualifier: str         # An internal qualifier
-        self.amount: float = 0.0    # The amount
-        self.currency: str          # the currency specified
+    def __init__(self, qualifier: str = None, amount: float = 0.0, currency: str = None):
+        self.qualifier: str = qualifier         # An internal qualifier
+        self.amount: float = amount             # The amount
+        self.currency: str = currency           # the currency specified
 
     def to_dict(self):
         return {
@@ -50,11 +50,11 @@ class TaxInformation(PriceInfoBasic):
         A class to represent tax information
     """
     def __init__(self):
-        self.tax_qualifier: str        # The internal qualifier of the tax
-        self.tax_identifier: str       # The identifier of the tax
-        self.tax_type: str             # The type of the tax
-        self.tax_nature: str           # The nature of the tax
-        self.tax_amount: FareAmount    # The amount of that tax
+        self.tax_qualifier: str = None       # The internal qualifier of the tax
+        self.tax_identifier: str = None      # The identifier of the tax
+        self.tax_type: str = None            # The type of the tax
+        self.tax_nature: str = None          # The nature of the tax
+        self.tax_amount: FareAmount = None   # The amount of that tax
 
     def to_dict(self):
         return {
@@ -226,4 +226,25 @@ class TstInformation(PriceInfoBasic):
             "pnr": self.pnr,
             "tst_reference": self.tst_reference,
             "pax_references": self.pax_references
+        }
+
+
+class FareElement(PriceInfoBasic):
+
+    def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
+        self.primary_code = primary_code
+        self.connection = connection
+        self.not_valid_before = not_valid_before
+        self.not_valid_after = not_valid_after
+        self.baggage_allowance = baggage_allowance
+        self.fare_basis = fare_basis
+
+    def to_dict(self):
+        return {
+            "primary_code": self.primary_code,
+            "connection": self.connection,
+            "not_valid_before": self.not_valid_before,
+            "not_valid_after": self.not_valid_after,
+            "baggage_allowance": self.baggage_allowance,
+            "fare_basis": self.fare_basis
         }
