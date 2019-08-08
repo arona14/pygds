@@ -1,7 +1,7 @@
 # coding: utf-8
 __author__ = "Mouhamad Ndiankho THIAM"
 __copyright__ = "Copyright 2019, CTS"
-__credits__ = ["Mouhamad Ndiankho THIAM", "Demba FALL", "Saliou"]
+__credits__ = ["Mouhamad Ndiankho THIAM", "Demba FALL", "Saliou Ndiouck"]
 __license__ = "MIT"
 __version__ = "0.0.1"
 __maintainer__ = "Mouhamad Ndiankho THIAM"
