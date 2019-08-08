@@ -453,15 +453,13 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         self.payload = payload
         # print(payload)
         return {
-            'passengers': self._passengers(),
-            'itineraries': self._segments(),
-            'form_of_payments': self._form_of_payments(),
-            'price_quotes': self._price_quotes(),
-            'ticketing_info': self._ticketing_info(),
-            'remarks': self._remark(),
-            'pnr_info': self._pnr_info(),
-            'dk_number': self._dk_number()
-            # 'tst_data': self._tst_data()
+            'pnr_info': self._pnr_info()
+            # 'passengers': self._passengers()
+            # 'itineraries': self._segments(),
+            # 'form_of_payments': self._form_of_payments(),
+            # 'price_quotes': self._price_quotes(),
+            # 'ticketing_info': self._ticketing_info(),
+            # 'remarks': self._remark()
         }
 
     def _segments(self):
@@ -493,11 +491,24 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
             marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
             operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
-            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, company_id, status, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
+            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, company_id, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
             segment_data.segment_reference = segment_reference
             index += 1
             segments_list.append(segment_data)
         return segments_list
+
+    def _date_of_birth(self):
+        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+            ssr = from_json_safe(data, "serviceRequest", "ssr")
+            if ssr and from_json_safe(ssr, "type") == "DOCS":
+                free_text = from_json_safe(ssr, "freeText")
+                if free_text:
+                    check_date_of_birth = re.split("[, /,////?//:; ]+", free_text)  # to transform the caracter chaine in liste_object
+                    print(check_date_of_birth)
+                    if len(check_date_of_birth) >= 2:
+                        check_date_of_birth = check_date_of_birth[1]
+                        return check_date_of_birth
+        return None
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
@@ -514,6 +525,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _passengers(self):
         passengers_list = []
+        date_of_bt = self._date_of_birth()
         gender = self._gender()
         for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
             ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
@@ -521,35 +533,40 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             traveller_info = from_json_safe(data, "travellerInformation")
             psngr = from_json_safe(traveller_info, "passenger")
             travel = from_json_safe(traveller_info, "traveller")
-            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
+            # date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
+            # date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
             firstname = from_json_safe(psngr, "firstName")
             lastname = from_json_safe(travel, "surname")
             surname = from_json_safe(travel, "surname")
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
-            type_passenger = from_json_safe(psngr, "type")
-            passsenger = Passenger(ref, firstname, lastname, date_of_birth, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
+            if psngr and from_json_safe(psngr, "type"):
+                type_passenger = from_json_safe(psngr, "type")
+            else:
+                type_passenger = "ADT"
+            passsenger = Passenger(ref, firstname, lastname, date_of_bt, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
             passengers_list.append(passsenger)
         return passengers_list
 
     def _dk_number(self):
         dk = ""
-        for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
                 data_account = from_json(data, "accounting")
                 dk = from_json_safe(data_account, "account", "number")
         return dk
 
     def _pnr_info(self):
-        dk = ""
+        dk = self._dk_number()
         dk_list = []
-        for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            if "accounting" in data:
-                data_account = from_json(data, "accounting")
-                dk = from_json_safe(data_account, "account", "number")
-                dknumber = PnrInfo(dk)
-                dk_list.append(dknumber)
+        for data in ensure_list(from_json_safe(self.payload, "securityInformation", "secondRpInformation")):
+            agent_signature = from_json_safe(data, "agentSignature")
+            creation_office_id = from_json_safe(data, "creationOfficeId")
+            creation_date = from_json_safe(data, "creationDate")
+            creation_time = from_json_safe(data, "creationTime")
+            creation_date_time = reformat_date(creation_date + creation_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+            pnr = PnrInfo(dk, agent_signature, creation_office_id, creation_date_time)
+            dk_list.append(pnr)
         return dk_list
 
     def _price_quotes(self):

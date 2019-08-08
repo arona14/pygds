@@ -39,7 +39,9 @@ class FlightPointDetails(BasicDataObject):
         self.terminal = terminal
 
     def to_data(self):
-        return self.airport
+        return{
+            "airport": self.airport
+        }
 
 
 class FlightAirlineDetails(BasicDataObject):
@@ -225,7 +227,7 @@ class Passenger(BasicDataObject):
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(
             preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrieve_passenger_type()
+        # self.retrieve_passenger_type()
 
     def retrieve_passenger_type(self):
         """
@@ -431,12 +433,18 @@ class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
-    def __init__(self, dk_number: str = None):
+    def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None, creation_date: str = None):
         self.dk_number = dk_number
+        self.agent_signature = agent_signature
+        self.creation_office_id = creation_office_id
+        self.creation_date = creation_date
 
     def to_data(self):
         return {
-            "dk_number": self.dk_number
+            "dk_number": self.dk_number,
+            "agent_signature": self.agent_signature,
+            "creation_office_id": self.creation_office_id,
+            "creation_date": self.creation_date
         }
 
 
