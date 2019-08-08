@@ -106,7 +106,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             travel = from_json_safe(traveller_info, "traveller")
             # date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
             # date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
-            
             firstname = from_json_safe(psngr, "firstName")
             lastname = from_json_safe(travel, "surname")
             surname = from_json_safe(travel, "surname")
