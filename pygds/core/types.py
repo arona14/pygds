@@ -402,7 +402,8 @@ class TicketingInfo(BasicDataObject):
 
     def __init__(self, id: str = None, index: str = None, element_id: str = None, code: str = None,
                  branch_pcc: str = None, date: str = None, time: str = None, queue_number: str = None,
-                 comment: str = None):
+                 comment: str = None, long_free_text: str = None, qualifier: str = None,
+                 number: str = None):
         self.id = id
         self.index = index
         self.element_id = element_id
@@ -412,6 +413,9 @@ class TicketingInfo(BasicDataObject):
         self.time = time
         self.queue_number = queue_number
         self.comment = comment
+        self.long_free_text = long_free_text
+        self.qualifier = qualifier
+        self.number = number
 
     def to_data(self):
         return {
@@ -424,6 +428,9 @@ class TicketingInfo(BasicDataObject):
             "time": self.time,
             "queue_number": self.queue_number,
             "comment": self.comment,
+            "number": self.number,
+            "qualifier": self.qualifier,
+            "long_free_text": self.long_free_text
         }
 
 
