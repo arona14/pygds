@@ -51,7 +51,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             quantity = from_json_safe(data, "relatedProduct", "quantity")
             status = from_json_safe(data, "relatedProduct", "status")
             if isinstance(status, list):
-                status = status[0]
+                status = status[0]  # we need to recover the first item if status is a list
             else:
                 status = status
             segment_reference = from_json_safe(data, "elementManagementItinerary", "reference", "number")
