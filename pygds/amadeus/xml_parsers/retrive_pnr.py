@@ -77,7 +77,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     print(check_date_of_birth)
                     if len(check_date_of_birth) >= 2:
                         check_date_of_birth = check_date_of_birth[1]
-                        return check_date_of_birth
+                        data_date_of_birth = reformat_date(check_date_of_birth, "%d%b%y", "%Y-%m-%d")
+                        return data_date_of_birth
         return None
 
     def _gender(self):
@@ -105,6 +106,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             travel = from_json_safe(traveller_info, "traveller")
             # date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
             # date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
+            
             firstname = from_json_safe(psngr, "firstName")
             lastname = from_json_safe(travel, "surname")
             surname = from_json_safe(travel, "surname")
