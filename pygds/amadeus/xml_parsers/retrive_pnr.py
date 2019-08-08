@@ -50,6 +50,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
             quantity = from_json_safe(data, "relatedProduct", "quantity")
             status = from_json_safe(data, "relatedProduct", "status")
+            if isinstance(status, list):
+                status = status[0]
+            else:
+                status = status
             segment_reference = from_json_safe(data, "elementManagementItinerary", "reference", "number")
             departure_date_time = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
