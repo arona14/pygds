@@ -170,15 +170,11 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _extract_qualifier_number(self, list_reference):
         qualifier, number = "", ""
-        if isinstance(list_reference, list):
-            for reference in list_reference:
-                if reference["qualifier"] == "PT":
-                    qualifier = reference["qualifier"]
-                    number = reference["number"]
-        else:
-            if list_reference["qualifier"] == "PT":
-                qualifier = list_reference["qualifier"]
-                number = list_reference["number"]
+        list_reference = ensure_list(list_reference)
+        for reference in list_reference:
+            if reference["qualifier"] == "PT":
+                qualifier = reference["qualifier"]
+                number = reference["number"]
         return qualifier, number
 
     def _ticketing_info(self):

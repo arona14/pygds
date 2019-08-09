@@ -225,7 +225,7 @@ class Passenger(BasicDataObject):
         self.passenger_type = passenger_type
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(
             preferences) if isinstance(preferences, dict) else PassengerPreferences({})
-        self.retrieve_passenger_type()
+        # self.retrieve_passenger_type() we are not going to use it
 
     def retrieve_passenger_type(self):
         """
@@ -235,7 +235,7 @@ class Passenger(BasicDataObject):
             age = datetime.date.today() - datetime.date(*time.strptime(self.date_of_birth, "%Y-%m-%d")[0:3])
             age = age.days / 365
             if age < 0:
-                self.passenger_type = None
+                self.passenger_type = "ADT"
             elif age <= 2:
                 self.passenger_type = "INF"
             elif age <= 12:
