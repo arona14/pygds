@@ -1,13 +1,13 @@
 import json
 import ast
 import yaml
-from  pygds.core.request import LowFareSearchRequest
+from pygds.core.request import LowFareSearchRequest
 
 
 class SabreBFMBuilder:
     """This class can generate JSON needed for sabre search flight requests."""
 
-    def __init__(self, search_request:LowFareSearchRequest  , target: str = "Production", AvailableFlightsOnly: bool = True):
+    def __init__(self, search_request: LowFareSearchRequest, target: str = "Production", AvailableFlightsOnly: bool = True):
         self.target = target
         self.AvailableFlightsOnly = True
         self.search_request: LowFareSearchRequest = search_request
@@ -33,7 +33,7 @@ class SabreBFMBuilder:
 
     def origin_destination_information(self):
         my_return = []
-        itinaries = self.search_request.itineraries                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        itinaries = self.search_request.itineraries
         for i in itinaries:
             my_return.append(
                 {
@@ -58,7 +58,7 @@ class SabreBFMBuilder:
                 }
             )
         return my_return
-    
+
     def _trip_type(self):
         itin_count = len(self.search_request.to_data().itineraries)
         print(self.search_request.to_data().itineraries)
@@ -79,15 +79,24 @@ class SabreBFMBuilder:
         if self.search_request.requestType in ["AD1", "AD3", "AD7"]:
             return True
         return False
-    
-    def _flexible_fare(self,pax_quanty_pub,pax_quanty_net,cabin,baggage_pref):
+
+    def merge_dicts(self, *dict_args):
+        """
+        Given any number of dicts, shallow copy and merge into a new dict,
+        """
+        result = {}
+        for dictionary in dict_args:
+            result.update(dictionary)
+        return result
+
+    def _flexible_fare(self, pax_quanty_pub, pax_quanty_net, cabin, baggage_pref):
         return {
             "FlexibleFares": {
                 "FareParameters": [
                     {
-                        "PassengerTypeQuantity":  pax_quanty_pub,
+                        "PassengerTypeQuantity": pax_quanty_pub,
                         "Cabin": {
-                            "Type":  cabin
+                            "Type": cabin
                         },
                         "NegotiatedFaresOnly": {
                             "Ind": True,
@@ -113,7 +122,7 @@ class SabreBFMBuilder:
                         }
                     },
                     {
-                        "PassengerTypeQuantity":  pax_quanty_net,
+                        "PassengerTypeQuantity": pax_quanty_net,
                         "Cabin": {
                             "Type": cabin
                         },
@@ -136,8 +145,8 @@ class SabreBFMBuilder:
                 ]
             }
         }
-        
-    def travel_preferences(self):   
+
+    def travel_preferences(self):
         cabin = self.search_request.csv
         paxTypeQuantityPUB = []
         paxTypeQuantityPFA = []
@@ -176,110 +185,101 @@ class SabreBFMBuilder:
             })
 
         tpa_ext = {
-                "LongConnectTime": {
-                    "Enable": True
-                },
-                "ExcludeVendorPref": [
-                    {
-                        "Code": "WN"
-                    }
-                ],
-                "TripType": {
-                    "Value": self._trip_type()
-                },
-                "ExemptAllTaxes": {
-                    "Value": True
-                },
-                "ExemptAllTaxesAndFees": {
-                    "Value": True
-                },
-                "FlightStopsAsConnections": {
-                    "Ind": True
-                },
-                "JumpCabinLogic": {
-                    "Disabled": True
-                },
-                "DiversityParameters": {
-                    "Weightings": {
-                        "PriceWeight": 10,
-                        "TravelTimeWeight": 0
-                    },
-                    "AdditionalNonStopsPercentage": 100
+            "LongConnectTime": {
+                "Enable": True
+            },
+            "ExcludeVendorPref": [
+                {
+                    "Code": "WN"
                 }
+            ],
+            "TripType": {
+                "Value": self._trip_type()
+            },
+            "ExemptAllTaxes": {
+                "Value": True
+            },
+            "ExemptAllTaxesAndFees": {
+                "Value": True
+            },
+            "FlightStopsAsConnections": {
+                "Ind": True
+            },
+            "JumpCabinLogic": {
+                "Disabled": True
+            },
+            "DiversityParameters": {
+                "Weightings": {
+                    "PriceWeight": 10,
+                    "TravelTimeWeight": 0
+                },
+                "AdditionalNonStopsPercentage": 100
             }
+        }
 
-        if self._is_alternate_date():
-            tpa_ext = f"{tpa_ext},{self._flexible_fare(paxTypeQuantityPUB,paxTypeQuantityPFA,cabin,self.search_request.baggagePref)}"
+        flexi_fare = dict()
+        if self._is_alternate_date() == False:
+            flexi_fare = self._flexible_fare(paxTypeQuantityPUB, paxTypeQuantityPFA, cabin, self.search_request.baggagePref)
 
-        
+        d = dict()
+        """
         if self.search_request.excludeBasicEconomy == True:
-            tpa_ext = str(tpa_ext)+ "," + str({"FareType": [
+            d = {"FareType": [
+                {
+                    "Code": "EOU",
+                    "PreferLevel": "Unacceptable"
+                },
+                {
+                    "Code": "ERU",
+                    "PreferLevel": "Unacceptable"
+                }
+            ]}
+        """
+        tpa_ext = self.merge_dicts(tpa_ext, flexi_fare)
+
+        return {
+            "ValidInterlineTicket": True,
+            "FlightTypePref": {
+                "MaxConnections": str(self.search_request.maxConnection)
+            },
+            "TPA_Extensions": tpa_ext,
+            "AncillaryFees": {
+                "Enable": True,
+                "Summary": True,
+                "AncillaryFeeGroup": [
                     {
-                        "Code": "EOU",
-                        "PreferLevel": "Unacceptable"
-                    },
-                    {
-                        "Code": "ERU",
-                        "PreferLevel": "Unacceptable"
+                        "Code": "BG",
+                        "Count": "3"
                     }
-                ]})
-        
-        #print(tpa_ext)
-        #tpa_ext = tpa_ext.replace("'","\"")
-        #print(tpa_ext)
-        #tpa_ext  = json.loads(json.dumps(tpa_ext))
-        #tpa_ext  = eval(tpa_ext)
-        #print(tpa_ext)
-        #tpa_ext = dict(tpa_ext)
-        #print(type(tpa_ext))
-        
+                ]
+            },
+            "VendorPref": [vend for vend in self.search_request.preferredAirlines]
+        }
 
+    def travel_info_summary(self, types):
 
-
-        return  {
-                "ValidInterlineTicket": True,
-                "FlightTypePref": {
-                    "MaxConnections": str(self.search_request.maxConnection)
-                },
-                "TPA_Extensions": eval(tpa_ext)[0],
-                "AncillaryFees": {
-                    "Enable": True,
-                    "Summary": True,
-                    "AncillaryFeeGroup": [
-                        {
-                            "Code": "BG",
-                            "Count": "3"
-                        }
-                    ]
-                },
-                "VendorPref": [vend for vend in self.search_request.preferredAirlines]
-            }
-   
-    def travel_info_summary(self,types):
-        
         paxTypeQuantity = []
 
         if self.search_request.adult != 0:
             paxTypeQuantity.append({
-                "type":"ADT" if types != "NET" else "JCB",
-                "quantity" : self.search_request.adult
-            }
-            )
-        
-        if  self.search_request.child != 0:
-            paxTypeQuantity.append({
-                "type" : "CNN" if types != "NET" else "JNN",
-                "quantity" : self.search_request.child
+                "type": "ADT" if types != "NET" else "JCB",
+                "quantity": self.search_request.adult
             }
             )
 
-        if  self.search_request.infant != 0:
+        if self.search_request.child != 0:
             paxTypeQuantity.append({
-                "type" : "INF" if types !="NET" else "JNF",
-                "quantity" : self.search_request.infant
+                "type": "CNN" if types != "NET" else "JNN",
+                "quantity": self.search_request.child
             }
             )
-        
+
+        if self.search_request.infant != 0:
+            paxTypeQuantity.append({
+                "type": "INF" if types != "NET" else "JNF",
+                "quantity": self.search_request.infant
+            }
+            )
 
         pf = {
             "NegotiatedFareCode": [],
@@ -305,42 +305,40 @@ class SabreBFMBuilder:
                 },
                 "BrandedFareIndicators": {
                     "SingleBrandedFare": True,
-                    "MultipleBrandedFares": True 
+                    "MultipleBrandedFares": True
                 }
             },
             "NegotiatedFaresOnly": False
         }
 
+        account_list = dict()
         if self._is_alternate_date() and types == "COM":
-            pf = str(pf) + ',' + str({
-                "AccountCode" : [{"Code" : "COM"}]
-            })
+            account_list = {
+                "AccountCode": [{"Code": "COM"}]
+            }
 
+        pf = self.merge_dicts(pf, account_list)
         print(pf)
-        
+
         return {"AirTravelerAvail": [
                 {
-                "PassengerTypeQuantity": [{"Code" : el["type"], "Quantity" : el["quantity"],"TPA_Extensions": {
-                            "VoluntaryChanges": {
-                                "Match": "Info",
-                                "Penalty": [
-                                    {
-                                        "Type": "Refund"
-                                    },
-                                    {
-                                        "Type": "Exchange"
-                                    }
-                                ]
-                            }
-                        }} for  el in paxTypeQuantity],
-                            
-                } ],
-                    "PriceRequestInformation": eval(pf)
+                    "PassengerTypeQuantity": [{"Code": el["type"], "Quantity": el["quantity"], "TPA_Extensions": {
+                        "VoluntaryChanges": {
+                            "Match": "Info",
+                            "Penalty": [
+                                {
+                                    "Type": "Refund"
+                                },
+                                {
+                                    "Type": "Exchange"
+                                }
+                            ]
+                        }
+                    }} for el in paxTypeQuantity],
+
+                }],
+                "PriceRequestInformation": pf
                 }
-
-        
-
-
 
     def tpa_extensions(self):
         return {
@@ -352,32 +350,22 @@ class SabreBFMBuilder:
                     "Value": True
                 }
             },
-            "AlternatePCC":[i for i in self.search_request.alternatePcc]
+            "AlternatePCC": [i for i in self.search_request.alternatePcc]
         }
 
-    def search_flight(self,types):
+    def search_flight(self, types):
         return {
-            "OTA_AirLowFareSearchRQ":{
-                "POS":self.pos(),
+            "OTA_AirLowFareSearchRQ": {
+                "POS": self.pos(),
                 "OriginDestinationInformation": self.origin_destination_information(),
                 "TravelPreferences": self.travel_preferences(),
-                "TravelerInfoSummary":  self.travel_info_summary(types),
+                "TravelerInfoSummary": self.travel_info_summary(types),
                 "TPA_Extensions": self.tpa_extensions(),
                 "Target": "Production",
                 "Version": "4.1.0",
                 "AvailableFlightsOnly": True
             }
         }
-
-   
-
-    def traveler_info_summary(self):
-        pass
-
-    def tpa_Extensions(self):
-        pass
-
-
 
 
 request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
@@ -390,5 +378,3 @@ request_json = json.loads(request)
 if __name__ == "__main__":
     y = SabreBFMBuilder(request_json).search_flight("COM")
     print(y.search_flight())
-
-

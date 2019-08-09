@@ -90,7 +90,7 @@ class SabreClient(BaseClient):
         """
 
         request_data = SabreBFMBuilder(request_searh).search_flight(types)
-        request_data = json.dumps(request_data)
+        request_data = json.dumps(request_data, sort_keys=False, indent=4)
         print(request_data)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
