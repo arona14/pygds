@@ -168,12 +168,23 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 list_form_payment.append(form_payment)
         return list_form_payment
 
+    def _extract_qualifier_number(self, list_reference):
+        qualifier, number = "", ""
+        if isinstance(list_reference, list):
+            for reference in list_reference:
+                if reference["qualifier"] == "PT":
+                    qualifier = reference["qualifier"]
+                    number = reference["number"]
+        else:
+            if list_reference["qualifier"] == "PT":
+                qualifier = list_reference["qualifier"]
+                number = list_reference["number"]
+        return qualifier, number
+
     def _ticketing_info(self):
         list_ticket = []
-        qualifier, number = None, None 
+        qualifier, number = "", ""
         for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
-            # print("_ticketing_info called")
-            # print(ticket)
             for elem_tick in ticket:
                 if "ticketElement" in elem_tick:
                     data_element = from_json_safe(ticket, "ticketElement")
@@ -188,15 +199,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
                 if "referenceForDataElement" in elem_tick:
                     list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
-                    if isinstance(list_reference, list):
-                        for reference in list_reference:
-                            if reference["qualifier"] == "PT":
-                                qualifier = reference["qualifier"]
-                                number = reference["number"]
-                            else:
-                                if reference["qualifier"] == "PT":
-                                    qualifier = reference["qualifier"]
-                                    number = reference["number"]
+                    qualifier, number = self._extract_qualifier_number(list_reference)
                 if "otherDataFreetext" in elem_tick:
                     if segment_name == "FA":
                         long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
@@ -204,6 +207,37 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                         print(ticketing)
                         list_ticket.append(ticketing)
         return list_ticket
+
+    # def _ticketing_info(self):
+    #     list_ticket = []
+    #     qualifier, number = "", ""
+    #     segment_name = ""
+    #     for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+    #         for elem_tick in ticket:
+    #             if "ticketElement" in elem_tick:
+    #                 data_element = from_json_safe(ticket, "ticketElement")
+    #                 ticket_element = from_json_safe(data_element, "ticket")
+    #                 element_id = from_json_safe(ticket_element, "officeId")
+    #                 date = from_json_safe(ticket_element, "date")
+    #                 comment = from_json_safe(ticket_element, "indicator")
+    #                 code = from_json_safe(ticket_element, "airlineCode")
+    #                 ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
+    #                 list_ticket.append(ticketing)
+    #                 continue
+    #             if "elementManagementData" in elem_tick:
+    #                 segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
+    #             if "referenceForDataElement" in elem_tick:
+    #                 list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
+    #                 print("printing list")
+    #                 # print(list_reference)
+    #                 qualifier, number = self._extract_qualifier_number(list_reference)
+    #             if "otherDataFreetext" in elem_tick:
+    #                 if segment_name == "FA":
+    #                     long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
+    #                     ticketing = TicketingInfo("", "", "", "", "", "", "", "", "", long_free_text, qualifier, number)
+    #                     print(ticketing)
+    #                     list_ticket.append(ticketing)
+    #     return list_ticket
 
     def _remark(self):
         list_remark = []

@@ -438,7 +438,7 @@ class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
-    def __init__(self, dk_number: str = None):
+    def __init__(self, dk_number: str = None, agent_signature=None, creation_office_id=None, creation_date_time=None):
         self.dk_number = dk_number
 
     def to_data(self):
