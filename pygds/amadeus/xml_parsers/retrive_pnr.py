@@ -183,62 +183,28 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _ticketing_info(self):
         list_ticket = []
-        qualifier, number = "", ""
         for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
-            for elem_tick in ticket:
-                if "ticketElement" in elem_tick:
-                    data_element = from_json_safe(ticket, "ticketElement")
-                    ticket_element = from_json_safe(data_element, "ticket")
-                    element_id = from_json_safe(ticket_element, "officeId")
-                    date = from_json_safe(ticket_element, "date")
-                    comment = from_json_safe(ticket_element, "indicator")
-                    code = from_json_safe(ticket_element, "airlineCode")
-                    ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
-                    list_ticket.append(ticketing)
-                elif "elementManagementData" in elem_tick:
+            if "ticketElement" in ticket:
+                data_element = from_json_safe(ticket, "ticketElement")
+                ticket_element = from_json_safe(data_element, "ticket")
+                element_id = from_json_safe(ticket_element, "officeId")
+                date = from_json_safe(ticket_element, "date")
+                comment = from_json_safe(ticket_element, "indicator")
+                code = from_json_safe(ticket_element, "airlineCode")
+                ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
+                list_ticket.append(ticketing)
+            elif "otherDataFreetext" in ticket:
+                if "elementManagementData" in ticket:
                     segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
-                if "referenceForDataElement" in elem_tick:
+                if "referenceForDataElement" in ticket:
                     list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
-                    print(list_reference)
                     qualifier, number = self._extract_qualifier_number(list_reference)
-                if "otherDataFreetext" in elem_tick:
-                    if segment_name == "FA":
-                        long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
-                        ticketing = TicketingInfo("", "", "", "", "", "", "", "", "", long_free_text, qualifier, number)
-                        print(ticketing)
-                        list_ticket.append(ticketing)
+                if segment_name == "FA":
+                    long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
+                    ticketing = TicketingInfo("", "", "", "", "", "", "", "", "", long_free_text, qualifier, number)
+                    print(ticketing)
+                    list_ticket.append(ticketing)
         return list_ticket
-
-    # def _ticketing_info(self):
-    #     list_ticket = []
-    #     qualifier, number = "", ""
-    #     segment_name = ""
-    #     for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
-    #         for elem_tick in ticket:
-    #             if "ticketElement" in elem_tick:
-    #                 data_element = from_json_safe(ticket, "ticketElement")
-    #                 ticket_element = from_json_safe(data_element, "ticket")
-    #                 element_id = from_json_safe(ticket_element, "officeId")
-    #                 date = from_json_safe(ticket_element, "date")
-    #                 comment = from_json_safe(ticket_element, "indicator")
-    #                 code = from_json_safe(ticket_element, "airlineCode")
-    #                 ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
-    #                 list_ticket.append(ticketing)
-    #                 continue
-    #             if "elementManagementData" in elem_tick:
-    #                 segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
-    #             if "referenceForDataElement" in elem_tick:
-    #                 list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
-    #                 print("printing list")
-    #                 # print(list_reference)
-    #                 qualifier, number = self._extract_qualifier_number(list_reference)
-    #             if "otherDataFreetext" in elem_tick:
-    #                 if segment_name == "FA":
-    #                     long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
-    #                     ticketing = TicketingInfo("", "", "", "", "", "", "", "", "", long_free_text, qualifier, number)
-    #                     print(ticketing)
-    #                     list_ticket.append(ticketing)
-    #     return list_ticket
 
     def _remark(self):
         list_remark = []
