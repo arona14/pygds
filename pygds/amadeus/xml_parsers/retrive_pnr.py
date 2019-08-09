@@ -199,6 +199,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
                 if "referenceForDataElement" in elem_tick:
                     list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
+                    print(list_reference)
                     qualifier, number = self._extract_qualifier_number(list_reference)
                 if "otherDataFreetext" in elem_tick:
                     if segment_name == "FA":
