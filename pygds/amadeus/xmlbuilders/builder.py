@@ -71,11 +71,11 @@ class AmadeusXMLBuilder:
             This method generates a chunk XML part for every endpoint that continues a transaction
         """
         return f"""
-        <awsse:Session TransactionStatusCode="{'End' if close_trx else 'InSeries'}" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
-            <awsse:SessionId>{session_id}</awsse:SessionId>
-            <awsse:SequenceNumber>{sequence_number}</awsse:SequenceNumber>
-            <awsse:SecurityToken>{security_token}</awsse:SecurityToken>
-        </awsse:Session>"""
+            <awsse:Session TransactionStatusCode="{'End' if close_trx else 'InSeries'}" xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
+                <awsse:SessionId>{session_id}</awsse:SessionId>
+                <awsse:SequenceNumber>{sequence_number}</awsse:SequenceNumber>
+                <awsse:SecurityToken>{security_token}</awsse:SecurityToken>
+            </awsse:Session>"""
 
     def generate_header(self, action, message_id, session_id, sequence_number, security_token, close_trx: bool = False):
         """
@@ -95,13 +95,12 @@ class AmadeusXMLBuilder:
         else:
             security = self.continue_transaction_chunk(session_id, sequence_number, security_token, close_trx)
         return f"""
-        <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-            <add:MessageID>{message_id}</add:MessageID>
-            <add:Action>http://webservices.amadeus.com/{action}</add:Action>
-            <add:To>{self.endpoint}/{self.wsap}</add:To>
-            {security}
-        </soapenv:Header>
-        """
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/{action}</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security}
+            </soapenv:Header>"""
 
     def start_transaction(self, message_id, office_id, username, password, nonce, created_date_time):
         """
@@ -306,7 +305,13 @@ class AmadeusXMLBuilder:
                                           price_request: PriceRequest):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             {header}
             <soapenv:Body>
                 <Fare_PricePNRWithBookingClass>
@@ -640,24 +645,26 @@ class AmadeusXMLBuilder:
 
     def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type,
                            passenger_reference_value):
-        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
-        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-    <add:Action>http://webservices.amadeus.com/TTKTIQ_15_1_1A</add:Action>
-    <add:MessageID>{message_id}</add:MessageID>
-    <add:To>{self.endpoint}/{self.wsap}</add:To>{security_part}
-    </soapenv:Header>
-    <soapenv:Body>
-    <DocIssuance_IssueTicket>
-    <paxSelection>
-    <passengerReference>
-    <type>{passenger_reference_type}</type>
-    <value>{passenger_reference_value}</value>
-    </passengerReference>
-    </paxSelection>
-    </DocIssuance_IssueTicket>
-    </soapenv:Body>
-    </soapenv:Envelope>
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+        xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+        xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+        xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+        xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+        xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {self.generate_header("TTKTIQ_15_1_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <DocIssuance_IssueTicket>
+                    <paxSelection>
+                        <passengerReference>
+                            <type>{passenger_reference_type}</type>
+                            <value>{passenger_reference_value}</value>
+                        </passengerReference>
+                    </paxSelection>
+                </DocIssuance_IssueTicket>
+            </soapenv:Body>
+        </soapenv:Envelope>
     """
 
     def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code,
@@ -700,3 +707,27 @@ class AmadeusXMLBuilder:
     </PNR_AddMultiElements>
        </soapenv:Body>
     </soapenv:Envelope> """
+
+    def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id):
+        return f"""
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+                xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+                xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+                xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+                xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+                xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+               {self.generate_header("TTKTIQ_15_1_1A", message_id, session_id, sequence_number, security_token, False)}
+               <soapenv:Body>
+                  <DocIssuance_IssueTicket>
+                     <optionGroup>
+                        <switches>
+                           <statusDetails>
+                              <indicator>RT</indicator>
+                           </statusDetails>
+                        </switches>
+                     </optionGroup>
+                  </DocIssuance_IssueTicket>
+               </soapenv:Body>
+            </soapenv:Envelope>
+        """
