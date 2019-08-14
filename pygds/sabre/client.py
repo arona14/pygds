@@ -90,7 +90,8 @@ class SabreClient(BaseClient):
         """
 
         request_data = SabreBFMBuilder(request_searh).search_flight(types)
-        request_data = json.dumps(request_data, sort_keys=False, indent=4)
+        #request_data = json.dumps(request_data, sort_keys=False, indent=4)
+        """
         print(request_data)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
@@ -101,10 +102,13 @@ class SabreClient(BaseClient):
             if not message_id:
                 message_id = generate_random_message_id()
                 print(message_id)
-            #token = self.session_token()
+            token = self.session_token()
+            self.add_session(SessionInfo(token, None, None, message_id, False))
             print(token)
             self.log.info("Waao you already have a token!")
         return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token)
+        """
+        return request_data
 
     def session_token(self):
         """
@@ -113,7 +117,9 @@ class SabreClient(BaseClient):
         """
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
-        return get_data_from_xml(response.content, "soap-env:Envelope", 'soap-env:Header', "wsse:Security", "wsse:BinarySecurityToken")["#text"]
+        response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
+        print(response)
+        return response
 
 
 # if __name__ == "__main__":

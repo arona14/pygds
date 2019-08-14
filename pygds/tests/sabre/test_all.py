@@ -12,7 +12,6 @@ from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds import log_handler
 from pygds.sabre.client import SabreClient
-from pygds.core.request import LowFareSearchRequest, RequestedSegment
 from pygds import log_handler
 
 from pygds.core.request import LowFareSearchRequest, TravellerNumbering, RequestedSegment
@@ -64,7 +63,7 @@ def test():
     """ 
         Test Search Flight Sabre 
     """
-    response = client.search_flightrq(None, my_request, "PUB")
+    response = client.search_flightrq("Modou", my_request, "PUB")
     response = json.loads(response.content)
     client.search_flightrq(None, my_request, "PUB")
     return response
