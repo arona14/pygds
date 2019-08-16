@@ -5,6 +5,7 @@
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
+from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.price import PriceRequest, Fare
 from pygds.env_settings import get_setting
 from pygds import log_handler
@@ -23,16 +24,17 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
+    pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
+    # import web_pdb; web_pdb.set_trace()
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # print(res_reservation["itineraries"])
-        log.info(session_info)
-        log.info(res_reservation)
+        log.debug(session_info)
+        # log.debug(res_reservation)
         m_id = session_info.message_id
         seg_refs = []
         pax_refs = []
@@ -40,25 +42,25 @@ def test():
             seg_refs.append(seg.segment_reference)
         for pax in res_reservation["passengers"]:
             pax_refs.append(pax.name_id)
-        price_request = PriceRequest(pax_refs, seg_refs)
+        price_request = PriceRequest(pax_refs, seg_refs, "NET")
 
         res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
         session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
-        log.info(session_info)
-        log.info(app_error)
+        log.debug(session_info)
         if app_error:
             log.error(f"We have an error: {app_error}")
             return
         if len(res_price) <= 0:
             log.error("No price proposed")
             return
+        # log.info(res_price)
         chosen_price: Fare = res_price[0]
         log.info(f"Chosen price: {chosen_price}")
         m_id = session_info.message_id
         res_tst = client.ticket_create_tst_from_price(m_id, chosen_price.fare_reference)
         session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
-        log.debug(f"session formation from tst: {session_info}")
-        log.debug(f"response from tst: {res_tst}")
+        log.info(f"session from tst: {session_info}")
+        log.info(f"response from tst: {res_tst}")
         if app_error:
             log.error(f"Something went wrong on create TST: {app_error}")
             return
@@ -67,9 +69,21 @@ def test():
         # print(res_end)
         # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])
-        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
-        log.debug(res_issue)
+        # res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])
+
+        # res_command = client.send_command("RFMNT", session_info.message_id)
+        # session_info, res_command, app_error = (res_command.session_info, res_command.payload, res_command.application_error)
+        # log.info(res_command)
+
+        # res_fop = client.add_form_of_payment(session_info.message_id, "FP", "PA", pax_refs[0],
+        #                                      1, "FP", CreditCard("LO", "CA", "", "737", "1020"))
+        # log.debug(res_fop)
+
+        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id, ["8"])
+        # session_info, res_issue, app_error = (res_issue.session_info, res_issue.payload, res_issue.application_error)
+        # log.info(res_issue)
+
+
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)

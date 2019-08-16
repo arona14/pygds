@@ -17,14 +17,22 @@ class PriceRequest(PriceInfoBasic):
     """
     A class to hold information about request of price PNR with booking class
     """
-    def __init__(self, passengers: List[str], segments: List[str]):
+    def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB"):
+        """
+        This will create a price request
+        :param passengers: list of passenger references
+        :param segments: list of segment reference
+        :param fare_type: The requested fare type. Must be PUB, NET or COM
+        """
         self.passengers = passengers
         self.segments = segments
+        self.fare_type = fare_type
 
     def to_dict(self):
         return {
             "passengers": self.passengers,
-            "segments": self.segments
+            "segments": self.segments,
+            "fare_type": self.fare_type
         }
 
 

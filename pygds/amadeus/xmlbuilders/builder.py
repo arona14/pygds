@@ -4,7 +4,7 @@ from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
-from pygds.core.payment import FormOfPayment
+from pygds.core.payment import FormOfPayment, CreditCard
 from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -62,8 +62,8 @@ class AmadeusXMLBuilder:
         </oas:Security>
         <AMA_SecurityHostedUser xmlns="http://xml.amadeus.com/2010/06/Security_v1">
             <UserID AgentDutyCode="SU" RequestorType="U" PseudoCityCode="{office_id}" POS_Type="1"/>
-        </AMA_SecurityHostedUser>
-        <ses:Session xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" TransactionStatusCode="Start" />
+        </AMA_SecurityHostedUser>{'' if close_trx else 
+        '<ses:Session xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" TransactionStatusCode="Start" />'}
        """
 
     def continue_transaction_chunk(self, session_id, sequence_number, security_token, close_trx: bool = False):
@@ -315,16 +315,7 @@ class AmadeusXMLBuilder:
             {header}
             <soapenv:Body>
                 <Fare_PricePNRWithBookingClass>
-                    <pricingOptionGroup>
-                        <pricingOptionKey>
-                            <pricingOptionKey>RP</pricingOptionKey>
-                        </pricingOptionKey>
-                    </pricingOptionGroup>
-                    <pricingOptionGroup>
-                        <pricingOptionKey>
-                            <pricingOptionKey>RU</pricingOptionKey>
-                        </pricingOptionKey>
-                    </pricingOptionGroup>
+                    {sub_parts.ppwbc_fare_type(price_request.fare_type)}
                     {sub_parts.ppwbc_passenger_segment_selection(price_request)}
                 </Fare_PricePNRWithBookingClass>
             </soapenv:Body>
@@ -559,16 +550,16 @@ class AmadeusXMLBuilder:
     def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token, form_of_payment,
                                     passenger_reference_type, passenger_reference_value,
                                     form_of_payment_sequence_number,
-                                    group_usage_attribute_type, fop: FormOfPayment):
+                                    group_usage_attribute_type, fop: CreditCard):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
-        form_of_payment_code = None
-        company_code = None
-        form_of_payment_type = None
-        vendor_code = None
-        carte_number = None
-        security_id = None
-        expiry_date = None
+        form_of_payment_code = fop.p_code
+        company_code = fop.company_code
+        form_of_payment_type = fop.p_type
+        vendor_code = fop.vendor_code
+        carte_number = fop.card_number
+        security_id = fop.security_id
+        expiry_date = fop.expiry_date
         return f"""
            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
        <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -708,7 +699,7 @@ class AmadeusXMLBuilder:
        </soapenv:Body>
     </soapenv:Envelope> """
 
-    def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id):
+    def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id, tst_refs: List[str]):
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
                 xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
@@ -720,13 +711,9 @@ class AmadeusXMLBuilder:
                {self.generate_header("TTKTIQ_15_1_1A", message_id, session_id, sequence_number, security_token, False)}
                <soapenv:Body>
                   <DocIssuance_IssueTicket>
-                     <optionGroup>
-                        <switches>
-                           <statusDetails>
-                              <indicator>RT</indicator>
-                           </statusDetails>
-                        </switches>
-                     </optionGroup>
+                     <selection>
+                        {"".join([sub_parts.ticket_issue_tst_ref(r) for r in tst_refs])}
+                    </selection>
                   </DocIssuance_IssueTicket>
                </soapenv:Body>
             </soapenv:Envelope>
