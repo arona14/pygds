@@ -1,8 +1,10 @@
 import uuid
-from time import gmtime, strftime
+from datetime import datetime
 import secrets
 import base64
 from hashlib import sha1
+
+from pytz import timezone
 
 
 def generate_random_message_id(prefix: str = ""):
@@ -20,11 +22,13 @@ def generate_nonce(n_bytes=16):
     return str(nonce)[2:-3]
 
 
-def generate_created():
+def generate_created(tz='UTC'):
     """
-        Generates the created date of a nonce based on the current datetime and format it
+    Generates the created date of a nonce based on the current datetime and format it
+    :param tz: The timezone as text e.g Africa/Dakar, Africa/Johannesburg, US/Pacific. defaults to UTC
+    :return: A formatted datetime in that timezone
     """
-    return str(strftime("%Y-%m-%dT%H:%M:%S.%zZ", gmtime()))
+    return datetime.now(timezone(tz)).strftime("%Y-%m-%dT%H:%M:%S.%zZ")
 
 
 def password_digest(password: str, nonce: str, created: str):

@@ -24,7 +24,11 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
+<<<<<<< HEAD
     pnr = "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
+=======
+    pnr = "TSYX56"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
+>>>>>>> c09ecefefb462d35e7d5b7b1793adbcd6747ed27
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
@@ -32,17 +36,27 @@ def test():
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+<<<<<<< HEAD
         # print(res_reservation["itineraries"])
         log.debug(session_info)
         # log.debug(res_reservation)
+=======
+        log.info(session_info)
+        log.info(res_reservation)
+>>>>>>> c09ecefefb462d35e7d5b7b1793adbcd6747ed27
         m_id = session_info.message_id
         seg_refs = []
         pax_refs = []
         for seg in res_reservation["itineraries"]:
             seg_refs.append(seg.segment_reference)
         for pax in res_reservation["passengers"]:
+<<<<<<< HEAD
             pax_refs.append(pax.name_id)
         price_request = PriceRequest(pax_refs, seg_refs, "NET")
+=======
+            pax_refs.append(pax.pax_reference)
+        price_request = PriceRequest(pax_refs, seg_refs)
+>>>>>>> c09ecefefb462d35e7d5b7b1793adbcd6747ed27
 
         res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
         session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
@@ -69,6 +83,7 @@ def test():
         # print(res_end)
         # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+<<<<<<< HEAD
         # res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])
 
         # res_command = client.send_command("RFMNT", session_info.message_id)
@@ -84,6 +99,11 @@ def test():
         # log.info(res_issue)
 
 
+=======
+        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])  # i'm changing this
+        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
+        log.debug(res_issue)  # i'm changing this
+>>>>>>> c09ecefefb462d35e7d5b7b1793adbcd6747ed27
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
