@@ -68,14 +68,92 @@ class SabreClient(BaseClient):
 
         return to_return
         
-    def search_price_quote(self, token_session, retain, commission, tour_code, fare_type, ticket_designator, segment_number, name_select, passenger_type, plus_up):
+    def search_price_quote(self, message_id, retain:bool=False, commission:float=0, tour_code:str='', fare_type:str='', ticket_designator:str='', segment_select:str='', name_select:str='', passenger_type:str='', plus_up:str='',baggage:str='', pcc:str="", hemisphere_code:str="", journey_code:str="", child_list:list =[]):
         """
         A method to cancel segment
-        :param token_session: the token session
+        :param message_id: the message id 
         :return: None
         """
-        return self.xml_builder.price_quote_rq(token_session,retain,commission,tour_code,fare_type,ticket_designator,segment_number,name_select,passenger_type,plus_up)
-    
+        _, _, token_session = self.get_or_create_session_details(message_id)
+        session_info = None
+        if not token_session:
+            session_info = self.open_session()
+            token_session = session_info.security_token
+
+        segment_number = self._get_segment_number(segment_select)
+        fare_type_value = self._get_fare_type(fare_type) if self._get_fare_type(fare_type) else ""
+        passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type, child_list) 
+        commission = self._get_commision(commission, baggage, pcc, hemisphere_code, journey_code)
+
+        search_price_quote = self.xml_builder.price_quote_rq(token_session,retain=retain,commission=commission,tour_code=tour_code,fare_type=fare_type_value,ticket_designator=ticket_designator,segment_select=segment_number,name_select=name_select,passenger_type=passenger_type,plus_up=plus_up) if retain else  self.xml_builder.price_quote_rq(token_session, retain, fare_type, segment_select=segment_select, name_select=name_select, passenger_type=passenger_type)
+        
+        response =  requests.post(self.xml_builder.url, data=search_price_quote, headers=self.header_template)
+        return response.content
+
+    def _get_segment_number(self, segment_select):
+        if segment_select != []:
+            segment_number = "<ItineraryOptions>"
+            for k in segment_select:
+                segment_number = segment_number+"<SegmentSelect Number='"+k+"'/>" 
+            segment_number = segment_number+"</ItineraryOptions>"
+            return segment_number
+        return None
+
+
+    def _get_fare_type(self, fare_type):
+        if fare_type == "Pub":
+            fare_type_value = "<Account>"
+            fare_type_value = fare_type_value+"<Code>COM</Code>" 
+            fare_type_value = fare_type_value+"</Account>"
+            return fare_type_value
+        return None
+
+
+    def _get_passenger_type(self, passenger_type, fare_type, child_list):
+
+        for pax in passenger_type:
+            if fare_type == "Pub":
+                if pax_type['code'] in ["ADT","JCB"]:
+                    pax_type = f"""<PassengerType Code="ADT" Quantity="{pax["quantity"]}"/>"""
+                
+                elif pax_type['code'] in child_list:
+                    code = "C"+str(pax['code'][-2:])
+                    pax_type = "<PassengerType Code='"+code+ "' Quantity='" +pax['quantity'] + "'/>" 
+                
+                elif pax['code'] in ["INF","JNF"]:
+                    pax_type = f"""<PassengerType Code="INF" Quantity="{pax["quantity"]}"/>"""
+
+            elif fare_type == "Net":
+                if pax['code'] in ["ADT","JCB"]:
+                    pax_type = f"""<PassengerType Code="JCB" Quantity="{pax["quantity"]}"/>"""
+            
+                elif pax['code'] in child_list:
+                    code = "J"+str(pax['code'][-2:])
+                    pax_type = "<PassengerType Code='"+code+ "' Quantity='" +pax['quantity'] + "'/>" 
+                
+                elif pax['code'] in ["INF","JNF"]:
+                    pax_type = f"""<PassengerType Code="JNF" Quantity="{pax["quantity"]}"/>"""
+                
+            for j in pax['nameSelect']:
+                name_select = "<NameSelect NameNumber='"+j+"'/>" 
+        return pax_type, name_select
+
+
+    def _get_commision(self, commission, baggage,pcc, hemisphere_code, journey_code):
+
+        commission = "<MiscQualifiers>"
+        if baggage != "0":
+            commission = commission+"<BaggageAllowance Number='"+str(baggage)+"'/>"
+        if pcc == "3GAH":
+            commission = commission+"<HemisphereCode>"+hemisphere_code+"</HemisphereCode>"
+            commission = commission+"<JourneyCode>"+journey_code+"</JourneyCode>"
+        
+        commission = commission+"</MiscQualifiers>"
+        if commission == "<MiscQualifiers></MiscQualifiers>":
+            commission = ""
+        return commission
+
+
     def cancel_list_segment(self,token_session,list_segment):
         """
         A method to cancel segment
@@ -98,8 +176,9 @@ class SabreClient(BaseClient):
         :return : available flight for the specific request_search
         """
 
-        test = SabreBFMBuilder(request_searh).search_flight()
+        # test = SabreBFMBuilder(request_searh).search_flight()
         #print(test)
+        pass
 
 
 if __name__ == "__main__":
