@@ -33,7 +33,7 @@ class SabreBFMBuilder:
 
     def origin_destination_information(self):
         my_return = []
-        itinaries = self.search_request.itineraries
+        itinaries = self.search_request.itineraries 
         for i in itinaries:
             my_return.append(
                 {
@@ -197,16 +197,16 @@ class SabreBFMBuilder:
                 "Value": self._trip_type()
             },
             "ExemptAllTaxes": {
-                "Value": True
+                "Value": False
             },
             "ExemptAllTaxesAndFees": {
-                "Value": True
+                "Value": False
             },
             "FlightStopsAsConnections": {
                 "Ind": True
             },
             "JumpCabinLogic": {
-                "Disabled": True
+                "Disabled": False
             },
             "DiversityParameters": {
                 "Weightings": {
@@ -217,11 +217,14 @@ class SabreBFMBuilder:
             }
         }
 
+
         flexi_fare = dict()
+        
         if self._is_alternate_date() == False:
             flexi_fare = self._flexible_fare(paxTypeQuantityPUB, paxTypeQuantityPFA, cabin, self.search_request.baggagePref)
 
         d = dict()
+        
         """
         if self.search_request.excludeBasicEconomy == True:
             d = {"FareType": [
@@ -235,7 +238,8 @@ class SabreBFMBuilder:
                 }
             ]}
         """
-        tpa_ext = self.merge_dicts(tpa_ext, flexi_fare)
+
+        tpa_ext = self.merge_dicts(tpa_ext,flexi_fare,d)
 
         return {
             "ValidInterlineTicket": True,
@@ -262,21 +266,21 @@ class SabreBFMBuilder:
 
         if self.search_request.adult != 0:
             paxTypeQuantity.append({
-                "type": "ADT" if types != "NET" else "JCB",
+                "type": "ADT" if types == "PUB" else "JCB",
                 "quantity": self.search_request.adult
             }
             )
 
         if self.search_request.child != 0:
             paxTypeQuantity.append({
-                "type": "CNN" if types != "NET" else "JNN",
+                "type": "CNN" if types == "PUB" else "JNN",
                 "quantity": self.search_request.child
             }
             )
 
         if self.search_request.infant != 0:
             paxTypeQuantity.append({
-                "type": "INF" if types != "NET" else "JNF",
+                "type": "INF" if types == "PUB" else "JNF",
                 "quantity": self.search_request.infant
             }
             )
@@ -304,7 +308,7 @@ class SabreBFMBuilder:
                     }
                 },
                 "BrandedFareIndicators": {
-                    "SingleBrandedFare": True,
+                    "SingleBrandedFare": False,
                     "MultipleBrandedFares": True
                 }
             },

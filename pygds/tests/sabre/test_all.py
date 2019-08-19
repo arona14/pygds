@@ -41,17 +41,17 @@ def test():
 
     client = SabreClient(url, rest_url, username, password, pcc, False)
     # try:
-    segment1 = RequestedSegment("DTW", "NYC", "2019-08-29").to_data()
-    segment2 = RequestedSegment("NYC", "DTW", "2019-09-21").to_data()
+    segment1 = RequestedSegment("ATH", "LHR", "2019-09-17").to_data()
+    segment2 = RequestedSegment("LHR", "ATH", "2019-09-26").to_data()
 
     segments = []
     segments.append(segment1)
     segments.append(segment2)
 
-    travel_number = TravellerNumbering(2, 1, 0)
+    travel_number = TravellerNumbering(1, 0, 0)
 
     print(travel_number.to_data())
-    my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, True, 2)
+    my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, False, 2)
     # print(my_request.to_data())
     # log.info(session_response)
     # except ClientError as ce:
@@ -63,11 +63,12 @@ def test():
     """ 
         Test Search Flight Sabre 
     """
-    response = client.search_flightrq("Modou", my_request, "PUB")
+    response = client.search_flightrq("Modou", my_request, "NET")
     response = json.loads(response.content)
-    client.search_flightrq(None, my_request, "PUB")
+    #client.search_flightrq(None, my_request, "PUB")
     return response
 
+    
 
 if __name__ == "__main__":
     result = test()

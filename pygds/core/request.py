@@ -71,8 +71,6 @@ class RequestedSegment:
             "departureDate": self.departureDate
         }
 
-    def to_list(self):
-        return [self.to_data()]
 
 
 class ClassOfService:
@@ -134,7 +132,7 @@ class LowFareSearchRequest(BasicDataObject):
 
 if __name__ == "__main__":
     pass
-    #passenger1 = RequestedSegment("DTW", "NYC", "20-10-2019").to_data()
+    passenger1 = RequestedSegment("DTW", "NYC", "20-10-2019")
     #passenger = RequestedSegment("DTW", "NYC", "20-10-2019").to_data()
     #[{'origin': 'DTW', 'destination': 'NYC', 'departureDate': '20-10-2019'}]
     #passenger = passenger.append(passenger1)
@@ -142,7 +140,7 @@ if __name__ == "__main__":
     #passenger = passenger.append({"DTW","NYC","20-10-2019"})
     # print(passenger)
     # print(passenger1)
-    #g = TravellerNumberingInfo(1, 3, 4)
-    #y = LowFareSearchRequest(passenger, "", "WR17", g, [], "sds", [], False, True).to_data()
-    # print(g.adult)
-    # print(y)
+    g = TravellerNumberingInfo(1, 3, 4)
+    y = LowFareSearchRequest(passenger1, "", "WR17", g, [], "sds", [], False, True).to_data()
+    print(y)
+    #                                                                                                                                                                                                                                                   print(passenger1)
