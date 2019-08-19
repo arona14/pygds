@@ -5,7 +5,7 @@ from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.payment import FormOfPayment
-from ..security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
 class AmadeusXMLBuilder:
