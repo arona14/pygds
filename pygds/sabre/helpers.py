@@ -2,7 +2,7 @@
 
 import json
 import xmltodict
-
+from time import gmtime, strftime
 
 def soap_service_to_json(data):
     """Transform a sabre soap api response content to json format
@@ -34,6 +34,10 @@ def soap_service_to_json(data):
         # TODO: Capture the real exception not the general one
         pass
     return to_return_dict
+
+def get_current_timestamp():
+    current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+    return current_timestamp
 
 
 def main():
