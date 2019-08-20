@@ -12,7 +12,7 @@ from pygds.sabre.helpers import get_data_from_json as from_json
 from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
 from pygds.core.app_error import ApplicationError
 
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor
 
 
 class SabreClient(BaseClient):
@@ -255,6 +255,15 @@ class SabreClient(BaseClient):
         #print(test)
         pass
 
+    def issue_ticket(self, )
+        """
+        This function is for issue ticket 
+        :return 
+        """
+        request_data = self.xml_builder.air_ticket_rq(token_value, info_ticketing, price_quote)
+        response_data = self.__request_wrapper("air_ticket_rq", request_data, 'https://webservices3.sabre.com')
+        extractor = IssueTicketExtractor(response_data)
+        return extractor.extract()
 
 if __name__ == "__main__":
     SabreClient("oui","yes","ok",False).search_flightrq({'pcc':"yes"})

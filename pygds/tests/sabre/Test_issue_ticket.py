@@ -101,7 +101,7 @@ payment_type = "CS"
 commission_value = 100
 type_fop = info_cash_or_cheque(payment_type, commission_value)
 price_quote = 1234
-token_value = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESE!ICESMSLB\\/RES.LB!-2983057821176271726!1498876!0"
+token_value = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESH!ICESMSLB\\/RES.LB!-2983035619056495227!2255!0"
 current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 url = "https://webservices3.sabre.com"
 headers = {'content-type': 'text/xml; charset=utf-8'}

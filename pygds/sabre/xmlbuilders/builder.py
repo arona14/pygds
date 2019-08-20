@@ -5,10 +5,10 @@ class SabreXMLBuilder:
 
     def __init__(self, url: str, username: str, password: str, pcc: str):
         self.current_timestamp = generate_created()
-        self.url = "https://webservices3.sabre.com"
-        self.username = ""
-        self.password = ""
-        self.pcc = "WR17"
+        self.url = url
+        self.username = username
+        self.password = password
+        self.pcc = pcc
         self.conversation_id = generate_random_message_id()
 
     def generate_header(self, pcc, conversation_id, token_value):
@@ -242,7 +242,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
     
-    def price_quote_rq(self, token, retain:bool=False, commission:str='', tour_code:str='', fare_type:str='', ticket_designator:str='', segment_select:str='', name_select:str='', passenger_type:str='', plus_up:str=''):
+    def price_quote_rq(self, token, retain, commission, tour_code, fare_type, ticket_designator, segment_select, name_select, passenger_type, plus_up):
         """
             Return the xml request to price air itineraries
         """
