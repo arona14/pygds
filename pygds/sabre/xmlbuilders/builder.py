@@ -242,7 +242,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
     
-    def price_quote_rq(self, token, retain, commission, tour_code, fare_type, ticket_designator, segment_select, name_select, passenger_type, plus_up):
+    def price_quote_rq(self, token, retain:bool=False, commission:str='', tour_code:str='', fare_type:str='', ticket_designator:str='', segment_select:str='', name_select:str='', passenger_type:str='', plus_up:str=''):
         """
             Return the xml request to price air itineraries
         """

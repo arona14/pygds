@@ -228,7 +228,19 @@ class TstInformation(PriceInfoBasic):
             "pax_references": self.pax_references
         }
 
+class SearchPriceInfos(PriceInfoBasic):
+    """
+        This class we will get the Info of Search price
+    """
+    def __init__(self):
+        self.status:str = None      # the status of result
+        self.air_itinerary_pricing_info: AirItineraryPricingInfo #the aount of air itinenary pricing
 
+    def to_dict(self):
+        return {
+                "status" : self.status,
+                "air_itinerary_pricing_info" : self.air_itinerary_pricing_info
+                }
 class FareElement(PriceInfoBasic):
 
     def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
@@ -248,3 +260,25 @@ class FareElement(PriceInfoBasic):
             "baggage_allowance": self.baggage_allowance,
             "fare_basis": self.fare_basis
         }
+
+class AirItineraryPricingInfo(PriceInfoBasic):
+    """
+        This class we will get the amount of price
+    """
+    
+    def __init__(self):
+        self.base_fare:float = 0.0       #base fare amount
+        self.taxes:float = 0.0            # taxes amount
+        self.total_fare:float             # totoal fare amount
+        self.currency_code:str = None     # currency code
+
+    def to_dict(self):
+        return{
+            "BaseFare" : self.base_fare,
+            "Taxes" : self.taxes,
+            "TotalFare" : self.total_fare,
+            "CurrencyCode" : self.currency_code
+        }
+
+
+

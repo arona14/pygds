@@ -29,19 +29,38 @@ def test():
     url = "https://webservices3.sabre.com"
     #dir_path = os.path.dirname(os.path.realpath(__file__))
     #log = log_handler.get_logger("test_all")
-    pnr = "RH3WOD"  # "Q68EFX", "RI3B6D", "RT67BC"
+    pnr = "KFBBCG"  # "Q68EFX", "RI3B6D", "RT67BC"
     # m_id = None
 
     client = SabreClient(url, username, password, pcc, False)
     #try:
-    #session_response = client.open_session()
-    #r = jxmlease.parse(session_response)
-    #token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
+    # session_response = client.open_session()
+    # r = jxmlease.parse(session_response)
+    # token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
     #print(token)
 
-    search = client.search_flightrq(request_json)
-    
-        #log.info(session_response)
+    # search = client.search_flightrq(request_json)
+    segment_select=[1,2,3]
+    passenger_type = [   
+      {   
+         "code": "JCB",
+         "nameSelect": [   
+            "01.01"
+         ],
+         "quantity": 1
+      },
+      {   
+         "code": "JCB",
+         "nameSelect": [   
+            "02.01"
+         ],
+         "quantity": 1
+      }
+   ]
+    price = client.search_price_quote('ABC', retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type,baggage=0, pcc="WR17")
+    print('price info')
+    print(price)
+    #log.info(session_response)
     #except ClientError as ce:
         #log.error(f"client_error: {ce}")
         #log.error(f"session: {ce.session_info}")
