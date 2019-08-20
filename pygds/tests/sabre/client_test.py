@@ -19,16 +19,17 @@ class ClientCan(unittest.TestCase):
     def test_open_session(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, " the result of open session is None")
+    
     """
     def test_session_token(self):
         session = self.client.session_token()
         self.assertIsNotNone(session, "The result of open session token is None")
-    """
+    
 
     def test_search_flight(self):
 
         self.assertIsNotNone(search)
-
+    """
 
 if __name__ == "__main__":
     unittest.main()

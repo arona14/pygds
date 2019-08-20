@@ -98,7 +98,9 @@ class SabreClient(BaseClient):
 
         request_data = SabreBFMBuilder(request_searh).search_flight(types)
         request_data = json.dumps(request_data, sort_keys=False, indent=4)
-
+        print(request_data)
+        return  request_data
+        """
         print(request_data)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
@@ -114,7 +116,7 @@ class SabreClient(BaseClient):
             print(token)
             self.log.info("Waao you already have a token!")
         return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token)
-
+        """
     def session_token(self):
         """
         This will open a new session

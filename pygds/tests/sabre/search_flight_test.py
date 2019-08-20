@@ -30,10 +30,6 @@ class ClientCan(unittest.TestCase):
         with open(json_path_response_pub) as r:
             self.search_response = json.load(r)
         
-    """
-    def test_open_session(self):
-        session = self.client.open_session()
-        self.assertIsNotNone(session, " the result of open session is None")
     
   
     def test_search_flight(self):
@@ -45,14 +41,18 @@ class ClientCan(unittest.TestCase):
         segments.append(segment2)
 
         travel_number = TravellerNumbering(2, 1, 0)
-
         my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, True, 2)
+        
+        my_final_request = self.client.search_flightrq("Modou", my_request, "PUB")
+        my_final_request = json.loads(my_final_request)
+        self.assertEqual(my_final_request, self.search_pub, "The two objets are not equals")
+        
         my_final_request = self.client.search_flightrq("Modou", my_request, "NET")
-        print(my_final_request)
-        #print(json.dumps(dict(my_final_request), sort_keys=False, indent=4))
-        self.assertEqual(my_final_request, self.search_response, "The two objets are not equals")
+        my_final_request = json.loads(my_final_request)
+        self.assertEqual(my_final_request, self.search_net, "The two objets are not equals")
+
     
-    """
+
     def test_travel_numbering(self):
         r = TravellerNumbering(1,0,0)
         self.assertIsNotNone(r)
@@ -67,7 +67,6 @@ class ClientCan(unittest.TestCase):
 
     def test_open_session(self):
         session = self.client.open_session()
-        print(session)
         self.assertIsNotNone(session, " the result of open session is None")                                                                                                                                                                                                                                                                                                                                                                                         
 
 

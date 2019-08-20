@@ -371,14 +371,3 @@ class SabreBFMBuilder:
             }
         }
 
-
-request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDate": "2019-10-23"}, 
-                { "origin": "BLR", "destination": "RDU","departureDate": "2019-11-22"}],"adult": 1,"child":0,
-                "infant": 0,"csv": "Y", "pcc": "WR17", "alternatePcc": [],"requestType": "200ITINS", "agencyId": "68277",
-                "preferredAirlines": ["GF"],"baggagePref": false,"excludeBasicEconomy": true }"""
-
-request_json = json.loads(request)
-
-if __name__ == "__main__":
-    y = SabreBFMBuilder(request_json).search_flight("COM")
-    print(y.search_flight())

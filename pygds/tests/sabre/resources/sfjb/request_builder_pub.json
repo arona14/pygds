@@ -77,16 +77,16 @@
                     "Value": "Return"
                 },
                 "ExemptAllTaxes": {
-                    "Value": true
+                    "Value": false
                 },
                 "ExemptAllTaxesAndFees": {
-                    "Value": true
+                    "Value": false
                 },
                 "FlightStopsAsConnections": {
                     "Ind": true
                 },
                 "JumpCabinLogic": {
-                    "Disabled": true
+                    "Disabled": false
                 },
                 "DiversityParameters": {
                     "Weightings": {
@@ -242,7 +242,7 @@
                         }
                     },
                     "BrandedFareIndicators": {
-                        "SingleBrandedFare": true,
+                        "SingleBrandedFare": false,
                         "MultipleBrandedFares": true
                     }
                 },
