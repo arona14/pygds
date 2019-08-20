@@ -12,6 +12,8 @@ from pygds.sabre.helpers import get_data_from_json as from_json
 from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
 from pygds.core.app_error import ApplicationError
 
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor
+
 
 class SabreClient(BaseClient):
     """
@@ -21,6 +23,36 @@ class SabreClient(BaseClient):
         super().__init__(url, username, password, pcc, debug)
         self.xml_builder = SabreXMLBuilder(url, username, password, pcc)
         self.header_template = {'content-type': 'text/xml; charset=utf-8'}
+
+
+    def __request_wrapper(self, method_name: str, request_data: str, soap_action: str):
+        """
+        This wrapper method helps wrap request with:
+            1- creating request and calling it
+            2- read status code
+            3- look status code and handle exceptions
+            4- parse response and return it
+        :param method_name: The name of the method. useful for logging purposes
+        :param request_data: the XML containing the request data
+        :param soap_action: The SAOP action
+        :return: the contain of the response
+        """
+        response = self._request_wrapper(request_data, soap_action)
+        status = response.status_code
+        # if self.is_debugging:
+        #     self.log.debug(request_data)
+        #     self.log.debug(response.content)
+        #     self.log.debug(f"{method_name} status: {status}")
+        # if status == 500:
+        #     error = ErrorExtractor(response.content).extract()
+        #     sess, (faultcode, faultstring) = error.session_info, error.payload
+        #     self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
+        #     raise ServerError(sess, status, faultcode, faultstring)
+        # elif status == 400:
+        #     sess = SessionExtractor(response.content).extract()
+        #     raise ClientError(sess, status, "Client Error")
+        return response.content
+
 
     def open_session(self):
         """
@@ -68,12 +100,13 @@ class SabreClient(BaseClient):
 
         return to_return
         
-    def search_price_quote(self, message_id, retain:bool=False, commission:float=0, tour_code:str='', fare_type:str='', ticket_designator:str='', segment_select:str='', name_select:str='', passenger_type:str='', plus_up:str='',baggage:str='', pcc:str="", hemisphere_code:str="", journey_code:str="", child_list:list =[]):
+    def search_price_quote(self, message_id, retain:bool=False, fare_type:str='', segment_select:list=[], passenger_type:list=[],baggage:int=0, pcc:str="", region_name:str=""):
         """
         A method to cancel segment
         :param message_id: the message id 
         :return: None
         """
+        print('search_price_quote')
         _, _, token_session = self.get_or_create_session_details(message_id)
         session_info = None
         if not token_session:
@@ -82,19 +115,24 @@ class SabreClient(BaseClient):
 
         segment_number = self._get_segment_number(segment_select)
         fare_type_value = self._get_fare_type(fare_type) if self._get_fare_type(fare_type) else ""
-        passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type, child_list) 
-        commission = self._get_commision(commission, baggage, pcc, hemisphere_code, journey_code)
-
-        search_price_quote = self.xml_builder.price_quote_rq(token_session,retain=retain,commission=commission,tour_code=tour_code,fare_type=fare_type_value,ticket_designator=ticket_designator,segment_select=segment_number,name_select=name_select,passenger_type=passenger_type,plus_up=plus_up) if retain else  self.xml_builder.price_quote_rq(token_session, retain, fare_type, segment_select=segment_select, name_select=name_select, passenger_type=passenger_type)
+        passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type) 
+        commission = self._get_commision(baggage, pcc, region_name)
         
-        response =  requests.post(self.xml_builder.url, data=search_price_quote, headers=self.header_template)
-        return response.content
+        token_session="Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESC!ICESMSLB\\/RES.LB!-2983069682133371008!1701442!0"
+        search_price_request = self.xml_builder.price_quote_rq(token_session,retain=str(retain).lower(), commission=commission, fare_type=fare_type_value, segment_select=segment_number, name_select=name_select, passenger_type=passenger_type)
+        
+        
+        search_price_response = self.__request_wrapper("search_price_quote", search_price_request,
+                                               self.xml_builder.url)
+        #response =  requests.post(self.xml_builder.url, data=search_price, headers=self.header_template)
+        return PriceSearchExtractor(search_price_response).extract()
+ 
 
     def _get_segment_number(self, segment_select):
         if segment_select != []:
             segment_number = "<ItineraryOptions>"
             for k in segment_select:
-                segment_number = segment_number+"<SegmentSelect Number='"+k+"'/>" 
+                segment_number = segment_number+"<SegmentSelect Number='"+str(k)+"'/>" 
             segment_number = segment_number+"</ItineraryOptions>"
             return segment_number
         return None
@@ -109,11 +147,12 @@ class SabreClient(BaseClient):
         return None
 
 
-    def _get_passenger_type(self, passenger_type, fare_type, child_list):
+    def _get_passenger_type(self, passenger_type, fare_type):
 
+        child_list = ["CNN","JNN","J12","J11","J10","J09","J08","J07","J06","J05","J04","J03","J02","C12","C11","C10","C09","C08","C07","C06","C05","C04","C03","C02"]
         for pax in passenger_type:
             if fare_type == "Pub":
-                if pax_type['code'] in ["ADT","JCB"]:
+                if pax['code'] in ["ADT","JCB"]:
                     pax_type = f"""<PassengerType Code="ADT" Quantity="{pax["quantity"]}"/>"""
                 
                 elif pax_type['code'] in child_list:
@@ -135,18 +174,54 @@ class SabreClient(BaseClient):
                     pax_type = f"""<PassengerType Code="JNF" Quantity="{pax["quantity"]}"/>"""
                 
             for j in pax['nameSelect']:
-                name_select = "<NameSelect NameNumber='"+j+"'/>" 
+                name_select = "<NameSelect NameNumber='"+str(j)+"'/>" 
         return pax_type, name_select
 
+    def _get_hemisphere_code(self, region_name):
+    
+        hemisphere_code = "0"
 
-    def _get_commision(self, commission, baggage,pcc, hemisphere_code, journey_code):
+        if region_name == "United States":
+            hemisphere_code = "0"
+        
+        if region_name == "Central America":
+            hemisphere_code = "1"
+        
+        if region_name == "Caribbean":
+            hemisphere_code = "2"
+        
+        if region_name == "Latin America":
+            hemisphere_code = "3"
 
+        if region_name == "Europe":
+            hemisphere_code = "4"
+        
+        if region_name == "Africa":
+            hemisphere_code = "5"
+        
+        if region_name == "Middle East":
+            hemisphere_code = "6"
+        
+        if region_name == "Asia":
+            hemisphere_code = "7"
+        
+        if region_name == "Asia Pacific":
+            hemisphere_code = "8"
+        
+        if region_name == "Canada":
+            hemisphere_code = "9"
+            
+        return hemisphere_code
+
+    def _get_commision(self, baggage,pcc, region_name):
+
+        hemisphere_code = self._get_hemisphere_code(region_name)
         commission = "<MiscQualifiers>"
-        if baggage != "0":
+        if baggage > 0:
             commission = commission+"<BaggageAllowance Number='"+str(baggage)+"'/>"
         if pcc == "3GAH":
             commission = commission+"<HemisphereCode>"+hemisphere_code+"</HemisphereCode>"
-            commission = commission+"<JourneyCode>"+journey_code+"</JourneyCode>"
+            commission = commission+"<JourneyCode>"+'2'+"</JourneyCode>"
         
         commission = commission+"</MiscQualifiers>"
         if commission == "<MiscQualifiers></MiscQualifiers>":
