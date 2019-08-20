@@ -57,18 +57,36 @@ def info_cash_or_cheque(payment_type, commission_value):
 
 def issue_air_ticket_soap(pcc, conversation_id, token_value, type_fop, price_quote):
     return  f"""<?xml version="1.0" encoding="UTF-8"?>
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    {generate_header(pcc, conversation_id, token_value)}
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header>
+                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
+                        <eb:From>
+                            <eb:PartyId>sample.url.of.sabre.client.com</eb:PartyId>
+                        </eb:From>
+                        <eb:To>
+                            <eb:PartyId>webservices.sabre.com</eb:PartyId>
+                        </eb:To>
+                        <eb:CPAId>{pcc}</eb:CPAId>
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
+                        <eb:Service>AirTicketLLSRQ</eb:Service>
+                        <eb:Action>AirTicketLLSRQ</eb:Action>
+                        <eb:MessageData>
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                            <eb:Timestamp>{current_timestamp}</eb:Timestamp>
+                        </eb:MessageData>
+                        <Description>CTS-PORTAL</Description>
+                    </eb:MessageHeader>
+                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
+                    <eb:BinarySecurityToken>{token_value}</eb:BinarySecurityToken>
+                    <eb:group>{pcc}</eb:group>
+                    </eb:Security>
+                </soapenv:Header>
                     <soapenv:Body>
                         <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
-                            <OptionalQualifiers>
-                                {type_fop}
-                                <PricingQualifiers>
-                                    <PriceQuote>
-                                        <Record Number="{price_quote}"/>
-                                    </PriceQuote>
-                                </PricingQualifiers>
-                            </OptionalQualifiers>
+                        <OptionalQualifiers>
+                            {type_fop}
+                            {price_quote}
+                        </OptionalQualifiers>
                         </AirTicketRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
@@ -83,7 +101,7 @@ payment_type = "CS"
 commission_value = 100
 type_fop = info_cash_or_cheque(payment_type, commission_value)
 price_quote = 1234
-token_value = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESG!ICESMSLB\\/RES.LB!-2983077906396752768!48310!0"
+token_value = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESE!ICESMSLB\\/RES.LB!-2983057821176271726!1498876!0"
 current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
 url = "https://webservices3.sabre.com"
 headers = {'content-type': 'text/xml; charset=utf-8'}
