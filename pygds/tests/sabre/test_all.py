@@ -2,18 +2,11 @@
     This is for testing purposes like a suite.
 """
 import os
-import jxmlease
 import json
-import requests
-
-from pygds.core.helpers import get_data_from_xml
-from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds import log_handler
 from pygds.sabre.client import SabreClient
-from pygds import log_handler
-
 from pygds.core.request import LowFareSearchRequest, TravellerNumbering, RequestedSegment
 
 
@@ -24,7 +17,7 @@ def test():
     dir_path = os.path.join(dir_path, "..", "..", "..")
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
-    log = log_handler.get_logger("test_all")
+    # log = log_handler.get_logger("test_all")
 
     username = get_setting("SABRE_USERNAME")
     pcc = get_setting("SABRE_PCC")
@@ -35,7 +28,7 @@ def test():
     # pnr = "RH3WOD"  # "Q68EFX", "RI3B6D", "RT67BC"
     # m_id = None
 
-    #urlpattern = "https://api.havail.sabre.com" + "/v4.1.0/shop/flights?mode=live"
+    # urlpattern = "https://api.havail.sabre.com" + "/v4.1.0/shop/flights?mode=live"
 
     rest_url = "https://api.havail.sabre.com"
 
@@ -60,15 +53,14 @@ def test():
     # except ServerError as se:
     # log.error(f"server_error: {se}")
     # log.error(f"session: {se.session_info}")
-    """ 
-        Test Search Flight Sabre 
     """
-    response = client.search_flightrq("Modou", my_request, "NET")
+        Test Search Flight Sabre
+    """
+    response = client.search_flightrq(None, my_request, "NET")
     response = json.loads(response.content)
-    #client.search_flightrq(None, my_request, "PUB")
+    # client.search_flightrq(None, my_request, "PUB")
     return response
 
-    
 
 if __name__ == "__main__":
     result = test()

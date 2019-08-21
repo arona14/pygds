@@ -1,6 +1,5 @@
 from time import gmtime, strftime
-
-from pygds.core.security_utils import generate_random_message_id, generate_created
+from pygds.core.security_utils import generate_random_message_id
 
 
 class SabreXMLBuilder:
@@ -92,7 +91,7 @@ class SabreXMLBuilder:
                 </SOAP-ENV:Body>
             </SOAP-ENV:Envelope>"""
 
-    def  session_token_rq(self):
+    def session_token_rq(self):
         """ This will return a Token """
         conversation_id = generate_random_message_id()
 

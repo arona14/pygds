@@ -1,8 +1,7 @@
 from typing import List
 import json
 import datetime
-from  types  import SimpleNamespace
-
+from types import SimpleNamespace
 
 
 class BasicDataObject(object):
@@ -267,14 +266,13 @@ class TravellerNumbering(BasicDataObject):
         return self.adults + self.children
 
 
-def test_me():  
+def test_me():
     """
         This function is for testing purpose. It would be removed later.
     """
     r = Reservation()
-    p1 = Passenger("Mariama", "KHAN", "F", "2017-03-23", preferences={"hublot": True, "alchol": False})
     p2 = Passenger("Elodie", "DIOUF", "F", "1987-04-04")
-    r.addPassenger( ).addPassenger(p2)
+    r.addPassenger().addPassenger(p2)
     firstItinerary = Itinerary("OUTBOUND")
     dep = FlightPointDetails("2019-06-27", "13", -4, "NYC", "JFK", "I", "B")
     arr = FlightPointDetails("2019-06-27", "16", +2, "PAR", "CDG", "4", "F")

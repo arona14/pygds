@@ -1,9 +1,6 @@
 from typing import List
 from types import SimpleNamespace
-from datetime import datetime
-
-#from pygds.core.types import TravellerNumbering, Itinerary, BasicDataObject
-from pygds.core.type_helper import TravellerNumbering, Itinerary, BasicDataObject
+from pygds.core.type_helper import TravellerNumbering, BasicDataObject
 
 
 class RequestFilter:
@@ -72,7 +69,6 @@ class RequestedSegment:
         }
 
 
-
 class ClassOfService:
     def __init__(self):
         self.class_of_sevice: str = ''
@@ -126,21 +122,4 @@ class LowFareSearchRequest(BasicDataObject):
             "baggagePref": self.baggagePref,
             "excludeBasicEconomy": self.excludeBasicEconomy,
             "maxConnection": self.maxConnection
-
         })
-
-
-if __name__ == "__main__":
-    pass
-    passenger1 = RequestedSegment("DTW", "NYC", "20-10-2019")
-    #passenger = RequestedSegment("DTW", "NYC", "20-10-2019").to_data()
-    #[{'origin': 'DTW', 'destination': 'NYC', 'departureDate': '20-10-2019'}]
-    #passenger = passenger.append(passenger1)
-    #passenger = passenger.append(passenger1)
-    #passenger = passenger.append({"DTW","NYC","20-10-2019"})
-    # print(passenger)
-    # print(passenger1)
-    g = TravellerNumberingInfo(1, 3, 4)
-    y = LowFareSearchRequest(passenger1, "", "WR17", g, [], "sds", [], False, True).to_data()
-    print(y)
-    #                                                                                                                                                                                                                                                   print(passenger1)

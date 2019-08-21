@@ -1,8 +1,5 @@
 import requests
 import json
-import json 
-import jxmlease
-
 from pygds.core.client import BaseClient
 from pygds.sabre.session import SabreSession
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
@@ -11,8 +8,6 @@ from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
 from pygds.core.helpers import get_data_from_xml
 from pygds.core.sessions import SessionInfo
 from pygds.core.security_utils import generate_random_message_id
-
-from pygds.core.request import LowFareSearchRequest
 
 
 class SabreClient(BaseClient):
@@ -37,10 +32,10 @@ class SabreClient(BaseClient):
         headers = self.rest_header
         headers["Authorization"] = "Bearer " + token
         return requests.post(self.rest_url + url_path, data=request_data, headers=headers)
-    
-    def  _soap_request_wrapper(self, request_data):
-        """ 
-            This  wrapper method helps wrap request 
+
+    def _soap_request_wrapper(self, request_data):
+        """
+            This  wrapper method helps wrap request
         """
         headers = self.header_template
         return requests.post(self.endpoint, data=request_data, headers=headers)
@@ -53,7 +48,7 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_create_rq()
         response = self._soap_request_wrapper(open_session_xml)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        return  response
+        return response
 
     def close_session(self, pcc, conversation_id, token_session):
         """
@@ -99,14 +94,12 @@ class SabreClient(BaseClient):
         request_data = SabreBFMBuilder(request_searh).search_flight(types)
         request_data = json.dumps(request_data, sort_keys=False, indent=4)
         print(request_data)
-        return  request_data
-        """
-        print(request_data)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.session_token()
-            #self.add_session(SessionInfo(token, None, None, message_id, False))
+            print(token)
+            self.add_session(SessionInfo(token, None, None, message_id, False))
         else:
             if not message_id:
                 message_id = generate_random_message_id()
@@ -116,16 +109,16 @@ class SabreClient(BaseClient):
             print(token)
             self.log.info("Waao you already have a token!")
         return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token)
-        """
+
     def session_token(self):
         """
         This will open a new session
-        :return: a Session token 
+        :return: a Session token
         """
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        #print(response)
+        # print(response)
         return response
 
 

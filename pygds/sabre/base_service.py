@@ -11,9 +11,5 @@ class BaseService:
         self.headers = {'content-type': 'text/xml'}
 
 
-def main():
-    pass
-
-
 if __name__ == '__main__':
     main()

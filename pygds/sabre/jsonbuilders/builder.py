@@ -1,6 +1,4 @@
-import json
-import ast
-import yaml
+
 from pygds.core.request import LowFareSearchRequest
 
 
@@ -33,7 +31,7 @@ class SabreBFMBuilder:
 
     def origin_destination_information(self):
         my_return = []
-        itinaries = self.search_request.itineraries 
+        itinaries = self.search_request.itineraries
         for i in itinaries:
             my_return.append(
                 {
@@ -80,14 +78,6 @@ class SabreBFMBuilder:
             return True
         return False
 
-    def merge_dicts(self, *dict_args):
-        """
-        Given any number of dicts, shallow copy and merge into a new dict,
-        """
-        result = {}
-        for dictionary in dict_args:
-            result.update(dictionary)
-        return result
 
     def _flexible_fare(self, pax_quanty_pub, pax_quanty_net, cabin, baggage_pref):
         return {
@@ -216,15 +206,12 @@ class SabreBFMBuilder:
                 "AdditionalNonStopsPercentage": 100
             }
         }
-
-
         flexi_fare = dict()
-        
-        if self._is_alternate_date() == False:
+        if self._is_alternate_date() is False:
             flexi_fare = self._flexible_fare(paxTypeQuantityPUB, paxTypeQuantityPFA, cabin, self.search_request.baggagePref)
 
         d = dict()
-        
+
         """
         if self.search_request.excludeBasicEconomy == True:
             d = {"FareType": [
@@ -237,10 +224,9 @@ class SabreBFMBuilder:
                     "PreferLevel": "Unacceptable"
                 }
             ]}
+
         """
-
-        tpa_ext = self.merge_dicts(tpa_ext,flexi_fare,d)
-
+        tpa_ext = {**tpa_ext, **flexi_fare, **d}
         return {
             "ValidInterlineTicket": True,
             "FlightTypePref": {
@@ -270,7 +256,6 @@ class SabreBFMBuilder:
                 "quantity": self.search_request.adult
             }
             )
-
         if self.search_request.child != 0:
             paxTypeQuantity.append({
                 "type": "CNN" if types == "PUB" else "JNN",
@@ -308,8 +293,8 @@ class SabreBFMBuilder:
                     }
                 },
                 "BrandedFareIndicators": {
-                    "SingleBrandedFare": False,
-                    "MultipleBrandedFares": True
+                    "SingleBrandedFare": True,
+                    "MultipleBrandedFares": False
                 }
             },
             "NegotiatedFaresOnly": False
@@ -321,7 +306,7 @@ class SabreBFMBuilder:
                 "AccountCode": [{"Code": "COM"}]
             }
 
-        pf = self.merge_dicts(pf, account_list)
+        pf = {**pf, **account_list}
         print(pf)
 
         return {"AirTravelerAvail": [
@@ -370,4 +355,3 @@ class SabreBFMBuilder:
                 "AvailableFlightsOnly": True
             }
         }
-
