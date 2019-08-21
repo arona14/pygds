@@ -242,9 +242,5 @@ class SabreXMLBuilder:
             </soapenv:Envelope>"""
 
 
-def main():
-    pass
-
-
 if __name__ == '__main__':
     main()
