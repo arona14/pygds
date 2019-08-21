@@ -38,7 +38,8 @@ class SabreClient(BaseClient):
         :return: the contain of the response
         """
         response = self._request_wrapper(request_data, soap_action)
-        status = response.status_code
+        # print(response.content)
+        # status = response.status_code
         # if self.is_debugging:
         #     self.log.debug(request_data)
         #     self.log.debug(response.content)
@@ -254,16 +255,23 @@ class SabreClient(BaseClient):
         # test = SabreBFMBuilder(request_searh).search_flight()
         #print(test)
         pass
-
-    def issue_ticket(self, )
+    
+    def fop_choice(self, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = None, commission_value = None):
+        if code_cc and expire_date and cc_number is not None:
+            fop = self.xml_builder.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
+        elif payment_type and commission_value is not None:     
+            fop = self.xml_builder.info_cash_or_cheque(payment_type, commission_value)
+        return fop
+    
+    def issue_ticket(self, token_value, price_quote, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = None, commission_value = None):
         """
         This function is for issue ticket 
         :return 
         """
-        request_data = self.xml_builder.air_ticket_rq(token_value, info_ticketing, price_quote)
-        response_data = self.__request_wrapper("air_ticket_rq", request_data, 'https://webservices3.sabre.com')
-        extractor = IssueTicketExtractor(response_data)
-        return extractor.extract()
+        fop_type = self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
+        request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
+        response_data = self.__request_wrapper("air_ticket_rq", request_data, self.xml_builder.url)
+        return IssueTicketExtractor(response_data).extract()
 
 if __name__ == "__main__":
     SabreClient("oui","yes","ok",False).search_flightrq({'pcc':"yes"})

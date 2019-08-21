@@ -21,18 +21,20 @@ request = """{"itineraries": [{"origin": "RDU","destination": "HYD","departureDa
 request_json = json.loads(request)
 
 def test():
-    """ A suite of tests """
+   """ A suite of tests """
 
-    username = get_setting("SABRE_USERNAME")
-    pcc = get_setting("SABRE_PCC")
-    password = decode_base64(get_setting("SABRE_PASSWORD"))
-    url = "https://webservices3.sabre.com"
+   username = get_setting("SABRE_USERNAME")
+   pcc = get_setting("SABRE_PCC")
+   password = decode_base64(get_setting("SABRE_PASSWORD"))
+   url = "https://webservices3.sabre.com"
     #dir_path = os.path.dirname(os.path.realpath(__file__))
     #log = log_handler.get_logger("test_all")
-    pnr = "KFBBCG"  # "Q68EFX", "RI3B6D", "RT67BC"
+   pnr = "KFBBCG"  # "Q68EFX", "RI3B6D", "RT67BC"
     # m_id = None
-
-    client = SabreClient(url, username, password, pcc, False)
+   token = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESF!ICESMSLB\\/RES.LB!-2982727276469258613!395125!0"
+   client = SabreClient(url, username, password, pcc, False)
+   result = client.issue_ticket(token, 1234, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = "CA", commission_value = 123)
+   print(result.payload)
     #try:
     # session_response = client.open_session()
     # r = jxmlease.parse(session_response)
@@ -40,8 +42,8 @@ def test():
     #print(token)
 
     # search = client.search_flightrq(request_json)
-    segment_select=[1,2,3]
-    passenger_type = [   
+   segment_select=[1,2,3]
+   passenger_type = [   
       {   
          "code": "JCB",
          "nameSelect": [   
@@ -57,9 +59,9 @@ def test():
          "quantity": 1
       }
    ]
-    price = client.search_price_quote('ABC', retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type,baggage=0, pcc="WR17")
-    print('price info')
-    print(price)
+   # price = client.search_price_quote('ABC', retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type,baggage=0, pcc="WR17")
+   # print('price info')
+   # print(price)
     #log.info(session_response)
     #except ClientError as ce:
         #log.error(f"client_error: {ce}")

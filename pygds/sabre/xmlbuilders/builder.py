@@ -492,7 +492,7 @@ class SabreXMLBuilder:
             </soapenv:Envelope>"""
 
 
-    def info_credit_card(self, code_cc, expire_date, cc_number, approval_code, commission_value):
+    def info_credit_card(self, code_cc, expire_date, cc_number, commission_value, approval_code=None):
         return  f"""<FOP_Qualifiers>
                 <BasicFOP>
                     <CC_Info Suppress="true">
