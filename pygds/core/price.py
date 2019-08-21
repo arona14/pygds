@@ -239,7 +239,7 @@ class SearchPriceInfos(PriceInfoBasic):
     def to_dict(self):
         return {
                 "status" : self.status,
-                "air_itinerary_pricing_info" : self.air_itinerary_pricing_info
+                "AirItineraryPricingInfo" : self.air_itinerary_pricing_info
                 }
 class FareElement(PriceInfoBasic):
 
@@ -267,17 +267,57 @@ class AirItineraryPricingInfo(PriceInfoBasic):
     """
     
     def __init__(self):
-        self.base_fare:float = 0.0       #base fare amount
+        self.base_fare:float = 0.0       # base fare amount
         self.taxes:float = 0.0            # taxes amount
         self.total_fare:float             # totoal fare amount
         self.currency_code:str = None     # currency code
+        self.passenger_type:str = None      #passenger type
+        self.passenger_quantity:str = None #passenger quantity
+        self.charge_amount:float = 0.0      # Charge Amount
+        self.tour_code:str = None            # Tour Code
+        self.ticket_designator:str = None    # Ticket Designator
+        self.commission_percentage:str = None #Commission Percentage
+        self.fare_break_down:FareBreakdown     # FareBreakdown class
 
     def to_dict(self):
         return{
             "BaseFare" : self.base_fare,
             "Taxes" : self.taxes,
             "TotalFare" : self.total_fare,
-            "CurrencyCode" : self.currency_code
+            "CurrencyCode" : self.currency_code,
+            "PassengerType" : self.passenger_type,
+            "PassengerQuantity" : self.passenger_quantity,
+            "ChargeAmount" : self.charge_amount,
+            "TourCode" : self.tour_code,
+            "TicketDesignator" : self.ticket_designator,
+            "CommissionPercentage" : self.commission_percentage,
+            "FareBreakdown" : self.fare_break_down
+        }
+
+class FareBreakdown(PriceInfoBasic):
+
+    """
+        In this class we will get the fare Break Down
+    """
+    
+    def __init__(self):
+
+        self.cabin:str = None               #the cabin class
+        self.fare_basis_code:str = None     #fare basis Code
+        self.fare_amount:str = None         #fare amount
+        self.fare_passenger_type:str = None # fare passenger type
+        self.fare_type:str = None           #fare type
+        self.filing_carrier:str = None      #Filing Carrier
+    
+    
+    def to_dict(self):   
+        return {
+            "Cabin" : self.cabin,
+            "FareBasisCode" : self.fare_basis_code,
+            "FareAmount" : self.fare_amount,
+            "FarePassengerType" : self.fare_passenger_type,
+            "FareType" : self.fare_type,
+            "FilingCarrier" : self.filing_carrier
         }
 
 

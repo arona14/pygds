@@ -118,9 +118,8 @@ class SabreClient(BaseClient):
         passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type) 
         commission = self._get_commision(baggage, pcc, region_name)
         
-        token_session="Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESC!ICESMSLB\\/RES.LB!-2983069682133371008!1701442!0"
+        token_session="Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESB!ICESMSLB\\/RES.LB!-2982787426132429180!172377!0"
         search_price_request = self.xml_builder.price_quote_rq(token_session,retain=str(retain).lower(), commission=commission, fare_type=fare_type_value, segment_select=segment_number, name_select=name_select, passenger_type=passenger_type)
-        
         
         search_price_response = self.__request_wrapper("search_price_quote", search_price_request,
                                                self.xml_builder.url)
@@ -150,31 +149,33 @@ class SabreClient(BaseClient):
     def _get_passenger_type(self, passenger_type, fare_type):
 
         child_list = ["CNN","JNN","J12","J11","J10","J09","J08","J07","J06","J05","J04","J03","J02","C12","C11","C10","C09","C08","C07","C06","C05","C04","C03","C02"]
+        pax_type = ""
+        name_select = ""
         for pax in passenger_type:
             if fare_type == "Pub":
                 if pax['code'] in ["ADT","JCB"]:
-                    pax_type = f"""<PassengerType Code="ADT" Quantity="{pax["quantity"]}"/>"""
+                    pax_type = pax_type+f"""<PassengerType Code="ADT" Quantity="{str(pax["quantity"])}"/>"""
                 
                 elif pax_type['code'] in child_list:
                     code = "C"+str(pax['code'][-2:])
-                    pax_type = "<PassengerType Code='"+code+ "' Quantity='" +pax['quantity'] + "'/>" 
+                    pax_type = pax_type+"<PassengerType Code='"+code+ "' Quantity='" +str(pax['quantity']) + "'/>" 
                 
                 elif pax['code'] in ["INF","JNF"]:
-                    pax_type = f"""<PassengerType Code="INF" Quantity="{pax["quantity"]}"/>"""
+                    pax_type = pax_type+f"""<PassengerType Code="INF" Quantity="{str(pax["quantity"])}"/>"""
 
             elif fare_type == "Net":
                 if pax['code'] in ["ADT","JCB"]:
-                    pax_type = f"""<PassengerType Code="JCB" Quantity="{pax["quantity"]}"/>"""
+                    pax_type = pax_type+f"""<PassengerType Code="JCB" Quantity="{str(pax["quantity"])}"/>"""
             
                 elif pax['code'] in child_list:
                     code = "J"+str(pax['code'][-2:])
-                    pax_type = "<PassengerType Code='"+code+ "' Quantity='" +pax['quantity'] + "'/>" 
+                    pax_type = pax_type+"<PassengerType Code='"+code+ "' Quantity='" +str(pax['quantity']) + "'/>" 
                 
                 elif pax['code'] in ["INF","JNF"]:
-                    pax_type = f"""<PassengerType Code="JNF" Quantity="{pax["quantity"]}"/>"""
+                    pax_type = pax_type+f"""<PassengerType Code="JNF" Quantity="{str(pax["quantity"])}"/>"""
                 
             for j in pax['nameSelect']:
-                name_select = "<NameSelect NameNumber='"+str(j)+"'/>" 
+                name_select = name_select+"<NameSelect NameNumber='"+str(j)+"'/>" 
         return pax_type, name_select
 
     def _get_hemisphere_code(self, region_name):

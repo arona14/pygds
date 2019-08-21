@@ -40,19 +40,33 @@ def test():
     #print(token)
 
     # search = client.search_flightrq(request_json)
-    segment_select=[1,2,3]
-    passenger_type = [   
-      {   
+    segment_select=[1,2,3,4]
+    passenger_type = [
+      {
          "code": "JCB",
-         "nameSelect": [   
+         "nameSelect": [
             "01.01"
          ],
          "quantity": 1
       },
-      {   
+      {
          "code": "JCB",
-         "nameSelect": [   
+         "nameSelect": [
             "02.01"
+         ],
+         "quantity": 1
+      },
+      {
+         "code": "J11",
+         "nameSelect": [
+            "03.01"
+         ],
+         "quantity": 1
+      },
+      {
+         "code": "JNF",
+         "nameSelect": [
+            "04.01"
          ],
          "quantity": 1
       }
