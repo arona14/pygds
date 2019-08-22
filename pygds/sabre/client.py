@@ -15,6 +15,8 @@ from pygds.sabre.hemisphere_code import get_hemisphere_code
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 
+from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
+from pygds.sabre.formatters.reservation_formatter import BaseResponseExtractor
 
 class SabreClient(BaseClient):
     """
@@ -93,13 +95,13 @@ class SabreClient(BaseClient):
 
         get_reservation = self.xml_builder.get_reservation_rq(token, pnr)
         response = requests.post(self.xml_builder.url, data=get_reservation, headers=self.header_template)
-
-        to_return = from_json(response.content,"stl18:GetReservationRS")
+        to_return = SabreReservationFormatter(response.content)._extract()
+        gds_response = BaseResponseExtractor(session_info,to_return,None)
   
         if need_close:
             self.close_session(token)
 
-        return to_return
+        return gds_response
         
     def search_price_quote(self, message_id, retain: bool=False, fare_type: str='', segment_select: list=[], passenger_type: list=[],baggage: int=0, pcc: str="", region_name: str=""):
         """
