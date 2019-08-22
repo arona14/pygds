@@ -58,7 +58,7 @@ class SabreClient(BaseClient):
         :param token_session: the token session
         :return: None
         """
-        SabreSession().close(pcc, conversation_id, token_session)
+        SabreSession().close()
 
     def get_reservation(self, pnr: str, pcc: str, conversation_id: str, need_close=True):
         """
