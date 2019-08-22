@@ -11,7 +11,8 @@ from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.sabre.helpers import get_data_from_json as from_json
 from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
 from pygds.core.app_error import ApplicationError
-
+from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
+from pygds.sabre.formatters.reservation_formatter import BaseResponseExtractor
 
 class SabreClient(BaseClient):
     """
@@ -60,13 +61,13 @@ class SabreClient(BaseClient):
 
         get_reservation = self.xml_builder.get_reservation_rq(token, pnr)
         response = requests.post(self.xml_builder.url, data=get_reservation, headers=self.header_template)
-
-        to_return = from_json(response.content,"stl18:GetReservationRS")
+        to_return = SabreReservationFormatter(response.content)._extract()
+        gds_response = BaseResponseExtractor(session_info,to_return,None)
   
         if need_close:
             self.close_session(token)
 
-        return to_return
+        return gds_response
         
     def search_price_quote(self, token_session, retain, commission, tour_code, fare_type, ticket_designator, segment_number, name_select, passenger_type, plus_up):
         """

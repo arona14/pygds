@@ -191,7 +191,7 @@ class SabreXMLBuilder:
                     </eb:Security>
                 </soapenv:Header>
                 <soapenv:Body>
-                    <ns7:GetReservationRQ xmlns:ns7="http://webservices.sabre.com/pnrbuilder/v1_19" Version="1.19.0">
+                    <ns7:GetReservationRQ xmlns:ns7="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
                         <ns7:Locator>{record_locator}</ns7:Locator>
                         <ns7:RequestType>Stateful</ns7:RequestType>
                         <ns7:ReturnOptions>
