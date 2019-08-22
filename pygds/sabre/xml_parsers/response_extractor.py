@@ -53,8 +53,7 @@ class BaseResponseExtractor(object):
             self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
         return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
         
-
-
+        
     def _extract(self):
         """
             A private method that does the work of extracting useful data.

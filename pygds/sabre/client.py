@@ -3,27 +3,28 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 
-import requests,jxmlease
+import requests
+import jxmlease
 from pygds.core.client import BaseClient
-from pygds.core.request import  LowFareSearchRequest
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.sabre.helpers import get_data_from_json as from_json
-from pygds.sabre.jsonbuilders.builder import  SabreBFMBuilder
-from pygds.core.app_error import ApplicationError
 
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor
+from pygds.sabre.hemisphere_code import get_hemisphere_code
+from pygds.core.security_utils import generate_random_message_id
+from pygds.errors.gdserrors import NoSessionError
 
 
 class SabreClient(BaseClient):
     """
     A class to interact with Sabre GDS
     """
+    
     def __init__(self, url: str, username: str, password: str, pcc: str, debug: bool = False):
         super().__init__(url, username, password, pcc, debug)
         self.xml_builder = SabreXMLBuilder(url, username, password, pcc)
         self.header_template = {'content-type': 'text/xml; charset=utf-8'}
-
 
     def __request_wrapper(self, method_name: str, request_data: str, soap_action: str):
         """
@@ -39,10 +40,10 @@ class SabreClient(BaseClient):
         """
         response = self._request_wrapper(request_data, soap_action)
         status = response.status_code
-        # if self.is_debugging:
-        #     self.log.debug(request_data)
-        #     self.log.debug(response.content)
-        #     self.log.debug(f"{method_name} status: {status}")
+        if self.is_debugging:
+            self.log.debug(request_data)
+            self.log.debug(response.content)
+            self.log.debug(f"{method_name} status: {status}")
         # if status == 500:
         #     error = ErrorExtractor(response.content).extract()
         #     sess, (faultcode, faultstring) = error.session_info, error.payload
@@ -59,7 +60,7 @@ class SabreClient(BaseClient):
         This will open a new session
         :return: a token session
         """
-        message_id = "Virginie"
+        message_id = generate_random_message_id()
         open_session_xml = self.xml_builder.session_create_rq()
         response = self._request_wrapper(open_session_xml, None)
         r = jxmlease.parse(response.content)
@@ -100,30 +101,32 @@ class SabreClient(BaseClient):
 
         return to_return
         
-    def search_price_quote(self, message_id, retain:bool=False, fare_type:str='', segment_select:list=[], passenger_type:list=[],baggage:int=0, pcc:str="", region_name:str=""):
+    def search_price_quote(self, message_id, retain: bool=False, fare_type: str='', segment_select: list=[], passenger_type: list=[],baggage: int=0, pcc: str="", region_name: str=""):
         """
-        A method to cancel segment
-        :param message_id: the message id 
-        :return: None
+        A method to search price
+        :param message_id: the message id
+        :param retain: the retain value 
+        :param fare_type: the fare type value value
+        :param segment_select: the list of segment selected
+        :param  passenger_type: the list of passenger type selected
+        :param baggage: number of baggage
+        :param  pcc : the pcc
+        :param region_name: the region name
+        :return: 
         """
-        print('search_price_quote')
         _, _, token_session = self.get_or_create_session_details(message_id)
-        session_info = None
-        if not token_session:
-            session_info = self.open_session()
-            token_session = session_info.security_token
+        if token_session is None:
+            raise NoSessionError(message_id)
 
         segment_number = self._get_segment_number(segment_select)
         fare_type_value = self._get_fare_type(fare_type) if self._get_fare_type(fare_type) else ""
         passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type) 
         commission = self._get_commision(baggage, pcc, region_name)
         
-        token_session="Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESB!ICESMSLB\\/RES.LB!-2982787426132429180!172377!0"
         search_price_request = self.xml_builder.price_quote_rq(token_session,retain=str(retain).lower(), commission=commission, fare_type=fare_type_value, segment_select=segment_number, name_select=name_select, passenger_type=passenger_type)
         
         search_price_response = self.__request_wrapper("search_price_quote", search_price_request,
                                                self.xml_builder.url)
-        #response =  requests.post(self.xml_builder.url, data=search_price, headers=self.header_template)
         return PriceSearchExtractor(search_price_response).extract()
  
 
@@ -178,45 +181,11 @@ class SabreClient(BaseClient):
                 name_select = name_select+"<NameSelect NameNumber='"+str(j)+"'/>" 
         return pax_type, name_select
 
-    def _get_hemisphere_code(self, region_name):
-    
-        hemisphere_code = "0"
-
-        if region_name == "United States":
-            hemisphere_code = "0"
-        
-        if region_name == "Central America":
-            hemisphere_code = "1"
-        
-        if region_name == "Caribbean":
-            hemisphere_code = "2"
-        
-        if region_name == "Latin America":
-            hemisphere_code = "3"
-
-        if region_name == "Europe":
-            hemisphere_code = "4"
-        
-        if region_name == "Africa":
-            hemisphere_code = "5"
-        
-        if region_name == "Middle East":
-            hemisphere_code = "6"
-        
-        if region_name == "Asia":
-            hemisphere_code = "7"
-        
-        if region_name == "Asia Pacific":
-            hemisphere_code = "8"
-        
-        if region_name == "Canada":
-            hemisphere_code = "9"
-            
-        return hemisphere_code
+   
 
     def _get_commision(self, baggage,pcc, region_name):
 
-        hemisphere_code = self._get_hemisphere_code(region_name)
+        hemisphere_code = get_hemisphere_code(region_name)
         commission = "<MiscQualifiers>"
         if baggage > 0:
             commission = commission+"<BaggageAllowance Number='"+str(baggage)+"'/>"
