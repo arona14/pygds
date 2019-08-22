@@ -8,6 +8,7 @@ from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 import re
 
+
 class BaseResponseExtractor(object):
     """
         This is a base class for all response extractor. A helpful class to extract useful info from an XML.
@@ -52,8 +53,7 @@ class BaseResponseExtractor(object):
         if self.parse_app_error and self.app_error is None:
             self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
         return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
-        
-        
+
     def _extract(self):
         """
             A private method that does the work of extracting useful data.
@@ -81,8 +81,10 @@ class AppErrorExtractor(BaseResponseExtractor):
         if not app_error_data:
             return None
 
-        description =  from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
+        description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
+
+
 class PriceSearchExtractor(BaseResponseExtractor):
     """
         Class to extract price search information from XML Response
@@ -99,7 +101,6 @@ class PriceSearchExtractor(BaseResponseExtractor):
         air_itinerary_pricing = from_json(payload, "PriceQuote", "PricedItinerary", "AirItineraryPricingInfo")
         air_itinerary_pricing = ensure_list(air_itinerary_pricing)
         air_itinerary_pricing_list = []
-        
         for air_itinerary_pricing_inf in air_itinerary_pricing:
             passengers = self._get_passengers(air_itinerary_pricing_inf)
             air_itinerary_pricing_list.append(passengers)
@@ -111,7 +112,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
     def _get_passengers(self, air_itinerary_pricing):
 
         for i in ensure_list(from_json(air_itinerary_pricing, "PassengerTypeQuantity")):
-        
+
             itin_totalfare = from_json(air_itinerary_pricing, "ItinTotalFare")
             air_itinerary_pricing_info = AirItineraryPricingInfo()
             air_itinerary_pricing_info.base_fare = from_json(itin_totalfare, "EquivFare", "@Amount") if "EquivFare" in itin_totalfare else from_json(itin_totalfare, "BaseFare", "@Amount")
@@ -120,39 +121,36 @@ class PriceSearchExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.currency_code = from_json(itin_totalfare, "TotalFare", "@CurrencyCode")
             air_itinerary_pricing_info.passenger_type = from_json(i, "@Code")
             air_itinerary_pricing_info.passenger_quantity = from_json(i, "@Quantity")
-            air_itinerary_pricing_info.charge_amount = from_json(air_itinerary_pricing, "ItinTotalFare",  "TotalFare", "@Amount")
+            air_itinerary_pricing_info.charge_amount = from_json(air_itinerary_pricing, "ItinTotalFare", "TotalFare", "@Amount")
             air_itinerary_pricing_info.tour_code = self._get_tour_code(air_itinerary_pricing)
             air_itinerary_pricing_info.ticket_designator = self._get_get_ticket_designator(air_itinerary_pricing)
             air_itinerary_pricing_info.commission_percentage = self._get_commission_percent(air_itinerary_pricing)
-            air_itinerary_pricing_info.fare_break_down =  self._get_fare_break_down(air_itinerary_pricing)
-  
+            air_itinerary_pricing_info.fare_break_down = self._get_fare_break_down(air_itinerary_pricing)
+
             return air_itinerary_pricing_info
-    
-    
+
     def _get_tour_code(self, air_itinerary_pricing):
         result = None
-        if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare")  and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
+        if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
             if 'TC' in text:
                 text = re.findall("TC ([0-9A-Z]+)", str)[0]
                 result = text
         return result
 
-
     def _get_get_ticket_designator(self, air_itinerary_pricing):
         result = None
-        if "Endorsements" in from_json(air_itinerary_pricing,"ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
+        if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
             if 'TD' in text:
                 text = re.findall("TD ([0-9A-Z]+)", str)[0]
                 result = text
         return result
 
-
     def _get_commission_percent(self, air_itinerary_pricing):
         result = 0
 
-        if "PTC_FareBreakdown" in air_itinerary_pricing and isinstance(from_json(air_itinerary_pricing, "PTC_FareBreakdown"), list) and len(from_json(air_itinerary_pricing, "PTC_FareBreakdown")) > 0 :
+        if "PTC_FareBreakdown" in air_itinerary_pricing and isinstance(from_json(air_itinerary_pricing, "PTC_FareBreakdown"), list) and len(from_json(air_itinerary_pricing, "PTC_FareBreakdown")) > 0:
             fare_breakdown = from_json(air_itinerary_pricing, "PTC_FareBreakdown")
             text = from_json(fare_breakdown[0], "FareBasis", "@Code")
             if 'CM' in text:
@@ -164,17 +162,15 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
         fare_breakdown = FareBreakdown()
         fare_break_list = ensure_list(from_json(air_itinerary_pricing, "PTC_FareBreakdown"))
-        fare_breakdown_list =[]
+        fare_breakdown_list = []
         for fare_break in fare_break_list:
             fare_breakdown.cabin = from_json(fare_break, "Cabin")
             fare_breakdown.fare_basis_code = from_json(fare_break, "FareBasis", "@Code")
-            fare_breakdown.fare_amount = from_json(fare_break, "FareBasis","@FareAmount") if "@FareAmount" in from_json(fare_break, "FareBasis") else None
-            fare_breakdown.fare_passenger_type = from_json(fare_break, "FareBasis", "@FarePassengerType") if "@FarePassengerType" in  from_json(fare_break, "FareBasis") else None
-            fare_breakdown.fare_type = from_json(fare_break, "FareBasis","@FareType") if "@FareType" in  from_json(fare_break, "FareBasis") else None
-            fare_breakdown.filing_carrier = from_json(fare_break, "FareBasis","@FilingCarrier") if "@FilingCarrier" in  from_json(fare_break, "FareBasis") else None
+            fare_breakdown.fare_amount = from_json(fare_break, "FareBasis", "@FareAmount") if "@FareAmount" in from_json(fare_break, "FareBasis") else None
+            fare_breakdown.fare_passenger_type = from_json(fare_break, "FareBasis", "@FarePassengerType") if "@FarePassengerType" in from_json(fare_break, "FareBasis") else None
+            fare_breakdown.fare_type = from_json(fare_break, "FareBasis", "@FareType") if "@FareType" in from_json(fare_break, "FareBasis") else None
+            fare_breakdown.filing_carrier = from_json(fare_break, "FareBasis", "@FilingCarrier") if "@FilingCarrier" in from_json(fare_break, "FareBasis") else None
 
             fare_breakdown_list.append(fare_breakdown)
-        
-        return fare_breakdown_list
 
-            
+        return fare_breakdown_list

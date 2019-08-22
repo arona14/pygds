@@ -3,8 +3,10 @@ import time
 import xmltodict
 import json
 
+
 def ensureList(elem):
     return elem if isinstance(elem, list) else [elem]
+
 
 def get_data_from_json(json_data, *paths):
     """
