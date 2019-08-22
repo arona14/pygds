@@ -54,7 +54,7 @@ def test():
         print("Awma session info")
         return
     message_id = session_info.message_id
-    price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type, baggage=0, pcc="WR17")
+    price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     print(price)
 
 

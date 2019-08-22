@@ -99,7 +99,7 @@ class SabreClient(BaseClient):
 
         return gds_response
 
-    def search_price_quote(self, message_id, retain: bool = False, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, pcc: str = "", region_name: str = ""):
+    def search_price_quote(self, message_id, retain: bool = False, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = ""):
         """
         A method to search price
         :param message_id: the message id
@@ -112,102 +112,16 @@ class SabreClient(BaseClient):
         :param region_name: the region name
         :return:
         """
-        _, _, token_session = self.get_or_create_session_details(message_id)
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-
-        segment_number = self._get_segment_number(segment_select)
-        fare_type_value = self._get_fare_type(fare_type) if self._get_fare_type(fare_type) else ""
-        passenger_type, name_select = self._get_passenger_type(passenger_type, fare_type)
-        commission = self._get_commision(baggage, pcc, region_name)
-        search_price_request = self.xml_builder.price_quote_rq(token_session, retain=str(retain).lower(), commission=commission, fare_type=fare_type_value, segment_select=segment_number, name_select=name_select, passenger_type=passenger_type)
+        search_price_request = self.xml_builder.price_quote_rq(token_session, retain=str(retain).lower(), fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name)
         search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.xml_builder.url)
-        return PriceSearchExtractor(search_price_response).extract()
-
-    def _get_segment_number(self, segment_select):
-        if segment_select != []:
-            segment_number = "<ItineraryOptions>"
-            for k in segment_select:
-                segment_number = segment_number + "<SegmentSelect Number='" + str(k) + "'/>"
-            segment_number = segment_number + "</ItineraryOptions>"
-            return segment_number
-        return None
-
-    def _get_fare_type(self, fare_type):
-        if fare_type == "Pub":
-            fare_type_value = "<Account>"
-            fare_type_value = fare_type_value + "<Code>COM</Code>"
-            fare_type_value = fare_type_value + "</Account>"
-            return fare_type_value
-        return None
-
-    def _get_passenger_type(self, passenger_type, fare_type):
-
-        child_list = ["CNN", "JNN", "J12", "J11", "J10", "J09", "J08", "J07", "J06", "J05", "J04", "J03", "J02", "C12", "C11", "C10", "C09", "C08", "C07", "C06", "C05", "C04", "C03", "C02"]
-        pax_type = ""
-        name_select = ""
-        for pax in passenger_type:
-            if fare_type == "Pub":
-                pax_type = self.__get_pax_type_with_pub(pax, pax_type, child_list)
-            elif fare_type == "Net":
-                pax_type = self.__get_pax_type_with_net(pax, pax_type, child_list)
-            for j in pax['nameSelect']:
-                name_select = name_select + "<NameSelect NameNumber='" + str(j) + "'/>"
-        return pax_type, name_select
-
-    def __get_pax_type_with_pub(self, pax, pax_type, child_list):
-        if pax['code'] in ["ADT", "JCB"]:
-            pax_type = pax_type + f"""<PassengerType Code="ADT" Quantity="{str(pax["quantity"])}"/>"""
-
-        elif pax['code'] in child_list:
-            code = "C" + str(pax['code'][-2:])
-            pax_type = pax_type + "<PassengerType Code='" + code + "' Quantity='" + str(pax['quantity']) + "'/>"
-
-        elif pax['code'] in ["INF", "JNF"]:
-            pax_type = pax_type + f"""<PassengerType Code="INF" Quantity="{str(pax["quantity"])}"/>"""
-        return pax_type
-
-    def __get_pax_type_with_net(self, pax, pax_type, child_list):
-        if pax['code'] in ["ADT", "JCB"]:
-            pax_type = pax_type + f"""<PassengerType Code="JCB" Quantity="{str(pax["quantity"])}"/>"""
-
-        elif pax['code'] in child_list:
-            code = "J" + str(pax['code'][-2:])
-            pax_type = pax_type + "<PassengerType Code='" + code + "' Quantity='" + str(pax['quantity']) + "'/>"
-
-        elif pax['code'] in ["INF", "JNF"]:
-            pax_type = pax_type + f"""<PassengerType Code="JNF" Quantity="{str(pax["quantity"])}"/>"""
-        return pax_type
-
-    def __get_hemisphere_code(self, region_name):
-        hemisphere_code = {
-            "United States": "0",
-            "Central America": "1",
-            "Caribbean": "2",
-            "Latin America": "3",
-            "Europe": "4",
-            "Africa": "5",
-            "Middle East": "6",
-            "Asia ": "7",
-            "Asia Pacific": "8",
-            "Canada": "9"
-        }
-        return hemisphere_code.get(region_name, "0")
-
-    def _get_commision(self, baggage, pcc, region_name):
-
-        hemisphere_code = self.__get_hemisphere_code(region_name)
-        commission = "<MiscQualifiers>"
-        if baggage > 0:
-            commission = commission + "<BaggageAllowance Number='" + str(baggage) + "'/>"
-        if pcc == "3GAH":
-            commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
-            commission = commission + "<JourneyCode>" + '2' + "</JourneyCode>"
-
-        commission = commission + "</MiscQualifiers>"
-        if commission == "<MiscQualifiers></MiscQualifiers>":
-            commission = ""
-        return commission
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        response = PriceSearchExtractor(search_price_response).extract()
+        response.session_info = session_info
+        return response
 
     def cancel_list_segment(self, token_session, list_segment):
         """
