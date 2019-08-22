@@ -50,7 +50,7 @@ class SabreClient(BaseClient):
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         return response
 
-    def close_session(self, pcc, conversation_id, token_session):
+    def close_session(self):
         """
         A method to close a session
         :param pcc: The PCC

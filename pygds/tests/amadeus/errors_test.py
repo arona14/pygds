@@ -1,5 +1,5 @@
 from unittest import TestCase
-
+import unittest
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.sessions import SessionInfo
 
@@ -17,3 +17,7 @@ class ErrorsTest(TestCase):
         s_error = ServerError(self.session_info, 502, "NO-PNR", "Not PNR")
         self.assertIsNotNone(s_error)
         self.assertEqual(s_error.status_code, 502)
+
+
+if __name__ == "__main__":
+    unittest.main()

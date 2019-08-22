@@ -240,7 +240,3 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-
-
-if __name__ == '__main__':
-    main()

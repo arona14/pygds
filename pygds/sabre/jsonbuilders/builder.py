@@ -78,7 +78,6 @@ class SabreBFMBuilder:
             return True
         return False
 
-
     def _flexible_fare(self, pax_quanty_pub, pax_quanty_net, cabin, baggage_pref):
         return {
             "FlexibleFares": {

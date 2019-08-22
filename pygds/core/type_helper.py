@@ -234,7 +234,7 @@ class SellItinerary(BasicDataObject):
 
 class TravellerInfo(BasicDataObject):
     def to_data(self):
-        pass
+        return None
 
     def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
         self.ref_number = ref_number
@@ -249,6 +249,7 @@ class TravellerNumbering(BasicDataObject):
     """
         This class is for holding information about the numbering of traveller.
     """
+
     def to_data(self):
         return SimpleNamespace(**{"adults": self.adults, "children": self.children, "infants": self.infants})
 
@@ -258,10 +259,12 @@ class TravellerNumbering(BasicDataObject):
         self.infants = infants
 
     """ Gives the total number of traveller"""
+
     def total_travellers(self):
         return self.adults + self.children + self.infants
 
     """ Gives the total number of seats to occupy"""
+
     def total_seats(self):
         return self.adults + self.children
 

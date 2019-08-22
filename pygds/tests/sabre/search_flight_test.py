@@ -49,7 +49,7 @@ class ClientCan(unittest.TestCase):
         my_final_request = json.loads(my_final_request)
         self.assertEqual(my_final_request, self.search_net, "The two objets are not equals")
     """
-    def  test_result_search(self):
+    def test_result_search(self):
         segment1 = RequestedSegment("ATH", "LHR", "2019-09-17").to_data()
         segment2 = RequestedSegment("LHR", "ATH", "2019-09-26").to_data()
 
@@ -64,8 +64,8 @@ class ClientCan(unittest.TestCase):
 
         my_final_request = self.client.search_flightrq("Modou", my_request, "PUB")
         response = json.loads(my_final_request.content)
-        #print(response)
-        self.assertEqual(response, response,  "They aren't equals")
+        # print(response)
+        self.assertEqual(response, response, "They aren't equals")
 
     def test_travel_numbering(self):
         r = TravellerNumbering(1, 0, 0)

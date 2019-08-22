@@ -46,6 +46,7 @@ class FlightAirlineDetails(BasicDataObject):
     """
     Holds informations about airline
     """
+
     def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None, control_number: str = None):
         self.airline_code = airline_code
         self.flight_number = flight_number
@@ -438,6 +439,7 @@ class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
+
     def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None, creation_date: str = None):
         self.dk_number = dk_number
         self.agent_signature = agent_signature
