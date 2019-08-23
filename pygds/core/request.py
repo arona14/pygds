@@ -1,9 +1,6 @@
 from typing import List
 
-from datetime import datetime
-
-from pygds.core.types import TravellerNumbering, Itinerary, BasicDataObject
-
+from pygds.core.types import BasicDataObject
 
 
 class RequestFilter:
@@ -57,9 +54,6 @@ class OriginDestination:
     def __init__(self):
         self.city: str = ''
 
-class OriginDestination:
-    def __init__(self):
-        self.departure_date: str = ''
 
 class RequestedSegment:
     def __init__(self):
@@ -73,21 +67,16 @@ class ClassOfService:
         self.class_of_sevice: str = ''
 
 
-
 class LowFareSearchRequest(BasicDataObject):
 
-    def __init__(self, itineraries: List[RequestedSegment], csv: str = '',pcc: str = '', 
-                adult: int = 0, child:int = 0, infant: int = 0, alternatePcc: list = [],
-                requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False,
-        excludeBasicEconomy: bool = True):
+    def __init__(self, itineraries: List[RequestedSegment], csv: str = '', pcc: str = '', adult: int = 0, child: int = 0, infant: int = 0, alternatePcc: list = [], requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False, excludeBasicEconomy: bool = True):
 
- 
         self.itineraries: List[RequestedSegment] = itineraries
         self.csv: ClassOfService = csv
-        self.pcc = pcc 
+        self.pcc = pcc
         self.adult = adult
         self.child = child
-        self.infant = infant 
+        self.infant = infant
         self.alternatePcc = alternatePcc
         self.requestType = requestType
         self.preferredAirlines = preferredAirlines
@@ -99,14 +88,14 @@ class LowFareSearchRequest(BasicDataObject):
             "itineraries": [i for i in self.itineraries],
             "pcc": self.pcc,
             "adult": self.adult,
-            "child" : self.child,
-            "infant" : self.infant,
+            "child": self.child,
+            "infant": self.infant,
             "csv": self.csv,
             "alternatePcc": [al for al in self.alternatePcc],
-            "requestType" : self.requestType,
-            "preferredAirlines" : self.preferredAirlines,
-            "baggagePref" : self.baggagePref,
-            "excludeBasicEconomy" : self.excludeBasicEconomy
+            "requestType": self.requestType,
+            "preferredAirlines": self.preferredAirlines,
+            "baggagePref": self.baggagePref,
+            "excludeBasicEconomy": self.excludeBasicEconomy
 
         }
 

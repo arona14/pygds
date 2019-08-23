@@ -130,7 +130,7 @@ class SabreXMLBuilder:
 
     def end_transaction_rq(self, token):
         """
-            Return the xml request to complete and store 
+            Return the xml request to complete and store
             changes made to a Passenger Name Record (PNR)
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -201,7 +201,7 @@ class SabreXMLBuilder:
 
     def get_reservation_rq(self, token, record_locator):
         """
-            Return the xml request to retrieve and 
+            Return the xml request to retrieve and
             display a passenger name record (PNR)
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -243,7 +243,7 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', ticket_designator: str = '', segment_select: list = [], passenger_type: list = [], plus_up: str = '', baggage: int = 0, region_name: str = ""):
         """
             Return the xml request to price air itineraries
@@ -252,7 +252,7 @@ class SabreXMLBuilder:
         pax_type, name_select = get_passenger_type(passenger_type, fare_type)
         fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
         commission = get_commision(baggage, self.pcc, region_name)
-        return f"""<?xml version="1.0" encoding="UTF-8"?>
+       return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
                     <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
