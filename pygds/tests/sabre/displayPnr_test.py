@@ -21,7 +21,7 @@ def test():
  
     client = SabreClient(url, username, password, pcc, False)
 
-    display_pnr = client.get_reservation("LVWPSX", None)
+    display_pnr = client.get_reservation("XCVYRX", None)
     return display_pnr
 
 if __name__ == "__main__":
