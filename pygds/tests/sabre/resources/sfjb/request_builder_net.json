@@ -1,0 +1,267 @@
+{
+    "OTA_AirLowFareSearchRQ": {
+        "POS": {
+            "Source": [
+                {
+                    "RequestorID": {
+                        "CompanyName": {
+                            "Code": "TN",
+                            "content": "Context"
+                        },
+                        "URL": "http://www.sabre.com/",
+                        "Type": "1",
+                        "ID": "1"
+                    },
+                    "PseudoCityCode": "WR17",
+                    "ISOCountry": "US"
+                }
+            ]
+        },
+        "OriginDestinationInformation": [
+            {
+                "TPA_Extensions": {
+                    "SegmentType": {
+                        "Code": "O"
+                    },
+                    "CabinPref": {
+                        "Cabin": "Y"
+                    }
+                },
+                "RPH": "1",
+                "OriginLocation": {
+                    "LocationCode": "DTW",
+                    "CodeContext": "IATA"
+                },
+                "DestinationLocation": {
+                    "LocationCode": "NYC",
+                    "CodeContext": "IATA"
+                },
+                "DepartureDateTime": "2019-08-29T11:00:00"
+            },
+            {
+                "TPA_Extensions": {
+                    "SegmentType": {
+                        "Code": "O"
+                    },
+                    "CabinPref": {
+                        "Cabin": "Y"
+                    }
+                },
+                "RPH": "2",
+                "OriginLocation": {
+                    "LocationCode": "NYC",
+                    "CodeContext": "IATA"
+                },
+                "DestinationLocation": {
+                    "LocationCode": "DTW",
+                    "CodeContext": "IATA"
+                },
+                "DepartureDateTime": "2019-09-21T11:00:00"
+            }
+        ],
+        "TravelPreferences": {
+            "ValidInterlineTicket": true,
+            "FlightTypePref": {
+                "MaxConnections": "2"
+            },
+            "TPA_Extensions": {
+                "LongConnectTime": {
+                    "Enable": true
+                },
+                "ExcludeVendorPref": [
+                    {
+                        "Code": "WN"
+                    }
+                ],
+                "TripType": {
+                    "Value": "Return"
+                },
+                "ExemptAllTaxes": {
+                    "Value": false
+                },
+                "ExemptAllTaxesAndFees": {
+                    "Value": false
+                },
+                "FlightStopsAsConnections": {
+                    "Ind": true
+                },
+                "JumpCabinLogic": {
+                    "Disabled": false
+                },
+                "DiversityParameters": {
+                    "Weightings": {
+                        "PriceWeight": 10,
+                        "TravelTimeWeight": 0
+                    },
+                    "AdditionalNonStopsPercentage": 100
+                },
+                "FlexibleFares": {
+                    "FareParameters": [
+                        {
+                            "PassengerTypeQuantity": [
+                                {
+                                    "Code": "ADT",
+                                    "Quantity": 2
+                                },
+                                {
+                                    "Code": "CNN",
+                                    "Quantity": 1
+                                }
+                            ],
+                            "Cabin": {
+                                "Type": "Y"
+                            },
+                            "NegotiatedFaresOnly": {
+                                "Ind": true
+                            },
+                            "AccountCode": [
+                                {
+                                    "Code": "COM"
+                                }
+                            ],
+                            "VoluntaryChanges": {
+                                "Match": "Info",
+                                "Penalty": [
+                                    {
+                                        "Type": "Refund"
+                                    },
+                                    {
+                                        "Type": "Exchange"
+                                    }
+                                ]
+                            },
+                            "Baggage": {
+                                "FreePieceRequired": false
+                            }
+                        },
+                        {
+                            "PassengerTypeQuantity": [
+                                {
+                                    "Code": "PFA",
+                                    "Quantity": 2
+                                },
+                                {
+                                    "Code": "CNN",
+                                    "Quantity": 1
+                                }
+                            ],
+                            "Cabin": {
+                                "Type": "Y"
+                            },
+                            "VoluntaryChanges": {
+                                "Match": "Info",
+                                "Penalty": [
+                                    {
+                                        "Type": "Refund"
+                                    },
+                                    {
+                                        "Type": "Exchange"
+                                    }
+                                ]
+                            },
+                            "Baggage": {
+                                "FreePieceRequired": false
+                            }
+                        }
+                    ]
+                }
+            },
+            "AncillaryFees": {
+                "Enable": true,
+                "Summary": true,
+                "AncillaryFeeGroup": [
+                    {
+                        "Code": "BG",
+                        "Count": "3"
+                    }
+                ]
+            },
+            "VendorPref": []
+        },
+        "TravelerInfoSummary": {
+            "AirTravelerAvail": [
+                {
+                    "PassengerTypeQuantity": [
+                        {
+                            "Code": "JCB",
+                            "Quantity": 2,
+                            "TPA_Extensions": {
+                                "VoluntaryChanges": {
+                                    "Match": "Info",
+                                    "Penalty": [
+                                        {
+                                            "Type": "Refund"
+                                        },
+                                        {
+                                            "Type": "Exchange"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Code": "JNN",
+                            "Quantity": 1,
+                            "TPA_Extensions": {
+                                "VoluntaryChanges": {
+                                    "Match": "Info",
+                                    "Penalty": [
+                                        {
+                                            "Type": "Refund"
+                                        },
+                                        {
+                                            "Type": "Exchange"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "PriceRequestInformation": {
+                "NegotiatedFareCode": [],
+                "TPA_Extensions": {
+                    "Priority": {
+                        "Price": {
+                            "Priority": 1
+                        },
+                        "DirectFlights": {
+                            "Priority": 4
+                        },
+                        "Time": {
+                            "Priority": 2
+                        },
+                        "Vendor": {
+                            "Priority": 3
+                        }
+                    },
+                    "Indicators": {
+                        "RefundPenalty": {
+                            "Ind": true
+                        }
+                    },
+                    "BrandedFareIndicators": {
+                        "SingleBrandedFare": false,
+                        "MultipleBrandedFares": true
+                    }
+                },
+                "NegotiatedFaresOnly": false
+            }
+        },
+        "TPA_Extensions": {
+            "IntelliSellTransaction": {
+                "RequestType": {
+                    "Name": "50ITINS"
+                },
+                "CompressResponse": {
+                    "Value": true
+                }
+            },
+            "AlternatePCC": []
+        },
+        "Target": "Production",
+        "Version": "4.1.0",
+        "AvailableFlightsOnly": true
+    }
+}

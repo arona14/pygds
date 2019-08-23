@@ -4,7 +4,6 @@
 
 import requests
 import jxmlease
-
 from pygds.sabre.helpers import soap_service_to_json
 from pygds.sabre.base_service import BaseService
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder

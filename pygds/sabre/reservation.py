@@ -66,12 +66,3 @@ class SabreReservation(BaseService):
             # TODO: Capture the real exception not the general one
             to_return_dict = None
         return to_return_dict
-
-
-def main():
-    pnr = SabreReservation().get('YQZMVU', 'WR17', 'factory-test-pygds')
-    print(pnr)
-
-
-if __name__ == '__main__':
-    main()
