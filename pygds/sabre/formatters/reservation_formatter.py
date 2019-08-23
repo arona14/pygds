@@ -1,11 +1,19 @@
 from pygds.core.app_error import ApplicationError
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import Passenger
-from pygds.core.types import Itinerary, FlightPriceQuote, FlightSummary, FlightAmounts, FlightPassenger_pq, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, PriceQuote,TicketingInfo_
+from pygds.core.types import PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightPriceQuote, FlightSummary, FlightAmounts, FlightPassenger_pq, FlightSegment, FlightPointDetails, FormOfPayment, TicketingInfo, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, PriceQuote,TicketingInfo_
 from pygds.sabre.helpers import get_data_from_json as from_json
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list,get_data_from_xml as from_xml, reformat_date,ensureList
 
 
+def fareTypePriceQuote(passenger_type):
+    fare_type = ""
+    passenger_pub_list = ["ADT","CNN","C11","C10","C09","C08","C07","C06","C05","C04","C03","C02","INF"]
+    if str(passenger_type).startswith("J") or str(passenger_type) not in passenger_pub_list:
+        fare_type = "NET"
+    else:
+        fare_type = "PUB"
+    return fare_type
 
 class BaseResponseExtractor:
     """
@@ -28,6 +36,10 @@ class BaseResponseExtractor:
         return str(self.to_dict())
 
 class SabreReservationFormatter():
+
+    """
+        A class to extract Reservation from response of retrieve PNR.
+    """
     
     def __init__(self, xml_content: str):
         self.xml_content = xml_content
@@ -41,8 +53,8 @@ class SabreReservationFormatter():
             'passengers': self._passengers(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:Passengers']['stl18:Passenger']),
             'itineraries': self._itineraries(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']),
             'form_of_payments': self._forms_of_payment(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:FormsOfPayment']),
-            'price_quotes': None,
-            'ticketing_info': self._ticketing(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:TicketingInfo']),
+            'price_quotes': self._price_quote(display_pnr["or112:PriceQuote"]["PriceQuoteInfo"]),
+            'ticketing_info': self._ticketing(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:Passengers']['stl18:Passenger']),
             'remarks': self._remarks(display_pnr['stl18:Reservation']['stl18:Remarks']["stl18:Remark"]),
             'dk_number': display_pnr['stl18:Reservation']['stl18:DKNumbers']["stl18:DKNumber"]
         }
@@ -87,17 +99,11 @@ class SabreReservationFormatter():
                 arrival_airport = i['stl18:Air']['stl18:ArrivalAirport']
                 operating_airline_code = i['stl18:Air']['stl18:OperatingAirlineCode']
                 operating_short_name = i['stl18:Air']['stl18:OperatingAirlineShortName']
-                if 'stl18:MarktingAirlineShortName' in i['stl18:Air']:
-                    markting_short_name = i['stl18:Air']['stl18:MarktingAirlineShortName']
-                else:
-                    markting_short_name = ""
+                markting_short_name = i['stl18:Air']['stl18:MarktingAirlineShortName'] if 'stl18:MarktingAirlineShortName' in i['stl18:Air'] else ""
                 marketing_airline_code = i['stl18:Air']['stl18:MarketingAirlineCode']
                 equipment_type = i['stl18:Air']['stl18:EquipmentType']
-                departure_terminal_code = i['stl18:Air']['stl18:DepartureTerminalCode']
-                if 'stl18:ArrivalTerminalCode' in i['stl18:Air']:
-                    arrival_terminal_code = i['stl18:Air']['stl18:ArrivalTerminalCode']
-                else:
-                    arrival_terminal_code = ""
+                departure_terminal_code = i['stl18:Air']['stl18:DepartureTerminalCode'] if 'stl18:DepartureTerminalCode' in i['stl18:Air'] else ""
+                arrival_terminal_code = i['stl18:Air']['stl18:ArrivalTerminalCode'] if 'stl18:ArrivalTerminalCode' in i['stl18:Air'] else ""
                 eticket = i['stl18:Air']['stl18:Eticket']
                 departure_date_time = i['stl18:Air']['stl18:DepartureDateTime']
                 arrival_date_time = i['stl18:Air']['stl18:ArrivalDateTime']
@@ -111,10 +117,7 @@ class SabreReservationFormatter():
                 out_bound_connection = i['stl18:Air']['stl18:outboundConnection']
                 in_bound_connection = i['stl18:Air']['stl18:inboundConnection']
                 airline_ref_id = str(i['stl18:Air']['stl18:AirlineRefId']).split('*')[1]
-                if 'stl18:ElapsedTime' in i['stl18:Air']:
-                    elapsed_time = i['stl18:Air']['stl18:ElapsedTime']
-                else:
-                    elapsed_time = ""
+                elapsed_time = i['stl18:Air']['stl18:ElapsedTime'] if 'stl18:ElapsedTime' in i['stl18:Air'] else ""
                 seats = i['stl18:Air']['stl18:Seats']
                 segment_special_requests = i['stl18:Air']['stl18:SegmentSpecialRequests']
                 schedule_change_indicator = i['stl18:Air']['stl18:ScheduleChangeIndicator']
@@ -140,33 +143,38 @@ class SabreReservationFormatter():
         return list_itineraries
 
     def _price_quote(self, price_quote):
+
         list_price_quote = []
-        for price in ensureList(price_quote):
-            first_name = price['Summary']['NameAssociation']['firstName']
-            last_name = price['Summary']['NameAssociation']['lastName']
-            name_id = price['Summary']['NameAssociation']['nameId']
-            name_number = price['Summary']['NameAssociation']['nameNumber']
-            latest_pq_flag = price['Summary']['NameAssociation']['PriceQuote']['latestPQFlag']
-            number = price['Summary']['NameAssociation']['PriceQuote']['number']
-            pricing_type = price['Summary']['NameAssociation']['PriceQuote']['pricingType']
-            status = price['Summary']['NameAssociation']['PriceQuote']['status']
-            type_price_quote = price['Summary']['NameAssociation']['PriceQuote']['type']
-            passenger_type_count = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['passengerTypeCount']
-            requested_type = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['requestedType']
-            type_passenger = price['Summary']['NameAssociation']['PriceQuote']['Passenger']['type']
-            itinerary_type = price['Summary']['NameAssociation']['PriceQuote']['ItineraryType']
-            validating_carrier = price['Summary']['NameAssociation']['PriceQuote']['ValidatingCarrier']
-            currency_code = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['currencyCode']
-            decimal_place = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['decimalPlace']
-            text = price['Summary']['NameAssociation']['PriceQuote']['Amounts']['Total']['#text']
-            local_create_date_time = price['Summary']['NameAssociation']['PriceQuote']['LocalCreateDateTime']
-            passengers = FlightPassenger_pq(currency_code, decimal_place, text)
-            pq = FlightPriceQuote(latest_pq_flag, number, pricing_type, status, type_price_quote, itinerary_type, validating_carrier, local_create_date_time)
-            amounts = FlightAmounts(passenger_type_count, requested_type, type_passenger)
-            summary = FlightSummary(first_name, last_name, name_id, name_number, pq, passengers, amounts)
-            pricequote = PriceQuote(summary)
-            result.append(pricequote)
-        return result
+        for price in ensureList(price_quote["Details"]):
+            list_passengers = []
+            pq_number = price["number"]
+            status = price["status"]
+            fare_type = fareTypePriceQuote(price["passengerType"])
+            base_fare_value = price["FareInfo"]["BaseFare"]["#text"]
+            base_fare_cc = price["FareInfo"]["BaseFare"]["currencyCode"]
+            base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
+
+            total_fare_value = price["FareInfo"]["TotalFare"]["#text"]
+            total_fare_cc = price["FareInfo"]["TotalFare"]["currencyCode"]
+            total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
+
+            tax_fare_value = price["FareInfo"]["TotalTax"]["#text"]
+            tax_fare_cc = price["FareInfo"]["TotalTax"]["currencyCode"]
+            tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
+            print(tax_fare)
+
+            for i in ensureList(price_quote["Summary"]["NameAssociation"]):
+                if pq_number == i["PriceQuote"]["number"]:
+                    name_number = i["nameNumber"]
+                    passenger_type = i["PriceQuote"]["Passenger"]["requestedType"]
+                    passenger = FormatPassengersInPQ(name_number,passenger_type).to_data()
+                    list_passengers.append(passenger)
+                    
+            price_quote_data = PriceQuote_(pq_number,status,fare_type,base_fare,total_fare,tax_fare,list_passengers)
+            #pq_number: int = None,status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, passengers=None
+            list_price_quote.append(price_quote_data)
+
+        return list_price_quote
 
     def _forms_of_payment(self, forms_payment):
         list_forms_payment = []
@@ -178,19 +186,20 @@ class SabreReservationFormatter():
                 list_forms_payment.append(form_of_payment)
         return list_forms_payment
 
-    def _ticketing(self, ticketing_info):
+    def _ticketing(self, passengers):
         list_ticket = []
-        if "stl18:TicketDetails" not in ticketing_info:
+        if "stl18:TicketingInfo" not in passengers:
             return []
-
-        for ticket in ensureList(ticketing_info["stl18:TicketDetails"]):
-            ticket_number = ticket["stl18:TicketNumber"]
-            transaction_indicator = ticket["stl18:TransactionIndicator"]
-            passenger_name = ticket["stl18:PassengerName"]
-            agency_location = ticket["stl18:AgencyLocation"]
-            time_stamp = ticket["stl18:Timestamp"]
-            ticket_object = TicketingInfo_(ticket_number, transaction_indicator, passenger_name, agency_location, time_stamp)
-            list_ticket.append(ticket_object)
+        for pax in ensureList(passengers):
+            name_id = pax['nameId']
+            for ticket in ensureList(passengers["stl18:TicketingInfo"]["stl18:TicketDetails"]):
+                ticket_number = ticket["stl18:TicketNumber"]
+                transaction_indicator = ticket["stl18:TransactionIndicator"]
+                name_number = name_id
+                agency_location = ticket["stl18:AgencyLocation"]
+                time_stamp = ticket["stl18:Timestamp"]
+                ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_number, agency_location, time_stamp)
+                list_ticket.append(ticket_object)
 
         return list_ticket
 

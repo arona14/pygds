@@ -375,7 +375,55 @@ class PriceQuote(BasicDataObject):
         return{
             "summary": None if self.summary is None else self.summary.to_data()
         }
+class FormatAmount(BasicDataObject):
 
+    def __init__(self, amount: str = None,  currency_code: str = None):
+        self.amount = amount
+        self.currency_code = currency_code
+
+    def to_data(self):
+        return{
+            "amount": self.amount,
+            "currency_code": self.currency_code,
+        }
+class FormatPassengersInPQ(BasicDataObject):
+
+    def __init__(self, name_number: str = None, passenger_type: str = None):
+        self.name_number = name_number
+        self.passenger_type = passenger_type
+
+
+    def to_data(self):
+        return{
+            "name_number": self.name_number,
+            "passenger_type": self.passenger_type,
+
+        }
+
+class PriceQuote_(BasicDataObject):
+    """
+        This is to represent a price quote object
+    """
+    def __init__(self, pq_number: int = None,status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, passengers=None):
+        self.price_quote_number = pq_number
+        self.status = status
+        self.fare_type = fare_type
+        self.base_fare = base_fare
+        self.total_fare = total_fare
+        self.total_tax = total_tax
+        self.passengers = passengers
+
+    def to_data(self):
+        return{
+            "price_quote_number": self.price_quote_number,
+            "status": self.status,
+            "fare_type": self.fare_type,
+            "base_fare": self.base_fare,
+            "total_fare": self.total_fare,
+            "total_tax": self.total_tax,
+            "passengers":self.passengers,
+
+        }
 
 class TicketingInfo(BasicDataObject):
     """
