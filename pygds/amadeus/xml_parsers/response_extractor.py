@@ -1,15 +1,14 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
-# from pygds.core import helpers
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
-    get_data_from_xml as from_xml, reformat_date
+    get_data_from_xml as from_xml
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
-    SegmentInformation, ValidityInformation
+    SegmentInformation, ValidityInformation, TstInformation
 from pygds.core.sessions import SessionInfo
 import logging
-from pygds.core.types import Passenger
-from pygds.core.types import TicketingInfo, FlightSegment  # Remarks
+
+from pygds.core.ticket import TicketReply
 
 
 class BaseResponseExtractor(object):
@@ -83,6 +82,7 @@ class AppErrorExtractor(BaseResponseExtractor):
     """
     Extract application error from response
     """
+
     def __init__(self, xml_content: str, main_tag: str):
         super().__init__(xml_content, False, False, main_tag)
         self.parsed = True
@@ -97,10 +97,10 @@ class AppErrorExtractor(BaseResponseExtractor):
         app_error_data = from_json_safe(payload, "applicationError")
         if not app_error_data:
             return None
-        details = from_json(app_error_data, "errorOrWarningCodeDetails", "errorDetails")
-        error_code = from_json(details, "errorCode")
-        error_category = from_json(details, "errorCategory")
-        error_owner = from_json(details, "errorCodeOwner")
+        details = from_json_safe(app_error_data, "errorOrWarningCodeDetails", "errorDetails")
+        error_code = from_json_safe(details, "errorCode")
+        error_category = from_json_safe(details, "errorCategory")
+        error_owner = from_json_safe(details, "errorCodeOwner")
         description = from_json_safe(app_error_data, "errorWarningDescription", "freeText")
         return ApplicationError(error_code, error_category, error_owner, description)
 
@@ -180,9 +180,6 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         product_detail = ensure_list(fare_details[idx]["groupOfFares"])[leg]["productInformation"]
                         book_class = product_detail["cabinProduct"]["rbd"]
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
-                        # departure = FlightPointDetails(departure_date, departure_time, 0, "", board_airport, "", "")
-                        # arrival = FlightPointDetails(arrival_date, arrival_time, 0, "", off_airport, "", "")
-                        # segment = FlightSegment(0, departure, arrival, market_company, flight_number, book_class, "")
                         segment = {"fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
                                    "flight_number": flight_number, "departure_date": departure_date,
                                    "departure_time": departure_time, "arrival_date": arrival_date,
@@ -203,7 +200,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")  # , "controlNumber")
+        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")
         pnr_data = {"pnr_number": pnr}
         travellers_info = from_json(payload, "travellerInfo")
         passengers = []
@@ -213,7 +210,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
             surname = from_json(info, "traveller", "surname")
             name = from_json(info, "passenger", "firstName")
             passenge_type = from_json(info, "passenger", "type")
-            date_of_birth = ""  # from_json(pax, "passengerData", "dateOfBirth", "dateAndTimeDetails", "date")
+            date_of_birth = ""
             passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
         pnr_data["passengers"] = passengers
 
@@ -271,18 +268,9 @@ class PricePNRExtractor(BaseResponseExtractor):
             _fare.tax_infos = self._taxes(fare)
             _fare.warning_infos = self._warnings(fare)
             _fare.fare_components = self._components(fare)
-            _fare.segment_infos = self.__segments(fare)
+            _fare.segment_infos = self._segments(fare)
             fares.append(_fare)
-        print(f"number of fares: {len(fares)}")
         return fares
-
-    def _extract_amount(self, amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
-                        currency_key="fareCurrency") -> FareAmount:
-        fare_amount = FareAmount()
-        fare_amount.qualifier = amount_info[type_key]
-        fare_amount.amount = from_json_safe(amount_info, amount_key)
-        fare_amount.currency = from_json_safe(amount_info, currency_key)
-        return fare_amount
 
     def _pax_refs(self, fare):
         """
@@ -308,7 +296,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         fare_amounts = ensure_list(from_json(fare_amounts, "fareDataSupInformation"))
         fare_amounts.append(fare_main)
         for am in fare_amounts:
-            amounts.append(self._extract_amount(am))
+            amounts.append(extract_amount(am))
         return amounts
 
     def _taxes(self, fare):
@@ -325,7 +313,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             tax.tax_identifier = from_json_safe(tax_details, "taxIdentification", "taxIdentifier")
             tax.tax_type = from_json_safe(tax_details, "taxType", "isoCountry")
             tax.tax_nature = from_json_safe(tax_details, "taxNature")
-            tax.tax_amount = self._extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
+            tax.tax_amount = extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
             taxes.append(tax)
         return taxes
 
@@ -362,7 +350,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             places = from_json(comp, "marketFareComponent")
             fare_component.departure = from_json(places, "boardPointDetails", "trueLocationId")
             fare_component.arrival = from_json(places, "offpointDetails", "trueLocationId")
-            fare_component.monetary_info = self._extract_amount(
+            fare_component.monetary_info = extract_amount(
                 from_json_safe(comp, "monetaryInformation", "monetaryDetails"),
                 "typeQualifier", "amount", "currency")
             fare_component.rate_tariff_class = from_json_safe(comp, "componentClassInfo", "fareBasisDetails",
@@ -384,7 +372,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             components.append(fare_component)
         return components
 
-    def __segments(self, fare):
+    def _segments(self, fare):
         """
         look for segments
         :param fare: a dictionary containing fare info
@@ -410,7 +398,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             segment.baggage_allowance_quantity = from_json(baggage_allowance, "baggageQuantity")
             segment.baggage_allowance_type = from_json(baggage_allowance, "baggageType")
 
-            for validity in ensure_list(from_json(sg, "validityInformation")):
+            for validity in ensure_list(from_json_safe(sg, "validityInformation")):
                 validity_info: ValidityInformation = ValidityInformation()
                 validity_info.business_semantic = from_json_safe(validity, "businessSemantic")
                 dt = from_json_safe(validity, "dateTime")
@@ -447,143 +435,54 @@ class FormOfPaymentExtractor(BaseResponseExtractor):
         return None
 
 
-class GetPnrResponseExtractor(BaseResponseExtractor):
+class CreateTstResponseExtractor(BaseResponseExtractor):
     """
-        A class to extract Reservation from response of retrieve PNR.
+    Wil extract response of create TST from price
     """
 
-    def __init__(self, xml_content: str):
-        super().__init__(xml_content, True, True, "PNR_Reply")
-        self.parsed = True
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CreateTSTFromPricingReply")
 
     def _extract(self):
-        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        self.payload = payload
-        # print(payload)
-        return {
-            'itineraries': self._segments(),
-            'passengers': self._passengers(),
-            'form_of_payments': self._form_of_payments(),
-            'price_quotes': self._price_quotes(),
-            'ticketing_info': self._ticketing_info(),
-            # 'remarks': self._remark()
-        }
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
+        pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
+        tst_data = from_json(payload, "tstList")
+        tst_ref_data = from_json(tst_data, "tstReference")
+        tst_ref = None
+        if from_json_safe(tst_ref_data, "referenceType") == "TST":
+            tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
+        passengers_data = ensure_list(from_json(tst_data, "paxInformation", "refDetails"))
+        pax_refs = []
+        for p in passengers_data:
+            pax_refs.append(from_json(p, "refNumber"))
+        return TstInformation(pnr, tst_ref, pax_refs)
 
-    def _segments(self):
-        segments_list = []
-        index = 1
-        for data in self.payload["originDestinationDetails"]["itineraryInfo"]:
-            dep_date = data["travelProduct"]["product"]["depDate"]
-            dep_time = data["travelProduct"]["product"]["depTime"]
-            arr_date = data["travelProduct"]["product"]["arrDate"]
-            arr_time = data["travelProduct"]["product"]["arrTime"]
-            departure_airport = data["travelProduct"]["boardpointDetail"]["cityCode"]
-            arrival_airport = data["travelProduct"]["offpointDetail"]["cityCode"]
-            departure_dateTime = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            equipment_type = data["flightDetail"]["productDetails"]["equipment"]
-            class_of_service = data["travelProduct"]["productDetails"]["classOfService"]
-            segment_data = FlightSegment(index, "", departure_dateTime, departure_airport, arrival_date_time, arrival_airport, "", "", "", "", "", "", "", "", "", "", "", "", "", "", class_of_service, "", equipment_type, "", "", "")
-            index += 1
-            segments_list.append(segment_data)
-        return segments_list
 
-    def _passengers(self):
-        passengers_list = []
-        for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
-            # passenger_data = {}
-            data = from_json(traveller, "passengerData")
-            traveller_info = from_json(data, "travellerInformation")
-            # trvl = from_json(traveller_info, "traveller")
-            psngr = from_json(traveller_info, "passenger")
-            travel = from_json(traveller_info, "traveller")
-            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
-            # passenger_data['surname'] = from_json(trvl, "surname")
-            # passenger_data['quantity'] = from_json(trvl, "quantity")
-            # passenger_data['firstname'] = from_json(psngr, "firstName")
-            # passenger_data['type'] = from_json(psngr, "type")
-            # passenger_data['qualifier'] = from_json(date_of_birth_tag, "qualifier")
-            # passenger_data['date_of_birth'] = date_of_birth
-            # surname = from_json(trvl, "surname")
-            # quantity = from_json(trvl, "quantity")
-            firstname = from_json(psngr, "firstName")
-            lastname = from_json(travel, "surname")
-            # gender = from_json(psngr, "firstName")
-            # forename = from_json(psngr, "firstName")
-            # middlename = from_json(psngr, "firstName")
-            action_code = from_json(psngr, "firstName")
-            number_in_party = from_json(travel, "quantity")
-            # vendor_code = from_json(psngr, "firstName")
-            if "type" in psngr:
-                type_passenger = from_json(psngr, "type")
-            else:
-                type_passenger = ""
-            # qualifier = from_json(date_of_birth_tag, "qualifier")
-            date_of_birth = date_of_birth
-            passsenger = Passenger("", firstname, lastname, date_of_birth, "", "", "", action_code, number_in_party, "", type_passenger)
-            passengers_list.append(passsenger)
-        return passengers_list
+class IssueTicketResponseExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "DocIssuance_IssueTicketReply")
 
-    def _pnr_info(self):
-        pnr_infos = []
-        for data in self.payload["pnrHeader"]["reservationInfo"]["reservation"]:
-            reservation_info = {
-                'compagny_id': data["companyId"],
-                'control_number': data["reservationInfo"]["reservation"]["controlNumber"]
-            }
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "DocIssuance_IssueTicketReply")
+        status = from_json_safe(payload, "processingStatus", "statusCode")
+        error_data = from_json_safe(payload, "errorGroup")
+        if error_data:
+            error_code = from_json_safe(error_data, "errorOrWarningCodeDetails", "errorDetails", "errorCode")
+            details = from_json_safe(error_data, "errorWarningDescription")
+            description = from_json_safe(details, "freeText")
+            details = from_json_safe(details, "freeTextDetails")
+            qualifier = from_json_safe(details, "textSubjectQualifier")
+            source = from_json_safe(details, "source")
+            encoding = from_json_safe(details, "encoding")
+        else:
+            error_code, qualifier, source, encoding, description = (None, None, None, None, None)
+        return TicketReply(status, error_code, qualifier, source, encoding, description)
 
-            res_date = data["reservationInfo"]["reservation"]["date"]
-            res_time = data["reservationInfo"]["reservation"]["time"]
-            date_time = reformat_date(res_date + res_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            reservation_info['date_time'] = date_time
-            pnr_infos.append(reservation_info)
-        return pnr_infos
 
-    def _price_quotes(self):
-        price_quotes = []
-        pqs = from_json_safe(self.payload, "pricingRecordGroup", "productPricingQuotationRecord")
-        pqs = ensure_list(pqs)
-        for data in pqs:
-            price_quotes_details = {
-                'pricing_record_id': data['pricingRecordId'],
-                'passenger_tattoos': data['passengerTattoos'],
-                'total_fare': data['documentDetailsGroup']['totalFare']
-            }
-            price_quotes.append(price_quotes_details)
-        return price_quotes
-
-    def _form_of_payments(self):
-        return None
-
-    def _ticketing_info(self):
-        list_ticket = []
-        for ticket in ensure_list(from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
-            for elem_tick in ticket:
-                if "ticketElement" in elem_tick:
-                    data_element = from_json(ticket, "ticketElement")
-                    ticket_element = from_json(data_element, "ticket")
-                    element_id = from_json(ticket_element, "officeId")
-                    date = from_json(ticket_element, "date")
-                    comment = from_json(ticket_element, "indicator")
-                    code = from_json(ticket_element, "airlineCode")
-                    ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
-                    list_ticket.append(ticketing)
-        return list_ticket
-
-    # def _remark(self):
-    #     list_remark = []
-    #     sequence = 1
-    #     for data_element in ensure_list(from_json(self.payload["dataElementsMaster"], "dataElementsIndiv")):
-    #         for remarks in data_element:
-    #             if "miscellaneousRemarks" in remarks:
-    #                 data_remarks = from_json(remarks, "miscellaneousRemarks")
-    #                 print(data_remarks)
-    #                 rems = from_json(data_remarks, "remarks")
-    #                 remark_type = from_json(rems, "type")
-    #                 categorie = from_json(rems, "category")
-    #                 text = from_json(rems, "freetext")
-    #                 remarks_object = Remarks(sequence, remark_type, categorie, text)
-    #                 sequence += 1
-    #                 list_remark.append(remarks_object)
-    #     return list_remark
+def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
+                   currency_key="fareCurrency") -> FareAmount:
+    fare_amount = FareAmount()
+    fare_amount.qualifier = from_json_safe(amount_info, type_key)
+    fare_amount.amount = from_json_safe(amount_info, amount_key)
+    fare_amount.currency = from_json_safe(amount_info, currency_key)
+    return fare_amount

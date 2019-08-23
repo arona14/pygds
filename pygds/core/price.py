@@ -4,7 +4,13 @@ from datetime import date
 
 class PriceInfoBasic:
     def __str__(self):
-        return str(self.__repr__())
+        return str(self.to_dict())
+
+    def to_dict(self):
+        raise NotImplementedError("Not implemented")
+
+    def __repr__(self):
+        return str(self.to_dict())
 
 
 class PriceRequest(PriceInfoBasic):
@@ -15,7 +21,7 @@ class PriceRequest(PriceInfoBasic):
         self.passengers = passengers
         self.segments = segments
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "passengers": self.passengers,
             "segments": self.segments
@@ -26,12 +32,12 @@ class FareAmount(PriceInfoBasic):
     """
         A class to hold information about an amount and its related currency
     """
-    def __init__(self):
-        self.qualifier: str         # An internal qualifier
-        self.amount: float = 0.0    # The amount
-        self.currency: str          # the currency specified
+    def __init__(self, qualifier: str = None, amount: float = 0.0, currency: str = None):
+        self.qualifier: str = qualifier         # An internal qualifier
+        self.amount: float = amount             # The amount
+        self.currency: str = currency           # the currency specified
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "qualifier": self.qualifier,
             "amount": self.amount,
@@ -44,19 +50,19 @@ class TaxInformation(PriceInfoBasic):
         A class to represent tax information
     """
     def __init__(self):
-        self.tax_qualifier: str        # The internal qualifier of the tax
-        self.tax_identifier: str       # The identifier of the tax
-        self.tax_type: str             # The type of the tax
-        self.tax_nature: str           # The nature of the tax
-        self.tax_amount: FareAmount    # The amount of that tax
+        self.tax_qualifier: str = None       # The internal qualifier of the tax
+        self.tax_identifier: str = None      # The identifier of the tax
+        self.tax_type: str = None            # The type of the tax
+        self.tax_nature: str = None          # The nature of the tax
+        self.tax_amount: FareAmount = None   # The amount of that tax
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "tax_qualifier": self.tax_qualifier,
             "tax_identifier": self.tax_identifier,
             "tax_type": self.tax_type,
             "tax_nature": self.tax_nature,
-            "tax_amount": None if not self.tax_amount else self.tax_amount.__repr__()
+            "tax_amount": None if not self.tax_amount else self.tax_amount.to_dict()
         }
 
 
@@ -70,7 +76,7 @@ class WarningInformation(PriceInfoBasic):
         self.responsible_agency: str    # The application responsible agency
         self.warning: str               # The text of the warning
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "error_code": self.error_code,
             "qualifier": self.qualifier,
@@ -84,7 +90,7 @@ class CouponDetails(PriceInfoBasic):
         self.coupon_product_type: str       # The product type of the coupon
         self.coupon_product_id: int         # The product id of the coupon
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "coupon_product_type": self.coupon_product_type,
             "coupon_product_id": self.coupon_product_id
@@ -108,19 +114,19 @@ class FareComponent(PriceInfoBasic):
         self.fare_family_owner: str             # The owner of the family fare
         self.coupons: List[CouponDetails] = []  # list of coupons
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "item_number": self.item_number,
             "item_type": self.item_type,
             "departure": self.departure,
             "arrival": self.arrival,
-            "monetary_info": None if not self.monetary_info else self.monetary_info.__repr__(),
+            "monetary_info": None if not self.monetary_info else self.monetary_info.to_dict(),
             "rate_tariff_class": self.rate_tariff_class,
             "fare_qualifier": self.fare_qualifier,
             "fare_family_name": self.fare_family_name,
             "fare_family_hierarchy": self.fare_family_hierarchy,
             "fare_family_owner": self.fare_family_owner,
-            "coupons": [c.__repr__() for c in self.coupons],
+            "coupons": [c.to_dict() for c in self.coupons],
         }
 
 
@@ -132,7 +138,7 @@ class ValidityInformation(PriceInfoBasic):
         self.business_semantic: str     # an internal codification with semantic
         self.date: date                 # The date of validity
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "business_semantic": self.business_semantic,
             "date": self.date
@@ -152,7 +158,7 @@ class SegmentInformation:
         self.baggage_allowance_quantity: int            # quantity of baggage allowance
         self.baggage_allowance_type: str                # type of baggage allowance
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "segment_reference": self.segment_reference,
             "segment_sequence_number": self.segment_sequence_number,
@@ -161,7 +167,7 @@ class SegmentInformation:
             "fare_basis_primary_code": self.fare_basis_primary_code,
             "fare_basis_code": self.fare_basis_code,
             "fare_basis_ticket_designator": self.fare_basis_ticket_designator,
-            "validity_infos": [v.__repr__() for v in self.validity_infos],
+            "validity_infos": [v.to_dict() for v in self.validity_infos],
             "baggage_allowance_quantity": self.baggage_allowance_quantity,
             "baggage_allowance_type": self.baggage_allowance_type
         }
@@ -184,7 +190,7 @@ class Fare(PriceInfoBasic):
         self.segment_infos: List[SegmentInformation] = []    # list of segments
         self.fare_components: List[FareComponent] = []      # list of fare components
 
-    def __repr__(self):
+    def to_dict(self):
         return {
             "fare_reference": self.fare_reference,
             "origin": self.origin,
@@ -192,9 +198,128 @@ class Fare(PriceInfoBasic):
             "validating_carrier": self.validating_carrier,
             "banker_rate": self.banker_rate,
             "pax_references": self.pax_references,
-            "fare_amounts": [f.__repr__() for f in self.fare_amounts],
-            "tax_infos": [t.__repr__() for t in self.tax_infos],
-            "warning_infos": [w.__repr__() for w in self.warning_infos],
-            "segment_infos": [s.__repr__() for s in self.segment_infos],
-            "fare_components": [c.__repr__() for c in self.fare_components]
+            "fare_amounts": [f.to_dict() for f in self.fare_amounts],
+            "tax_infos": [t.to_dict() for t in self.tax_infos],
+            "warning_infos": [w.to_dict() for w in self.warning_infos],
+            "segment_infos": [s.to_dict() for s in self.segment_infos],
+            "fare_components": [c.to_dict() for c in self.fare_components]
+        }
+
+
+class TstInformation(PriceInfoBasic):
+    """
+    This class will store information about A created TST
+    """
+    def __init__(self, pnr, tst_ref: str, pax_refs: List[str]):
+        """
+        Init
+        :param pnr: The record locator (str)
+        :param tst_ref: the TST reference (str)
+        :param pax_refs: list of passenger references (list of str)
+        """
+        self.pnr = pnr
+        self.tst_reference = tst_ref
+        self.pax_references = pax_refs if pax_refs else []
+
+    def to_dict(self):
+        return {
+            "pnr": self.pnr,
+            "tst_reference": self.tst_reference,
+            "pax_references": self.pax_references
+        }
+
+
+class SearchPriceInfos(PriceInfoBasic):
+    """
+        This class we will get the Info of Search price
+    """
+    def __init__(self):
+        self.status: str = None  # the status of result
+        self.air_itinerary_pricing_info: AirItineraryPricingInfo  # the aount of air itinenary pricing
+
+    def to_dict(self):
+        return {
+            "status": self.status,
+            "air_itinerary_pricing_info": self.air_itinerary_pricing_info
+        }
+
+
+class FareElement(PriceInfoBasic):
+
+    def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
+        self.primary_code = primary_code
+        self.connection = connection
+        self.not_valid_before = not_valid_before
+        self.not_valid_after = not_valid_after
+        self.baggage_allowance = baggage_allowance
+        self.fare_basis = fare_basis
+
+    def to_dict(self):
+        return {
+            "primary_code": self.primary_code,
+            "connection": self.connection,
+            "not_valid_before": self.not_valid_before,
+            "not_valid_after": self.not_valid_after,
+            "baggage_allowance": self.baggage_allowance,
+            "fare_basis": self.fare_basis
+        }
+
+
+class AirItineraryPricingInfo(PriceInfoBasic):
+    """
+    This class we will get the amount of price
+    """
+
+    def __init__(self):
+        self.base_fare: float = 0.0       # base fare amount
+        self.taxes: float = 0.0            # taxes amount
+        self.total_fare: float             # totoal fare amount
+        self.currency_code: str = None     # currency code
+        self.passenger_type: str = None     # passenger type
+        self.passenger_quantity: str = None  # passenger quantity
+        self.charge_amount: float = 0.0      # Charge Amount
+        self.tour_code: str = None            # Tour Code
+        self.ticket_designator: str = None    # Ticket Designator
+        self.commission_percentage: str = None  # Commission Percentage
+        self.fare_break_down: FareBreakdown     # FareBreakdown class
+
+    def to_dict(self):
+        return{
+            "base_fare": self.base_fare,
+            "taxes": self.taxes,
+            "total_fare": self.total_fare,
+            "currency_code": self.currency_code,
+            "passenger_type": self.passenger_type,
+            "passenger_quantity": self.passenger_quantity,
+            "charge_amount": self.charge_amount,
+            "tour_code": self.tour_code,
+            "ticket_designator": self.ticket_designator,
+            "commission_percentage": self.commission_percentage,
+            "fare_break_down": self.fare_break_down
+        }
+
+
+class FareBreakdown(PriceInfoBasic):
+
+    """
+    In this class we will get the fare Break Down
+    """
+
+    def __init__(self):
+
+        self.cabin: str = None               # the cabin class
+        self.fare_basis_code: str = None     # fare basis Code
+        self.fare_amount: str = None         # fare amount
+        self.fare_passenger_type: str = None  # fare passenger type
+        self.fare_type: str = None           # fare type
+        self.filing_carrier: str = None      # Filing Carrier
+
+    def to_dict(self):
+        return {
+            "cabin": self.cabin,
+            "fare_basis_code": self.fare_basis_code,
+            "fare_amount": self.fare_amount,
+            "fare_passenger_type": self.fare_passenger_type,
+            "fare_type": self.fare_type,
+            "filing_carrier": self.filing_carrier
         }

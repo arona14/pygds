@@ -5,6 +5,8 @@ from pygds.core.types import PriceQuote_, FormatPassengersInPQ, FormatAmount, It
 from pygds.sabre.helpers import get_data_from_json as from_json
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list,get_data_from_xml as from_xml, reformat_date,ensureList
 
+from pygds.core.types import Itinerary, FlightPriceQuote, FlightSummary, FlightAmounts, FlightPassenger_pq, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, PriceQuote, TicketingInfo_
+from pygds.core.helpers import get_data_from_xml as from_xml, ensureList, ensure_list
 
 def fareTypePriceQuote(passenger_type):
     fare_type = ""
@@ -35,6 +37,7 @@ class BaseResponseExtractor:
     def __str__(self):
         return str(self.to_dict())
 
+
 class SabreReservationFormatter():
 
     """
@@ -43,12 +46,12 @@ class SabreReservationFormatter():
     
     def __init__(self, xml_content: str):
         self.xml_content = xml_content
-    
+
     def _extract(self):
 
-        display_pnr = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body","stl18:GetReservationRS")
-        display_pnr = str(display_pnr).replace("@","")
-        display_pnr = eval(display_pnr.replace("u'","'"))
+        display_pnr = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "stl18:GetReservationRS")
+        display_pnr = str(display_pnr).replace("@", "")
+        display_pnr = eval(display_pnr.replace("u'", "'"))
         return {
             'passengers': self._passengers(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:Passengers']['stl18:Passenger']),
             'itineraries': self._itineraries(display_pnr['stl18:Reservation']['stl18:PassengerReservation']['stl18:Segments']),
@@ -215,7 +218,7 @@ class SabreReservationFormatter():
         return list_remarks
 
     def _passengers(self, passengers):
-        
+
         passenger_list = []
 
         for pax in ensureList(passengers):
@@ -226,7 +229,7 @@ class SabreReservationFormatter():
             full_name = f"{pax['stl18:FirstName']} {pax['stl18:LastName']}"
 
             if 'stl18:APISRequest' in pax['stl18:SpecialRequests']:
-                if pax['passengerType'] != "INF" or  pax['passengerType'] != "JNF":
+                if pax['passengerType'] != "INF" or pax['passengerType'] != "JNF":
                     for i in ensureList(pax['stl18:SpecialRequests']['stl18:APISRequest']):
                         if full_name == f"{i['stl18:DOCSEntry']['stl18:Forename']} {i['stl18:DOCSEntry']['stl18:Surname']}":
                             date_of_birth = i['stl18:DOCSEntry']['stl18:DateOfBirth']

@@ -1,0 +1,48 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"
+                  xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <soapenv:Header>
+        <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:From>
+            <wsa:Address>https://nodeD1.test.webservices.amadeus.com/NOSENSE</wsa:Address>
+        </wsa:From>
+        <wsa:Action>http://webservices.amadeus.com/TAUTCQ_04_1_1A</wsa:Action>
+        <wsa:MessageID>urn:uuid:NOSENSE-MESSAGE-ID</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">
+            NOSENSE-RELATES-TO
+        </wsa:RelatesTo>
+        <awsse:Session TransactionStatusCode="InSeries">
+            <awsse:SessionId>NOSENSE-SESSION-ID</awsse:SessionId>
+            <awsse:SequenceNumber>45</awsse:SequenceNumber>
+            <awsse:SecurityToken>NOSENSE-SECURITY-TOKEN</awsse:SecurityToken>
+        </awsse:Session>
+    </soapenv:Header>
+    <soapenv:Body>
+        <Ticket_CreateTSTFromPricingReply xmlns="http://xml.amadeus.com/TAUTCR_04_1_1A">
+            <pnrLocatorData>
+                <reservationInformation>
+                    <controlNumber>FAKEPNR</controlNumber>
+                </reservationInformation>
+            </pnrLocatorData>
+            <tstList>
+                <tstReference>
+                    <referenceType>TST</referenceType>
+                    <uniqueReference>3</uniqueReference>
+                    <iDDescription>
+                        <iDSequenceNumber>3</iDSequenceNumber>
+                    </iDDescription>
+                </tstReference>
+                <paxInformation>
+                    <refDetails>
+                        <refQualifier>PA</refQualifier>
+                        <refNumber>2</refNumber>
+                    </refDetails>
+                    <refDetails>
+                        <refQualifier>PA</refQualifier>
+                        <refNumber>3</refNumber>
+                    </refDetails>
+                </paxInformation>
+            </tstList>
+        </Ticket_CreateTSTFromPricingReply>
+    </soapenv:Body>
+</soapenv:Envelope>

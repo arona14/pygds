@@ -3,12 +3,18 @@ import time
 import xmltodict
 import json
 
+
 def ensureList(elem):
     return elem if isinstance(elem, list) else [elem]
 
+
 def get_data_from_json(json_data, *paths):
     """
-        This function retrieves data from json data by reading throught the list of paths given to it.
+    This function retrieves data from json data by reading through the list of paths given to it.
+    :param json_data: The json data
+    :param paths: List of paths to search for
+    :return: The retrieved value
+    :raises ValueError
     """
     value = json_data
     for path in paths:
@@ -19,6 +25,12 @@ def get_data_from_json(json_data, *paths):
 
 
 def get_data_from_json_safe(json_data, *paths):
+    """
+    Like `get_data_from_json` but without raising `KeyError`
+    :param json_data: The json data
+    :param paths: List of paths to search for
+    :return: The retrieved value or None if one path doesn't exist
+    """
     try:
         return get_data_from_json(json_data, *paths)
     except KeyError:
@@ -27,7 +39,11 @@ def get_data_from_json_safe(json_data, *paths):
 
 def get_data_from_xml(xml_data, *paths):
     """
-        Same as get_data_from_json but works on XML
+    Same as get_data_from_json but works on XML
+    :param xml_data: The XML data
+    :param paths: List of paths to search for
+    :return: The retrieved value
+    :raises ValueError
     """
     json_data = json.loads(json.dumps(xmltodict.parse(xml_data)))
     return get_data_from_json(json_data, *paths)
@@ -35,7 +51,9 @@ def get_data_from_xml(xml_data, *paths):
 
 def ensure_list(elem):
     """
-        This function ensures that a given parameter is a list by creating a list of signe element if it is not.
+    This function ensures that a given parameter is a list by creating a list of single element if it is not.
+    :param elem: The element (can be any type)
+    :return: List
     """
     return elem if isinstance(elem, list) else [elem] if elem else []
 

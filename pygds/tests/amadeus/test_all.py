@@ -5,6 +5,7 @@
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
+from pygds.core.price import PriceRequest, Fare
 from pygds.env_settings import get_setting
 from pygds import log_handler
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
@@ -22,26 +23,52 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q68EFX"  # "TSYX56"  # "Q68EFX"  # "TSYX56"
-    # pnr = "TSYX56"
+    pnr = "TSYX56"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        # print("itineraries data")
-        print(res_reservation["itineraries"])
         log.info(session_info)
-        # log.info(res_reservation)
-        # res_command = client.send_command(f"RT{pnr}", m_id)
-        # session_info, command_response = (res_command.session_info, res_command.payload)
-        # log.info(session_info)
-        # log.info(command_response)
-        #
-        # m_id = session_info.message_id
-        # res_tst = client.ticket_create_tst_from_price(m_id, res_price[0])
-        # log.debug(res_tst)
+        log.info(res_reservation)
+        m_id = session_info.message_id
+        seg_refs = []
+        pax_refs = []
+        for seg in res_reservation["itineraries"]:
+            seg_refs.append(seg.segment_reference)
+        for pax in res_reservation["passengers"]:
+            pax_refs.append(pax.pax_reference)
+        price_request = PriceRequest(pax_refs, seg_refs)
+
+        res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
+        session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
+        log.info(session_info)
+        log.info(app_error)
+        if app_error:
+            log.error(f"We have an error: {app_error}")
+            return
+        if len(res_price) <= 0:
+            log.error("No price proposed")
+            return
+        chosen_price: Fare = res_price[0]
+        log.info(f"Chosen price: {chosen_price}")
+        m_id = session_info.message_id
+        res_tst = client.ticket_create_tst_from_price(m_id, chosen_price.fare_reference)
+        session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
+        log.debug(f"session formation from tst: {session_info}")
+        log.debug(f"response from tst: {res_tst}")
+        if app_error:
+            log.error(f"Something went wrong on create TST: {app_error}")
+            return
+        # logout
+        # res_end = client.end_session(session_info.message_id)
+        # print(res_end)
+        # res_reservation = client.get_reservation(pnr, None, False)
+        # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])  # i'm changing this
+        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
+        log.debug(res_issue)  # i'm changing this
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)

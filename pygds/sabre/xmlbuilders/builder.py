@@ -1,4 +1,6 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type
+
 
 class SabreXMLBuilder:
     """This class can generate XML needed for sabre soap requests."""
@@ -207,10 +209,14 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
     
-    def price_quote_rq(self, token, retain, commission, tour_code, fare_type, ticket_designator, segment_select, name_select, passenger_type, plus_up):
+    def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', ticket_designator: str = '', segment_select: list = [], passenger_type: list = [], plus_up: str = '', baggage: int = 0, region_name: str = ""):
         """
             Return the xml request to price air itineraries
         """
+        segment_number = get_segment_number(segment_select)
+        pax_type, name_select = get_passenger_type(passenger_type, fare_type)
+        fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
+        commission = get_commision(baggage, self.pcc, region_name)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -241,11 +247,11 @@ class SabreXMLBuilder:
                             {commission}
                             {tour_code}
                             <PricingQualifiers>
-                                {fare_type}
+                                {fare_type_value}
                                 {ticket_designator}
-                                {segment_select}
+                                {segment_number}
                                 {name_select}
-                                {passenger_type}
+                                {pax_type}
                                 {plus_up}
                             </PricingQualifiers>
                         </OptionalQualifiers>
@@ -325,7 +331,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
     
-    def cancel_segment_rq(self, token, segment) :
+    def cancel_segment_rq(self, token, segment):
         """
             Return the xml request to to cancel itinerary 
             segments contained within a PNR
