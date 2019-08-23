@@ -14,6 +14,7 @@ class TestTicket(TestCase):
         self.pnr = "DJICXH"
         self.client = SabreClient(self.url, self.username, self.password, self.pcc, False)
         self.token = (self.client.get_reservation(self.pnr, None)).session_info.security_token
+        self.message_id = (self.client.get_reservation(self.pnr, None)).session_info.message_id
         self.pcc = "WR17"
         self.code_cc = ""
         self.expire_date = ""
@@ -26,5 +27,5 @@ class TestTicket(TestCase):
         self.type_fop_by_cash_or_cheque = self.client.fop_choice(self.payment_type, self.commission_value)
 
     def test_issue_ticket(self):
-        result = self.client.issue_ticket(self.token, self.price_quote, self.type_fop_by_cash_or_cheque, self.commission_value)
+        result = self.client.issue_ticket(self.message_id, self.token, self.price_quote, self.type_fop_by_cash_or_cheque, self.commission_value)
         self.assertIsNotNone(result, "Cannot issue ticket")

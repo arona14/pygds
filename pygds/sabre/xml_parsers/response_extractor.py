@@ -190,40 +190,22 @@ class IssueTicketExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
         response_data = from_json_safe(payload, "AirTicketRS")
-        message_success = from_json_safe(response_data, "@Text")
         application_result_data = from_json_safe(response_data, "stl:ApplicationResults")
         status = from_json_safe(application_result_data, "@status")
-        error_data = from_json_safe(application_result_data, "stl:Error")
-        if error_data is not None:
-            type_error = from_json_safe(error_data, "@type")
-            time_stamp_error = from_json_safe(error_data, "@timeStamp")
-            system_specific_results_error = from_json_safe(error_data, "stl:SystemSpecificResults")
-            message_error = from_json_safe(system_specific_results_error, "stl:Message")
-            short_text_error = from_json_safe(system_specific_results_error, "stl:ShortText")
+        if status == "Complete":
+            message_text = from_json_safe(response_data, "@Text")
+            short_text = ""
+            type_response = "Success"
+        elif status == "NotProcessed":
+            error_data = from_json_safe(application_result_data, "stl:Error")
+            if error_data is not None:
+                type_response = from_json_safe(error_data, "@type")
+                system_specific_results_error = from_json_safe(error_data, "stl:SystemSpecificResults")
+                message_text = from_json_safe(system_specific_results_error, "stl:Message")
+                short_text = from_json_safe(system_specific_results_error, "stl:ShortText")
         else:
-            type_error, time_stamp_error, message_error, short_text_error = (None, None, None, None)
-
-        success_data = from_json_safe(application_result_data, "stl:Success")
-        if success_data is not None:
-            time_stamp_success = from_json_safe(success_data, "@timeStamp")
-        warning_data = from_json_safe(application_result_data, "Warning")
-        text_data = from_json_safe(response_data, "Text")
-        error_data = from_json_safe(payload, "soap-env:Fault")
-        if error_data:
-            fault_code = from_json_safe(error_data, "faultcode")
-            fault_string = from_json_safe(error_data, "faultstring")
-            details = from_json_safe(error_data, "detail")
-            stack_trace = from_json_safe(details, "StackTrace")
-            application_results = from_json_safe(details, "stl:ApplicationResults")
-            status_error = from_json_safe(application_results, "@status")
-            error_application_results = from_json_safe(application_results, "stl:Error")
-            time_stamp = from_json_safe(error_application_results, "@timeStamp")
-            error_type = from_json_safe(error_application_results, "@type")
-            message_text = from_json_safe(error_application_results, "stl:SystemSpecificResults", "stl:Message")
-            short_text = from_json_safe(error_application_results, "stl:SystemSpecificResults", "stl:ShortText")
-        else:
-            fault_code, fault_string, stack_trace, status_error, time_stamp, error_type, message_text, short_text = (None, None, None, None, None, None, None, None)
-        return TicketReply(status, type_error, message_text, time_stamp, short_text_error, message_error)
+            message_text, short_text, type_response = (None, None, None)
+        return TicketReply(status, type_response, message_text, short_text, "", "")
 
 
 class EndTransactionExtractor(BaseResponseExtractor):
@@ -243,6 +225,8 @@ class EndTransactionExtractor(BaseResponseExtractor):
         create_date_time = from_json_safe(itinerary_ref, "Source", "CreateDateTime")
         text_message = from_json_safe(response_data, "Text")
         return EndTransaction(status, id_ref, create_date_time, text_message)
+
+
 class SabreReservationFormatter(BaseResponseExtractor):
 
     """

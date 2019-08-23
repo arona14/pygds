@@ -45,8 +45,50 @@ class SabreXMLBuilder:
                         </eb:Security>
                     </soapenv:Header>"""
 
-    def session_create_rq(self, pcc, user_name, password, conversation_id):
-        """Return the xml request to create a session."""
+    def session_create_rq(self):
+        """
+            Return the xml request to initiate a SOAP API session
+        """
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
+                <soap-env:Header>
+                    <eb:MessageHeader soap-env:mustUnderstand="1" eb:version="1.0">
+                        <eb:From>
+                            <eb:PartyId />
+                        </eb:From>
+                        <eb:To>
+                            <eb:PartyId />
+                        </eb:To>
+                        <eb:CPAId>{self.pcc}</eb:CPAId>
+                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
+                        <eb:Service>SessionCreateRQ</eb:Service>
+                        <eb:Action>SessionCreateRQ</eb:Action>
+                        <eb:MessageData>
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
+                        </eb:MessageData>
+                    </eb:MessageHeader>
+                    <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
+                        <wsse:UsernameToken>
+                            <wsse:Username>{self.username}</wsse:Username>
+                            <wsse:Password>{self.password}</wsse:Password>
+                            <Organization>{self.pcc}</Organization>
+                            <Domain>DEFAULT</Domain>
+                        </wsse:UsernameToken>
+                    </wsse:Security>
+                </soap-env:Header>
+                <soap-env:Body>
+                    <eb:Manifest soap-env:mustUnderstand="1" eb:version="1.0">
+                        <eb:Reference xlink:href="cid:rootelement" xlink:type="simple" />
+                    </eb:Manifest>
+                    <SessionCreateRQ>
+                        <POS>
+                            <Source PseudoCityCode="{self.pcc}"/>
+                        </POS>
+                    </SessionCreateRQ>
+                    <ns:SessionCreateRQ xmlns:ns="http://www.opentravel.org/OTA/2002/11" />
+                </soap-env:Body>
+            </soap-env:Envelope>"""
 
     def session_close_rq(self, token):
         """
@@ -719,10 +761,6 @@ class SabreXMLBuilder:
 
     def ignore_transaction_rq(self, token):
         """Return the xml request to ignore a transaction."""
-<<<<<<< HEAD
-=======
-
->>>>>>> c480fe1674041576809b4fd413185f1c1664d756
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Header>
@@ -878,6 +916,7 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
-            
+
+
 def main():
     pass

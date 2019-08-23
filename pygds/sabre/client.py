@@ -150,18 +150,17 @@ class SabreClient(BaseClient):
         if code_cc and expire_date and cc_number is not None:
             fop = self.xml_builder.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
         elif payment_type and commission_value is not None:
-            print("-----------payment_type--------------")
-            print(payment_type)
-            print("-----------commission_value----------")
-            print(commission_value)
             fop = self.xml_builder.info_cash_or_cheque(payment_type, commission_value)
         return fop
 
-    def issue_ticket(self, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+    def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
         """
         This function is for issue ticket
         :return
         """
+        self.send_command(message_id, "SI*")
+        self.send_command(message_id, "PPS1")
+        self.send_command(message_id, "CC/PC")
         fop_type = self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.xml_builder.url)
@@ -174,8 +173,8 @@ class SabreClient(BaseClient):
         request_data = self.xml_builder.end_transaction_rq(token_value)
         response_data = self.__request_wrapper("end_transaction", request_data, self.xml_builder.url)
         return EndTransactionExtractor(response_data).extract()
-    def send_command(self, message_id: str, command: str):
 
+    def send_command(self, message_id: str, command: str):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)

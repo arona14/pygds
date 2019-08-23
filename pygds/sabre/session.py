@@ -5,7 +5,7 @@
 import requests
 import jxmlease
 
-from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.helpers import get_data_from_json
 from pygds.sabre.base_service import BaseService
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
@@ -39,7 +39,7 @@ class SabreSession(BaseService):
         close_session_xml = SabreXMLBuilder().session_close_rq(pcc, token, conversation_id)
 
         response = requests.post(self.url, data=close_session_xml, headers=self.headers)
-        return soap_service_to_json(response.content)
+        return get_data_from_json(response.content)
 
 
 def main():
