@@ -3,18 +3,14 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 
-import requests
 import jxmlease
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
-
-from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
-from pygds.sabre.formatters.reservation_formatter import BaseResponseExtractor
 
 
 class SabreClient(BaseClient):
@@ -89,10 +85,10 @@ class SabreClient(BaseClient):
             session_info = self.open_session()
             token = session_info.security_token
 
-        get_reservation = self.xml_builder.get_reservation_rq(token, pnr)
-        response = requests.post(self.xml_builder.url, data=get_reservation, headers=self.header_template)
-        to_return = SabreReservationFormatter(response.content)._extract()
-        gds_response = BaseResponseExtractor(session_info, to_return, None)
+        display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
+        display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
+        gds_response = SabreReservationFormatter(display_pnr_response).extract()
+        gds_response.session_info = session_info
 
         if need_close:
             self.close_session(token)
@@ -178,6 +174,18 @@ class SabreClient(BaseClient):
         request_data = self.xml_builder.end_transaction_rq(token_value)
         response_data = self.__request_wrapper("end_transaction", request_data, self.xml_builder.url)
         return EndTransactionExtractor(response_data).extract()
+    def send_command(self, message_id: str, command: str):
+
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        command_request = self.xml_builder.sabre_command_lls_rq(token_session, command)
+        command_response = self.__request_wrapper("send_command", command_request, self.xml_builder.url)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = SabreSendCommandFormat(command_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
 
 
 if __name__ == "__main__":

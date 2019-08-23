@@ -264,12 +264,22 @@ class FormOfPayment(BasicDataObject):
     """
         Keeps information about form of payments
     """
-    def __init__(self, short_text: str = None):
-        self.short_text = short_text
+
+    def __init__(self, type_payment: str = None, form_payment: str = None, vendor_code: str = None,
+                 credit_card_number: str = None, expire_date: str = None):
+        self.type_payment = type_payment
+        self.form_payment = form_payment
+        self.vendor_code = vendor_code
+        self.credit_card_number = credit_card_number
+        self.expire_date = expire_date
 
     def to_data(self):
-        return{
-            "short_text": self.short_text
+        return {
+            "type_payment": self.type_payment,
+            "form_payment": self.form_payment,
+            "vendor_code": self.vendor_code,
+            "credit_card_number": self.credit_card_number,
+            "expire_date": self.expire_date
         }
 
 
@@ -376,11 +386,68 @@ class PriceQuote(BasicDataObject):
         }
 
 
+class FormatAmount(BasicDataObject):
+
+    def __init__(self, amount: str = None, currency_code: str = None):
+        self.amount = amount
+        self.currency_code = currency_code
+
+    def to_data(self):
+        return{
+            "amount": self.amount,
+            "currency_code": self.currency_code,
+        }
+
+
+class FormatPassengersInPQ(BasicDataObject):
+
+    def __init__(self, name_number: str = None, passenger_type: str = None):
+        self.name_number = name_number
+        self.passenger_type = passenger_type
+
+    def to_data(self):
+        return{
+            "name_number": self.name_number,
+            "passenger_type": self.passenger_type,
+
+        }
+
+
+class PriceQuote_(BasicDataObject):
+    """
+        This is to represent a price quote object
+    """
+    def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, passengers=None):
+        self.price_quote_number = pq_number
+        self.status = status
+        self.fare_type = fare_type
+        self.base_fare = base_fare
+        self.total_fare = total_fare
+        self.total_tax = total_tax
+        self.passengers = passengers
+
+    def to_data(self):
+        return{
+            "price_quote_number": self.price_quote_number,
+            "status": self.status,
+            "fare_type": self.fare_type,
+            "base_fare": self.base_fare,
+            "total_fare": self.total_fare,
+            "total_tax": self.total_tax,
+            "passengers": self.passengers,
+
+        }
+
+
 class TicketingInfo(BasicDataObject):
     """
         Represents a ticketing information
     """
-    def __init__(self, id: str = None, index: str = None, element_id: str = None, code: str = None, branch_pcc: str = None, date: str = None, time: str = None, queue_number: str = None, comment: str = None):
+
+    def __init__(self, id: str = None, index: str = None, element_id: str = None, code: str = None,
+                 branch_pcc: str = None, date: str = None, time: str = None, queue_number: str = None,
+                 comment: str = None, long_free_text: str = None, qualifier: str = None,
+                 number: str = None):
         self.id = id
         self.index = index
         self.element_id = element_id
@@ -390,9 +457,12 @@ class TicketingInfo(BasicDataObject):
         self.time = time
         self.queue_number = queue_number
         self.comment = comment
+        self.long_free_text = long_free_text
+        self.qualifier = qualifier
+        self.number = number
 
     def to_data(self):
-        return{
+        return {
             "id": self.id,
             "index": self.index,
             "element_id": self.element_id,
@@ -402,6 +472,9 @@ class TicketingInfo(BasicDataObject):
             "time": self.time,
             "queue_number": self.queue_number,
             "comment": self.comment,
+            "number": self.number,
+            "qualifier": self.qualifier,
+            "long_free_text": self.long_free_text
         }
 
 
@@ -423,6 +496,25 @@ class TicketingInfo_(BasicDataObject):
             "passenger_name": self.passenger,
             "agency_location": self.pcc,
             "time_stamp": self.date_time,
+        }
+
+
+class PnrInfo(BasicDataObject):
+    """
+    This class keep all informations of pnr
+    """
+    def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None, creation_date: str = None):
+        self.dk_number = dk_number
+        self.agent_signature = agent_signature
+        self.creation_office_id = creation_office_id
+        self.creation_date = creation_date
+
+    def to_data(self):
+        return {
+            "dk_number": self.dk_number,
+            "agent_signature": self.agent_signature,
+            "creation_office_id": self.creation_office_id,
+            "creation_date": self.creation_date
         }
 
 
@@ -549,6 +641,19 @@ def test_me():
     secondItinerary = Itinerary("INBOUND")
     r.addItinerary(firstItinerary).addItinerary(secondItinerary)
     print(r.to_json())
+
+
+class SendCommand(BasicDataObject):
+    """
+        This is to represent a send command object
+    """
+    def __init__(self, response: str = None):
+        self.response = response
+
+    def to_data(self):
+        return{
+            "response": self.response,
+        }
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 from typing import List
-
 from pygds.core.types import BasicDataObject
 
 
@@ -53,6 +52,14 @@ class PriceToBeatFilter(RequestFilter):
 class OriginDestination:
     def __init__(self):
         self.city: str = ''
+
+<<<<<<< HEAD
+=======
+
+class OriginDestination_:
+    def __init__(self):
+        self.departure_date: str = ''
+>>>>>>> c480fe1674041576809b4fd413185f1c1664d756
 
 
 class RequestedSegment:

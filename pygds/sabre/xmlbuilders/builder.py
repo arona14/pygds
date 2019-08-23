@@ -719,6 +719,10 @@ class SabreXMLBuilder:
 
     def ignore_transaction_rq(self, token):
         """Return the xml request to ignore a transaction."""
+<<<<<<< HEAD
+=======
+
+>>>>>>> c480fe1674041576809b4fd413185f1c1664d756
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Header>
@@ -874,7 +878,6 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
-
-
+            
 def main():
     pass

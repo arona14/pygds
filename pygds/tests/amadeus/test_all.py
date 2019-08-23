@@ -38,7 +38,7 @@ def test():
         for seg in res_reservation["itineraries"]:
             seg_refs.append(seg.segment_reference)
         for pax in res_reservation["passengers"]:
-            pax_refs.append(pax.pax_reference)
+            pax_refs.append(pax.name_id)
         price_request = PriceRequest(pax_refs, seg_refs)
 
         res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
