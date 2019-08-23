@@ -1,5 +1,5 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
-from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, store_commission, store_name_select, store_pax_type, store_plus_up, store_tour_code, store_ticket_designator
 
 
 class SabreXMLBuilder:
@@ -208,15 +208,26 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
-    def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', ticket_designator: str = '', segment_select: list = [], passenger_type: list = [], plus_up: str = '', baggage: int = 0, region_name: str = ""):
+
+    def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
             Return the xml request to price air itineraries
         """
-        segment_number = get_segment_number(segment_select)
-        pax_type, name_select = get_passenger_type(passenger_type, fare_type)
-        fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
-        commission = get_commision(baggage, self.pcc, region_name)
+        if retain:
+            name_select = store_name_select(passenger_type)
+            ticket_designator, segment_number = store_ticket_designator(passenger_type, segment_select, brand_id)
+            pax_type = store_pax_type(passenger_type)
+            commission = store_commission(fare_type, passenger_type, region_name, self.pcc)
+            tour_code = store_tour_code(passenger_type)
+            plus_up = store_plus_up(passenger_type, self.pcc)
+            fare_type_value = ""
+        else:
+            segment_number = get_segment_number(segment_select)
+            pax_type, name_select = get_passenger_type(passenger_type, fare_type)
+            fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
+            commission = get_commision(baggage, self.pcc, region_name)
+            plus_up = ""
+            ticket_designator = ""
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>

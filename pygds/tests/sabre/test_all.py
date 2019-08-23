@@ -17,45 +17,21 @@ def test():
 
     client = SabreClient(url, username, password, pcc, False)
 
-    segment_select = [1, 2, 3, 4]
-    passenger_type = [
-        {
-            "code": "JCB",
-            "nameSelect": [
-                "01.01"
-            ],
-            "quantity": 1
-        },
-        {
-            "code": "JCB",
-            "nameSelect": [
-                "02.01"
-            ],
-            "quantity": 1
-        },
-        {
-            "code": "J11",
-            "nameSelect": [
-                "03.01"
-            ],
-            "quantity": 1
-        },
-        {
-            "code": "JNF",
-            "nameSelect": [
-                "04.01"
-            ],
-            "quantity": 1
-        }
-    ]
-    display_pnr = client.get_reservation("XCVYRX", None)
+    segment_select = [1, 2, 3]
+    passenger_type = {
+        "code": "JCB", "markup": 0, "commissionPercentage": None, "nameSelect": "01.01", "tourCode": None, "ticketDesignator": None, "serviceFee": None, "proposed": 707.43, "quantity": 1
+    }
+
+    brand_id = None
+    display_pnr = client.get_reservation("KHIDYK", None)
     session_info = display_pnr.session_info
     if not session_info:
         print("Awma session info")
         return
     message_id = session_info.message_id
-    price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
-    print(price)
+    # price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
+    store_price = client.store_price_quote(message_id, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type, brand_id=brand_id)
+    print(store_price)
 
 
 if __name__ == "__main__":
