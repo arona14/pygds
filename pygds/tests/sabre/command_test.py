@@ -18,7 +18,8 @@ def test():
     client = SabreClient(url, username, password, pcc, False)
 
     display_pnr = client.get_reservation("KDDLRA", None)
-    return display_pnr
+    sabre_command = client.send_command(display_pnr.session_info.message_id, "*KDDLRA")
+    return sabre_command
 
 
 if __name__ == "__main__":

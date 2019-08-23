@@ -95,7 +95,7 @@ class SabreXMLBuilder:
 
     def end_transaction_rq(self, token):
         """
-            Return the xml request to complete and store 
+            Return the xml request to complete and store
             changes made to a Passenger Name Record (PNR)
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -166,7 +166,7 @@ class SabreXMLBuilder:
 
     def get_reservation_rq(self, token, record_locator):
         """
-            Return the xml request to retrieve and 
+            Return the xml request to retrieve and
             display a passenger name record (PNR)
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -208,7 +208,7 @@ class SabreXMLBuilder:
                     </ns7:GetReservationRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', ticket_designator: str = '', segment_select: list = [], passenger_type: list = [], plus_up: str = '', baggage: int = 0, region_name: str = ""):
         """
             Return the xml request to price air itineraries
@@ -259,7 +259,7 @@ class SabreXMLBuilder:
                     </OTA_AirPriceRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def queue_place_rq(self, token, queue_number, record_locator):
         """
             Return the xml request to place a pnr in a queue
@@ -296,7 +296,7 @@ class SabreXMLBuilder:
                     </QueuePlaceRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def void_ticket_rq(self, token, rph):
         """
             Return the xml request to void air tickets
@@ -330,12 +330,12 @@ class SabreXMLBuilder:
                     </VoidTicketRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def cancel_segment_rq(self, token, segment):
         """
-            Return the xml request to to cancel itinerary 
+            Return the xml request to to cancel itinerary
             segments contained within a PNR
-        """    
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -365,11 +365,11 @@ class SabreXMLBuilder:
                     </OTA_CancelRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def air_ticket_rq(self, token_value, info_ticketing, price_quote):
         """
             Return the xml request to issue air tickets
-        """                        
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -404,7 +404,7 @@ class SabreXMLBuilder:
                     </AirTicketRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def re_book_air_segment_rq(self, token, flight_segment, pnr):
         """
             Return the xml request to book flight  segment
@@ -448,7 +448,7 @@ class SabreXMLBuilder:
                     </EnhancedAirBookRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def update_passenger_rq(self, token, pnr, air_seat, passenger, ssr_code, dk):
         """
             Return the xml request to update a passenger in pnr
@@ -540,7 +540,7 @@ class SabreXMLBuilder:
                     </tag0:EnhancedSeatMapRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def electronic_document_rq(self, token, ticket_number):
         """
             Return the xml request to check if a ticket number is exchangeable
@@ -578,10 +578,10 @@ class SabreXMLBuilder:
                     </GetElectronicDocumentRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def exchange_shopping_rq(self, token, passengers_info, origin_destination_info):
         """
-            Return the xml request to search for available flights 
+            Return the xml request to search for available flights
             for a ticket number to be exchanged
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -620,10 +620,10 @@ class SabreXMLBuilder:
                     </ExchangeShoppingRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-        
+
     def automated_exchanges_price_rq(self, token, ticket_number, name_number, passenger_type):
         """
-            Return the xml request to find new prices 
+            Return the xml request to find new prices
             for a ticket number to be exchanged
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -664,12 +664,12 @@ class SabreXMLBuilder:
                     </AutomatedExchangesRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-           
+
     def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, commission_value):
         """
-            Return the xml request to store a price 
+            Return the xml request to store a price
             for a ticket number to be exchanged
-        """    
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -706,7 +706,7 @@ class SabreXMLBuilder:
                     </AutomatedExchangesRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-       
+
     def ticketing_exchange_rq(self, token, price_quote):
         """
             Return the xml request to ticket a pnr to be exchanged
@@ -748,10 +748,10 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def ignore_transaction_rq(self, token):
         """Return the xml request to ignore a transaction."""
-      
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Header>
@@ -780,7 +780,7 @@ class SabreXMLBuilder:
                         <IgnoreTransactionRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0.0"/>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def credit_verification_rq(self, token, airline_code, code_cc, expire_date, cc_number, total_fare, currency_code):
         """
             Return the xml request to check the information of a bank account number
@@ -822,7 +822,7 @@ class SabreXMLBuilder:
                         </CreditVerificationRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def send_remark_rq(self, token, text):
         """
             Return the xml request to add a remark for a pnr
@@ -864,8 +864,8 @@ class SabreXMLBuilder:
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-       
-          
+
+
 def main():
     pass
 
