@@ -270,7 +270,11 @@ class SabreClient(BaseClient):
         """
         fop_type = self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
+        print("--------------request--------------")
+        print(request_data)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.xml_builder.url)
+        print("--------------response--------------")
+        print(response_data)
         return IssueTicketExtractor(response_data).extract()
 
 if __name__ == "__main__":

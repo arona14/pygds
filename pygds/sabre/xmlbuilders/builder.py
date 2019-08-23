@@ -504,11 +504,11 @@ class SabreXMLBuilder:
 
 
     def info_cash_or_cheque(self, payment_type, commission_value):
-        return f"""<FOP_Qualifiers>
+        payment_infos = f"""<FOP_Qualifiers>
                 <BasicFOP Type="{payment_type}"/>
                 </FOP_Qualifiers>
                 {commission_value}"""
-   
+        return payment_infos
    
     def seap_map_rq(self, token, flight_infos):
         """
@@ -903,14 +903,18 @@ class SabreXMLBuilder:
                     <eb:group>{self.pcc}</eb:group>
                     </eb:Security>
                 </soapenv:Header>
-                <soapenv:Body>
-                    <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
-                        <OptionalQualifiers>
-                            {info_ticketing}
-                            {price_quote}
-                        </OptionalQualifiers>
-                    </AirTicketRQ>
-                </soapenv:Body>
+                    <soapenv:Body>
+                        <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
+                            <OptionalQualifiers>
+                                {info_ticketing}
+                                <PricingQualifiers>
+                                    <PriceQuote>
+                                        <Record Number="{price_quote}"/>
+                                    </PriceQuote>
+                                </PricingQualifiers>
+                            </OptionalQualifiers>
+                        </AirTicketRQ>
+                    </soapenv:Body>
             </soapenv:Envelope>"""
 def main():
     pass

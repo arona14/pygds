@@ -31,9 +31,11 @@ def test():
     #log = log_handler.get_logger("test_all")
    pnr = "KFBBCG"  # "Q68EFX", "RI3B6D", "RT67BC"
     # m_id = None
-   token = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESF!ICESMSLB\\/RES.LB!-2982727276469258613!395125!0"
+   token = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESG!ICESMSLB\\/RES.LB!-2982335115619341422!363526!0"
+   commission_value = """<MiscQualifiers><Commission Percent="0.00"/></MiscQualifiers>"""
    client = SabreClient(url, username, password, pcc, False)
-   result = client.issue_ticket(token, 1234, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = "CA", commission_value = 123)
+   result = client.issue_ticket(token, 1, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = "CK", commission_value = commission_value)
+   
    print(result.payload)
     #try:
     # session_response = client.open_session()
