@@ -1,11 +1,11 @@
-from pygds.sabre.flight_search import SearchFlightRequest
-from  pygds.core.request import LowFareSearchRequest
+
+from pygds.core.request import LowFareSearchRequest
 
 
 class SabreBFMBuilder:
     """This class can generate JSON needed for sabre search flight requests."""
 
-    def __init__(self, search_request:LowFareSearchRequest  , target: str = "Production", AvailableFlightsOnly: bool = True):
+    def __init__(self, search_request: LowFareSearchRequest, target: str = "Production", AvailableFlightsOnly: bool = True):
         self.target = target
         self.AvailableFlightsOnly = True
         self.search_request: LowFareSearchRequest = search_request
@@ -31,7 +31,7 @@ class SabreBFMBuilder:
 
     def origin_destination_information(self):
         my_return = []
-        itinaries = self.search_request["itineraries"]                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        itinaries = self.search_request["itineraries"]
         for i in itinaries:
             my_return.append(
                 {
@@ -73,7 +73,7 @@ class SabreBFMBuilder:
         return "Other"
 
     def travel_preferences(self):
-        cabin = self.search_request["csv"]
+        # cabin = self.search_request["csv"]
         paxTypeQuantityPUB = []
         paxTypeQuantityPFA = []
 
@@ -154,7 +154,8 @@ class SabreBFMBuilder:
                         "PreferLevel": "Unacceptable"
                     }
                 ]"""
-        return  tpa_ext
+        return tpa_ext
+
     def travel_info_summary(self):
         pass
 
@@ -162,9 +163,9 @@ class SabreBFMBuilder:
         pass
 
     def search_flight(self):
-        return  {
-            "OTA_AirLowFareSearchRQ":{
-                "POS":self.pos(),
+        return {
+            "OTA_AirLowFareSearchRQ": {
+                "POS": self.pos(),
                 "OriginDestinationInformation": self.origin_destination_information(),
                 "TravelPreferences": self.travel_preferences,
                 "TravelerInfoSummary": self.travel_info_summary(),
@@ -177,406 +178,406 @@ class SabreBFMBuilder:
 
     def itinaries(self):
         return {
-                    {
-            "OTA_AirLowFareSearchRQ": {
-            "POS" : SabreBFMBuilder().pos(),
-            "OriginDestinationInformation": [
-                {
-                    "TPA_Extensions": {
-                        "SegmentType": {
-                            "Code": "O"
-                        },
-                        "CabinPref": {
-                            "Cabin": "Y"
-                        }
-                    },
-                    "RPH": "1",
-                    "OriginLocation": {
-                        "LocationCode": "DTW",
-                        "CodeContext": "IATA"
-                    },
-                    "DestinationLocation": {
-                        "LocationCode": "CDG",
-                        "CodeContext": "IATA"
-                    },
-                    "DepartureDateTime": "2019-10-08T11:00:00"
-                },
-                {
-                    "TPA_Extensions": {
-                        "SegmentType": {
-                            "Code": "O"
-                        },
-                        "CabinPref": {
-                            "Cabin": "Y"
-                        }
-                    },
-                    "RPH": "2",
-                    "OriginLocation": {
-                        "LocationCode": "CDG",
-                        "CodeContext": "IATA"
-                    },
-                    "DestinationLocation": {
-                        "LocationCode": "DTW",
-                        "CodeContext": "IATA"
-                    },
-                    "DepartureDateTime": "2019-10-21T11:00:00"
-                }
-            ],
-            "TravelPreferences": {
-                "ValidInterlineTicket": true,
-                "FlightTypePref": {
-                    "MaxConnections": "2"
-                },
-                "TPA_Extensions": {
-                    "LongConnectTime": {
-                        "Enable": true
-                    },
-                    "ExcludeVendorPref": [
+            {
+                "OTA_AirLowFareSearchRQ": {
+                    "POS": SabreBFMBuilder().pos(),
+                    "OriginDestinationInformation": [
                         {
-                            "Code": "WN"
+                            "TPA_Extensions": {
+                                "SegmentType": {
+                                    "Code": "O"
+                                },
+                                "CabinPref": {
+                                    "Cabin": "Y"
+                                }
+                            },
+                            "RPH": "1",
+                            "OriginLocation": {
+                                "LocationCode": "DTW",
+                                "CodeContext": "IATA"
+                            },
+                            "DestinationLocation": {
+                                "LocationCode": "CDG",
+                                "CodeContext": "IATA"
+                            },
+                            "DepartureDateTime": "2019-10-08T11:00:00"
+                        },
+                        {
+                            "TPA_Extensions": {
+                                "SegmentType": {
+                                    "Code": "O"
+                                },
+                                "CabinPref": {
+                                    "Cabin": "Y"
+                                }
+                            },
+                            "RPH": "2",
+                            "OriginLocation": {
+                                "LocationCode": "CDG",
+                                "CodeContext": "IATA"
+                            },
+                            "DestinationLocation": {
+                                "LocationCode": "DTW",
+                                "CodeContext": "IATA"
+                            },
+                            "DepartureDateTime": "2019-10-21T11:00:00"
                         }
                     ],
-                    "TripType": {
-                        "Value": "Return"
-                    },
-                    "ExemptAllTaxes": {
-                        "Value": false
-                    },
-                    "ExemptAllTaxesAndFees": {
-                        "Value": false
-                    },
-                    "FlightStopsAsConnections": {
-                        "Ind": true
-                    },
-                    "JumpCabinLogic": {
-                        "Disabled": false
-                    },
-                    "FlexibleFares": {
-                        "FareParameters": [
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "JCB",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "JNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "JNF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "Y"
-                                },
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "ADT",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "CNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "INF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "Y"
-                                },
-                                "NegotiatedFaresOnly": {
-                                    "Ind": true
-                                },
-                                "AccountCode": [
-                                    {
-                                        "Code": "COM"
-                                    }
-                                ],
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "PFA",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "CNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "INF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "Y"
-                                },
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "JCB",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "JNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "JNF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "S"
-                                },
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "ADT",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "CNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "INF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "S"
-                                },
-                                "NegotiatedFaresOnly": {
-                                    "Ind": true
-                                },
-                                "AccountCode": [
-                                    {
-                                        "Code": "COM"
-                                    }
-                                ],
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "PassengerTypeQuantity": [
-                                    {
-                                        "Code": "PFA",
-                                        "Quantity": 2
-                                    },
-                                    {
-                                        "Code": "CNN",
-                                        "Quantity": 1
-                                    },
-                                    {
-                                        "Code": "INF",
-                                        "Quantity": 1
-                                    }
-                                ],
-                                "Cabin": {
-                                    "Type": "S"
-                                },
-                                "VoluntaryChanges": {
-                                    "Match": "Info",
-                                    "Penalty": [
-                                        {
-                                            "Type": "Refund"
-                                        },
-                                        {
-                                            "Type": "Exchange"
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    "DiversityParameters": {
-                        "Weightings": {
-                            "PriceWeight": 10,
-                            "TravelTimeWeight": 0
+                    "TravelPreferences": {
+                        "ValidInterlineTicket": True,
+                        "FlightTypePref": {
+                            "MaxConnections": "2"
                         },
-                        "AdditionalNonStopsPercentage": 100
-                    }
-                },
-                "AncillaryFees": {
-                    "Enable": true,
-                    "Summary": true,
-                    "AncillaryFeeGroup": [
-                        {
-                            "Code": "BG",
-                            "Count": "3"
-                        }
-                    ]
-                }
-            },
-            "TravelerInfoSummary": {
-                "AirTravelerAvail": [
-                    {
-                        "PassengerTypeQuantity": [
-                            {
-                                "Code": "JCB",
-                                "Quantity": 2,
-                                "TPA_Extensions": {
-                                    "VoluntaryChanges": {
-                                        "Match": "Info",
-                                        "Penalty": [
-                                            {
-                                                "Type": "Refund"
-                                            },
-                                            {
-                                                "Type": "Exchange"
-                                            }
-                                        ]
-                                    }
-                                }
+                        "TPA_Extensions": {
+                            "LongConnectTime": {
+                                "Enable": True
                             },
-                            {
-                                "Code": "CNN",
-                                "Quantity": 1,
-                                "TPA_Extensions": {
-                                    "VoluntaryChanges": {
-                                        "Match": "Info",
-                                        "Penalty": [
-                                            {
-                                                "Type": "Refund"
-                                            },
-                                            {
-                                                "Type": "Exchange"
-                                            }
-                                        ]
-                                    }
+                            "ExcludeVendorPref": [
+                                {
+                                    "Code": "WN"
                                 }
+                            ],
+                            "TripType": {
+                                "Value": "Return"
                             },
-                            {
-                                "Code": "INF",
-                                "Quantity": 1,
-                                "TPA_Extensions": {
-                                    "VoluntaryChanges": {
-                                        "Match": "Info",
-                                        "Penalty": [
+                            "ExemptAllTaxes": {
+                                "Value": False
+                            },
+                            "ExemptAllTaxesAndFees": {
+                                "Value": False
+                            },
+                            "FlightStopsAsConnections": {
+                                "Ind": True
+                            },
+                            "JumpCabinLogic": {
+                                "Disabled": False
+                            },
+                            "FlexibleFares": {
+                                "FareParameters": [
+                                    {
+                                        "PassengerTypeQuantity": [
                                             {
-                                                "Type": "Refund"
+                                                "Code": "JCB",
+                                                "Quantity": 2
                                             },
                                             {
-                                                "Type": "Exchange"
+                                                "Code": "JNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "JNF",
+                                                "Quantity": 1
                                             }
-                                        ]
+                                        ],
+                                        "Cabin": {
+                                            "Type": "Y"
+                                        },
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "PassengerTypeQuantity": [
+                                            {
+                                                "Code": "ADT",
+                                                "Quantity": 2
+                                            },
+                                            {
+                                                "Code": "CNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "INF",
+                                                "Quantity": 1
+                                            }
+                                        ],
+                                        "Cabin": {
+                                            "Type": "Y"
+                                        },
+                                        "NegotiatedFaresOnly": {
+                                            "Ind": True
+                                        },
+                                        "AccountCode": [
+                                            {
+                                                "Code": "COM"
+                                            }
+                                        ],
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "PassengerTypeQuantity": [
+                                            {
+                                                "Code": "PFA",
+                                                "Quantity": 2
+                                            },
+                                            {
+                                                "Code": "CNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "INF",
+                                                "Quantity": 1
+                                            }
+                                        ],
+                                        "Cabin": {
+                                            "Type": "Y"
+                                        },
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "PassengerTypeQuantity": [
+                                            {
+                                                "Code": "JCB",
+                                                "Quantity": 2
+                                            },
+                                            {
+                                                "Code": "JNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "JNF",
+                                                "Quantity": 1
+                                            }
+                                        ],
+                                        "Cabin": {
+                                            "Type": "S"
+                                        },
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "PassengerTypeQuantity": [
+                                            {
+                                                "Code": "ADT",
+                                                "Quantity": 2
+                                            },
+                                            {
+                                                "Code": "CNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "INF",
+                                                "Quantity": 1
+                                            }
+                                        ],
+                                        "Cabin": {
+                                            "Type": "S"
+                                        },
+                                        "NegotiatedFaresOnly": {
+                                            "Ind": True
+                                        },
+                                        "AccountCode": [
+                                            {
+                                                "Code": "COM"
+                                            }
+                                        ],
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "PassengerTypeQuantity": [
+                                            {
+                                                "Code": "PFA",
+                                                "Quantity": 2
+                                            },
+                                            {
+                                                "Code": "CNN",
+                                                "Quantity": 1
+                                            },
+                                            {
+                                                "Code": "INF",
+                                                "Quantity": 1
+                                            }
+                                        ],
+                                        "Cabin": {
+                                            "Type": "S"
+                                        },
+                                        "VoluntaryChanges": {
+                                            "Match": "Info",
+                                            "Penalty": [
+                                                {
+                                                    "Type": "Refund"
+                                                },
+                                                {
+                                                    "Type": "Exchange"
+                                                }
+                                            ]
+                                        }
                                     }
-                                }
+                                ]
+                            },
+                            "DiversityParameters": {
+                                "Weightings": {
+                                    "PriceWeight": 10,
+                                    "TravelTimeWeight": 0
+                                },
+                                "AdditionalNonStopsPercentage": 100
                             }
-                        ]
-                    }
-                ],
-                "PriceRequestInformation": {
-                    "NegotiatedFareCode": [],
+                        },
+                        "AncillaryFees": {
+                            "Enable": True,
+                            "Summary": True,
+                            "AncillaryFeeGroup": [
+                                {
+                                    "Code": "BG",
+                                    "Count": "3"
+                                }
+                            ]
+                        }
+                    },
+                    "TravelerInfoSummary": {
+                        "AirTravelerAvail": [
+                            {
+                                "PassengerTypeQuantity": [
+                                    {
+                                        "Code": "JCB",
+                                        "Quantity": 2,
+                                        "TPA_Extensions": {
+                                            "VoluntaryChanges": {
+                                                "Match": "Info",
+                                                "Penalty": [
+                                                    {
+                                                        "Type": "Refund"
+                                                    },
+                                                    {
+                                                        "Type": "Exchange"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "Code": "CNN",
+                                        "Quantity": 1,
+                                        "TPA_Extensions": {
+                                            "VoluntaryChanges": {
+                                                "Match": "Info",
+                                                "Penalty": [
+                                                    {
+                                                        "Type": "Refund"
+                                                    },
+                                                    {
+                                                        "Type": "Exchange"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "Code": "INF",
+                                        "Quantity": 1,
+                                        "TPA_Extensions": {
+                                            "VoluntaryChanges": {
+                                                "Match": "Info",
+                                                "Penalty": [
+                                                    {
+                                                        "Type": "Refund"
+                                                    },
+                                                    {
+                                                        "Type": "Exchange"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "PriceRequestInformation": {
+                            "NegotiatedFareCode": [],
+                            "TPA_Extensions": {
+                                "Priority": {
+                                    "Price": {
+                                        "Priority": 1
+                                    },
+                                    "DirectFlights": {
+                                        "Priority": 4
+                                    },
+                                    "Time": {
+                                        "Priority": 2
+                                    },
+                                    "Vendor": {
+                                        "Priority": 3
+                                    }
+                                },
+                                "Indicators": {
+                                    "RefundPenalty": {
+                                        "Ind": True
+                                    }
+                                },
+                                "BrandedFareIndicators": {
+                                    "SingleBrandedFare": True,
+                                    "MultipleBrandedFares": True
+                                }
+                            },
+                            "NegotiatedFaresOnly": True
+                        }
+                    },
                     "TPA_Extensions": {
-                        "Priority": {
-                            "Price": {
-                                "Priority": 1
+                        "IntelliSellTransaction": {
+                            "RequestType": {
+                                "Name": "50ITINS"
                             },
-                            "DirectFlights": {
-                                "Priority": 4
-                            },
-                            "Time": {
-                                "Priority": 2
-                            },
-                            "Vendor": {
-                                "Priority": 3
+                            "CompressResponse": {
+                                "Value": True
                             }
                         },
-                        "Indicators": {
-                            "RefundPenalty": {
-                                "Ind": true
-                            }
+                        "MultiTicket": {
+                            "DisplayPolicy": "SOW"
                         },
-                        "BrandedFareIndicators": {
-                            "SingleBrandedFare": true,
-                            "MultipleBrandedFares": false
-                        }
+                        "AlternatePCC": []
                     },
-                    "NegotiatedFaresOnly": false
+                    "Target": "Production",
+                    "Version": "4.1.0",
+                    "AvailableFlightsOnly": True
                 }
-            },
-            "TPA_Extensions": {
-                "IntelliSellTransaction": {
-                    "RequestType": {
-                        "Name": "50ITINS"
-                    },
-                    "CompressResponse": {
-                        "Value": true
-                    }
-                },
-                "MultiTicket": {
-                    "DisplayPolicy": "SOW"
-                },
-                "AlternatePCC": []
-            },
-            "Target": "Production",
-            "Version": "4.1.0",
-            "AvailableFlightsOnly": true
             }
-        }
         }
 
     def traveler_info_summary(self):

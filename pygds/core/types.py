@@ -126,7 +126,6 @@ class FlightSegment(BasicDataObject):
         self.code = code
         self.action_code = action_code
 
-
     def to_data(self):
         return {
             "sequence": self.sequence,
@@ -404,6 +403,7 @@ class TicketingInfo(BasicDataObject):
             "queue_number": self.queue_number,
             "comment": self.comment,
         }
+
 
 class TicketingInfo_(BasicDataObject):
     """
