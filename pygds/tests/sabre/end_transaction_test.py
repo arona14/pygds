@@ -3,6 +3,7 @@ from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
 
+
 class TestEndTransaction(TestCase):
 
     def setUp(self):
@@ -16,4 +17,4 @@ class TestEndTransaction(TestCase):
 
     def test_end_transaction(self):
         result = self.client.end_transaction(self.token)
-        self.assertIsNotNone(result, "Cannot end the transaction")    
+        self.assertIsNotNone(result, "Cannot end the transaction")

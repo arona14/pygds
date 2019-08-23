@@ -11,7 +11,6 @@ from pygds import log_handler
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
-
 def test():
     """ A suite of tests """
     endpoint = get_setting("AMADEUS_ENDPOINT_URL")

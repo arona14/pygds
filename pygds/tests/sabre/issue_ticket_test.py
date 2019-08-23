@@ -3,6 +3,7 @@ from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
 
+
 class TestTicket(TestCase):
 
     def setUp(self) -> None:
@@ -26,4 +27,4 @@ class TestTicket(TestCase):
 
     def test_issue_ticket(self):
         result = self.client.issue_ticket(self.token, self.price_quote, self.type_fop_by_cash_or_cheque, self.commission_value)
-        self.assertIsNotNone(result, "Cannot issue ticket")    
+        self.assertIsNotNone(result, "Cannot issue ticket")

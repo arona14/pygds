@@ -17,7 +17,7 @@ class SabreXMLBuilder:
         """
         This method generates the security part in SAOP Header.
         :param pcc: The pcc
-        :param conversation_id: 
+        :param conversation_id:
         :param security_token:
         :return:
         """
@@ -47,51 +47,6 @@ class SabreXMLBuilder:
 
     def session_create_rq(self, pcc, user_name, password, conversation_id):
         """Return the xml request to create a session."""
-
-    def session_create_rq(self):
-        """
-            Return the xml request to initiate a SOAP API session
-        """
-        return f"""<?xml version="1.0" encoding="UTF-8"?>
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
-                <soap-env:Header>
-                    <eb:MessageHeader soap-env:mustUnderstand="1" eb:version="1.0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>SessionCreateRQ</eb:Service>
-                        <eb:Action>SessionCreateRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
-                        <wsse:UsernameToken>
-                            <wsse:Username>{self.username}</wsse:Username>
-                            <wsse:Password>{self.password}</wsse:Password>
-                            <Organization>{self.pcc}</Organization>
-                            <Domain>DEFAULT</Domain>
-                        </wsse:UsernameToken>
-                    </wsse:Security>
-                </soap-env:Header>
-                <soap-env:Body>
-                    <eb:Manifest soap-env:mustUnderstand="1" eb:version="1.0">
-                        <eb:Reference xlink:href="cid:rootelement" xlink:type="simple" />
-                    </eb:Manifest>
-                    <SessionCreateRQ>
-                        <POS>
-                            <Source PseudoCityCode="{self.pcc}"/>
-                        </POS>
-                    </SessionCreateRQ>
-                    <ns:SessionCreateRQ xmlns:ns="http://www.opentravel.org/OTA/2002/11" />
-                </soap-env:Body>
-            </soap-env:Envelope>"""
 
     def session_close_rq(self, token):
         """
@@ -162,7 +117,7 @@ class SabreXMLBuilder:
                     </EndTransactionRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def sabre_command_lls_rq(self, token, command):
         """
             Return the xml request to send a command
@@ -252,7 +207,7 @@ class SabreXMLBuilder:
         pax_type, name_select = get_passenger_type(passenger_type, fare_type)
         fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
         commission = get_commision(baggage, self.pcc, region_name)
-       return f"""<?xml version="1.0" encoding="UTF-8"?>
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
                     <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
@@ -294,7 +249,7 @@ class SabreXMLBuilder:
                     </OTA_AirPriceRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def queue_place_rq(self, token, queue_number, record_locator):
         """
             Return the xml request to place a pnr in a queue
@@ -331,7 +286,7 @@ class SabreXMLBuilder:
                     </QueuePlaceRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def void_ticket_rq(self, token, rph):
         """
             Return the xml request to void air tickets
@@ -365,12 +320,12 @@ class SabreXMLBuilder:
                     </VoidTicketRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def cancel_segment_rq(self, token, segment):
         """
-            Return the xml request to to cancel itinerary 
+            Return the xml request to to cancel itinerary
             segments contained within a PNR
-        """    
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -444,7 +399,7 @@ class SabreXMLBuilder:
                     </EnhancedAirBookRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def update_passenger_rq(self, token, pnr, air_seat, passenger, ssr_code, dk):
         """
             Return the xml request to update a passenger in pnr
@@ -498,7 +453,7 @@ class SabreXMLBuilder:
             </soapenv:Envelope>"""
 
     def info_credit_card(self, code_cc, expire_date, cc_number, commission_value, approval_code=None):
-        return  f"""<FOP_Qualifiers>
+        return f"""<FOP_Qualifiers>
                 <BasicFOP>
                     <CC_Info Suppress="true">
                         <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" ManualApprovalCode ="{approval_code}" Number="{cc_number}"/>
@@ -513,7 +468,7 @@ class SabreXMLBuilder:
                 </FOP_Qualifiers>
                 {commission_value}"""
         return payment_infos
-   
+
     def seap_map_rq(self, token, flight_infos):
         """
             Return the xml request to search a seap map
@@ -553,7 +508,7 @@ class SabreXMLBuilder:
                     </tag0:EnhancedSeatMapRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def electronic_document_rq(self, token, ticket_number):
         """
             Return the xml request to check if a ticket number is exchangeable
@@ -591,10 +546,10 @@ class SabreXMLBuilder:
                     </GetElectronicDocumentRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-    
+
     def exchange_shopping_rq(self, token, passengers_info, origin_destination_info):
         """
-            Return the xml request to search for available flights 
+            Return the xml request to search for available flights
             for a ticket number to be exchanged
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -633,10 +588,10 @@ class SabreXMLBuilder:
                     </ExchangeShoppingRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-        
+
     def automated_exchanges_price_rq(self, token, ticket_number, name_number, passenger_type):
         """
-            Return the xml request to find new prices 
+            Return the xml request to find new prices
             for a ticket number to be exchanged
         """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -677,12 +632,12 @@ class SabreXMLBuilder:
                     </AutomatedExchangesRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-           
+
     def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, commission_value):
         """
-            Return the xml request to store a price 
+            Return the xml request to store a price
             for a ticket number to be exchanged
-        """    
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -719,7 +674,7 @@ class SabreXMLBuilder:
                     </AutomatedExchangesRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-       
+
     def ticketing_exchange_rq(self, token, price_quote):
         """
             Return the xml request to ticket a pnr to be exchanged
@@ -761,10 +716,9 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def ignore_transaction_rq(self, token):
         """Return the xml request to ignore a transaction."""
-      
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Header>
@@ -793,7 +747,7 @@ class SabreXMLBuilder:
                         <IgnoreTransactionRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0.0"/>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def credit_verification_rq(self, token, airline_code, code_cc, expire_date, cc_number, total_fare, currency_code):
         """
             Return the xml request to check the information of a bank account number
@@ -835,7 +789,7 @@ class SabreXMLBuilder:
                         </CreditVerificationRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-        
+
     def send_remark_rq(self, token, text):
         """
             Return the xml request to add a remark for a pnr
@@ -877,11 +831,11 @@ class SabreXMLBuilder:
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-       
+
     def air_ticket_rq(self, token_value, info_ticketing, price_quote):
         """
             Return the xml request to issue air tickets
-        """                        
+        """
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>

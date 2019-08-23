@@ -191,7 +191,7 @@ class IssueTicketExtractor(BaseResponseExtractor):
         response_data = from_json_safe(payload, "AirTicketRS")
         message_success = from_json_safe(response_data, "@Text")
         application_result_data = from_json_safe(response_data, "stl:ApplicationResults")
-        status = from_json_safe(application_result_data ,"@status")
+        status = from_json_safe(application_result_data, "@status")
         error_data = from_json_safe(application_result_data, "stl:Error")
         if error_data is not None:
             type_error = from_json_safe(error_data, "@type")
@@ -239,9 +239,6 @@ class EndTransactionExtractor(BaseResponseExtractor):
         status = from_json_safe(response_data, "stl:ApplicationResults", "@status")
         itinerary_ref = from_json_safe(response_data, "ItineraryRef")
         id_ref = from_json_safe(itinerary_ref, "ID")
-        create_date_time = from_json_safe(itinerary_ref, "Source","CreateDateTime")
+        create_date_time = from_json_safe(itinerary_ref, "Source", "CreateDateTime")
         text_message = from_json_safe(response_data, "Text")
-        
         return EndTransaction(status, id_ref, create_date_time, text_message)
-
-
