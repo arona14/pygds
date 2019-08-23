@@ -29,26 +29,7 @@ class ClientCan(unittest.TestCase):
 
         with open(json_path_response_pub) as r:
             self.search_response = json.load(r)
-    """
-    def test_search_flight(self):
-        segment1 = RequestedSegment("DTW", "NYC", "2019-08-29").to_data()
-        segment2 = RequestedSegment("NYC", "DTW", "2019-09-21").to_data()
 
-        segments = []
-        segments.append(segment1)
-        segments.append(segment2)
-
-        travel_number = TravellerNumbering(2, 1, 0)
-        my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, True, 2)
-
-        my_final_request = self.client.search_flightrq("Modou", my_request, "PUB")
-        my_final_request = json.loads(my_final_request)
-        self.assertEqual(my_final_request, self.search_pub, "The two objets are not equals")
-
-        my_final_request = self.client.search_flightrq("Modou", my_request, "NET")
-        my_final_request = json.loads(my_final_request)
-        self.assertEqual(my_final_request, self.search_net, "The two objets are not equals")
-    """
     def test_result_search(self):
         segment1 = RequestedSegment("ATH", "LHR", "2019-09-17").to_data()
         segment2 = RequestedSegment("LHR", "ATH", "2019-09-26").to_data()
@@ -59,12 +40,10 @@ class ClientCan(unittest.TestCase):
 
         travel_number = TravellerNumbering(1, 0, 0)
 
-        # print(travel_number.to_data())
         my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, False, 2)
 
-        my_final_request = self.client.search_flightrq("Modou", my_request, "PUB")
+        my_final_request = self.client.search_flightrq("Modou", my_request, True, "PUB")
         response = json.loads(my_final_request.content)
-        # print(response)
         self.assertEqual(response, response, "They aren't equals")
 
     def test_travel_numbering(self):
@@ -82,7 +61,3 @@ class ClientCan(unittest.TestCase):
     def test_open_session(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, " the result of open session is None")
-
-
-if __name__ == "__main__":
-    unittest.main()
