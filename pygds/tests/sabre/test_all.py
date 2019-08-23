@@ -21,7 +21,7 @@ def test():
     password = decode_base64(get_setting("SABRE_PASSWORD"))
     url = "https://webservices3.sabre.com"
 
-    client = SabreClient(url, username, password, pcc, False)
+    client = SabreClient(url, "", username, password, pcc, False)
 
     segment_select = [1, 2, 3, 4]
     passenger_type = [

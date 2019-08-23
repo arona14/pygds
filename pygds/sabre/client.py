@@ -4,6 +4,7 @@
 # Note that there is an explicit exemption for
 
 import requests
+import jxmlease
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
@@ -81,12 +82,16 @@ class SabreClient(BaseClient):
         This will open a new session
         :return: a token session
         """
+        message_id = generate_random_message_id()
         open_session_xml = self.xml_builder.session_create_rq()
-        response = self._soap_request_wrapper(open_session_xml)
-        response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        return response
+        response = self._request_wrapper(open_session_xml, None)
+        r = jxmlease.parse(response.content)
+        token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
+        session_info = SessionInfo(token, 1, token, message_id, False)
+        self.add_session(session_info)
+        return session_info
 
-    def close_session(self):
+    def close_session(self, message_id):
         """
         A method to close a session
         :param token_session: the token session
@@ -114,7 +119,7 @@ class SabreClient(BaseClient):
         gds_response = BaseResponseExtractor(session_info, to_return, None)
 
         if need_close:
-            self.close_session(token)
+            self.close_session(message_id)
 
         return gds_response
 
@@ -136,6 +141,8 @@ class SabreClient(BaseClient):
             raise NoSessionError(message_id)
         search_price_request = self.xml_builder.price_quote_rq(token_session, retain=str(retain).lower(), fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name)
         search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.xml_builder.url)
+        print("search_price_response")
+        print(search_price_response)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         response = PriceSearchExtractor(search_price_response).extract()

@@ -121,14 +121,4 @@ class LowFareSearchRequest(BasicDataObject):
             "preferredAirlines": self.preferredAirlines,
             "baggagePref": self.baggagePref,
             "excludeBasicEconomy": self.excludeBasicEconomy
-
-        }
-
-
-if __name__ == "__main__":
-    print(LowFareSearchRequest().to_data())
-            "preferredAirlines": [pref for pref in self.preferredAirlines],
-            "baggagePref": self.baggagePref,
-            "excludeBasicEconomy": self.excludeBasicEconomy,
-            "maxConnection": self.maxConnection
         })
