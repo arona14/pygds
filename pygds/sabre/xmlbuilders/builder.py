@@ -162,7 +162,7 @@ class SabreXMLBuilder:
                     </EndTransactionRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
-
+    
     def sabre_command_lls_rq(self, token, command):
         """
             Return the xml request to send a command
@@ -497,7 +497,6 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-
     def info_credit_card(self, code_cc, expire_date, cc_number, commission_value, approval_code=None):
         return  f"""<FOP_Qualifiers>
                 <BasicFOP>
@@ -507,7 +506,6 @@ class SabreXMLBuilder:
                 </BasicFOP>
                 </FOP_Qualifiers>
                 {commission_value}"""
-
 
     def info_cash_or_cheque(self, payment_type, commission_value):
         payment_infos = f"""<FOP_Qualifiers>
@@ -922,5 +920,7 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
+
+
 def main():
     pass

@@ -9,7 +9,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 
@@ -150,10 +150,15 @@ class SabreClient(BaseClient):
         pass
     
     def fop_choice(self, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = None, commission_value = None):
+        fop = ""
         if code_cc and expire_date and cc_number is not None:
             fop = self.xml_builder.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
-        elif payment_type and commission_value is not None:     
-            fop = self.xml_builder.info_cash_or_cheque(payment_type, commission_value)
+        elif payment_type and commission_value is not None:
+            print("-----------payment_type--------------")
+            print(payment_type)   
+            print("-----------commission_value----------")
+            print(commission_value)
+            fop = self.xml_builder.info_cash_or_cheque(payment_type, commission_value)  
         return fop
     
     def issue_ticket(self, token_value, price_quote, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = None, commission_value = None):
@@ -163,12 +168,18 @@ class SabreClient(BaseClient):
         """
         fop_type = self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
-        print("--------------request--------------")
-        print(request_data)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.xml_builder.url)
-        print("--------------response--------------")
-        print(response_data)
         return IssueTicketExtractor(response_data).extract()
+
+    def end_transaction(self, token_value):
+        """
+        This function is for end transaction 
+        """
+        request_data = self.xml_builder.end_transaction_rq(token_value)
+        response_data = self.__request_wrapper("end_transaction", request_data, self.xml_builder.url)
+        return EndTransactionExtractor(response_data).extract()
+        
+
 
 if __name__ == "__main__":
     SabreClient("oui", "yes", "ok", False).search_flightrq({'pcc': "yes"})

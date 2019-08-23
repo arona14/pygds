@@ -7,6 +7,7 @@ import logging
 from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
+from pygds.core.end_transaction import EndTransaction
 import re
 
 
@@ -176,6 +177,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
         return fare_breakdown_list
 
+
 class IssueTicketExtractor(BaseResponseExtractor):
     """
         Class to extract issue ticket information from XML Response
@@ -186,7 +188,6 @@ class IssueTicketExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
-        
         response_data = from_json_safe(payload, "AirTicketRS")
         message_success = from_json_safe(response_data, "@Text")
         application_result_data = from_json_safe(response_data, "stl:ApplicationResults")
@@ -222,4 +223,25 @@ class IssueTicketExtractor(BaseResponseExtractor):
         else:
             fault_code, fault_string, stack_trace, status_error, time_stamp, error_type, message_text, short_text = (None, None, None, None, None, None, None, None)
         return TicketReply(status, type_error, message_text, time_stamp, short_text_error, message_error)
+
+
+class EndTransactionExtractor(BaseResponseExtractor):
+    """
+        Class to extract end transaction information from XML Response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="EndTransactionRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        response_data = from_json_safe(payload, "EndTransactionRS")
+        status = from_json_safe(response_data, "stl:ApplicationResults", "@status")
+        itinerary_ref = from_json_safe(response_data, "ItineraryRef")
+        id_ref = from_json_safe(itinerary_ref, "ID")
+        create_date_time = from_json_safe(itinerary_ref, "Source","CreateDateTime")
+        text_message = from_json_safe(response_data, "Text")
+        
+        return EndTransaction(status, id_ref, create_date_time, text_message)
+
 

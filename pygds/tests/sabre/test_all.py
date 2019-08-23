@@ -13,7 +13,6 @@ def test():
    pcc = get_setting("SABRE_PCC")
    password = decode_base64(get_setting("SABRE_PASSWORD"))
    url = "https://webservices3.sabre.com"
-   token = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESG!ICESMSLB\\/RES.LB!-2982335115619341422!363526!0"
    commission_value = """<MiscQualifiers><Commission Percent="0.00"/></MiscQualifiers>"""
 
    client = SabreClient(url, username, password, pcc, False)
@@ -49,17 +48,22 @@ def test():
             "quantity": 1
         }
     ]
-   display_pnr = client.get_reservation("XCVYRX", None)
+   display_pnr = client.get_reservation("DJICXH", None)
    session_info = display_pnr.session_info
+
    if not session_info:
       print("Awma session info")
       return
    message_id = session_info.message_id
+   token = session_info.security_token
    price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
-   print(price)
+   print(price.application_error.description)
 
    result = client.issue_ticket(token, 1, code_cc = None, expire_date = None, cc_number = None, approval_code = None, payment_type = "CK", commission_value = commission_value)
-   print(result.payload)
+   print(result.application_error.description)
+
+   result = client.end_transaction(token)
+   print(result.application_error.description)
 
 if __name__ == "__main__":
     test()

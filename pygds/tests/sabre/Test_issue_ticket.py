@@ -1,11 +1,15 @@
 # from pygds.sabre.helpers import get_current_timestamp
+from time import gmtime, strftime
+import requests
+from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
+
 
 def __init__(self):
-    self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime())) #get_current_timestamp()
+    self.current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
     self.pcc = "WR17"
     self.conversation_id = "cosmo-material-b6851be0-b83e-11e8-be20-c56b920f05b5"
     self.token = ""
-    self.code_cc = "" 
+    self.code_cc = ""
     self.expire_date = ""
     self.cc_number = ""
     self.approval_code = ""
@@ -13,13 +17,14 @@ def __init__(self):
     self.price_quote = ""
     self.payment_type = "CS"
     self.type_fop_by_credit_card = SabreXMLBuilder().info_credit_card(self.code_cc, self.expire_date, self.cc_number, self.approval_code, self.commission_value)
-    self.type_fop_by_cash_or_cheque =  SabreXMLBuilder().info_cash_or_cheque(self.payment_type, self.commission_value)
+    self.type_fop_by_cash_or_cheque = SabreXMLBuilder().info_cash_or_cheque(self.payment_type, self.commission_value)
+
 
 def generate_header(pcc, conversation_id, security_token):
     """
     This method generates the security part in SAOP Header.
     :param pcc: The pcc
-    :param conversation_id: 
+    :param conversation_id:
     :param security_token:
     :return:
     """
@@ -48,16 +53,16 @@ def generate_header(pcc, conversation_id, security_token):
                     </soapenv:Header>"""
 
 
-
 def info_cash_or_cheque(payment_type, commission_value):
     return f"""<FOP_Qualifiers>
                 <BasicFOP Type="{payment_type}"/>
                 </FOP_Qualifiers>
                 {commission_value}"""
 
+
 def issue_air_ticket_soap(pcc, conversation_id, token_value, type_fop, price_quote):
-    return  f"""<?xml version="1.0" encoding="UTF-8"?>
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
                     <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
                         <eb:From>
@@ -90,11 +95,8 @@ def issue_air_ticket_soap(pcc, conversation_id, token_value, type_fop, price_quo
                         </AirTicketRQ>
                     </soapenv:Body>
                 </soapenv:Envelope>"""
-    # body = issue_ticket_xml.encode(encoding='UTF-8')
-    # return issue_ticket_xml
 
-from time import gmtime, strftime
-import requests
+
 pcc = "WR17"
 conversation_id = "cosmo-material-b6851be0-b83e-11e8-be20-c56b920f05b5"
 payment_type = "CS"
@@ -102,7 +104,7 @@ commission_value = 100
 type_fop = info_cash_or_cheque(payment_type, commission_value)
 price_quote = 1234
 token_value = "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESH!ICESMSLB\\/RES.LB!-2983035619056495227!2255!0"
-current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S",gmtime()))
+current_timestamp = str(strftime("%Y-%m-%dT%H:%M:%S", gmtime()))
 url = "https://webservices3.sabre.com"
 headers = {'content-type': 'text/xml; charset=utf-8'}
 seat_map_xml = issue_air_ticket_soap(pcc, conversation_id, token_value, type_fop, price_quote)
