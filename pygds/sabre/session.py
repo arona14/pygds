@@ -4,25 +4,25 @@
 
 import requests
 import jxmlease
-
-from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.helpers import get_data_from_json
 from pygds.sabre.base_service import BaseService
-from pygds.sabre.config import sabre_credentials, decode_base64
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 
 class SabreSession(BaseService):
 
-    def open(self, pcc, conversation_id):
+    def __init__(self, pcc, user_name, password, conversation_id, url, headers):
+        self.pcc = pcc
+        self.user_name = user_name
+        self.password = password
+        self.conversation_id = conversation_id
+        self.url = url
+        self.headers = headers
 
-        sabre_credential = sabre_credentials(pcc)
-
+    def open(self):
         try:
-            user_name = sabre_credential["User"][0]
-            password = decode_base64(sabre_credential["Password1"][0])
-
             open_session_xml = SabreXMLBuilder().session_create_rq(
-                pcc, user_name, password, conversation_id)
+                self.pcc, self.user_name, self.password, self.conversation_id)
 
             response = requests.post(self.url, data=open_session_xml, headers=self.headers)
             r = jxmlease.parse(response.content)
@@ -38,7 +38,7 @@ class SabreSession(BaseService):
         close_session_xml = SabreXMLBuilder().session_close_rq(pcc, token, conversation_id)
 
         response = requests.post(self.url, data=close_session_xml, headers=self.headers)
-        return soap_service_to_json(response.content)
+        return get_data_from_json(response.content)
 
 
 def main():

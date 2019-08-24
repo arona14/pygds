@@ -1,5 +1,5 @@
 from unittest import TestCase
-from pygds.amadeus import security_utils
+from pygds.core import security_utils
 
 
 class SecurityUtilCan(TestCase):

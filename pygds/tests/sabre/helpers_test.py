@@ -50,7 +50,7 @@ class TestHelpers(unittest.TestCase):
             </soapenv:Body>
         </soapenv:Envelope>"""
 
-        self.assertTrue(isinstance(helpers.soap_service_to_json(res), dict))
+        self.assertTrue(isinstance(helpers.get_data_from_json(res, "OTA_AirPriceRQ"), dict))
 
 
 if __name__ == '__main__':

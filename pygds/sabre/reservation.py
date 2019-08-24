@@ -8,7 +8,7 @@ import requests
 from pygds.sabre.base_service import BaseService
 from pygds.sabre.session import SabreSession
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.sabre.helpers import soap_service_to_json
+from pygds.sabre.helpers import get_data_from_json
 
 
 def reformat_sabre_get_reservation(data):
@@ -58,7 +58,7 @@ class SabreReservation(BaseService):
             token_session = SabreSession().open(pcc, conversation_id)
             get_reservation = SabreXMLBuilder().get_reservation_rq(pcc, conversation_id, token_session, pnr)
             response = requests.post(self.url, data=get_reservation, headers=self.headers)
-            to_return = soap_service_to_json(response.content)
+            to_return = get_data_from_json(response.content)
             to_return_dict = reformat_sabre_get_reservation(to_return)
             if need_close:
                 SabreSession().close(pcc, conversation_id, token_session)
@@ -66,12 +66,3 @@ class SabreReservation(BaseService):
             # TODO: Capture the real exception not the general one
             to_return_dict = None
         return to_return_dict
-
-
-def main():
-    pnr = SabreReservation().get('YQZMVU', 'WR17', 'factory-test-pygds')
-    print(pnr)
-
-
-if __name__ == '__main__':
-    main()

@@ -1,4 +1,5 @@
 from unittest import TestCase
+import unittest
 from pygds.amadeus.client import AmadeusClient
 from pygds.core.app_error import ApplicationError
 from pygds.core.price import Fare, TstInformation
@@ -109,3 +110,7 @@ class ClientCan(TestCase):
             res_tst = res_tst.payload
             self.assertIsNotNone(res_tst)
             self.assertIsInstance(res_tst, TstInformation)
+
+
+if __name__ == "__main__":
+    unittest.main()
