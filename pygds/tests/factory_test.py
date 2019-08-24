@@ -6,7 +6,6 @@ import unittest
 import pygds.factory as factory
 from pygds.sabre.sabre_gds import SabreGDS
 from pygds.amadeus.amadeus_gds import AmadeusGDS
-from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
 
 
 class TestFactory(unittest.TestCase):

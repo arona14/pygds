@@ -1,39 +1,24 @@
-from unittest import TestCase
-from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
+import unittest
+from pygds.sabre.reservation import reformat_sabre_get_reservation, SabreReservation
 
 
-class TestSabreReservation(TestCase):
-    """
-    This class is use to test all methodes in get reservation
-    """
-    def setUp(self):
-        self.payment_form = ""
-        self.itineraire = ""
-        self.tickt_info = ""
-        self.remark = ""
-        self.passenger = ""
+class ClientCan(unittest.TestCase):
+    """ This class will test all our function on the client side """
 
-    def test_formofpayment(self):
-        result = SabreReservationFormatter().formofpayment(self.payment_form)
-        self.assertTrue(isinstance(result, object))
+    def setUp(self) -> None:
+        self.pcc = "WR17"
+        self.pnr = "oui"
+        self.conversation = "okokok"
+        self.rest_url = "https://api.havail.sabre.com"
+
+    def test_reformat_sabre_get_reservation(self):
+        result = reformat_sabre_get_reservation("test me please")
         self.assertIsNotNone(result)
 
-    def test_itineraries(self):
-        result = SabreReservationFormatter().itineraryInfo(self.itineraire)
-        self.assertTrue(isinstance(result, object))
-        self.assertIsNotNone(result)
+    def test_reservation(self):
+        result = SabreReservation().get(self.pnr, self.pcc, 'factory-test-pygds')
+        self.assertIsNone(result)
 
-    def test_ticketinginfo(self):
-        result = SabreReservationFormatter().ticketing_info(self.tickt_info)
-        self.assertTrue(isinstance(result, object))
-        self.assertIsNotNone(result)
 
-    def test_passenger(self):
-        result = SabreReservationFormatter().get_passengers(self.passenger)
-        self.assertTrue(isinstance(result, object))
-        self.assertIsNotNone(result)
-
-    def test_remark(self):
-        result = SabreReservationFormatter().get_remarks(self.remark)
-        self.assertTrue(isinstance(result, object))
-        self.assertIsNotNone(result)
+if __name__ == "__main__":
+    unittest.main()
