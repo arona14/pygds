@@ -1938,9 +1938,10 @@ r = {
 
 class ExtractorTest(unittest.TestCase):
     def test_price_search_extractor(self):
-        s = PriceSearchExtractor(xml).extract()
-        self.assertIsNotNone(s.payload)
-        # self.assertEqual(s.payload, r)
+        response_extrac = PriceSearchExtractor(xml).extract()
+        self.assertIsNotNone(response_extrac.payload)
+        self.assertEqual(len(response_extrac.payload.air_itinerary_pricing_info), len(r['air_itinerary_pricing_info']))
+        self.assertEqual(response_extrac.payload.status, "Complete")
 
 
 if __name__ == "__main__":

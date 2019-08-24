@@ -133,7 +133,7 @@ class FlightSegment(BasicDataObject):
             "departure": self.departure_airport.to_data() if self.departure_airport else None,
             "arrival": self.arrival_airpot.to_data() if self.arrival_airpot else None,
             "airline_ref_id": self.airline,
-            "marketing": self.marketing.to_data() if self.marketing else None,
+            "marketing": self.marketing if self.marketing else None,
             "operating": self.operating.to_data() if self.operating else None,
             "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier else None,
             "mariage_group": self.mariage_group.to_data() if self.mariage_group else None,
@@ -426,6 +426,25 @@ class TicketingInfo_(BasicDataObject):
         }
 
 
+class PnrInfo(BasicDataObject):
+    """
+    This class keep all informations of pnr
+    """
+    def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None, creation_date: str = None):
+        self.dk_number = dk_number
+        self.agent_signature = agent_signature
+        self.creation_office_id = creation_office_id
+        self.creation_date = creation_date
+
+    def to_data(self):
+        return {
+            "dk_number": self.dk_number,
+            "agent_signature": self.agent_signature,
+            "creation_office_id": self.creation_office_id,
+            "creation_date": self.creation_date
+        }
+
+
 class Remarks(BasicDataObject):
     """
      feep informations about remarks
@@ -442,6 +461,27 @@ class Remarks(BasicDataObject):
             "type_remark": self.type_remark,
             "element_id": self.element_id,
             "text": self.text
+        }
+
+
+class FareElement(BasicDataObject):
+
+    def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
+        self.primary_code = primary_code
+        self.connection = connection
+        self.not_valid_before = not_valid_before
+        self.not_valid_after = not_valid_after
+        self.baggage_allowance = baggage_allowance
+        self.fare_basis = fare_basis
+
+    def to_dict(self):
+        return {
+            "primary_code": self.primary_code,
+            "connection": self.connection,
+            "not_valid_before": self.not_valid_before,
+            "not_valid_after": self.not_valid_after,
+            "baggage_allowance": self.baggage_allowance,
+            "fare_basis": self.fare_basis
         }
 
 
