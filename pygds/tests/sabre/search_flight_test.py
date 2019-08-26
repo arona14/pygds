@@ -41,10 +41,7 @@ class ClientCan(unittest.TestCase):
         travel_number = TravellerNumbering(1, 0, 0)
 
         my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, False, 2)
-
-        my_final_request = self.client.search_flightrq("Modou", my_request, True, "PUB")
-        response = json.loads(my_final_request.content)
-        self.assertEqual(response, response, "They aren't equals")
+        self.assertNotEqual(my_request, self.search_pub, "They aren't equals")
 
     def test_travel_numbering(self):
         r = TravellerNumbering(1, 0, 0)
@@ -61,3 +58,7 @@ class ClientCan(unittest.TestCase):
     def test_open_session(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, " the result of open session is None")
+
+
+if __name__ == "__main__":
+    unittest.main()

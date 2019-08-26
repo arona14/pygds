@@ -81,11 +81,11 @@ class TravellerNumberingInfo(TravellerNumbering):
 
     def to_data(self):
 
-        return SimpleNamespace(**{
+        return {
             "adult": self.adults,
             "child": self.children,
             "infant": self.infants,
-        })
+        }
 
 
 class LowFareSearchRequest(BasicDataObject):

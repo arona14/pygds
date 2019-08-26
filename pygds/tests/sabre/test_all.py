@@ -44,7 +44,7 @@ def test():
     travel_number = TravellerNumbering(1, 0, 0)
 
     print(travel_number.to_data())
-    my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "200ITINS", [], False, False, 2)
+    my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, False, 2)
     # print(my_request.to_data())
     # log.info(session_response)
     # except ClientError as ce:
@@ -59,11 +59,3 @@ def test():
     response = client.search_flightrq(None, my_request, True, "NET")
     response = json.loads(response.content)
     return response
-
-
-if __name__ == "__main__":
-    result = test()
-    result = json.dumps(dict(result), sort_keys=False, indent=4)
-    with open("myResult.json", 'w') as myFile:
-        myFile.write(str(result))
-    myFile.close()
