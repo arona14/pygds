@@ -55,6 +55,8 @@ def test():
     ]
     display_pnr = client.get_reservation("KVLXYP", None)
     session_info = display_pnr.session_info
+    queue_number = 111
+    record_locator = "KVLXYP"
     if not session_info:
         print("Awma session info")
         return
@@ -65,6 +67,11 @@ def test():
     resul_ticket = client.issue_ticket(message_id, token, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
     print(resul_ticket)
     client.end_transaction(token)
+
+    result = client.queue_place(token, queue_number, record_locator)
+    print(result.payload.status)
+    print(result.payload.type_response)
+    print(result.payload.text_message)
 
 
 if __name__ == "__main__":
