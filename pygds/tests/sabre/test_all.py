@@ -2,9 +2,11 @@
     This is for testing purposes like a suite.
 """
 import os
+import json
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
+from pygds.core.request import TravellerNumbering, LowFareSearchRequest, RequestedSegment
 
 
 def test():
@@ -24,7 +26,6 @@ def test():
     rest_url = "https://api.havail.sabre.com"
 
     client = SabreClient(url, rest_url, username, password, pcc, False)
-    # try:
     segment1 = RequestedSegment("ATH", "LHR", "2019-09-17").to_data()
     segment2 = RequestedSegment("LHR", "ATH", "2019-09-26").to_data()
 
@@ -49,7 +50,6 @@ def test():
     """
     response = client.search_flightrq(None, my_request, True, "NET")
     response = json.loads(response.content)
-    
     segment_select = [1, 2, 3, 4]
     passenger_type = [
         {
@@ -89,3 +89,11 @@ def test():
     message_id = session_info.message_id
     price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     print(price)
+
+
+if __name__ == "__main__":
+    result = test()
+    result = json.dumps(dict(result), sort_keys=False, indent=4)
+    with open("myResult.json", 'w') as myFile:
+        myFile.write(str(result))
+    myFile.close()

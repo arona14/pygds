@@ -8,18 +8,14 @@ import jxmlease
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.sabre.helpers import soap_service_to_json
 from pygds.core.helpers import get_data_from_xml
-from pygds.core.sessions import SessionInfo
 from pygds.core.security_utils import generate_random_message_id
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor
-from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
 from pygds.sabre.formatters.reservation_formatter import BaseResponseExtractor
-from pygds.core.helpers import get_data_from_xml
 
 
 class SabreClient(BaseClient):

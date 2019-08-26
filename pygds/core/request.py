@@ -81,11 +81,11 @@ class TravellerNumberingInfo(TravellerNumbering):
 
     def to_data(self):
 
-        return {
+        return SimpleNamespace(**{
             "adult": self.adults,
             "child": self.children,
             "infant": self.infants,
-        }
+        })
 
 
 class LowFareSearchRequest(BasicDataObject):
@@ -118,7 +118,8 @@ class LowFareSearchRequest(BasicDataObject):
             "csv": self.csv,
             "alternatePcc": [al for al in self.alternatePcc],
             "requestType": self.requestType,
-            "preferredAirlines": self.preferredAirlines,
+            "preferredAirlines": [pref for pref in self.preferredAirlines],
             "baggagePref": self.baggagePref,
-            "excludeBasicEconomy": self.excludeBasicEconomy
+            "excludeBasicEconomy": self.excludeBasicEconomy,
+            "maxConnection": self.maxConnection
         })
