@@ -125,11 +125,47 @@ class SabreXMLBuilder:
                 </SOAP-ENV:Body>
             </SOAP-ENV:Envelope>"""
 
+    def session_token_rq(self):
+        """ This will return a Token """
+        conversation_id = generate_random_message_id()
+
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
+                <soap-env:Header>
+                    <eb:MessageHeader soap-env:mustUnderstand="1" eb:version="1.0">
+                        <eb:From>
+                            <eb:PartyId />
+                        </eb:From>
+                        <eb:To>
+                            <eb:PartyId />
+                        </eb:To>
+                        <eb:CPAId>{self.pcc}</eb:CPAId>
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
+                        <eb:Service>Session</eb:Service>
+                        <eb:Action>TokenCreateRQ</eb:Action>
+                        <eb:MessageData>
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
+                        </eb:MessageData>
+                    </eb:MessageHeader>
+                    <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/12/secext" xmlns:wsu="http://schemas.xmlsoap.org/ws/2002/12/utility">
+                        <wsse:UsernameToken>
+                            <wsse:Username>{self.username}</wsse:Username>
+                            <wsse:Password>{self.password}</wsse:Password>
+                            <Organization>{self.pcc}</Organization>
+                            <Domain>DEFAULT</Domain>
+                        </wsse:UsernameToken>
+                    </wsse:Security>
+                </soap-env:Header>
+                <soap-env:Body>
+                    <TokenCreateRQ Version="1.0.0"/>
+                 </soap-env:Body>
+            </soap-env:Envelope>"""
+
     def end_transaction_rq(self, token):
-        """
-            Return the xml request to complete and store
-            changes made to a Passenger Name Record (PNR)
-        """
+
+        """ end transaction xml"""
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -873,6 +909,14 @@ class SabreXMLBuilder:
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
+
+    def fop_choice(self, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+        fop = ""
+        if code_cc and expire_date and cc_number is not None:
+            fop = self.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
+        elif payment_type and commission_value is not None:
+            fop = self.info_cash_or_cheque(payment_type, commission_value)
+        return fop
 
     def air_ticket_rq(self, token_value, info_ticketing, price_quote):
         """

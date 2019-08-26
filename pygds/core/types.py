@@ -133,7 +133,7 @@ class FlightSegment(BasicDataObject):
             "departure": self.departure_airport.to_data() if self.departure_airport else None,
             "arrival": self.arrival_airpot.to_data() if self.arrival_airpot else None,
             "airline_ref_id": self.airline,
-            "marketing": self.marketing.to_data() if self.marketing else None,
+            "marketing": self.marketing if self.marketing else None,
             "operating": self.operating.to_data() if self.operating else None,
             "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier else None,
             "mariage_group": self.mariage_group.to_data() if self.mariage_group else None,
@@ -534,6 +534,27 @@ class Remarks(BasicDataObject):
             "type_remark": self.type_remark,
             "element_id": self.element_id,
             "text": self.text
+        }
+
+
+class FareElement(BasicDataObject):
+
+    def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
+        self.primary_code = primary_code
+        self.connection = connection
+        self.not_valid_before = not_valid_before
+        self.not_valid_after = not_valid_after
+        self.baggage_allowance = baggage_allowance
+        self.fare_basis = fare_basis
+
+    def to_dict(self):
+        return {
+            "primary_code": self.primary_code,
+            "connection": self.connection,
+            "not_valid_before": self.not_valid_before,
+            "not_valid_after": self.not_valid_after,
+            "baggage_allowance": self.baggage_allowance,
+            "fare_basis": self.fare_basis
         }
 
 
