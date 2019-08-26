@@ -4,6 +4,7 @@ from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
+
 class ClientCan(unittest.TestCase):
     """ This class will test all our function on the client side """
 
@@ -45,7 +46,6 @@ class ClientCan(unittest.TestCase):
         session = self.client.session_token()
         self.assertIsNotNone(session, "The result of open session token is None")
     """
-    
 
     def test_issue_ticket(self):
         result = self.client.issue_ticket(self.message_id, self.token, self.price_quote, self.type_fop_by_cash_or_cheque, self.commission_value)
@@ -62,6 +62,7 @@ class ClientCan(unittest.TestCase):
     def test_get_reservation(self):
         result = self.client.get_reservation(self.pnr, None)
         self.assertIsNotNone(result, "Cannot retrieve pnr")
+
 
 if __name__ == "__main__":
     unittest.main()
