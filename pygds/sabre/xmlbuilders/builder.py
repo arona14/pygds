@@ -245,7 +245,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
+    def price_quote_rq(self, token, retain: bool, tour_code: str = '', fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
             Return the xml request to price air itineraries
         """
@@ -289,7 +289,7 @@ class SabreXMLBuilder:
                 </soapenv:Header>
                 <soapenv:Body>
                     <OTA_AirPriceRQ Version="2.17.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                        <PriceRequestInformation Retain="{retain}">
+                        <PriceRequestInformation Retain="{str(retain).lower()}">
                         <OptionalQualifiers>
                             {commission}
                             {tour_code}

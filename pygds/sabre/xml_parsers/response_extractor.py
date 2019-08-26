@@ -134,7 +134,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
         if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
             if 'TC' in text:
-                text = re.findall("TC ([0-9A-Z]+)", str)[0]
+                text = re.findall("TC ([0-9A-Z]+)", text)[0]
                 result = text
         return result
 
@@ -143,7 +143,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
         if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
             if 'TD' in text:
-                text = re.findall("TD ([0-9A-Z]+)", str)[0]
+                text = re.findall("TD ([0-9A-Z]+)", text)[0]
                 result = text
         return result
 

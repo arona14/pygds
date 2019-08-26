@@ -43,7 +43,7 @@ def test():
         "creditCard": None,
         "quantity": 1
     }
-
+    # passenger_type_price = [{"code": "ADT", "nameSelect": ["01.01"], "quantity":1}]
     brand_id = None
     display_pnr = client.get_reservation("WOHOIJ", None)
     session_info = display_pnr.session_info
@@ -51,8 +51,8 @@ def test():
         print("Awma session info")
         return
     message_id = session_info.message_id
-    # price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
-    store_price = client.store_price_quote(message_id, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type, brand_id=brand_id)
+    # price = client.search_price_quote(message_id, retain=False, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type_price)
+    store_price = client.store_price_quote(message_id, retain=True, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type, brand_id=brand_id)
     print(store_price)
 
 
