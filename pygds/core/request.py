@@ -118,8 +118,7 @@ class LowFareSearchRequest(BasicDataObject):
             "csv": self.csv,
             "alternatePcc": [al for al in self.alternatePcc],
             "requestType": self.requestType,
-            "preferredAirlines": [pref for pref in self.preferredAirlines],
+            "preferredAirlines": self.preferredAirlines,
             "baggagePref": self.baggagePref,
-            "excludeBasicEconomy": self.excludeBasicEconomy,
-            "maxConnection": self.maxConnection
+            "excludeBasicEconomy": self.excludeBasicEconomy
         })

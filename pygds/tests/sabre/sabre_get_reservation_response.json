@@ -1,0 +1,938 @@
+{
+    "Version": "1.18.0",
+    "stl18:Reservation": {
+        "numberInParty": "1",
+        "numberOfInfants": "0",
+        "NumberInSegment": "1",
+        "stl18:BookingDetails": {
+            "stl18:RecordLocator": "CPWEBU",
+            "stl18:CreationTimestamp": "2019-07-05T09:57:00",
+            "stl18:SystemCreationTimestamp": "2019-07-05T09:57:00",
+            "stl18:CreationAgentID": "AWT",
+            "stl18:UpdateTimestamp": "2019-07-05T09:57:41",
+            "stl18:PNRSequence": "1",
+            "stl18:FlightsRange": {
+                "Start": "2019-07-09T12:47:00",
+                "End": "2019-07-24T09:39:00"
+            },
+            "stl18:DivideSplitDetails": "",
+            "stl18:EstimatedPurgeTimestamp": "2019-07-24T00:00:00",
+            "stl18:UpdateToken": "6ce48adfde7dad17cacefa2c32571e6527edd3a3652020ec"
+        },
+        "stl18:POS": {
+            "AirExtras": "false",
+            "InhibitCode": "U",
+            "stl18:Source": {
+                "BookingSource": "WR17",
+                "AgentSine": "AWT",
+                "PseudoCityCode": "WR17",
+                "ISOCountry": "US",
+                "AgentDutyCode": "*",
+                "AirlineVendorID": "AA",
+                "HomePseudoCityCode": "WR17"
+            }
+        },
+        "stl18:PassengerReservation": {
+            "stl18:Passengers": {
+                "stl18:Passenger": {
+                    "id": "3",
+                    "nameType": "S",
+                    "passengerType": "ADT",
+                    "nameId": "01.01",
+                    "nameAssocId": "1",
+                    "elementId": "pnr-3.1",
+                    "stl18:LastName": "DIAKHITE",
+                    "stl18:FirstName": "FANTA",
+                    "stl18:SpecialRequests": {
+                        "stl18:APISRequest": {
+                            "stl18:DOCSEntry": {
+                                "id": "14",
+                                "type": "A",
+                                "stl18:DateOfBirth": "1988-04-17",
+                                "stl18:Gender": "F",
+                                "stl18:Surname": "DIAKHITE",
+                                "stl18:Forename": "FANTA",
+                                "stl18:MiddleName": "",
+                                "stl18:PrimaryHolder": "false",
+                                "stl18:FreeText": {},
+                                "stl18:ActionCode": "HK",
+                                "stl18:NumberInParty": "1",
+                                "stl18:VendorCode": "AA"
+                            }
+                        }
+                    },
+                    "stl18:Seats": ""
+                }
+            },
+            "stl18:Segments": {
+                "stl18:Poc": {
+                    "stl18:Airport": "DTW",
+                    "stl18:Departure": "2019-07-09T12:47:00"
+                },
+                "stl18:Segment": [
+                    {
+                        "sequence": "1",
+                        "id": "10",
+                        "stl18:Air": {
+                            "id": "10",
+                            "sequence": "1",
+                            "segmentAssociationId": "2",
+                            "isPast": "false",
+                            "Code": "AA",
+                            "DayOfWeekInd": "2",
+                            "CodeShare": "false",
+                            "SpecialMeal": "false",
+                            "SmokingAllowed": "false",
+                            "ResBookDesigCode": "B",
+                            "StopQuantity": "00",
+                            "stl18:DepartureAirport": "DTW",
+                            "stl18:DepartureAirportCodeContext": "IATA",
+                            "stl18:DepartureTerminalName": "NORTH TERMINAL",
+                            "stl18:DepartureTerminalCode": "N",
+                            "stl18:ArrivalAirport": "PHL",
+                            "stl18:ArrivalAirportCodeContext": "IATA",
+                            "stl18:ArrivalTerminalName": "TERMINAL F",
+                            "stl18:ArrivalTerminalCode": "F",
+                            "stl18:OperatingAirlineCode": "AA",
+                            "stl18:OperatingAirlineShortName": "AMERICAN AIRLINES",
+                            "stl18:OperatingFlightNumber": "5037",
+                            "stl18:EquipmentType": "CR9",
+                            "stl18:MarketingAirlineCode": "AA",
+                            "stl18:MarketingFlightNumber": "5037",
+                            "stl18:OperatingClassOfService": "B",
+                            "stl18:MarketingClassOfService": "B",
+                            "stl18:DisclosureCarrier": {
+                                "Code": "AA",
+                                "DOT": "true",
+                                "stl18:Banner": "PSA AIRLINES AS AMERICAN EAGLE"
+                            },
+                            "stl18:MarriageGrp": {
+                                "stl18:Ind": "0",
+                                "stl18:Group": "1",
+                                "stl18:Sequence": "1"
+                            },
+                            "stl18:Seats": "",
+                            "stl18:AirlineRefId": "DCAA*CPWEBU",
+                            "stl18:Eticket": "true",
+                            "stl18:DepartureDateTime": "2019-07-09T12:47:00",
+                            "stl18:ArrivalDateTime": "2019-07-09T14:26:00",
+                            "stl18:FlightNumber": "5037",
+                            "stl18:ClassOfService": "B",
+                            "stl18:ActionCode": "HK",
+                            "stl18:NumberInParty": "1",
+                            "stl18:SegmentSpecialRequests": "",
+                            "stl18:inboundConnection": "false",
+                            "stl18:outboundConnection": "true",
+                            "stl18:ScheduleChangeIndicator": "false",
+                            "stl18:SegmentBookedDate": "2019-07-05T09:57:00",
+                            "stl18:ElapsedTime": "01.39",
+                            "stl18:AirMilesFlown": "0453",
+                            "stl18:FunnelFlight": "false",
+                            "stl18:ChangeOfGauge": "false",
+                            "stl18:Pos": {
+                                "stl18:IataNumber": "2361244",
+                                "stl18:AgencyCityCode": "DTW",
+                                "stl18:CountryCode": "US",
+                                "stl18:DutyCode": "*"
+                            },
+                            "stl18:Cabin": {
+                                "Code": "Y",
+                                "SabreCode": "Y",
+                                "Name": "ECONOMY",
+                                "ShortName": "ECONOMY",
+                                "Lang": "EN"
+                            },
+                            "stl18:Banner": "MARKETED BY AMERICAN AIRLINES"
+                        },
+                        "stl18:Product": {
+                            "id": "10",
+                            "or112:ProductDetails": {
+                                "productCategory": "AIR",
+                                "or112:ProductName": {
+                                    "type": "AIR"
+                                },
+                                "or112:Air": {
+                                    "sequence": "1",
+                                    "segmentAssociationId": "2",
+                                    "or112:DepartureAirport": "DTW",
+                                    "or112:DepartureTerminalName": "NORTH TERMINAL",
+                                    "or112:DepartureTerminalCode": "N",
+                                    "or112:ArrivalAirport": "PHL",
+                                    "or112:ArrivalTerminalName": "TERMINAL F",
+                                    "or112:ArrivalTerminalCode": "F",
+                                    "or112:OperatingAirlineCode": "**",
+                                    "or112:EquipmentType": "CR9",
+                                    "or112:MarketingAirlineCode": "AA",
+                                    "or112:MarketingFlightNumber": "5037",
+                                    "or112:MarketingClassOfService": "B",
+                                    "or112:MarriageGrp": {
+                                        "or112:Group": "1",
+                                        "or112:Sequence": "1"
+                                    },
+                                    "or112:Cabin": {
+                                        "code": "Y",
+                                        "sabreCode": "Y",
+                                        "name": "ECONOMY",
+                                        "shortName": "ECONOMY",
+                                        "lang": "EN"
+                                    },
+                                    "or112:ElapsedTime": "99",
+                                    "or112:AirMilesFlown": "453",
+                                    "or112:FunnelFlight": "false",
+                                    "or112:ChangeOfGauge": "false",
+                                    "or112:DisclosureCarrier": {
+                                        "Code": "AA",
+                                        "DOT": "true",
+                                        "or112:Banner": "PSA AIRLINES AS AMERICAN EAGLE"
+                                    },
+                                    "or112:AirlineRefId": "DCAA*CPWEBU",
+                                    "or112:Eticket": "true",
+                                    "or112:DepartureDateTime": "2019-07-09T12:47:00",
+                                    "or112:ArrivalDateTime": "2019-07-09T14:26:00",
+                                    "or112:FlightNumber": "5037",
+                                    "or112:ClassOfService": "B",
+                                    "or112:ActionCode": "HK",
+                                    "or112:NumberInParty": "1",
+                                    "or112:SegmentBookedDate": "2019-07-05T09:57:00"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "sequence": "2",
+                        "id": "11",
+                        "stl18:Air": {
+                            "id": "11",
+                            "sequence": "2",
+                            "segmentAssociationId": "3",
+                            "isPast": "false",
+                            "Code": "AA",
+                            "DayOfWeekInd": "2",
+                            "CodeShare": "false",
+                            "SpecialMeal": "false",
+                            "SmokingAllowed": "false",
+                            "ResBookDesigCode": "B",
+                            "StopQuantity": "00",
+                            "stl18:DepartureAirport": "PHL",
+                            "stl18:DepartureAirportCodeContext": "IATA",
+                            "stl18:DepartureTerminalName": "TERMINAL F",
+                            "stl18:DepartureTerminalCode": "F",
+                            "stl18:ArrivalAirport": "SWF",
+                            "stl18:ArrivalAirportCodeContext": "IATA",
+                            "stl18:OperatingAirlineCode": "AA",
+                            "stl18:OperatingAirlineShortName": "AMERICAN AIRLINES",
+                            "stl18:OperatingFlightNumber": "4831",
+                            "stl18:EquipmentType": "ER4",
+                            "stl18:MarketingAirlineCode": "AA",
+                            "stl18:MarketingFlightNumber": "4831",
+                            "stl18:OperatingClassOfService": "B",
+                            "stl18:MarketingClassOfService": "B",
+                            "stl18:DisclosureCarrier": {
+                                "Code": "AA",
+                                "DOT": "true",
+                                "stl18:Banner": "PIEDMONT AIRLINES AS AMERICAN EAGLE"
+                            },
+                            "stl18:MarriageGrp": {
+                                "stl18:Ind": "0",
+                                "stl18:Group": "1",
+                                "stl18:Sequence": "2"
+                            },
+                            "stl18:Seats": "",
+                            "stl18:AirlineRefId": "DCAA*CPWEBU",
+                            "stl18:Eticket": "true",
+                            "stl18:DepartureDateTime": "2019-07-09T15:39:00",
+                            "stl18:ArrivalDateTime": "2019-07-09T16:57:00",
+                            "stl18:FlightNumber": "4831",
+                            "stl18:ClassOfService": "B",
+                            "stl18:ActionCode": "HK",
+                            "stl18:NumberInParty": "1",
+                            "stl18:SegmentSpecialRequests": "",
+                            "stl18:inboundConnection": "true",
+                            "stl18:outboundConnection": "false",
+                            "stl18:ScheduleChangeIndicator": "false",
+                            "stl18:SegmentBookedDate": "2019-07-05T09:57:00",
+                            "stl18:ElapsedTime": "01.18",
+                            "stl18:AirMilesFlown": "0128",
+                            "stl18:FunnelFlight": "false",
+                            "stl18:ChangeOfGauge": "false",
+                            "stl18:Pos": {
+                                "stl18:IataNumber": "2361244",
+                                "stl18:AgencyCityCode": "DTW",
+                                "stl18:CountryCode": "US",
+                                "stl18:DutyCode": "*"
+                            },
+                            "stl18:Cabin": {
+                                "Code": "Y",
+                                "SabreCode": "Y",
+                                "Name": "ECONOMY",
+                                "ShortName": "ECONOMY",
+                                "Lang": "EN"
+                            },
+                            "stl18:Banner": "MARKETED BY AMERICAN AIRLINES"
+                        },
+                        "stl18:Product": {
+                            "id": "11",
+                            "or112:ProductDetails": {
+                                "productCategory": "AIR",
+                                "or112:ProductName": {
+                                    "type": "AIR"
+                                },
+                                "or112:Air": {
+                                    "sequence": "2",
+                                    "segmentAssociationId": "3",
+                                    "or112:DepartureAirport": "PHL",
+                                    "or112:DepartureTerminalName": "TERMINAL F",
+                                    "or112:DepartureTerminalCode": "F",
+                                    "or112:ArrivalAirport": "SWF",
+                                    "or112:OperatingAirlineCode": "**",
+                                    "or112:EquipmentType": "ER4",
+                                    "or112:MarketingAirlineCode": "AA",
+                                    "or112:MarketingFlightNumber": "4831",
+                                    "or112:MarketingClassOfService": "B",
+                                    "or112:MarriageGrp": {
+                                        "or112:Group": "1",
+                                        "or112:Sequence": "2"
+                                    },
+                                    "or112:Cabin": {
+                                        "code": "Y",
+                                        "sabreCode": "Y",
+                                        "name": "ECONOMY",
+                                        "shortName": "ECONOMY",
+                                        "lang": "EN"
+                                    },
+                                    "or112:ElapsedTime": "78",
+                                    "or112:AirMilesFlown": "128",
+                                    "or112:FunnelFlight": "false",
+                                    "or112:ChangeOfGauge": "false",
+                                    "or112:DisclosureCarrier": {
+                                        "Code": "AA",
+                                        "DOT": "true",
+                                        "or112:Banner": "PIEDMONT AIRLINES AS AMERICAN EAGLE"
+                                    },
+                                    "or112:AirlineRefId": "DCAA*CPWEBU",
+                                    "or112:Eticket": "true",
+                                    "or112:DepartureDateTime": "2019-07-09T15:39:00",
+                                    "or112:ArrivalDateTime": "2019-07-09T16:57:00",
+                                    "or112:FlightNumber": "4831",
+                                    "or112:ClassOfService": "B",
+                                    "or112:ActionCode": "HK",
+                                    "or112:NumberInParty": "1",
+                                    "or112:SegmentBookedDate": "2019-07-05T09:57:00"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "sequence": "3",
+                        "id": "13",
+                        "stl18:Air": {
+                            "id": "13",
+                            "sequence": "3",
+                            "segmentAssociationId": "4",
+                            "isPast": "false",
+                            "Code": "AA",
+                            "DayOfWeekInd": "3",
+                            "CodeShare": "false",
+                            "SpecialMeal": "false",
+                            "SmokingAllowed": "false",
+                            "ResBookDesigCode": "B",
+                            "StopQuantity": "00",
+                            "stl18:DepartureAirport": "LGA",
+                            "stl18:DepartureAirportCodeContext": "IATA",
+                            "stl18:DepartureTerminalName": "TERMINAL B",
+                            "stl18:DepartureTerminalCode": "B",
+                            "stl18:ArrivalAirport": "DTW",
+                            "stl18:ArrivalAirportCodeContext": "IATA",
+                            "stl18:ArrivalTerminalName": "NORTH TERMINAL",
+                            "stl18:ArrivalTerminalCode": "N",
+                            "stl18:OperatingAirlineCode": "AA",
+                            "stl18:OperatingAirlineShortName": "AMERICAN AIRLINES",
+                            "stl18:OperatingFlightNumber": "3374",
+                            "stl18:EquipmentType": "ERD",
+                            "stl18:MarketingAirlineCode": "AA",
+                            "stl18:MarketingFlightNumber": "3374",
+                            "stl18:OperatingClassOfService": "B",
+                            "stl18:MarketingClassOfService": "B",
+                            "stl18:DisclosureCarrier": {
+                                "Code": "AA",
+                                "DOT": "true",
+                                "stl18:Banner": "ENVOY AIR AS AMERICAN EAGLE"
+                            },
+                            "stl18:MarriageGrp": {
+                                "stl18:Ind": "0",
+                                "stl18:Group": "0",
+                                "stl18:Sequence": "0"
+                            },
+                            "stl18:Seats": "",
+                            "stl18:AirlineRefId": "DCAA*CPWEBU",
+                            "stl18:Eticket": "true",
+                            "stl18:DepartureDateTime": "2019-07-24T07:46:00",
+                            "stl18:ArrivalDateTime": "2019-07-24T09:39:00",
+                            "stl18:FlightNumber": "3374",
+                            "stl18:ClassOfService": "B",
+                            "stl18:ActionCode": "HK",
+                            "stl18:NumberInParty": "1",
+                            "stl18:SegmentSpecialRequests": "",
+                            "stl18:inboundConnection": "false",
+                            "stl18:outboundConnection": "false",
+                            "stl18:ScheduleChangeIndicator": "false",
+                            "stl18:SegmentBookedDate": "2019-07-05T09:57:00",
+                            "stl18:ElapsedTime": "01.53",
+                            "stl18:AirMilesFlown": "0501",
+                            "stl18:FunnelFlight": "false",
+                            "stl18:ChangeOfGauge": "false",
+                            "stl18:Pos": {
+                                "stl18:IataNumber": "2361244",
+                                "stl18:AgencyCityCode": "DTW",
+                                "stl18:CountryCode": "US",
+                                "stl18:DutyCode": "*"
+                            },
+                            "stl18:Cabin": {
+                                "Code": "Y",
+                                "SabreCode": "Y",
+                                "Name": "ECONOMY",
+                                "ShortName": "ECONOMY",
+                                "Lang": "EN"
+                            },
+                            "stl18:Banner": "MARKETED BY AMERICAN AIRLINES"
+                        },
+                        "stl18:Product": {
+                            "id": "13",
+                            "or112:ProductDetails": {
+                                "productCategory": "AIR",
+                                "or112:ProductName": {
+                                    "type": "AIR"
+                                },
+                                "or112:Air": {
+                                    "sequence": "3",
+                                    "segmentAssociationId": "4",
+                                    "or112:DepartureAirport": "LGA",
+                                    "or112:DepartureTerminalName": "TERMINAL B",
+                                    "or112:DepartureTerminalCode": "B",
+                                    "or112:ArrivalAirport": "DTW",
+                                    "or112:ArrivalTerminalName": "NORTH TERMINAL",
+                                    "or112:ArrivalTerminalCode": "N",
+                                    "or112:OperatingAirlineCode": "**",
+                                    "or112:EquipmentType": "ERD",
+                                    "or112:MarketingAirlineCode": "AA",
+                                    "or112:MarketingFlightNumber": "3374",
+                                    "or112:MarketingClassOfService": "B",
+                                    "or112:Cabin": {
+                                        "code": "Y",
+                                        "sabreCode": "Y",
+                                        "name": "ECONOMY",
+                                        "shortName": "ECONOMY",
+                                        "lang": "EN"
+                                    },
+                                    "or112:ElapsedTime": "113",
+                                    "or112:AirMilesFlown": "501",
+                                    "or112:FunnelFlight": "false",
+                                    "or112:ChangeOfGauge": "false",
+                                    "or112:DisclosureCarrier": {
+                                        "Code": "AA",
+                                        "DOT": "true",
+                                        "or112:Banner": "ENVOY AIR AS AMERICAN EAGLE"
+                                    },
+                                    "or112:AirlineRefId": "DCAA*CPWEBU",
+                                    "or112:Eticket": "true",
+                                    "or112:DepartureDateTime": "2019-07-24T07:46:00",
+                                    "or112:ArrivalDateTime": "2019-07-24T09:39:00",
+                                    "or112:FlightNumber": "3374",
+                                    "or112:ClassOfService": "B",
+                                    "or112:ActionCode": "HK",
+                                    "or112:NumberInParty": "1",
+                                    "or112:SegmentBookedDate": "2019-07-05T09:57:00"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "stl18:FormsOfPayment": {
+                
+                "stl18:CreditCardPayment": {
+                    "ShortText": "CREDIT CARD DATA EXISTS *CC TO DISPLAY"
+                }
+            },
+            "stl18:TicketingInfo": {
+                "stl18:FutureTicketing": {
+                    "id": "5",
+                    "index": "1",
+                    "elementId": "pnr-5",
+                    "stl18:Code": "TAW",
+                    "stl18:BranchPCC": "WR17",
+                    "stl18:Date": "06JUL",
+                    "stl18:Time": "0400A",
+                    "stl18:QueueNumber": "9",
+                    "stl18:Comment": "1159P"
+                }
+            },
+            "stl18:ItineraryPricing": ""
+        },
+        "stl18:DKNumbers": {
+            "stl18:DKNumber": "D586445858"
+        },
+        "stl18:ReceivedFrom": {
+            "stl18:Name": "E"
+        },
+        "stl18:PhoneNumbers": {
+            "stl18:PhoneNumber": {
+                "id": "6",
+                "index": "1",
+                "elementId": "pnr-6",
+                "stl18:CityCode": "DTW",
+                "stl18:Number": "4567890-H-1.1"
+            }
+        },
+        "stl18:Remarks": {
+            "stl18:Remark": [
+                {
+                    "index": "1",
+                    "id": "15",
+                    "type": "INVOICE",
+                    "elementId": "pnr-15",
+                    "stl18:RemarkLines": {
+                        "stl18:RemarkLine": {
+                            "stl18:Text": "S*UD100 MODOU"
+                        }
+                    }
+                },
+                {
+                    "index": "2",
+                    "id": "16",
+                    "type": "INVOICE",
+                    "elementId": "pnr-16",
+                    "stl18:RemarkLines": {
+                        "stl18:RemarkLine": {
+                            "stl18:Text": "S*UD25 P"
+                        }
+                    }
+                },
+                {
+                    "index": "3",
+                    "id": "17",
+                    "type": "REG",
+                    "elementId": "pnr-17",
+                    "stl18:RemarkLines": {
+                        "stl18:RemarkLine": {
+                            "stl18:Text": "MCO 1.1-S1 10"
+                        }
+                    }
+                },
+                {
+                    "index": "4",
+                    "id": "18",
+                    "type": "REG",
+                    "elementId": "pnr-18",
+                    "stl18:RemarkLines": {
+                        "stl18:RemarkLine": {
+                            "stl18:Text": "PROPOSED 295.3"
+                        }
+                    }
+                }
+            ]
+        },
+        "stl18:EmailAddresses": "",
+        "stl18:OpenReservationElements": {
+            "or112:OpenReservationElement": {
+                "id": "14",
+                "type": "SRVC",
+                "elementId": "pnr-14",
+                "or112:ServiceRequest": {
+                    "actionCode": "HK",
+                    "airlineCode": "AA",
+                    "code": "DOCS",
+                    "serviceCount": "1",
+                    "serviceType": "SSR",
+                    "ssrType": "AFX",
+                    "or112:FreeText": "/DB/17APR1988/F/DIAKHITE/FANTA",
+                    "or112:FullText": "DOCS AA HK1/DB/17APR1988/F/DIAKHITE/FANTA",
+                    "or112:TravelDocument": {
+                        "or112:Type": "DB",
+                        "or112:DateOfBirth": "17APR1988",
+                        "or112:Gender": "F",
+                        "or112:LastName": "DIAKHITE",
+                        "or112:FirstName": "FANTA",
+                        "or112:Infant": "false",
+                        "or112:HasDocumentData": "false"
+                    }
+                },
+                "or112:NameAssociation": {
+                    "or112:LastName": "DIAKHITE",
+                    "or112:FirstName": "FANTA",
+                    "or112:NameRefNumber": "01.01"
+                }
+            }
+        }
+    },
+    "or112:PriceQuote": {
+        "PriceQuoteInfo": {
+            "xmlns": "http://www.sabre.com/ns/Ticketing/pqs/1.0",
+            "Reservation": {
+                "updateToken": "eNc:::bbFX79LPu39XucuY7XdQXg=="
+            },
+            "Summary": {
+                "NameAssociation": {
+                    "firstName": "FANTA",
+                    "lastName": "DIAKHITE",
+                    "nameId": "1",
+                    "nameNumber": "1.1",
+                    "PriceQuote": {
+                        "latestPQFlag": "true",
+                        "number": "1",
+                        "pricingType": "S",
+                        "status": "A",
+                        "type": "PQ",
+                        "Passenger": {
+                            "passengerTypeCount": "1",
+                            "requestedType": "ADT",
+                            "type": "ADT"
+                        },
+                        "ItineraryType": "D",
+                        "ValidatingCarrier": "AA",
+                        "Amounts": {
+                            "Total": {
+                                "currencyCode": "USD",
+                                "decimalPlace": "2",
+                                "#text": "285.30"
+                            }
+                        },
+                        "LocalCreateDateTime": "2019-07-05T10:57:00"
+                    }
+                }
+            },
+            "Details": {
+                "number": "1",
+                "passengerType": "ADT",
+                "pricingType": "S",
+                "status": "A",
+                "type": "PQ",
+                "AgentInfo": {
+                    "duty": "*",
+                    "sine": "AWT",
+                    "HomeLocation": "WR17",
+                    "WorkLocation": "WR17"
+                },
+                "TransactionInfo": {
+                    "CreateDateTime": "2019-07-05T09:57:00",
+                    "UpdateDateTime": "2019-07-05T09:57:00",
+                    "LastDateToPurchase": "2019-07-06T23:59:00",
+                    "LocalCreateDateTime": "2019-07-05T10:57:00",
+                    "LocalUpdateDateTime": "2019-07-05T10:57:00",
+                    "InputEntry": "WPAE$KP0$P1ADT$RQ"
+                },
+                "NameAssociationInfo": {
+                    "firstName": "FANTA",
+                    "lastName": "DIAKHITE",
+                    "nameId": "1",
+                    "nameNumber": "1.1"
+                },
+                "SegmentInfo": [
+                    {
+                        "number": "1",
+                        "segmentStatus": "OK",
+                        "Flight": {
+                            "connectionIndicator": "O",
+                            "MarketingFlight": {
+                                "number": "5037",
+                                "#text": "AA"
+                            },
+                            "ClassOfService": "B",
+                            "Departure": {
+                                "DateTime": "2019-07-09T12:47:00",
+                                "CityCode": {
+                                    "name": "DETROIT",
+                                    "#text": "DTW"
+                                }
+                            },
+                            "Arrival": {
+                                "DateTime": "2019-07-09T14:26:00",
+                                "CityCode": {
+                                    "name": "PHILADELPHIA",
+                                    "#text": "PHL"
+                                }
+                            }
+                        },
+                        "FareBasis": "S0EHZNB3",
+                        "NotValidBefore": "2019-07-09",
+                        "NotValidAfter": "2019-07-09",
+                        "Baggage": {
+                            "allowance": "NI",
+                            "type": "N"
+                        }
+                    },
+                    {
+                        "number": "2",
+                        "segmentStatus": "OK",
+                        "Flight": {
+                            "connectionIndicator": "X",
+                            "MarketingFlight": {
+                                "number": "4831",
+                                "#text": "AA"
+                            },
+                            "ClassOfService": "B",
+                            "Departure": {
+                                "DateTime": "2019-07-09T15:39:00",
+                                "CityCode": {
+                                    "name": "PHILADELPHIA",
+                                    "#text": "PHL"
+                                }
+                            },
+                            "Arrival": {
+                                "DateTime": "2019-07-09T16:57:00",
+                                "CityCode": {
+                                    "name": "NEWBURGH  STEWART",
+                                    "#text": "SWF"
+                                }
+                            }
+                        },
+                        "FareBasis": "S0EHZNB3",
+                        "NotValidBefore": "2019-07-09",
+                        "NotValidAfter": "2019-07-09",
+                        "Baggage": {
+                            "allowance": "NI",
+                            "type": "N"
+                        }
+                    },
+                    {
+                        "number": "3",
+                        "type": "A",
+                        "Flight": {
+                            "Departure": {
+                                "CityCode": {
+                                    "name": "NEWBURGH  STEWART",
+                                    "#text": "SWF"
+                                }
+                            },
+                            "Arrival": {
+                                "CityCode": {
+                                    "name": "NEW YORK CITY",
+                                    "#text": "LGA"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "number": "4",
+                        "segmentStatus": "OK",
+                        "Flight": {
+                            "connectionIndicator": "O",
+                            "MarketingFlight": {
+                                "number": "3374",
+                                "#text": "AA"
+                            },
+                            "ClassOfService": "B",
+                            "Departure": {
+                                "DateTime": "2019-07-24T07:46:00",
+                                "CityCode": {
+                                    "name": "NEW YORK CITY",
+                                    "#text": "LGA"
+                                }
+                            },
+                            "Arrival": {
+                                "DateTime": "2019-07-24T09:39:00",
+                                "CityCode": {
+                                    "name": "DETROIT",
+                                    "#text": "DTW"
+                                }
+                            }
+                        },
+                        "FareBasis": "NUFHZNB1",
+                        "NotValidBefore": "2019-07-24",
+                        "NotValidAfter": "2019-07-24",
+                        "Baggage": {
+                            "allowance": "NI",
+                            "type": "N"
+                        }
+                    }
+                ],
+                "FareInfo": {
+                    "source": "ATPC",
+                    "FareIndicators": "",
+                    "BaseFare": {
+                        "currencyCode": "USD",
+                        "decimalPlace": "2",
+                        "#text": "230.70"
+                    },
+                    "TotalTax": {
+                        "currencyCode": "USD",
+                        "decimalPlace": "2",
+                        "#text": "54.60"
+                    },
+                    "TotalFare": {
+                        "currencyCode": "USD",
+                        "decimalPlace": "2",
+                        "#text": "285.30"
+                    },
+                    "TaxInfo": {
+                        "CombinedTax": [
+                            {
+                                "code": "US",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "230.70"
+                                }
+                            },
+                            {
+                                "code": "ZP",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "230.70"
+                                }
+                            },
+                            {
+                                "code": "XT",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "230.70"
+                                }
+                            }
+                        ],
+                        "Tax": [
+                            {
+                                "code": "US",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "17.30"
+                                }
+                            },
+                            {
+                                "code": "ZP",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "12.60"
+                                }
+                            },
+                            {
+                                "code": "AY",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "11.20"
+                                }
+                            },
+                            {
+                                "code": "XF",
+                                "Amount": {
+                                    "currencyCode": "USD",
+                                    "decimalPlace": "2",
+                                    "#text": "13.50"
+                                }
+                            }
+                        ]
+                    },
+                    "FareCalculation": "DTT AA X/PHL AA NYC129.30AA DTT101.40USD230.70END ZPDTWPHLLGA XFDTW4.5PHL4.5LGA4.5",
+                    "Commission": {
+                        "Percentage": "0"
+                    },
+                    "FareComponent": [
+                        {
+                            "fareBasisCode": "S0EHZNB3",
+                            "number": "1",
+                            "FlightSegmentNumbers": {
+                                "SegmentNumber": [
+                                    "1",
+                                    "2"
+                                ]
+                            },
+                            "FareDirectionality": {
+                                "roundTrip": "true"
+                            },
+                            "Departure": {
+                                "DateTime": "2019-07-09T12:47:00",
+                                "CityCode": {
+                                    "name": "DETROIT",
+                                    "#text": "DTT"
+                                }
+                            },
+                            "Arrival": {
+                                "DateTime": "2019-07-09T16:57:00",
+                                "CityCode": {
+                                    "name": "NEWBURGH  STEWART",
+                                    "#text": "NYC"
+                                }
+                            },
+                            "Amount": {
+                                "currencyCode": "USD",
+                                "decimalPlace": "2",
+                                "#text": "129.30"
+                            },
+                            "GoverningCarrier": "AA"
+                        },
+                        {
+                            "fareBasisCode": "NUFHZNB1",
+                            "number": "2",
+                            "FlightSegmentNumbers": {
+                                "SegmentNumber": "4"
+                            },
+                            "FareDirectionality": {
+                                "inbound": "true",
+                                "roundTrip": "true"
+                            },
+                            "Departure": {
+                                "DateTime": "2019-07-24T07:46:00",
+                                "CityCode": {
+                                    "name": "NEW YORK CITY",
+                                    "#text": "NYC"
+                                }
+                            },
+                            "Arrival": {
+                                "DateTime": "2019-07-24T09:39:00",
+                                "CityCode": {
+                                    "name": "DETROIT",
+                                    "#text": "DTT"
+                                }
+                            },
+                            "Amount": {
+                                "currencyCode": "USD",
+                                "decimalPlace": "2",
+                                "#text": "101.40"
+                            },
+                            "GoverningCarrier": "AA"
+                        }
+                    ]
+                },
+                "MiscellaneousInfo": {
+                    "ValidatingCarrier": "AA",
+                    "ItineraryType": "D"
+                },
+                "MessageInfo": {
+                    "Message": [
+                        {
+                            "number": "201",
+                            "type": "WARNING",
+                            "#text": "Fare not guaranteed until ticketed"
+                        },
+                        {
+                            "type": "WARNING",
+                            "#text": "VALIDATING CARRIER - AA"
+                        }
+                    ],
+                    "Remarks": {
+                        "type": "ENS",
+                        "#text": "NONREF/NOCHG/BESH/NOSEAT"
+                    },
+                    "PricingParameters": "WPAE$KP0$P1ADT$RQ",
+                    "BaggageDisclosure": "BAG ALLOWANCE     -DTWSWF-NIL/AA 1STCHECKED BAG FEE-DTWSWF-USD30.00/AA/UP TO 50 POUNDS/23 KILOGR AMS AND UP TO 62 LINEAR INCHES/158 LINEAR CENTIMETERS 2NDCHECKED BAG FEE-DTWSWF-USD40.00/AA/UP TO 50 POUNDS/23 KILOGR AMS AND UP TO 62 LINEAR INCHES/158 LINEAR CENTIMETERS BAG ALLOWANCE     -LGADTW-NIL/AA 1STCHECKED BAG FEE-LGADTW-USD30.00/AA/UP TO 50 POUNDS/23 KILOGR AMS AND UP TO 62 LINEAR INCHES/158 LINEAR CENTIMETERS 2NDCHECKED BAG FEE-LGADTW-USD40.00/AA/UP TO 50 POUNDS/23 KILOGR AMS AND UP TO 62 LINEAR INCHES/158 LINEAR CENTIMETERS CARRY ON ALLOWANCE DTWPHL PHLSWF LGADTW-02P/AA 01/UP TO 40 LINEAR INCHES/101 LINEAR CENTIMETERS 01/UP TO 45 LINEAR INCHES/115 LINEAR CENTIMETERS ADDITIONAL ALLOWANCES AND/OR DISCOUNTS MAY APPLY DEPENDING ON FLYER-SPECIFIC FACTORS /E.G. FREQUENT FLYER STATUS/MILITARY/ CREDIT CARD FORM OF PAYMENT/EARLY PURCHASE OVER INTERNET,ETC./ EMBARGOES-APPLY TO EACH PASSENGER DTWPHL PHLSWF LGADTW-AA OVER 100 POUNDS/45 KILOGRAMS NOT PERMITTED"
+                },
+                "HistoryInfo": {
+                    "AgentInfo": {
+                        "sine": "AWT",
+                        "HomeLocation": "WR17"
+                    },
+                    "TransactionInfo": {
+                        "LocalDateTime": "2019-07-05T10:57:00",
+                        "InputEntry": "WPAE$KP0$P1ADT$RQ"
+                    }
+                }
+            }
+        }
+    },
+    "Token": "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESB!ICESMSLB\\/RES.LB!-2999386516581825659!1721153!0",
+    "ConversationId": "cosmo-material-c84f3320-9122-11e9-bde1-af60f6a48072"
+}
