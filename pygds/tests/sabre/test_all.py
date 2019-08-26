@@ -50,6 +50,7 @@ def test():
     """
     response = client.search_flightrq(None, my_request, True, "NET")
     response = json.loads(response.content)
+    """
     segment_select = [1, 2, 3, 4]
     passenger_type = [
         {
@@ -81,7 +82,6 @@ def test():
             "quantity": 1
         }
     ]
-    """
     display_pnr = client.get_reservation("XCVYRX", None)
     session_info = display_pnr.session_info
     if not session_info:
