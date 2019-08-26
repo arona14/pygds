@@ -9,19 +9,19 @@ class TypeHelpersTest(unittest.TestCase):
 
     def test_fligh_point_details(self):
         result = FlightPointDetails(None, None, None).to_data()
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
 
     def test_flight_segment(self):
         result = FlightSegment(2, "res_book_desig_code", "departure_date_time",
                                None, None,
                                None, "status", "company_id", "quantity",
-                               None, None,
+                               None,
                                "disclosure_carrier", "mariage_group",
                                "seats", "action_code", "segment_special_requests",
                                "schedule_change_indicator", "segment_booked_date", "air_miles_flown",
                                "funnel_flight", "change_of_gauge", "flight_number",
                                "class_of_service", "elapsed_time", "equipment_type",
-                               "eticket", "code").to_data()
+                               "eticket", "code")
         self.assertIsNotNone(result)
 
     def test_itinaries(self):

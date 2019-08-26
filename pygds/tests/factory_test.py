@@ -10,7 +10,6 @@ from pygds.amadeus.amadeus_gds import AmadeusGDS
 
 class TestFactory(unittest.TestCase):
     def test_factory_registration(self):
-
         print(SabreGDS)
         print(AmadeusGDS)
         self.assertIsNotNone(factory.GDS('amadeus').get_reservation('YQZMVU', 'WR17', 'factory-test-pygds'))
