@@ -177,7 +177,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
         return fare_breakdown_list
 
 
-class SabreReservationFormatter(BaseResponseExtractor):
+class DisplayPnrExtractor(BaseResponseExtractor):
 
     """
         A class to extract Reservation from response of retrieve PNR.
@@ -389,7 +389,7 @@ class SabreReservationFormatter(BaseResponseExtractor):
         return passenger_list
 
 
-class SabreSendCommandFormat(BaseResponseExtractor):
+class SendCommandExtractor(BaseResponseExtractor):
 
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="SabreCommandLLSRS")

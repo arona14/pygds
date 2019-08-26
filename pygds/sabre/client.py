@@ -8,7 +8,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, SabreReservationFormatter, SabreSendCommandFormat
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 
@@ -87,7 +87,7 @@ class SabreClient(BaseClient):
 
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
         display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
-        gds_response = SabreReservationFormatter(display_pnr_response).extract()
+        gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         gds_response.session_info = session_info
 
         if need_close:
@@ -146,6 +146,10 @@ class SabreClient(BaseClient):
         pass
 
     def send_command(self, message_id: str, command: str):
+        """send command
+        :param message_id: the message identifier
+        :param command: the value of the command
+        """
 
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
@@ -154,7 +158,7 @@ class SabreClient(BaseClient):
         command_response = self.__request_wrapper("send_command", command_request, self.xml_builder.url)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
-        gds_response = SabreSendCommandFormat(command_response).extract()
+        gds_response = SendCommandExtractor(command_response).extract()
         gds_response.session_info = session_info
         return gds_response
 
