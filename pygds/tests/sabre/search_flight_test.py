@@ -58,7 +58,3 @@ class ClientCan(unittest.TestCase):
     def test_open_session(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, " the result of open session is None")
-
-
-if __name__ == "__main__":
-    unittest.main()
