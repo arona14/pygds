@@ -160,10 +160,10 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
     def _get_fare_break_down(self, air_itinerary_pricing):
 
-        fare_breakdown = FareBreakdown()
         fare_break_list = ensure_list(from_json(air_itinerary_pricing, "PTC_FareBreakdown"))
         fare_breakdown_list = []
         for fare_break in fare_break_list:
+            fare_breakdown = FareBreakdown()
             fare_breakdown.cabin = from_json(fare_break, "Cabin")
             fare_breakdown.fare_basis_code = from_json(fare_break, "FareBasis", "@Code")
             fare_breakdown.fare_amount = from_json(fare_break, "FareBasis", "@FareAmount") if "@FareAmount" in from_json(fare_break, "FareBasis") else None

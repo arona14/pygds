@@ -97,7 +97,7 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
     TWOPLACES = Decimal(10) ** -2
     hemisphere_code = _get_hemisphere_code(region_name)
     commission = ""
-    if passenger_type_data['commissionPercentage'] is not None and passenger_type_data['commissionPercentage'] != 0 and (passenger_type_data['tourCode'] is None or passenger_type_data['tourCode'] == ""):
+    if passenger_type_data['commissionPercentage'] is not None and passenger_type_data['commissionPercentage'] != "0" and (passenger_type_data['tourCode'] is None or passenger_type_data['tourCode'] == ""):
         commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
         commission = commission + "<MiscQualifiers><Commission Percent='" + str(commission_percentage) + "'/>"
         if pcc == "3GAH":
@@ -111,7 +111,6 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
         if pcc == "3GAH":
             commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
             commission = commission + "<JourneyCode> 2 </JourneyCode>"
-        commission = commission + "</MiscQualifiers>"
     return commission
 
 
@@ -119,13 +118,12 @@ def __store_commission_with_net(passenger_type_data, region_name, pcc):
     TWOPLACES = Decimal(10) ** -2
     commission = ""
     hemisphere_code = _get_hemisphere_code(region_name)
-    if passenger_type_data['markup'] is not None and passenger_type_data['markup'] != 0 and pcc != "37AF":
+    if passenger_type_data['markup'] is not None and passenger_type_data['markup'] != "0" and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
         commission = commission + "<MiscQualifiers><Commission Amount='" + str(commission_amount) + "'/>"
         if pcc == "3GAH":
             commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
             commission = commission + "<JourneyCode> 2 </JourneyCode>"
-        commission = commission + "</MiscQualifiers>"
     return commission
 
 
@@ -148,7 +146,7 @@ def store_tour_code(passenger_type_data):
         tour_code = tour_code + "<SuppressIT Ind='true'/>"
         tour_code = tour_code + "<Text>" + passenger_type_data['tourCode'] + "</Text>"
         tour_code = tour_code + "</TourCode>"
-        tour_code = tour_code + "</MiscQualifiers>"
+    tour_code = tour_code + "</MiscQualifiers>"
     return tour_code
 
 
