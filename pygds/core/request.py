@@ -1,5 +1,6 @@
 from typing import List
-from pygds.core.types import BasicDataObject
+from types import SimpleNamespace
+from pygds.core.type_helper import TravellerNumbering, BasicDataObject
 
 
 class RequestFilter:
@@ -51,19 +52,22 @@ class PriceToBeatFilter(RequestFilter):
 
 class OriginDestination:
     def __init__(self):
-        self.city: str = ''
+        self.origin: str = ''
 
-
-class OriginDestination_:
-    def __init__(self):
-        self.departure_date: str = ''
 
 
 class RequestedSegment:
-    def __init__(self):
-        self.origin: OriginDestination
-        self.destination: OriginDestination
-        self.departureDate: OriginDestination
+    def __init__(self, origin, destination, departureDate):
+        self.origin = origin
+        self.destination = destination
+        self.departureDate = departureDate
+
+    def to_data(self):
+        return {
+            "origin": self.origin,
+            "destination": self.destination,
+            "departureDate": self.departureDate
+        }
 
 
 class ClassOfService:
@@ -71,24 +75,42 @@ class ClassOfService:
         self.class_of_sevice: str = ''
 
 
+class TravellerNumberingInfo(TravellerNumbering):
+
+    def __init__(self, adults, children, infants):
+        super().__init__(adults, children, infants)
+
+    def to_data(self):
+
+        return SimpleNamespace(**{
+            "adult": self.adults,
+            "child": self.children,
+            "infant": self.infants,
+        })
+
+
 class LowFareSearchRequest(BasicDataObject):
 
-    def __init__(self, itineraries: List[RequestedSegment], csv: str = '', pcc: str = '', adult: int = 0, child: int = 0, infant: int = 0, alternatePcc: list = [], requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False, excludeBasicEconomy: bool = True):
+    def __init__(self, itineraries: List[RequestedSegment], csv, pcc,
+                 travelingNumber: TravellerNumberingInfo = None, alternatePcc: list = [],
+                 requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False,
+                 excludeBasicEconomy: bool = True, maxConnection: int = 3):
 
         self.itineraries: List[RequestedSegment] = itineraries
-        self.csv: ClassOfService = csv
+        self.csv = csv
         self.pcc = pcc
-        self.adult = adult
-        self.child = child
-        self.infant = infant
+        self.adult = travelingNumber.adults
+        self.child = travelingNumber.children
+        self.infant = travelingNumber.infants
         self.alternatePcc = alternatePcc
         self.requestType = requestType
         self.preferredAirlines = preferredAirlines
         self.baggagePref = baggagePref
         self.excludeBasicEconomy = excludeBasicEconomy
+        self.maxConnection = maxConnection
 
     def to_data(self):
-        return {
+        return SimpleNamespace(**{
             "itineraries": [i for i in self.itineraries],
             "pcc": self.pcc,
             "adult": self.adult,
@@ -100,9 +122,4 @@ class LowFareSearchRequest(BasicDataObject):
             "preferredAirlines": self.preferredAirlines,
             "baggagePref": self.baggagePref,
             "excludeBasicEconomy": self.excludeBasicEconomy
-
-        }
-
-
-if __name__ == "__main__":
-    print(LowFareSearchRequest().to_data())
+        })

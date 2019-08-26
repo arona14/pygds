@@ -164,7 +164,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             if element_management_data["segmentName"] == "FP":
                 other_details = from_json_safe(data, "otherDataFreetext")
                 text = from_json_safe(other_details, "longFreetext")
-                form_payment = FormOfPayment("", text, "", "")
+                form_payment = FormOfPayment(text)
                 list_form_payment.append(form_payment)
         return list_form_payment
 
@@ -197,7 +197,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     qualifier, number = self._extract_qualifier_number(list_reference)
                 if segment_name == "FA":
                     long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
-                    ticketing = TicketingInfo("", "", "", "", "", "", "", "", "", long_free_text, qualifier, number)
+                    ticketing = TicketingInfo("", "", "", "", "", "", long_free_text, qualifier, number)
                     print(ticketing)
                     list_ticket.append(ticketing)
         return list_ticket
