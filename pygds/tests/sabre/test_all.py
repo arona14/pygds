@@ -81,6 +81,7 @@ def test():
             "quantity": 1
         }
     ]
+    """
     display_pnr = client.get_reservation("XCVYRX", None)
     session_info = display_pnr.session_info
     if not session_info:
@@ -89,11 +90,4 @@ def test():
     message_id = session_info.message_id
     price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     print(price)
-
-
-if __name__ == "__main__":
-    result = test()
-    result = json.dumps(dict(result), sort_keys=False, indent=4)
-    with open("myResult.json", 'w') as myFile:
-        myFile.write(str(result))
-    myFile.close()
+    """
