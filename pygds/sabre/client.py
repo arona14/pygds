@@ -111,7 +111,7 @@ class SabreClient(BaseClient):
             token = session_info.security_token
 
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
-        display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
+        display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.endpoint)
         gds_response = SabreReservationFormatter(display_pnr_response).extract()
         gds_response.session_info = session_info
 
@@ -137,7 +137,7 @@ class SabreClient(BaseClient):
         if token_session is None:
             raise NoSessionError(message_id)
         search_price_request = self.xml_builder.price_quote_rq(token_session, retain=str(retain).lower(), fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name)
-        search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.xml_builder.url)
+        search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         response = PriceSearchExtractor(search_price_response).extract()
@@ -209,7 +209,7 @@ class SabreClient(BaseClient):
         This function is for end transaction
         """
         request_data = self.xml_builder.end_transaction_rq(token_value)
-        response_data = self.__request_wrapper("end_transaction", request_data, self.xml_builder.url)
+        response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
         return EndTransactionExtractor(response_data).extract()
 
     def send_command(self, message_id: str, command: str):
@@ -217,7 +217,7 @@ class SabreClient(BaseClient):
         if token_session is None:
             raise NoSessionError(message_id)
         command_request = self.xml_builder.sabre_command_lls_rq(token_session, command)
-        command_response = self.__request_wrapper("send_command", command_request, self.xml_builder.url)
+        command_response = self.__request_wrapper("send_command", command_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = SabreSendCommandFormat(command_response).extract()
