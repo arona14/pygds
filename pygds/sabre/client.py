@@ -192,7 +192,7 @@ class SabreClient(BaseClient):
         return response
 
     def function_decorator_send_command_befor_issue_tiket(function):
-        def wrapper(self):
+        def wrapper(self, message_id):
             self.send_command(message_id, "SI*")
             self.send_command(message_id, "PPS1")
             self.send_command(message_id, "CC/PC")
