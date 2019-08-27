@@ -210,7 +210,8 @@ class SabreClient(BaseClient):
         """
         request_data = self.xml_builder.end_transaction_rq(token_value)
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
-        return EndTransactionExtractor(response_data).extract()
+        gds_response = EndTransactionExtractor(response_data).extract()
+        return gds_response
 
     def send_command(self, message_id: str, command: str):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
