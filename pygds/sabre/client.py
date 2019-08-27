@@ -8,7 +8,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
@@ -190,15 +190,20 @@ class SabreClient(BaseClient):
         response = self._request_wrapper(open_session_xml, None)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         return response
-
-    def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
-        """
-        This function is for issue ticket
-        :return
-        """
+    
+    def befor_issue_ticket(self, message_id):
         self.send_command(message_id, "SI*")
         self.send_command(message_id, "PPS1")
         self.send_command(message_id, "CC/PC")
+        return 
+
+    def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+        """
+        This function is make for the ticket process.
+        she does not want to make the end transaction at the end to commit the change
+        :return
+        """
+        self.befor_issue_ticket(message_id)
         fop_type = self.xml_builder.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
@@ -224,3 +229,10 @@ class SabreClient(BaseClient):
         gds_response = SabreSendCommandFormat(command_response).extract()
         gds_response.session_info = session_info
         return gds_response
+
+    def queue_place(self, token: str, queue_number: str, record_locator: str):
+        """This function is for queue place
+        """
+        request_data = self.xml_builder.queue_place_rq(token, queue_number, record_locator)
+        response_data = self.__request_wrapper("queue place", request_data, self.endpoint)
+        return SabreQueuePlaceExtractor(response_data).extract()

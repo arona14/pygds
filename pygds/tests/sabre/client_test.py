@@ -63,13 +63,13 @@ class ClientCan(unittest.TestCase):
         result = self.client.get_reservation(self.pnr, None)
         self.assertIsNotNone(result, "Cannot retrieve pnr")
 
-    # def test_queue_place(self):
-    #     result = self.client.queue_place(self.token, 111, self.pnr)
-    #     self.assertIsNotNone(result.payload.status)
-    #     self.assertIsNotNone(result.payload.type_response)
-    #     self.assertIsNotNone(result.payload.text_message)
-    #     self.assertEquals(result.payload.status, "Complete")
-    #     self.assertEquals(result.payload.type_response, "Success")
+    def test_queue_place(self):
+        result = self.client.queue_place(self.token, 111, self.pnr)
+        self.assertIsNotNone(result.payload.status)
+        self.assertIsNotNone(result.payload.type_response)
+        self.assertIsNotNone(result.payload.text_message)
+        self.assertEquals(result.payload.status, "Complete")
+        self.assertEquals(result.payload.type_response, "Success")
 
 
 if __name__ == "__main__":
