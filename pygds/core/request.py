@@ -55,7 +55,6 @@ class OriginDestination:
         self.origin: str = ''
 
 
-
 class RequestedSegment:
     def __init__(self, origin, destination, departureDate):
         self.origin = origin

@@ -14,9 +14,9 @@ def test():
     password = decode_base64(get_setting("SABRE_PASSWORD"))
     url = "https://webservices3.sabre.com"
 
-    client = SabreClient(url, username, password, pcc, False)
+    client = SabreClient(url, "", username, password, pcc, False)
 
-    display_pnr = client.get_reservation("KDDLRA", None)
+    display_pnr = client.get_reservation("TLRYVS", None)
     return display_pnr
 
 

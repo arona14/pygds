@@ -13,6 +13,30 @@ class SabreXMLBuilder:
         self.pcc = pcc
         self.conversation_id = generate_random_message_id()
 
+    def generate_header(self, service_name, action_code, token):
+
+        return f"""<soapenv:Header>
+            <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
+                <eb:From>
+                    <eb:PartyId />
+                </eb:From>
+                <eb:To>
+                    <eb:PartyId />
+                </eb:To>
+                <eb:CPAId>{self.pcc}</eb:CPAId>
+                <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
+                <eb:Service>{service_name}</eb:Service>
+                <eb:Action>{action_code}</eb:Action>
+                <eb:MessageData>
+                    <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                    <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
+                </eb:MessageData>
+            </eb:MessageHeader>
+            <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
+                <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
+            </eb:Security>
+        </soapenv:Header>"""
+
     def session_create_rq(self):
         """
             Return the xml request to initiate a SOAP API session
@@ -133,30 +157,10 @@ class SabreXMLBuilder:
     def end_transaction_rq(self, pcc, token, conversation_id):
 
         """ end transaction xml"""
-
+        header = self.generate_header("EndTransactionLLSRQ", "EndTransactionLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                    <eb:From>
-                        <eb:PartyId />
-                    </eb:From>
-                    <eb:To>
-                        <eb:PartyId />
-                    </eb:To>
-                    <eb:CPAId>{self.pcc}</eb:CPAId>
-                    <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                    <eb:Service>EndTransactionLLSRQ</eb:Service>
-                    <eb:Action>EndTransactionLLSRQ</eb:Action>
-                    <eb:MessageData>
-                        <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                        <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
-                    </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                    <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <EndTransactionRQ Version="2.0.8" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <EndTransaction Ind="true" />
@@ -168,29 +172,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to send a command
         """
+        header = self.generate_header("SabreCommandLLSRQ", "SabreCommandLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>SabreCommandLLSRQ</eb:Service>
-                        <eb:Action>SabreCommandLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <SabreCommandLLSRQ xmlns="http://webservices.sabre.com/sabreXML/2003/07" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1.8.1">
                         <Request Output="SCREEN" CDATA="true">
@@ -205,29 +190,10 @@ class SabreXMLBuilder:
             Return the xml request to retrieve and
             display a passenger name record (PNR)
         """
+        header = self.generate_header("GetReservationRQ", "GetReservationRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>getReservationRQ</eb:Service>
-                        <eb:Action>getReservationRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <ns7:GetReservationRQ xmlns:ns7="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
                         <ns7:Locator>{record_locator}</ns7:Locator>
@@ -253,29 +219,10 @@ class SabreXMLBuilder:
         pax_type, name_select = get_passenger_type(passenger_type, fare_type)
         fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
         commission = get_commision(baggage, self.pcc, region_name)
+        header = self.generate_header("Session", "OTA_AirPriceLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                    <eb:From>
-                        <eb:PartyId />
-                    </eb:From>
-                    <eb:To>
-                        <eb:PartyId />
-                    </eb:To>
-                    <eb:CPAId>{self.pcc}</eb:CPAId>
-                    <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                    <eb:Service>Session</eb:Service>
-                    <eb:Action>OTA_AirPriceLLSRQ</eb:Action>
-                    <eb:MessageData>
-                        <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                        <eb:Timestamp>{self.current_timestamp}Z</eb:Timestamp>
-                    </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                    <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <OTA_AirPriceRQ Version="2.17.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <PriceRequestInformation Retain="{retain}">
@@ -297,32 +244,10 @@ class SabreXMLBuilder:
             </soapenv:Envelope>"""
 
     def queue_place_rq(self, token, queue_number, record_locator):
-        """
-            Return the xml request to place a pnr in a queue
-        """
+        header = self.generate_header("QueuePlaceLLSRQ", "QueuePlaceLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>QueuePlaceLLSRQ</eb:Service>
-                        <eb:Action>QueuePlaceLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <QueuePlaceRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ReturnHostCommand="false" TimeStamp="2014-09-07T09:30:00-06:00" Version="2.0.4">
                         <QueueInfo>
@@ -337,29 +262,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to void air tickets
         """
+        header = self.generate_header("VoidTicketLLSRQ", "VoidTicketLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-            <soapenv:Header>
-                <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                    <eb:From>
-                        <eb:PartyId />
-                    </eb:From>
-                    <eb:To>
-                        <eb:PartyId />
-                    </eb:To>
-                    <eb:CPAId>{self.pcc}</eb:CPAId>
-                    <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                    <eb:Service>VoidTicketLLSRQ</eb:Service>
-                    <eb:Action>VoidTicketLLSRQ</eb:Action>
-                    <eb:MessageData>
-                        <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                        <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                    </eb:MessageData>
-                </eb:MessageHeader>
-                <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                    <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                </eb:Security>
-            </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <VoidTicketRQ Version="2.1.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <Ticketing RPH="{rph}" />
@@ -369,32 +275,14 @@ class SabreXMLBuilder:
 
     def cancel_segment_rq(self, token, segment):
         """
-            Return the xml request to to cancel itinerary
-            segments contained within a PNR
+        Return the xml request to to cancel itinerary
+        segments contained within a PNR
+
         """
+        header = self.generate_header("OTA_CancelLLSRQ", "OTA_CancelLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>OTA_CancelLLSRQ</eb:Service>
-                        <eb:Action>OTA_CancelLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+               {header}
                 <soapenv:Body>
                     <OTA_CancelRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="false" TimeStamp="2016-05-17T10:00:00-06:00" Version="2.0.2">
                         {segment}
@@ -402,10 +290,11 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def air_ticket_rq(self, token_value, info_ticketing, price_quote):
+    def air_ticket_rq(self, token, info_ticketing, price_quote):
         """
             Return the xml request to issue air tickets
         """
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>
@@ -427,7 +316,7 @@ class SabreXMLBuilder:
                         <Description>CTS-PORTAL</Description>
                     </eb:MessageHeader>
                     <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                    <eb:BinarySecurityToken>{token_value}</eb:BinarySecurityToken>
+                    <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
                     <eb:group>{self.pcc}</eb:group>
                     </eb:Security>
                 </soapenv:Header>
@@ -445,29 +334,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to book flight  segment
         """
+        header = self.generate_header("EnhancedAirBookRQ", "EnhancedAirBookRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>EnhancedAirBookRQ</eb:Service>
-                        <eb:Action>EnhancedAirBookRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <EnhancedAirBookRQ version="3.9.0" xmlns="http://services.sabre.com/sp/eab/v3_9" HaltOnError="true">
                         <OTA_AirBookRQ>
@@ -489,29 +359,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to update a passenger in pnr
         """
+        header = self.generate_header("PassengerDetailsRQ", "PassengerDetailsRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>PassengerDetailsRQ</eb:Service>
-                        <eb:Action>PassengerDetailsRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <PassengerDetailsRQ xmlns="http://services.sabre.com/sp/pd/v3_4" version="3.4.0">
                             <PostProcessing unmaskCreditCard="false">
@@ -541,29 +392,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to search a seap map
         """
+        header = self.generate_header("EnhancedSeatMapRQ", "EnhancedSeatMapRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>EnhancedSeatMapRQ</eb:Service>
-                        <eb:Action>EnhancedSeatMapRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+               {header}
                 <soapenv:Body>
                     <tag0:EnhancedSeatMapRQ xmlns:tag0="http://stl.sabre.com/Merchandising/v6" version="6">
                         <tag0:RequestType>Payload</tag0:RequestType>
@@ -581,29 +413,10 @@ class SabreXMLBuilder:
         """
             Return the xml request to check if a ticket number is exchangeable
         """
+        header = self.generate_header("TKT_ElectronicDocumentServicesRQ", "TKT_ElectronicDocumentServicesRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>TKT_ElectronicDocumentServicesRQ</eb:Service>
-                        <eb:Action>TKT_ElectronicDocumentServicesRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <GetElectronicDocumentRQ Version="1.0.0" requestType="H" xmlns="http://www.sabre.com/ns/Ticketing/EDoc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sabre.com/ns/Ticketing/EDoc TKT_ElectronicDocumentServices_v.1.0.0.xsd">
                             <ns1:STL_Header.RQ xmlns:ns1="http://www.sabre.com/ns/Ticketing/EDocStl"/>
@@ -620,29 +433,10 @@ class SabreXMLBuilder:
             Return the xml request to search for available flights
             for a ticket number to be exchanged
         """
+        header = self.generate_header("ExchangeShoppingRQ", "ExchangeShoppingRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>ExchangeShoppingRQ</eb:Service>
-                        <eb:Action>ExchangeShoppingRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+               {header}
                 <soapenv:Body>
                     <ExchangeShoppingRQ xmlns="http://services.sabre.com/sp/exchange/shopping/v2_3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.3.0">
                         <STL_Header.RQ>
@@ -662,29 +456,10 @@ class SabreXMLBuilder:
             Return the xml request to find new prices
             for a ticket number to be exchanged
         """
+        header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>AutomatedExchangesLLSRQ</eb:Service>
-                        <eb:Action>AutomatedExchangesLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <AutomatedExchangesRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" ReturnHostCommand="true" Version="2.7.0">
                         <ExchangeComparison OriginalTicketNumber="{ticket_number}">
@@ -706,29 +481,11 @@ class SabreXMLBuilder:
             Return the xml request to store a price
             for a ticket number to be exchanged
         """
+        header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>AutomatedExchangesLLSRQ</eb:Service>
-                        <eb:Action>AutomatedExchangesLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <AutomatedExchangesRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" ReturnHostCommand="true" Version="2.7.0">
                         <ExchangeConfirmation PQR_Number="{price_quote}">
@@ -747,6 +504,7 @@ class SabreXMLBuilder:
         """
             Return the xml request to ticket a pnr to be exchanged
         """
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Header>
@@ -787,31 +545,10 @@ class SabreXMLBuilder:
 
     def ignore_transaction_rq(self, token):
         """Return the xml request to ignore a transaction."""
-
+        header = self.generate_header("IgnoreTransactionLLSRQ", "IgnoreTransactionLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    <soapenv:Header>
-                        <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                            <eb:From>
-                                <eb:PartyId>sample.url.of.sabre.client.com</eb:PartyId>
-                            </eb:From>
-                            <eb:To>
-                                <eb:PartyId>webservices.sabre.com</eb:PartyId>
-                            </eb:To>
-                            <eb:CPAId>{self.pcc}</eb:CPAId>
-                            <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                            <eb:Service>IgnoreTransactionLLSRQ</eb:Service>
-                            <eb:Action>IgnoreTransactionLLSRQ</eb:Action>
-                            <eb:MessageData>
-                                <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                                <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                            </eb:MessageData>
-                            <Description>CTS-PORTAL</Description>
-                        </eb:MessageHeader>
-                        <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                            <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                        </eb:Security>
-                    </soapenv:Header>
+                    {header}
                     <soapenv:Body>
                         <IgnoreTransactionRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0.0"/>
                     </soapenv:Body>
@@ -821,30 +558,11 @@ class SabreXMLBuilder:
         """
             Return the xml request to check the information of a bank account number
         """
+        header = self.generate_header("CreditVerificationLLSRQ", "CreditVerificationLLSRQ", token)
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                    <soapenv:Header>
-                        <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                            <eb:From>
-                                <eb:PartyId>sample.url.of.sabre.client.com</eb:PartyId>
-                            </eb:From>
-                            <eb:To>
-                                <eb:PartyId>webservices.sabre.com</eb:PartyId>
-                            </eb:To>
-                            <eb:CPAId>{self.pcc}</eb:CPAId>
-                            <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                            <eb:Service>CreditVerificationLLSRQ</eb:Service>
-                            <eb:Action>CreditVerificationLLSRQ</eb:Action>
-                            <eb:MessageData>
-                                <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                                <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                            </eb:MessageData>
-                            <Description>CTS-PORTAL</Description>
-                        </eb:MessageHeader>
-                        <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                            <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                        </eb:Security>
-                    </soapenv:Header>
+                    {header}
                     <soapenv:Body>
                         <CreditVerificationRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" ReturnHostCommand="true" Version="2.2.0">
                             <Credit>
@@ -863,29 +581,11 @@ class SabreXMLBuilder:
         """
             Return the xml request to add a remark for a pnr
         """
+        header = self.generate_header("PassengerDetailsRQ", "PassengerDetailsRQ", token)
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId />
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId />
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>PassengerDetailsRQ</eb:Service>
-                        <eb:Action>PassengerDetailsRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                        <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    </eb:Security>
-                </soapenv:Header>
+                {header}
                 <soapenv:Body>
                     <PassengerDetailsRQ haltOnError="true" ignoreOnError="true" xmlns="http://services.sabre.com/sp/pd/v3_4" version="3.4.0">
                         <SpecialReqDetails>

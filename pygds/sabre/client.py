@@ -2,8 +2,8 @@
 # This file is for Sabre reservation classes and functions
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
-
-import jxmlease, requests
+import jxmlease
+import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder

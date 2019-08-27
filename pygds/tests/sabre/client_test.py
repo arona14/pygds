@@ -13,24 +13,22 @@ class ClientCan(unittest.TestCase):
         self.password = decode_base64(get_setting("SABRE_PASSWORD"))
         self.rest_url = "https://api.havail.sabre.com"
         self.soap_url = "https://webservices3.sabre.com"
-        self.client = SabreClient("https://api.havail.sabre.com", self.rest_url, self.username, self.password, self.pcc, False)
+        self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
+
         print(self.username, self.password, self.pcc)
-    """
-    def test_rest_request_wrapper(self):
+
+    """ def test_rest_request_wrapper(self):
         session = self.client._rest_request_wrapper(None, None, None)
         print(session)
-        self.assertIsInstance(session, object)
-    """
+        self.assertIsInstance(session, object) """
 
-    def test_soap_request_wrapper(self):
+    """ def test_soap_request_wrapper(self):
         session = self.client._soap_request_wrapper("None")
-        self.assertIsNotNone(session, "The result of open session token is None")
+        self.assertIsNotNone(session, "The result of open session token is None") """
 
-    """
     def test_get_reservation(self):
-        session = self.client.session_token()
-        self.assertIsNotNone(session, "The result of open session token is None")
-    """
+        display_pnr = self.client.get_reservation("RBSCCU", None)
+        self.assertIsNotNone(display_pnr, "The result of display pnr is None")
 
 
 if __name__ == "__main__":
