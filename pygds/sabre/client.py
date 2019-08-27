@@ -191,14 +191,19 @@ class SabreClient(BaseClient):
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         return response
 
+    def function_decorator_send_command_befor_issue_tiket(function):
+        def wrapper(self, message_id):
+            self.send_command(message_id, "SI*")
+            self.send_command(message_id, "PPS1")
+            self.send_command(message_id, "CC/PC")
+        return wrapper
+
+    @function_decorator_send_command_befor_issue_tiket
     def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
         """
         This function is for issue ticket
         :return
         """
-        self.send_command(message_id, "SI*")
-        self.send_command(message_id, "PPS1")
-        self.send_command(message_id, "CC/PC")
         fop_type = self.xml_builder.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         request_data = self.xml_builder.air_ticket_rq(token_value, fop_type, price_quote)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
