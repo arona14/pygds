@@ -1,5 +1,5 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
-from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, add_flight_segment_to_air_book
 
 
 class SabreXMLBuilder:
@@ -445,6 +445,7 @@ class SabreXMLBuilder:
         """
             Return the xml request to book flight  segment
         """
+        flight_segment = add_flight_segment_to_air_book(flight_segment)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 <soapenv:Header>

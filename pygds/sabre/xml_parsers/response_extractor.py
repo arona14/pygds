@@ -174,3 +174,20 @@ class PriceSearchExtractor(BaseResponseExtractor):
             fare_breakdown_list.append(fare_breakdown)
 
         return fare_breakdown_list
+
+
+class RebookExtractor(BaseResponseExtractor):
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="EnhancedAirBookRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "EnhancedAirBookRS")
+        status = from_json(payload, "ApplicationResults", "@status")
+        air_book_rs = from_json(payload, "OTA_AirBookRS")
+        travel_itinerary_read_rs = from_json(payload, "TravelItineraryReadRS")
+        return {"status": status,
+                "air_book_rs": air_book_rs,
+                "travel_itinerary_read_rs": travel_itinerary_read_rs
+                }

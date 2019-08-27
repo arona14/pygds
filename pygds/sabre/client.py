@@ -9,7 +9,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, RebookExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 
@@ -199,6 +199,27 @@ class SabreClient(BaseClient):
         response = self._request_wrapper(open_session_xml, None)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         # print(response)
+        return response
+
+    def re_book_air_segment(self, message_id, flight_segment, pnr):
+        """
+        A method to rebook air segment
+        :param message_id: the message id
+        :param flight_segment: list of flight segment
+        :param pnr: the pnr
+        :param number_in_party: the number of passenger
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        re_book_air_segment_request = self.xml_builder.re_book_air_segment_rq(token_session, flight_segment, pnr)
+        print("re_book_air_segment_request")
+        re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        response = RebookExtractor(re_book_air_segment_response).extract()
+        response.session_info = session_info
         return response
 
 
