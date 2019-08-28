@@ -53,7 +53,16 @@ class ClientCan(unittest.TestCase):
 
     def test_end_transaction(self):
         result = self.client.end_transaction(self.token)
-        self.assertIsNotNone(result, "Cannot end the transaction")
+        self.assertIsNotNone(result.payload, "Cannot end the transaction")
+        self.assertIsNotNone(result.payload.status)
+        self.assertIsNotNone(result.payload.id_ref)
+        self.assertIsNotNone(result.payload.create_date_time)
+        self.assertIsNotNone(result.payload.text_message)
+        self.assertTrue(isinstance(result.payload.status, str))
+        self.assertTrue(isinstance(result.payload.id_ref, str))
+        self.assertTrue(isinstance(result.payload.create_date_time, str))
+        self.assertTrue(isinstance(result.payload.text_message, str))
+        self.assertEquals(result.payload.status, "Complete")
 
     def test_send_command(self):
         result = self.client.send_command(self.message_id, "*DJICXH")
@@ -71,6 +80,13 @@ class ClientCan(unittest.TestCase):
         self.assertEquals(result.payload.status, "Complete")
         self.assertEquals(result.payload.type_response, "Success")
 
+    def test_ignore_transaction(self):
+        result = self.client.ignore_transaction(self.token)
+        self.assertIsNotNone(result.payload.status)
+        self.assertIsNotNone(result.payload.create_date_time)
+        self.assertTrue(isinstance(result.payload.status, str))
+        self.assertTrue(isinstance(result.payload.create_date_time, str))
+        self.assertEquals(result.payload.status, "Complete")
 
 if __name__ == "__main__":
     unittest.main()

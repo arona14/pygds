@@ -53,7 +53,7 @@ def test():
             "quantity": 1
         }
     ]
-    display_pnr = client.get_reservation("KVLXYP", None)
+    display_pnr = client.get_reservation("CYHCFQ", None)
     session_info = display_pnr.session_info
     if not session_info:
         print("Awma session info")
@@ -62,9 +62,13 @@ def test():
     token = session_info.security_token
     # price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     # print(price)
-    # resul_ticket = client.issue_ticket(message_id, token, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
-    # print(resul_ticket)
+    resul_ticket = client.issue_ticket(message_id, token, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
+    print(resul_ticket)
+
+    # result_ignore = client.ignore_transaction(token)
     result = client.end_transaction(token)
+    # print(result_ignore.payload.status)
+    # print(result_ignore.payload.create_date_time)
     print(result)
 
 

@@ -8,7 +8,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
@@ -236,3 +236,12 @@ class SabreClient(BaseClient):
         request_data = self.xml_builder.queue_place_rq(token, queue_number, record_locator)
         response_data = self.__request_wrapper("queue place", request_data, self.endpoint)
         return SabreQueuePlaceExtractor(response_data).extract()
+    
+    def ignore_transaction(self, token: str):
+        """
+        This function is for ignore transaction 
+        """
+        request_data = self.xml_builder.ignore_transaction_rq(token)
+        response_data = self.__request_wrapper("ignore transaction", request_data, self.endpoint)
+        gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
+        return gds_response

@@ -8,6 +8,7 @@ from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
 from pygds.core.end_transaction import EndTransaction
+from pygds.core.ignore_transaction import IgnoreTransaction
 from pygds.core.queue_place import QueuePlace
 import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_
@@ -483,3 +484,20 @@ class SabreQueuePlaceExtractor(BaseResponseExtractor):
             else:
                 message_text, type_response, type_response = (None, None, None)
         return QueuePlace(status, type_response, message_text)
+
+
+class SabreIgnoreTransactionExtractor(BaseResponseExtractor):
+    """
+        Class to extract ignore transaction information from XML Response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="IgnoreTransactionRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        response_data = from_json_safe(payload, "IgnoreTransactionRS")
+        application_results = from_json_safe(response_data, "stl:ApplicationResults")
+        status = from_json_safe(application_results, "@status")
+        create_date_time = from_json_safe(application_results, "stl:Success", "@timeStamp")
+        return IgnoreTransaction(status, create_date_time)
