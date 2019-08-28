@@ -191,12 +191,6 @@ class SabreClient(BaseClient):
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         return response
 
-    def befor_issue_ticket(self, message_id):
-        self.send_command(message_id, "SI*")
-        self.send_command(message_id, "PPS1")
-        self.send_command(message_id, "CC/PC")
-        return
-
     def send_command_befor_issue_ticket(self, message_id):
         self.send_command(message_id, "SI*")
         self.send_command(message_id, "PPS1")
