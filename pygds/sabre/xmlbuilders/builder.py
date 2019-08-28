@@ -918,7 +918,7 @@ class SabreXMLBuilder:
             fop = self.info_cash_or_cheque(payment_type, commission_value)
         return fop
 
-    def air_ticket_rq(self, token_value, info_ticketing, price_quote):
+    def air_ticket_rq(self, token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value):
         """
             Return the xml request to issue air tickets
         """
@@ -950,7 +950,7 @@ class SabreXMLBuilder:
                     <soapenv:Body>
                         <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
                             <OptionalQualifiers>
-                                {info_ticketing}
+                                {self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)}
                                 <PricingQualifiers>
                                     <PriceQuote>
                                         <Record Number="{price_quote}"/>
