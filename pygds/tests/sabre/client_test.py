@@ -75,5 +75,6 @@ class ClientCan(unittest.TestCase):
         self.assertTrue(isinstance(result.payload.create_date_time, str))
         self.assertEquals(result.payload.status, "Complete")
 
+
 if __name__ == "__main__":
     unittest.main()

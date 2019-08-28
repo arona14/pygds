@@ -190,12 +190,12 @@ class SabreClient(BaseClient):
         response = self._request_wrapper(open_session_xml, None)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
         return response
-    
+
     def befor_issue_ticket(self, message_id):
         self.send_command(message_id, "SI*")
         self.send_command(message_id, "PPS1")
         self.send_command(message_id, "CC/PC")
-        return 
+        return
 
     def send_command_befor_issue_ticket(self, message_id):
         self.send_command(message_id, "SI*")
@@ -241,10 +241,10 @@ class SabreClient(BaseClient):
         request_data = self.xml_builder.queue_place_rq(token, queue_number, record_locator)
         response_data = self.__request_wrapper("queue place", request_data, self.endpoint)
         return SabreQueuePlaceExtractor(response_data).extract()
-    
+
     def ignore_transaction(self, token: str):
         """
-        This function is for ignore transaction 
+        This function is for ignore transaction
         """
         request_data = self.xml_builder.ignore_transaction_rq(token)
         response_data = self.__request_wrapper("ignore transaction", request_data, self.endpoint)
