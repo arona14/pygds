@@ -47,8 +47,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             control_number = from_json_safe(data, "itineraryReservationInfo", "reservation", "controlNumber")
             flight_number_airline_operat = from_json_safe(data, "travelProduct", "productDetails", "identification")
             arrival_airport = from_json_safe(data, "travelProduct", "offpointDetail", "cityCode")
-            company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            quantity = from_json_safe(data, "relatedProduct", "quantity")
+            # company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
+            # quantity = from_json_safe(data, "relatedProduct", "quantity")
             status = from_json_safe(data, "relatedProduct", "status")
             if isinstance(status, list):
                 status = status[0]  # we need to recover the first item if status is a list
