@@ -14,6 +14,9 @@ class ClientCan(unittest.TestCase):
         self.rest_url = "https://api.havail.sabre.com"
         self.soap_url = "https://webservices3.sabre.com"
         self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
+        self.display_pnr = self.client.get_reservation("TLRYVS", None)
+        self.session_info = self.display_pnr.session_info
+        self.message_id = self.session_info.message_id
 
         print(self.username, self.password, self.pcc)
 
@@ -29,6 +32,14 @@ class ClientCan(unittest.TestCase):
     def test_get_reservation(self):
         display_pnr = self.client.get_reservation("RBSCCU", None)
         self.assertIsNotNone(display_pnr, "The result of display pnr is None")
+
+    def test_queue_place(self):
+        result = self.client.queue_place(self.message_id, 111, "TLRYVS")
+        self.assertIsNotNone(result.payload.status)
+        self.assertIsNotNone(result.payload.type_response)
+        self.assertIsNotNone(result.payload.text_message)
+        self.assertEquals(result.payload.status, "Complete")
+        self.assertEquals(result.payload.type_response, "Success")
 
 
 if __name__ == "__main__":

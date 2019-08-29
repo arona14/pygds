@@ -7,9 +7,8 @@ import logging
 from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
-from pygds.core.end_transaction import EndTransaction
 import re
-from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_
+from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace
 
 
 class BaseResponseExtractor(object):
@@ -453,6 +452,33 @@ class SendCommandExtractor(BaseResponseExtractor):
     def _send_command(self, command_response):
 
         return SendCommand(command_response)
+
+
+class SabreQueuePlaceExtractor(BaseResponseExtractor):
+    """
+        Class to extract Queue Place information from XML Response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="QueuePlaceRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        response_data = from_json_safe(payload, "QueuePlaceRS")
+        application_result_data = from_json_safe(response_data, "stl:ApplicationResults")
+        status = from_json_safe(application_result_data, "@status")
+        if status == "Complete":
+            message_text = from_json_safe(response_data, "Text")
+            type_response = "Success"
+        elif status == "NotProcessed":
+            error_data = from_json_safe(application_result_data, "stl:Error")
+            if error_data is not None:
+                type_response = from_json_safe(error_data, "type")
+                system_specific_results_error = from_json_safe(error_data, "stl:SystemSpecificResults")
+                message_text = from_json_safe(system_specific_results_error, "stl:Message")
+            else:
+                message_text, type_response, type_response = (None, None, None)
+        return QueuePlace(status, type_response, message_text)
 
 
 class SendRemarkExtractor(BaseResponseExtractor):
