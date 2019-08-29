@@ -3,20 +3,17 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 
-import requests
 import jxmlease
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, RebookExtractor, SendRemarkExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SendRemarkExtractor, RebookExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
-
-from pygds.sabre.formatters.reservation_formatter import SabreReservationFormatter
-from pygds.sabre.formatters.reservation_formatter import BaseResponseExtractor
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
 from pygds.core.helpers import get_data_from_xml
+import requests
 
 
 class SabreClient(BaseClient):
@@ -113,10 +110,10 @@ class SabreClient(BaseClient):
             session_info = self.open_session()
             token = session_info.security_token
 
-        get_reservation = self.xml_builder.get_reservation_rq(token, pnr)
-        response = requests.post(self.xml_builder.url, data=get_reservation, headers=self.header_template)
-        to_return = SabreReservationFormatter(response.content)._extract()
-        gds_response = BaseResponseExtractor(session_info, to_return, None)
+        display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
+        display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.endpoint)
+        gds_response = SabreReservationFormatter(display_pnr_response).extract()
+        gds_response.session_info = session_info
 
         if need_close:
             self.close_session(message_id)
@@ -140,9 +137,7 @@ class SabreClient(BaseClient):
         if token_session is None:
             raise NoSessionError(message_id)
         search_price_request = self.xml_builder.price_quote_rq(token_session, retain=str(retain).lower(), fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name)
-        search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.xml_builder.url)
-        print("search_price_response")
-        print(search_price_response)
+        search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         response = PriceSearchExtractor(search_price_response).extract()
@@ -173,20 +168,16 @@ class SabreClient(BaseClient):
 
         request_data = SabreBFMBuilder(request_searh).search_flight(types)
         request_data = json.dumps(request_data, sort_keys=False, indent=4)
-        print(request_data)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.session_token()
-            print(token)
             self.add_session(SessionInfo(token, None, None, message_id, False))
         else:
             if not message_id:
                 message_id = generate_random_message_id()
-                print(message_id)
             token = self.session_token()
             self.add_session(SessionInfo(token, None, None, message_id, False))
-            print(token)
             self.log.info("Waao you already have a token!")
         return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token)
 
@@ -198,8 +189,38 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
         response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        # print(response)
         return response
+
+    def send_command_befor_issue_ticket(self, message_id):
+        self.send_command(message_id, "SI*")
+        self.send_command(message_id, "PPS1")
+        self.send_command(message_id, "CC/PC")
+        return
+
+    def issue_ticket(self, message_id, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+        """
+        This function is for issue ticket
+        :return
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        self.send_command_befor_issue_ticket(message_id)
+        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
+        response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
+        return IssueTicketExtractor(response_data).extract()
+
+    def end_transaction(self, message_id):
+        """
+        This function is for end transaction
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.end_transaction_rq(token_session)
+        response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
+        gds_response = EndTransactionExtractor(response_data).extract()
+        return gds_response
 
     def send_remark(self, message_id, text):
         """this will send a remark for a pnr
@@ -239,6 +260,17 @@ class SabreClient(BaseClient):
         response.session_info = session_info
         return response
 
+    def send_command(self, message_id: str, command: str):
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        command_request = self.xml_builder.sabre_command_lls_rq(token_session, command)
+        command_response = self.__request_wrapper("send_command", command_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = SabreSendCommandFormat(command_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
 
 # if __name__ == "__main__":
 # print(SabreClient().session_token())
