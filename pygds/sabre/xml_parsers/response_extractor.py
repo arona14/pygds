@@ -122,28 +122,19 @@ class PriceSearchExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.passenger_type = from_json(i, "@Code")
             air_itinerary_pricing_info.passenger_quantity = from_json(i, "@Quantity")
             air_itinerary_pricing_info.charge_amount = from_json(air_itinerary_pricing, "ItinTotalFare", "TotalFare", "@Amount")
-            air_itinerary_pricing_info.tour_code = self._get_tour_code(air_itinerary_pricing)
-            air_itinerary_pricing_info.ticket_designator = self._get_get_ticket_designator(air_itinerary_pricing)
+            air_itinerary_pricing_info.tour_code = self._get_tour_code_or_ticket_designator(air_itinerary_pricing, 'TC')
+            air_itinerary_pricing_info.ticket_designator = self._get_tour_code_or_ticket_designator(air_itinerary_pricing, 'TD')
             air_itinerary_pricing_info.commission_percentage = self._get_commission_percent(air_itinerary_pricing)
             air_itinerary_pricing_info.fare_break_down = self._get_fare_break_down(air_itinerary_pricing)
 
             return air_itinerary_pricing_info
 
-    def _get_tour_code(self, air_itinerary_pricing):
+    def _get_tour_code_or_ticket_designator(self, air_itinerary_pricing, code):
         result = None
         if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
-            if 'TC' in text:
-                text = re.findall("TC ([0-9A-Z]+)", text)[0]
-                result = text
-        return result
-
-    def _get_get_ticket_designator(self, air_itinerary_pricing):
-        result = None
-        if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
-            text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
-            if 'TD' in text:
-                text = re.findall("TD ([0-9A-Z]+)", text)[0]
+            if code in text:
+                text = re.findall(code + " ([0-9A-Z]+)", text)[0]
                 result = text
         return result
 
