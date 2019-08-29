@@ -29,14 +29,14 @@ def test():
         print("No session info")
         return
     message_id = session_info.message_id
-    token = session_info.security_token
+    # token = session_info.security_token
     # price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     # print(price)
     remark = client.send_remark(message_id, 'Virginie')
     print(remark)
-    resul_ticket = client.issue_ticket(message_id, token, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
+    resul_ticket = client.issue_ticket(message_id, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
     print(resul_ticket)
-    result = client.end_transaction(token)
+    result = client.end_transaction(message_id)
     print(result)
 
 

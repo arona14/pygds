@@ -197,22 +197,28 @@ class SabreClient(BaseClient):
         self.send_command(message_id, "CC/PC")
         return
 
-    def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+    def issue_ticket(self, message_id, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
         """
         This function is make for the ticket process.
         she does not want to make the end transaction at the end to commit the change
         :return
         """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
         self.send_command_befor_issue_ticket(message_id)
-        request_data = self.xml_builder.air_ticket_rq(token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
+        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
         return IssueTicketExtractor(response_data).extract()
 
-    def end_transaction(self, token_value):
+    def end_transaction(self, message_id):
         """
         This function is for end transaction
         """
-        request_data = self.xml_builder.end_transaction_rq(token_value)
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.end_transaction_rq(token_session)
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
         gds_response = EndTransactionExtractor(response_data).extract()
         return gds_response
