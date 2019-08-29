@@ -14,7 +14,7 @@ class ClientCan(unittest.TestCase):
         self.password = decode_base64(get_setting("SABRE_PASSWORD"))
         self.rest_url = "https://api.havail.sabre.com"
         self.soap_url = "https://webservices3.sabre.com"
-        self.pnr = "CYHCFQ"
+        self.pnr = "DMARAJ"
         self.xml_builder = SabreXMLBuilder(self.soap_url, self.username, self.password, self.pcc)
         self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
         self.token = (self.client.get_reservation(self.pnr, None)).session_info.security_token
@@ -41,16 +41,6 @@ class ClientCan(unittest.TestCase):
         # self.assertTrue(isinstance(result.payload.status), str)
         # self.assertEquals(result.payload.status, "Complete")
 
-    def test_end_transaction(self):
-        result = self.client.end_transaction(self.message_id)
-        self.assertIsNotNone(result, "Cannot end the transaction")
-        # self.assertIsNotNone(result.payload)
-        # self.assertTrue(isinstance(result.payload.status), str)
-        # self.assertTrue(isinstance(result.payload.id_ref), str)
-        # self.assertTrue(isinstance(result.payload.create_date_time), str)
-        # self.assertTrue(isinstance(result.payload.text_message), str)
-        # self.assertEquals(result.payload.status, "Complete")
-
     def test_send_command(self):
         result = self.client.send_command(self.message_id, "*DJICXH")
         self.assertIsNotNone(result, "Cannot sent command")
@@ -74,6 +64,16 @@ class ClientCan(unittest.TestCase):
         self.assertTrue(isinstance(result.payload.status, str))
         self.assertTrue(isinstance(result.payload.create_date_time, str))
         self.assertEquals(result.payload.status, "Complete")
+
+    def test_end_transaction(self):
+        result = self.client.end_transaction(self.message_id)
+        self.assertIsNotNone(result, "Cannot end the transaction")
+        # self.assertIsNotNone(result.payload)
+        # self.assertTrue(isinstance(result.payload.status), str)
+        # self.assertTrue(isinstance(result.payload.id_ref), str)
+        # self.assertTrue(isinstance(result.payload.create_date_time), str)
+        # self.assertTrue(isinstance(result.payload.text_message), str)
+        # self.assertEquals(result.payload.status, "Complete")
 
 
 if __name__ == "__main__":
