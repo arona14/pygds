@@ -22,7 +22,7 @@ class BasicDataObject(object):
 
     def __repr__(self):
         """
-        method that redefined the string type
+            method that redefined the string type
         """
         return self.to_json()
 
@@ -44,9 +44,9 @@ class FlightPointDetails(BasicDataObject):
         }
 
 
-class FlightAirlineDetails():
+class FlightAirlineDetails(BasicDataObject):
     """
-    Holds informations about airline
+        Holds informations about airline
     """
     def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None, class_of_service: str = None):
         self.airline_code = airline_code
@@ -133,7 +133,7 @@ class FlightSegment(BasicDataObject):
             "departure": self.departure_airport.to_data() if self.departure_airport else None,
             "arrival": self.arrival_airpot.to_data() if self.arrival_airpot else None,
             "airline_ref_id": self.airline,
-            "marketing": self.marketing if self.marketing else None,
+            "marketing": self.marketing.to_data() if self.marketing else None,
             "operating": self.operating.to_data() if self.operating else None,
             "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier else None,
             "mariage_group": self.mariage_group.to_data() if self.mariage_group else None,
@@ -593,7 +593,7 @@ class Reservation(BasicDataObject):
 
     def to_data(self):
         return {
-            "itineraries": [i.to_data() for i in self.itineraries],
+            "itineraries": [],
             "passengers": [p.to_data() for p in self.passengers],
             "formOfPayments": [f.to_data() for f in self.formOfPayments],
             "priceQuotes": [p.to_data() for p in self.priceQuotes],

@@ -47,8 +47,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             control_number = from_json_safe(data, "itineraryReservationInfo", "reservation", "controlNumber")
             flight_number_airline_operat = from_json_safe(data, "travelProduct", "productDetails", "identification")
             arrival_airport = from_json_safe(data, "travelProduct", "offpointDetail", "cityCode")
-            company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            quantity = from_json_safe(data, "relatedProduct", "quantity")
+            # company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
+            # quantity = from_json_safe(data, "relatedProduct", "quantity")
             status = from_json_safe(data, "relatedProduct", "status")
             if isinstance(status, list):
                 status = status[0]  # we need to recover the first item if status is a list
@@ -65,7 +65,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
             marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
             operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
-            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, company_id, quantity, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
+            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
             segment_data.segment_reference = segment_reference
             index += 1
             segments_list.append(segment_data)
