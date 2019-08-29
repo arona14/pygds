@@ -2,7 +2,7 @@ from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
-    get_data_from_xml as from_xml, ensureList, fare_type_price_quote
+    get_data_from_xml as from_xml
 import logging
 from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
@@ -203,21 +203,14 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber")
         }
 
-    def days(self, weekday):
-        if weekday == 0:
-            return 'Mon'
-        if weekday == 1:
-            return 'Tue'
-        if weekday == 2:
-            return 'Wed'
-        if weekday == 3:
-            return 'Thu'
-        if weekday == 4:
-            return 'Fri'
-        if weekday == 5:
-            return 'Sat'
-        if weekday == 6:
-            return 'Sun'
+    def fare_type_price_quote(self, passenger_type):
+        fare_type = ""
+        passenger_pub_list = ["ADT", "CNN", "C11", "C10", "C09", "C08", "C07", "C06", "C05", "C04", "C03", "C02", "INF"]
+        if str(passenger_type).startswith("J") or str(passenger_type) not in passenger_pub_list:
+            fare_type = "NET"
+        else:
+            fare_type = "PUB"
+        return fare_type
 
     def _itineraries(self, itinerary):
 
@@ -294,7 +287,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             list_passengers = []
             pq_number = from_json_safe(price, "number")
             status = from_json_safe(price, "status")
-            fare_type = fare_type_price_quote(from_json_safe(price, "passengerType"))
+            fare_type = self.fare_type_price_quote(from_json_safe(price, "passengerType"))
             if "EquivalentFare" in from_json_safe(price, "FareInfo"):
                 base_fare_value = from_json_safe(price, "FareInfo", "EquivalentFare", "#text")
                 base_fare_cc = from_json_safe(price, "FareInfo", "EquivalentFare", "currencyCode")
@@ -336,12 +329,12 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def _ticketing(self, passengers):
         list_ticket = []
-        for pax in ensureList(passengers):
+        for pax in ensure_list(passengers):
             if "stl18:TicketingInfo" not in pax:
                 pass
             else:
                 name_id = from_json(pax, "nameId")
-                for ticket in ensureList(from_json(passengers, "stl18:TicketingInfo", "stl18:TicketDetails")):
+                for ticket in ensure_list(from_json(passengers, "stl18:TicketingInfo", "stl18:TicketDetails")):
                     ticket_number = from_json_safe(ticket, "stl18:TicketNumber")
                     transaction_indicator = from_json_safe(ticket, "stl18:TransactionIndicator")
                     agency_location = from_json_safe(ticket, "stl18:AgencyLocation")
@@ -353,7 +346,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def _remarks(self, remarks):
         list_remarks = []
-        for remark in ensureList(remarks):
+        for remark in ensure_list(remarks):
             remark_index = from_json(remark, "index")
             remark_type = from_json(remark, "type")
             remark_id = from_json(remark, "elementId")
@@ -376,19 +369,19 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             if 'stl18:APISRequest' in from_json(pax, "stl18:SpecialRequests"):
                 if pax_type != "INF" or pax_type != "JNF":
                     for i in ensure_list(from_json(pax, "stl18:SpecialRequests", "stl18:APISRequest")):
-                        if full_name == f"""{from_json(i, "stl18:DOCSEntry", "stl18:Forename")} {from_json(i, "stl18:DOCSEntry", "stl18:Surname")}""":
-                            date_of_birth = from_json(i, "stl18:DOCSEntry", "stl18:DateOfBirth")
-                            gender = from_json(i, "stl18:DOCSEntry", "stl18:Gender")
-                            number_in_party = from_json(i, "stl18:DOCSEntry", "stl18:NumberInParty")
+                        if full_name == f"""{from_json_safe(i, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(i, "stl18:DOCSEntry", "stl18:Surname")}""":
+                            date_of_birth = from_json_safe(i, "stl18:DOCSEntry", "stl18:DateOfBirth")
+                            gender = from_json_safe(i, "stl18:DOCSEntry", "stl18:Gender")
+                            number_in_party = from_json_safe(i, "stl18:DOCSEntry", "stl18:NumberInParty")
 
             else:
                 for i in ensure_list(passengers):
-                    if "withInfant" in i and from_json(i, "withInfant") == "true" and "stl18:APISRequest" in from_json(i, "stl18:SpecialRequests"):
+                    if from_json_safe(i, "withInfant") == "true" and "stl18:APISRequest" in from_json(i, "stl18:SpecialRequests"):
                         for j in ensure_list(from_json(i, "stl18:SpecialRequests", "stl18:APISRequest")):
-                            if full_name == f"""{from_json(j, "stl18:DOCSEntry", "stl18:Forename")} {from_json(j, "stl18:DOCSEntry", "stl18:Surname")}""":
-                                date_of_birth = from_json(j, "stl18:DOCSEntry", "stl18:DateOfBirth")
-                                gender = from_json(j, "stl18:DOCSEntry", "stl18:Gender")
-                                number_in_party = from_json(j, "stl18:DOCSEntry", "stl18:NumberInParty")
+                            if full_name == f"""{from_json_safe(j, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(j, "stl18:DOCSEntry", "stl18:Surname")}""":
+                                date_of_birth = from_json_safe(j, "stl18:DOCSEntry", "stl18:DateOfBirth")
+                                gender = from_json_safe(j, "stl18:DOCSEntry", "stl18:Gender")
+                                number_in_party = from_json_safe(j, "stl18:DOCSEntry", "stl18:NumberInParty")
 
             p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type)
             passenger_list.append(p)
