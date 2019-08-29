@@ -4,6 +4,16 @@ import xmltodict
 import json
 
 
+def fareTypePriceQuote(passenger_type):
+    fare_type = ""
+    passenger_pub_list = ["ADT", "CNN", "C11", "C10", "C09", "C08", "C07", "C06", "C05", "C04", "C03", "C02", "INF"]
+    if str(passenger_type).startswith("J") or str(passenger_type) not in passenger_pub_list:
+        fare_type = "NET"
+    else:
+        fare_type = "PUB"
+    return fare_type
+
+
 def ensureList(elem):
     return elem if isinstance(elem, list) else [elem]
 
