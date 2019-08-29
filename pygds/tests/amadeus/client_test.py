@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unittest
 from pygds.amadeus.client import AmadeusClient
-from pygds.core.app_error import ApplicationError
+# from pygds.core.app_error import ApplicationError
 from pygds.env_settings import get_setting
 from pygds.errors.gdserrors import NoSessionError
 
