@@ -35,14 +35,14 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(session, "The result of open session token is None")
 
     def test_issue_ticket(self):
-        result = self.client.issue_ticket(self.message_id, self.token, self.price_quote, self.payment_type, self.commission_value)
+        result = self.client.issue_ticket(self.message_id, self.price_quote, self.payment_type, self.commission_value)
         self.assertIsNotNone(result, "Cannot issue ticket")
         # self.assertIsNotNone(result.payload.status)
         # self.assertTrue(isinstance(result.payload.status), str)
         # self.assertEquals(result.payload.status, "Complete")
 
     def test_end_transaction(self):
-        result = self.client.end_transaction(self.token)
+        result = self.client.end_transaction(self.message_id)
         self.assertIsNotNone(result, "Cannot end the transaction")
         # self.assertIsNotNone(result.payload)
         # self.assertTrue(isinstance(result.payload.status), str)
@@ -60,7 +60,7 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(result, "Cannot retrieve pnr")
 
     def test_queue_place(self):
-        result = self.client.queue_place(self.token, 111, self.pnr)
+        result = self.client.queue_place(self.message_id, 111, self.pnr)
         self.assertIsNotNone(result.payload.status)
         self.assertIsNotNone(result.payload.type_response)
         self.assertIsNotNone(result.payload.text_message)
@@ -68,7 +68,7 @@ class ClientCan(unittest.TestCase):
         self.assertEquals(result.payload.type_response, "Success")
 
     def test_ignore_transaction(self):
-        result = self.client.ignore_transaction(self.token)
+        result = self.client.ignore_transaction(self.message_id)
         self.assertIsNotNone(result.payload.status)
         self.assertIsNotNone(result.payload.create_date_time)
         self.assertTrue(isinstance(result.payload.status, str))

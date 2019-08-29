@@ -8,7 +8,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SendRemarkExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
@@ -197,25 +197,51 @@ class SabreClient(BaseClient):
         self.send_command(message_id, "CC/PC")
         return
 
-    def issue_ticket(self, message_id, token_value, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+    def issue_ticket(self, message_id, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
         """
         This function is make for the ticket process.
         she does not want to make the end transaction at the end to commit the change
         :return
         """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
         self.send_command_befor_issue_ticket(message_id)
-        request_data = self.xml_builder.air_ticket_rq(token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
+        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
         return IssueTicketExtractor(response_data).extract()
 
-    def end_transaction(self, token_value):
+    def end_transaction(self, message_id):
         """
         This function is for end transaction
         """
-        request_data = self.xml_builder.end_transaction_rq(token_value)
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.end_transaction_rq(token_session)
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
         gds_response = EndTransactionExtractor(response_data).extract()
+        gds_response.session_info = session_info
         return gds_response
+
+    def send_remark(self, message_id, text):
+        """this will send a remark for a pnr
+        :param message_id: the messgae id
+        :param text: the remark text
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        send_remark_request = self.xml_builder.send_remark_rq(token_session, text)
+        send_remark_response = self.__request_wrapper("send_remark", send_remark_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        response = SendRemarkExtractor(send_remark_response).extract()
+        response.session_info = session_info
+        return response
 
     def send_command(self, message_id: str, command: str):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
@@ -229,18 +255,31 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def queue_place(self, token: str, queue_number: str, record_locator: str):
+    def queue_place(self, message_id: str, queue_number: str, record_locator: str):
         """This function is for queue place
         """
-        request_data = self.xml_builder.queue_place_rq(token, queue_number, record_locator)
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.queue_place_rq(token_session, queue_number, record_locator)
         response_data = self.__request_wrapper("queue place", request_data, self.endpoint)
-        return SabreQueuePlaceExtractor(response_data).extract()
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = SabreQueuePlaceExtractor(response_data).extract()
+        gds_response.session_info = session_info
+        return gds_response
 
-    def ignore_transaction(self, token: str):
+    def ignore_transaction(self, message_id: str):
         """
         This function is for ignore transaction
         """
-        request_data = self.xml_builder.ignore_transaction_rq(token)
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.ignore_transaction_rq(token_session)
         response_data = self.__request_wrapper("ignore transaction", request_data, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
+        gds_response.session_info = session_info
         return gds_response

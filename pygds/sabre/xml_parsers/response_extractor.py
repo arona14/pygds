@@ -7,11 +7,8 @@ import logging
 from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
-from pygds.core.end_transaction import EndTransaction
-from pygds.core.ignore_transaction import IgnoreTransaction
-from pygds.core.queue_place import QueuePlace
 import re
-from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_
+from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction
 
 
 class BaseResponseExtractor(object):
@@ -501,3 +498,17 @@ class SabreIgnoreTransactionExtractor(BaseResponseExtractor):
         status = from_json_safe(application_results, "@status")
         create_date_time = from_json_safe(application_results, "stl:Success", "@timeStamp")
         return IgnoreTransaction(status, create_date_time)
+
+
+class SendRemarkExtractor(BaseResponseExtractor):
+
+    """Class to extract the send remark from XML response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="PassengerDetailsRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
+        status = from_json(payload, "ApplicationResults", "@status")
+        return {'status': status}
