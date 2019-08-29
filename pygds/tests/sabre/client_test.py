@@ -60,7 +60,7 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(result, "Cannot retrieve pnr")
 
     def test_queue_place(self):
-        result = self.client.queue_place(self.token, 111, self.pnr)
+        result = self.client.queue_place(self.message_id, 111, self.pnr)
         self.assertIsNotNone(result.payload.status)
         self.assertIsNotNone(result.payload.type_response)
         self.assertIsNotNone(result.payload.text_message)

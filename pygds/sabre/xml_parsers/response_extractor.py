@@ -7,10 +7,8 @@ import logging
 from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
-from pygds.core.end_transaction import EndTransaction
-from pygds.core.queue_place import QueuePlace
 import re
-from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_
+from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace
 
 
 class BaseResponseExtractor(object):
@@ -483,6 +481,8 @@ class SabreQueuePlaceExtractor(BaseResponseExtractor):
             else:
                 message_text, type_response, type_response = (None, None, None)
         return QueuePlace(status, type_response, message_text)
+
+
 class SendRemarkExtractor(BaseResponseExtractor):
 
     """Class to extract the send remark from XML response
