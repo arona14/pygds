@@ -8,7 +8,7 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, IssueTicketExtractor, EndTransactionExtractor, SabreReservationFormatter, SabreSendCommandFormat, SabreQueuePlaceExtractor, SendRemarkExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
@@ -216,6 +216,23 @@ class SabreClient(BaseClient):
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
         gds_response = EndTransactionExtractor(response_data).extract()
         return gds_response
+
+    def send_remark(self, message_id, text):
+        """this will send a remark for a pnr
+        :param message_id: the messgae id
+        :param text: the remark text
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        send_remark_request = self.xml_builder.send_remark_rq(token_session, text)
+        send_remark_response = self.__request_wrapper("send_remark", send_remark_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        response = SendRemarkExtractor(send_remark_response).extract()
+        response.session_info = session_info
+        return response
 
     def send_command(self, message_id: str, command: str):
         _, sequence, token_session = self.get_or_create_session_details(message_id)

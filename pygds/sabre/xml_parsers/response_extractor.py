@@ -483,3 +483,15 @@ class SabreQueuePlaceExtractor(BaseResponseExtractor):
             else:
                 message_text, type_response, type_response = (None, None, None)
         return QueuePlace(status, type_response, message_text)
+class SendRemarkExtractor(BaseResponseExtractor):
+
+    """Class to extract the send remark from XML response
+    """
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="PassengerDetailsRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
+        status = from_json(payload, "ApplicationResults", "@status")
+        return {'status': status}
