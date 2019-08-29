@@ -6,7 +6,7 @@ from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 
 class ClientCan(unittest.TestCase):
-    """ This class will test all our function on the client side """
+    """ This class will test all our function on the client side"""
 
     def setUp(self) -> None:
         self.pcc = get_setting("SABRE_PCC")
