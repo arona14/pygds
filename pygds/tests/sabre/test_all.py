@@ -34,9 +34,9 @@ def test():
     # print(price)
     remark = client.send_remark(message_id, 'Virginie')
     print(remark)
-    resul_ticket = client.issue_ticket(message_id, token, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
+    resul_ticket = client.issue_ticket(message_id, 1, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type="CK", commission_value=commission_value)
     print(resul_ticket)
-    result = client.end_transaction(token)
+    result = client.end_transaction(message_id)
     print(result)
 
 

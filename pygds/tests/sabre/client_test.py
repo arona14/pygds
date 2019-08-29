@@ -35,14 +35,14 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(session, "The result of open session token is None")
 
     def test_issue_ticket(self):
-        result = self.client.issue_ticket(self.message_id, self.token, self.price_quote, self.payment_type, self.commission_value)
+        result = self.client.issue_ticket(self.message_id, self.price_quote, self.payment_type, self.commission_value)
         self.assertIsNotNone(result, "Cannot issue ticket")
         # self.assertIsNotNone(result.payload.status)
         # self.assertTrue(isinstance(result.payload.status), str)
         # self.assertEquals(result.payload.status, "Complete")
 
     def test_end_transaction(self):
-        result = self.client.end_transaction(self.token)
+        result = self.client.end_transaction(self.message_id)
         self.assertIsNotNone(result, "Cannot end the transaction")
         # self.assertIsNotNone(result.payload)
         # self.assertTrue(isinstance(result.payload.status), str)
