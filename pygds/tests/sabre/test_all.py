@@ -48,7 +48,7 @@ def test():
     display_pnr = client.get_reservation("WOHOIJ", None)
     session_info = display_pnr.session_info
     if not session_info:
-        print("Awma session info")
+        print("No session info")
         return
     message_id = session_info.message_id
     # price = client.search_price_quote(message_id, retain=False, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type_price)
