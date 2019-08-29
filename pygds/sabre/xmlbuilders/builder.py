@@ -154,7 +154,7 @@ class SabreXMLBuilder:
                  </soap-env:Body>
             </soap-env:Envelope>"""
 
-    def end_transaction_rq(self, pcc, token, conversation_id):
+    def end_transaction_rq(self, token):
 
         """ end transaction xml"""
         header = self.generate_header("EndTransactionLLSRQ", "EndTransactionLLSRQ", token)
@@ -290,46 +290,6 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def air_ticket_rq(self, token, info_ticketing, price_quote):
-        """
-            Return the xml request to issue air tickets
-        """
-
-        return f"""<?xml version="1.0" encoding="UTF-8"?>
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-                <soapenv:Header>
-                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
-                        <eb:From>
-                            <eb:PartyId>sample.url.of.sabre.client.com</eb:PartyId>
-                        </eb:From>
-                        <eb:To>
-                            <eb:PartyId>webservices.sabre.com</eb:PartyId>
-                        </eb:To>
-                        <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
-                        <eb:Service>AirTicketLLSRQ</eb:Service>
-                        <eb:Action>AirTicketLLSRQ</eb:Action>
-                        <eb:MessageData>
-                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
-                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
-                        </eb:MessageData>
-                        <Description>CTS-PORTAL</Description>
-                    </eb:MessageHeader>
-                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
-                    <eb:BinarySecurityToken>{token}</eb:BinarySecurityToken>
-                    <eb:group>{self.pcc}</eb:group>
-                    </eb:Security>
-                </soapenv:Header>
-                <soapenv:Body>
-                    <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
-                        <OptionalQualifiers>
-                            {info_ticketing}
-                            {price_quote}
-                        </OptionalQualifiers>
-                    </AirTicketRQ>
-                </soapenv:Body>
-            </soapenv:Envelope>"""
-
     def re_book_air_segment_rq(self, token, flight_segment, pnr):
         """
             Return the xml request to book flight  segment
@@ -387,6 +347,23 @@ class SabreXMLBuilder:
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
+
+    def info_credit_card(self, code_cc, expire_date, cc_number, commission_value, approval_code=None):
+        return f"""<FOP_Qualifiers>
+                <BasicFOP>
+                    <CC_Info Suppress="true">
+                        <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" ManualApprovalCode ="{approval_code}" Number="{cc_number}"/>
+                    </CC_Info>
+                </BasicFOP>
+                </FOP_Qualifiers>
+                {commission_value}"""
+
+    def info_cash_or_cheque(self, payment_type, commission_value):
+        payment_infos = f"""<FOP_Qualifiers>
+                <BasicFOP Type="{payment_type}"/>
+                </FOP_Qualifiers>
+                {commission_value}"""
+        return payment_infos
 
     def seap_map_rq(self, token, flight_infos):
         """
@@ -601,10 +578,57 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
+    def fop_choice(self, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+        fop = ""
+        if code_cc and expire_date and cc_number is not None:
+            fop = self.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
+        elif payment_type and commission_value is not None:
+            fop = self.info_cash_or_cheque(payment_type, commission_value)
+        return fop
+
+    def air_ticket_rq(self, token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value):
+        """
+            Return the xml request to issue air tickets
+        """
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header>
+                    <eb:MessageHeader xmlns:eb="http://www.ebxml.org/namespaces/messageHeader" soapenv:mustUnderstand="0">
+                        <eb:From>
+                            <eb:PartyId>sample.url.of.sabre.client.com</eb:PartyId>
+                        </eb:From>
+                        <eb:To>
+                            <eb:PartyId>webservices.sabre.com</eb:PartyId>
+                        </eb:To>
+                        <eb:CPAId>{self.pcc}</eb:CPAId>
+                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
+                        <eb:Service>AirTicketLLSRQ</eb:Service>
+                        <eb:Action>AirTicketLLSRQ</eb:Action>
+                        <eb:MessageData>
+                            <eb:MessageId>mid:20001209-133003-2333@clientofsabre.com</eb:MessageId>
+                            <eb:Timestamp>{self.current_timestamp}</eb:Timestamp>
+                        </eb:MessageData>
+                        <Description>CTS-PORTAL</Description>
+                    </eb:MessageHeader>
+                    <eb:Security xmlns:eb="http://schemas.xmlsoap.org/ws/2002/12/secext" soapenv:mustUnderstand="0">
+                    <eb:BinarySecurityToken>{token_value}</eb:BinarySecurityToken>
+                    <eb:group>{self.pcc}</eb:group>
+                    </eb:Security>
+                </soapenv:Header>
+                    <soapenv:Body>
+                        <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
+                            <OptionalQualifiers>
+                                {self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)}
+                                <PricingQualifiers>
+                                    <PriceQuote>
+                                        <Record Number="{price_quote}"/>
+                                    </PriceQuote>
+                                </PricingQualifiers>
+                            </OptionalQualifiers>
+                        </AirTicketRQ>
+                    </soapenv:Body>
+            </soapenv:Envelope>"""
+
 
 def main():
     pass
-
-
-if __name__ == '__main__':
-    main()

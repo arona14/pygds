@@ -51,20 +51,20 @@ class ClientCan(TestCase):
             first_fare = fares[0]
             self.assertIsInstance(first_fare, Fare)"""
 
-    def test_price_past_date(self):
-        m_id = None
-        pnr = "WKHPRE"
-        res_retrieve = self.client.get_reservation(pnr, m_id, True)
-        self.assertIsNotNone(res_retrieve)
-        session = res_retrieve.session_info
-        self.assertIsNotNone(session)
-        self.assertFalse(session.session_ended)
-        res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
-        self.assertIsNotNone(res_price)
-        app_error = res_price.application_error
-        self.assertIsNotNone(app_error)
-        self.assertIsInstance(app_error, ApplicationError)
-        self.assertEqual(app_error.error_code, "3024")
+    # def test_price_past_date(self):
+    #     m_id = None
+    #     pnr = "WKHPRE"
+    #     res_retrieve = self.client.get_reservation(pnr, m_id, True)
+    #     self.assertIsNotNone(res_retrieve)
+    #     session = res_retrieve.session_info
+    #     self.assertIsNotNone(session)
+    #     self.assertFalse(session.session_ended)
+    #     res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
+    #     self.assertIsNotNone(res_price)
+    #     app_error = res_price.application_error
+    #     self.assertIsNotNone(app_error)
+    #     self.assertIsInstance(app_error, ApplicationError)
+    #     self.assertEqual(app_error.error_code, "3024")
 
     def test_end_session(self):
         res_command = self.client.send_command("HELP")
@@ -90,16 +90,16 @@ class ClientCan(TestCase):
         self.assertIsNotNone(session)
         self.assertFalse(session.session_ended)
 
-        res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
-        self.assertIsNotNone(res_price)
-        session = res_price.session_info
-        self.assertIsNotNone(session)
-        self.assertFalse(session.session_ended)
-        res_price = res_price.payload
-        self.assertIsInstance(res_price, list)
-        if len(res_price) >= 1:
-            my_fare: Fare = res_price[0]
-            self.assertIsInstance(my_fare, Fare)
+    #     res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
+    #     self.assertIsNotNone(res_price)
+    #     session = res_price.session_info
+    #     self.assertIsNotNone(session)
+    #     self.assertFalse(session.session_ended)
+    #     res_price = res_price.payload
+    #     self.assertIsInstance(res_price, list)
+    #     if len(res_price) >= 1:
+    #         my_fare: Fare = res_price[0]
+    #         self.assertIsInstance(my_fare, Fare)
 
             res_tst = self.client.ticket_create_tst_from_price(session.message_id, my_fare.fare_reference)
             self.assertIsNotNone(res_tst)
