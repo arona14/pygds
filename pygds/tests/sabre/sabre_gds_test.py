@@ -14,7 +14,3 @@ class ClientCan(unittest.TestCase):
     def test_get_reservation(self):
         result = SabreGDS().get_reservation(self.pnr, self.pcc, self.conversation)
         self.assertIsNone(result)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -5,9 +5,7 @@ from pygds.core.request import LowFareSearchRequest
 class BFMBuilder:
     """This class can generate JSON needed for sabre search flight requests."""
 
-    def __init__(self, search_request: LowFareSearchRequest, target: str = "Production", AvailableFlightsOnly: bool = True):
-        self.target = target
-        self.AvailableFlightsOnly = True
+    def __init__(self, search_request: LowFareSearchRequest):
         self.search_request: LowFareSearchRequest = search_request
 
     def pos(self):
@@ -58,17 +56,17 @@ class BFMBuilder:
         return my_return
 
     def _trip_type(self):
-        itin_count = len(self.search_request.to_data().itineraries)
-        print(self.search_request.to_data().itineraries)
+        itin_count = len(self.search_request.itineraries)
+        print(self.search_request.itineraries)
         if itin_count == 1:
             return "OneWay"
 
         if itin_count == 2:
-            if self.search_request.to_data().itineraries[0]["origin"] != self.search_request.to_data().itineraries[1]["destination"] or self.search_request.to_data().itineraries[0]["destination"] != self.search_request.to_data().itineraries[1]["origin"]:
+            if self.search_request.itineraries[0]["origin"] != self.search_request.itineraries[1]["destination"] or self.search_request.itineraries[0]["destination"] != self.search_request.itineraries[1]["origin"]:
                 return "OpenJaw"
             return "Return"
 
-        if self.search_request.search_request.to_data()[0]["origin"] == self.search_request.to_data()[itin_count - 1]["destination"]:
+        if self.search_request.itineraries[0]["origin"] == self.search_request.itineraries[itin_count - 1]["destination"]:
             return "Circle"
 
         return "Other"

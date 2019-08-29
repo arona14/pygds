@@ -165,33 +165,33 @@ class SabreClient(BaseClient):
         """
         return self.xml_builder.cancel_segment_rq(token_session, list_segment)
 
-    def search_flightrq(self, message_id, request_search, available_flights_only, types):
+    def search_flightrq(self, message_id, bfm_builder):
         """
         This function is for searching flight
         :return : available flight for the specific request_search
         """
-
-        request_data = self.json_builder.search_flight(request_search, available_flights_only, types)
-        request_data = json.dumps(request_data, sort_keys=False, indent=4)
-        _, _, token = self.get_or_create_session_details(message_id)
+        request_data = json.dumps(bfm_builder, sort_keys=False, indent=4)
+        _, sequence, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.session_token()
-            self.add_session(SessionInfo(token, None, None, message_id, False))
+            self.add_session(SessionInfo(token, sequence, message_id, token, False))
         else:
             if not message_id:
                 message_id = generate_random_message_id()
             token = self.session_token()
-            self.add_session(SessionInfo(token, None, None, message_id, False))
+            self.add_session(SessionInfo(token, sequence, message_id, token, False))
             self.log.info("Waao you already have a token!")
-        return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token)
+        return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token.security_token)
 
     def session_token(self):
         """
         This will open a new session
         :return: a Session token
         """
+        message_id = generate_random_message_id()
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
-        response = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        return response
+        token = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
+        session_info = SessionInfo(token, 1, message_id, token, False)
+        return session_info
