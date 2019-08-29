@@ -29,7 +29,7 @@ def test():
         print("No session info")
         return
     message_id = session_info.message_id
-    token = session_info.security_token
+    # token = session_info.security_token
     # price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     # print(price)
     remark = client.send_remark(message_id, 'Virginie')
