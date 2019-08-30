@@ -1,6 +1,6 @@
 from typing import List
 from types import SimpleNamespace
-from pygds.core.type_helper import TravellerNumbering, BasicDataObject
+from pygds.core.types import TravellerNumbering, BasicDataObject
 
 
 class RequestFilter:
@@ -53,6 +53,11 @@ class PriceToBeatFilter(RequestFilter):
 class OriginDestination:
     def __init__(self):
         self.origin: str = ''
+
+
+class OriginDestination_:
+    def __init__(self):
+        self.departure_date: str = ''
 
 
 class RequestedSegment:
