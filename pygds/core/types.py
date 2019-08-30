@@ -647,23 +647,6 @@ class TravellerNumbering(BasicDataObject):
         return self.adults + self.children
 
 
-def test_me():
-    """
-        This function is for testing purpose. It would be removed later.
-    """
-    r = Reservation()
-    p1 = Passenger("Mariama", "KHAN", "F", "2017-03-23", preferences={"hublot": True, "alchol": False})
-    p2 = Passenger("Elodie", "DIOUF", "F", "1987-04-04")
-    r.addPassenger(p1).addPassenger(p2)
-    firstItinerary = Itinerary("OUTBOUND")
-    dep = FlightPointDetails("2019-06-27", "13", -4, "NYC", "JFK", "I", "B")
-    arr = FlightPointDetails("2019-06-27", "16", +2, "PAR", "CDG", "4", "F")
-    firstItinerary.addSegment(FlightSegment(1, dep, arr, "AA", "1998", "B", "01.54"))
-    secondItinerary = Itinerary("INBOUND")
-    r.addItinerary(firstItinerary).addItinerary(secondItinerary)
-    print(r.to_json())
-
-
 class SendCommand(BasicDataObject):
     """
         This is to represent a send command object
@@ -713,5 +696,86 @@ class IgnoreTransaction():
         return {"status": self.status, "create_date_time": self.create_date_time}
 
 
-if __name__ == "__main__":
-    test_me()
+class Agent(BasicDataObject):
+
+    def __init__(self, sine: str = None, ticketing_provider: str = None, work_location: str = None, home_location: str = None, iso_country_code: str = None):
+        self.sine = sine
+        self.ticketing_provider = ticketing_provider
+        self.work_location = work_location
+        self.home_location = home_location
+        self.iso_country_code = iso_country_code
+
+    def to_data(self):
+        return {
+            "sine": self.sine,
+            "ticketing_provider": self.ticketing_provider,
+            "Work_location": self.work_location,
+            "home_location": self.home_location,
+            "iso_country_code": self.iso_country_code
+        }
+
+
+class ServiceCoupon(BasicDataObject):
+
+    def __init__(self, coupon: int = None, marketing_provider: str = None, marketing_flight_number: str = None, operating_provider: str = None, origin: str = None, destination: str = None, class_of_service: str = None, booking_status: str = None, current_status: str = None):
+
+        self.coupon = coupon
+        self.marketing_provider = marketing_provider
+        self.marketing_flight_number = marketing_flight_number
+        self.operating_provider = operating_provider
+        self.origin = origin
+        self.destination = destination
+        self.class_of_service = class_of_service
+        self.booking_status = booking_status
+        self.current_status = current_status
+
+    def to_data(self):
+        return {
+            "coupon": self.coupon,
+            "marketing_provider": self.marketing_provider,
+            "marketing_flight_number": self.marketing_flight_number,
+            "operating_provider": self.operating_provider,
+            "origin": self.origin,
+            "destination": self.destination,
+            "class_of_service": self.class_of_service,
+            "booking_status": self.booking_status,
+            "current_status": self.current_status
+        }
+
+
+class TicketDetails(BasicDataObject):
+
+    def __init__(self, number: str = None, traveler: str = None):
+        self.number = number
+        self.traveler = traveler
+        self.service_coupon: List[ServiceCoupon] = []
+
+    def add_service_coupon(self, coupon: ServiceCoupon):
+
+        self.service_coupon.append(coupon)
+        return self
+
+    def to_data(self):
+        return {
+            "number": self.number,
+            "traveler": self.traveler,
+            "service_coupon": [s.to_data() for s in self.service_coupon],
+
+        }
+
+
+class ElectronicDocument(BasicDataObject):
+    """
+        Holds information about a segment
+    """
+    def __init__(self, status: str = None, agent: Agent = None, ticket_details: TicketDetails = None):
+        self.status = status
+        self.agent = agent
+        self.ticket_details = ticket_details
+
+    def to_data(self):
+        return {
+            "status": self.status,
+            "agent": self.agent.to_data() if self.agent else None,
+            "ticket_details": self.ticket_details.to_data() if self.ticket_details else None
+        }
