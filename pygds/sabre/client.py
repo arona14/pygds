@@ -2,6 +2,7 @@
 # This file is for Sabre reservation classes and functions
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
+import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
@@ -12,7 +13,8 @@ from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.core.helpers import get_data_from_xml
 from pygds.core.security_utils import generate_random_message_id
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
-import json
+from pygds.core.request import LowFareSearchRequest
+from pygds.sabre.sabre_type import GdsResponse
 
 
 class SabreClient(BaseClient):
@@ -160,24 +162,21 @@ class SabreClient(BaseClient):
         """
         return self.xml_builder.cancel_segment_rq(token_session, list_segment)
 
-    def search_flightrq(self, message_id, bfm_builder):
+    def search_flight(self, message_id, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
         This function is for searching flight
         :return : available flight for the specific request_search
         """
-        request_data = json.dumps(bfm_builder, sort_keys=False, indent=4)
-        _, sequence, token = self.get_or_create_session_details(message_id)
-        if not token:
+        _, _, session_info = self.get_or_create_session_details(message_id)
+        search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
+        if not session_info:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
-            token = self.session_token()
-            self.add_session(SessionInfo(token, sequence, message_id, token, False))
+            session_info = self.session_token()
         else:
-            if not message_id:
-                message_id = generate_random_message_id()
-            token = self.session_token()
-            self.add_session(SessionInfo(token, sequence, message_id, token, False))
+            session_info = self.session_token()
             self.log.info("Waao you already have a token!")
-        return self._rest_request_wrapper(request_data, "/v4.1.0/shop/flights?mode=live", token.security_token)
+        search_response = self._rest_request_wrapper(json.dumps(search_flight_request), "/v4.1.0/shop/flights?mode=live", session_info.security_token)
+        return GdsResponse(session_info, search_response.content, None)
 
     def session_token(self):
         """

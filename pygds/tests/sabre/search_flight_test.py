@@ -45,7 +45,3 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(session, " the result of open session is None")
         self.assertIsInstance(session, SessionInfo)
         self.assertIn("Shared", session.security_token)
-
-
-if __name__ == "__main__":
-    unittest.main()

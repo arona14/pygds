@@ -8,7 +8,7 @@ class SabreJSONBuilder:
     def __init__(self, target):
         self.target = target
 
-    def search_flight(self, search_request: LowFareSearchRequest, available_flights_only: bool = True, types: str = "PUB"):
+    def search_flight_builder(self, search_request: LowFareSearchRequest, available_flights_only: bool = True, types: str = "PUB"):
         search_request = BFMBuilder(search_request)
         return {
             "OTA_AirLowFareSearchRQ": {

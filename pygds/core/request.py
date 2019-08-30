@@ -103,15 +103,25 @@ class LowFareSearchRequest(BasicDataObject):
         self.itineraries: List[RequestedSegment] = itineraries
         self.csv = csv
         self.pcc = pcc
-        self.adult = travelingNumber.adults
-        self.child = travelingNumber.children
-        self.infant = travelingNumber.infants
+        self.travelingNumber = travelingNumber
         self.alternatePcc = alternatePcc
         self.requestType = requestType
         self.preferredAirlines = preferredAirlines
         self.baggagePref = baggagePref
         self.excludeBasicEconomy = excludeBasicEconomy
         self.maxConnection = maxConnection
+
+    @property
+    def adult(self):
+        return self.travelingNumber.adults
+
+    @property
+    def child(self):
+        return self.travelingNumber.children
+
+    @property
+    def infant(self):
+        return self.travelingNumber.infants
 
     def to_data(self):
         return SimpleNamespace(**{
