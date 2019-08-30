@@ -31,7 +31,3 @@ class ClientCan(unittest.TestCase):
         session = self.client.session_token()
         self.assertIsNotNone(session, "The result of open session token is None")
     """
-
-
-if __name__ == "__main__":
-    unittest.main()

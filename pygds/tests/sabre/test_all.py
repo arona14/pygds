@@ -5,6 +5,7 @@ import os
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
+# from pygds.core.request import TravellerNumbering, LowFareSearchRequest, RequestedSegment
 
 
 def test():
@@ -21,8 +22,11 @@ def test():
     password = decode_base64(get_setting("SABRE_PASSWORD"))
     url = "https://webservices3.sabre.com"
 
-    client = SabreClient(url, "", username, password, pcc, False)
+    rest_url = "https://api.havail.sabre.com"
 
+    client = SabreClient(url, rest_url, username, password, pcc, False)
+    return client
+    """
     segment_select = [1, 2, 3, 4]
     passenger_type = [
         {
@@ -62,7 +66,4 @@ def test():
     message_id = session_info.message_id
     price = client.search_price_quote(message_id, retain=False, fare_type='Net', segment_select=segment_select, passenger_type=passenger_type)
     print(price)
-
-
-if __name__ == "__main__":
-    test()
+    """

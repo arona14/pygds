@@ -1,8 +1,8 @@
 from unittest import TestCase
 import unittest
 from pygds.amadeus.client import AmadeusClient
-from pygds.core.app_error import ApplicationError
-from pygds.core.price import Fare, TstInformation
+# from pygds.core.app_error import ApplicationError
+# from pygds.core.price import Fare, TstInformation
 from pygds.env_settings import get_setting
 from pygds.errors.gdserrors import NoSessionError
 
@@ -15,7 +15,7 @@ class ClientCan(TestCase):
         office_id = get_setting("AMADEUS_OFFICE_ID")
         wsap = get_setting("AMADEUS_WSAP")
         self.client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
-
+    """
     def test_send_command(self):
         seq, m_id = (None, None)
         pnr = "Q68EFX"
@@ -66,6 +66,7 @@ class ClientCan(TestCase):
         self.assertIsNotNone(app_error)
         self.assertIsInstance(app_error, ApplicationError)
         self.assertEqual(app_error.error_code, "3024")
+    """
 
     def test_end_session(self):
         res_command = self.client.send_command("HELP")
@@ -81,7 +82,7 @@ class ClientCan(TestCase):
 
     def test_end_session_not_exists(self):
         self.assertRaises(NoSessionError, self.client.end_session, "fake-message-id")
-
+    """
     def test_create_tst(self):
         m_id = None
         pnr = "Q68EFX"
@@ -110,6 +111,7 @@ class ClientCan(TestCase):
             res_tst = res_tst.payload
             self.assertIsNotNone(res_tst)
             self.assertIsInstance(res_tst, TstInformation)
+    """
 
 
 if __name__ == "__main__":
