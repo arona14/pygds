@@ -56,10 +56,4 @@ class ClientCan(unittest.TestCase):
         self.assertIsInstance(my_request_net["OTA_AirLowFareSearchRQ"]["TravelerInfoSummary"], dict)
         self.assertIsInstance(my_request_net["OTA_AirLowFareSearchRQ"]["TPA_Extensions"], dict)
         # self.assertEqual(self.search_net, my_request_net)
-
-        result = self.client.search_flight("modou", my_request, True, "PUB")
-        print(result)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        # result = self.client.search_flight("modou", my_request, True, "PUB")
