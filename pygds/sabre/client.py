@@ -176,7 +176,7 @@ class SabreClient(BaseClient):
             session_info = self.session_token()
             self.log.info("Waao you already have a token!")
         search_response = self._rest_request_wrapper(json.dumps(search_flight_request), "/v4.1.0/shop/flights?mode=live", session_info.security_token)
-        return GdsResponse(session_info, search_response.content, None)
+        return search_response.content
 
     def session_token(self):
         """
