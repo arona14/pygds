@@ -47,7 +47,8 @@ class BaseClient:
         if session is None:
             return None, None, None
         else:
-            return session.session_id, session.sequence_number + 1, session.security_token
+            seq = session.sequence_number if session.sequence_number else 0
+            return session.session_id, seq + 1, session.security_token
 
     def add_session(self, session_info: SessionInfo) -> bool:
         """
