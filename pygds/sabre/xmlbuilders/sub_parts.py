@@ -1,4 +1,5 @@
 from decimal import Decimal
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe
 
 
 def get_segment_number(segment_select):
@@ -13,10 +14,10 @@ def get_segment_number(segment_select):
 
 def get_fare_type(fare_type):
     if fare_type == "Pub":
-        fare_type_value = "<Account>"
-        fare_type_value = fare_type_value + "<Code>COM</Code>"
-        fare_type_value = fare_type_value + "</Account>"
-        return fare_type_value
+        return
+        "<Account>"
+        "<Code>COM</Code>"
+        "</Account>"
     return None
 
 
@@ -97,7 +98,7 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
     TWOPLACES = Decimal(10) ** -2
     hemisphere_code = _get_hemisphere_code(region_name)
     commission = ""
-    if passenger_type_data['commissionPercentage'] is not None and passenger_type_data['commissionPercentage'] != "0" and (passenger_type_data['tourCode'] is None or passenger_type_data['tourCode'] == ""):
+    if from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') == "":
         commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
         commission = commission + "<MiscQualifiers><Commission Percent='" + str(commission_percentage) + "'/>"
         if pcc == "3GAH":
@@ -105,7 +106,7 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
             commission = commission + "<JourneyCode> 2 </JourneyCode>"
         commission = commission + "</MiscQualifiers>"
 
-    elif passenger_type_data['commissionPercentage'] is not None and passenger_type_data['commissionPercentage'] != 0 and passenger_type_data['tourCode'] is not None and passenger_type_data['tourCode'] != "":
+    elif from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') != "":
         commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
         commission = commission + "<MiscQualifiers><Commission Percent='" + str(commission_percentage) + "'/>"
         if pcc == "3GAH":
@@ -118,7 +119,7 @@ def __store_commission_with_net(passenger_type_data, region_name, pcc):
     TWOPLACES = Decimal(10) ** -2
     commission = ""
     hemisphere_code = _get_hemisphere_code(region_name)
-    if passenger_type_data['markup'] is not None and passenger_type_data['markup'] != "0" and pcc != "37AF":
+    if from_json_safe(passenger_type_data, 'markup') != "0" and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
         commission = commission + "<MiscQualifiers><Commission Amount='" + str(commission_amount) + "'/>"
         if pcc == "3GAH":
@@ -140,20 +141,18 @@ def store_commission(fare_type, passenger_type_data, region_name, pcc):
 
 
 def store_tour_code(passenger_type_data):
-    tour_code = ""
-    if passenger_type_data['tourCode'] is not None and passenger_type_data['tourCode'] != "":
-        tour_code = tour_code + "<TourCode>"
-        tour_code = tour_code + "<SuppressIT Ind='true'/>"
-        tour_code = tour_code + "<Text>" + passenger_type_data['tourCode'] + "</Text>"
-        tour_code = tour_code + "</TourCode>"
-    tour_code = tour_code + "</MiscQualifiers>"
-    return tour_code
+    if from_json_safe(passenger_type_data, 'tourCode') != "":
+        return f"""<TourCode>
+        "<SuppressIT Ind='true'/>
+        <Text>{passenger_type_data['tourCode']}</Text>
+        </TourCode>
+    </MiscQualifiers>"""
 
 
 def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     ticket_designator = ""
     segment_number = ""
-    if passenger_type_data['ticketDesignator'] is not None and passenger_type_data['ticketDesignator'] != "":
+    if from_json_safe(passenger_type_data, 'ticketDesignator') != "":
         ticket_designator = ticket_designator + """<CommandPricing RPH="1">"""
         ticket_designator = ticket_designator + "<Discount Percent='0' AuthCode='" + passenger_type_data['ticketDesignator'] + "'/>"
         ticket_designator = ticket_designator + "</CommandPricing>"
@@ -198,7 +197,7 @@ def store_name_select(passenger_type_data):
 def store_plus_up(passenger_type_data, pcc):
     TWOPLACES = Decimal(10) ** -2
     plus_up = ""
-    if passenger_type_data['markup'] is not None and passenger_type_data['markup'] > 0 and pcc != "37AF":
+    if from_json_safe(passenger_type_data, 'markup') > 0 and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
         plus_up = plus_up + "<PlusUp Amount='" + str(commission_amount) + "'></PlusUp>"
     return plus_up
