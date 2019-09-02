@@ -138,7 +138,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body",
                            "Fare_MasterPricerTravelBoardSearchReply")
-        recommendations = from_json(payload, "recommendation")
+        recommendations = from_json_safe(payload, "recommendation")
         recommendations = ensure_list(recommendations)
         recs = []
         currency = from_json(payload, "conversionRate", "conversionRateDetail", "currency")
@@ -200,35 +200,35 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")
+        pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation")
         pnr_data = {"pnr_number": pnr}
-        travellers_info = from_json(payload, "travellerInfo")
+        travellers_info = from_json_safe(payload, "travellerInfo")
         passengers = []
         travellers_info = ensure_list(travellers_info)
         for idx, pax in enumerate(travellers_info):
-            info = from_json(pax, "passengerData", "travellerInformation")
-            surname = from_json(info, "traveller", "surname")
-            name = from_json(info, "passenger", "firstName")
-            passenge_type = from_json(info, "passenger", "type")
+            info = from_json_safe(pax, "passengerData", "travellerInformation")
+            surname = from_json_safe(info, "traveller", "surname")
+            name = from_json_safe(info, "passenger", "firstName")
+            passenge_type = from_json_safe(info, "passenger", "type")
             date_of_birth = ""
             passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
         pnr_data["passengers"] = passengers
 
-        itineraries_info = from_json(payload, "originDestinationDetails", "itineraryInfo")
+        itineraries_info = from_json_safe(payload, "originDestinationDetails", "itineraryInfo")
         itineraries_info = ensure_list(itineraries_info)
         segments = []
         for idx, seg in enumerate(itineraries_info):
-            travel_details = from_json(seg, "travelProduct")
-            from_city = from_json(travel_details, "boardpointDetail", "cityCode")
-            to_city = from_json(travel_details, "offpointDetail", "cityCode")
-            company = from_json(travel_details, "companyDetail", "identification")
-            product = from_json(travel_details, "product")
-            dep_date = from_json(product, "depDate")
-            dep_time = from_json(product, "depTime")
-            arr_date = from_json(product, "arrDate")
-            arr_time = from_json(product, "arrTime")
+            travel_details = from_json_safe(seg, "travelProduct")
+            from_city = from_json_safe(travel_details, "boardpointDetail", "cityCode")
+            to_city = from_json_safe(travel_details, "offpointDetail", "cityCode")
+            company = from_json_safe(travel_details, "companyDetail", "identification")
+            product = from_json_safe(travel_details, "product")
+            dep_date = from_json_safe(product, "depDate")
+            dep_time = from_json_safe(product, "depTime")
+            arr_date = from_json_safe(product, "arrDate")
+            arr_time = from_json_safe(product, "arrTime")
 
-            fligth_number = from_json(travel_details, "productDetails", "identification")
+            fligth_number = from_json_safe(travel_details, "productDetails", "identification")
             segments.append({"from_city": from_city, "to_city": to_city, "company": company, "dep_date": dep_date,
                              "dep_time": dep_time, "arr_date": arr_date, "arr_time": arr_time,
                              "fligth_number": fligth_number})

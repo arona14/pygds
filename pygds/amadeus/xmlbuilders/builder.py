@@ -297,9 +297,33 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_check_rules(self):
+    def fare_check_rules(self, message_id, session_id, sequence_number,
+                         security_token, line_number):
+        header = self.generate_header("FARQNQ_07_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
-        """
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {header}
+            <soapenv:Body>
+                    <Fare_CheckRules>
+                        <msgType>
+                            <messageFunctionDetails>
+                            <messageFunction>712</messageFunction>
+                            </messageFunctionDetails>
+                        </msgType>
+                        <itemNumber>
+                            <itemNumberDetails>
+                            <number>{line_number}</number>
+                            </itemNumberDetails>
+                        </itemNumber>
+                    </Fare_CheckRules>
+            </soapenv:Body>
+        </soapenv:Envelope>"""
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
                                           price_request: PriceRequest):
@@ -344,6 +368,27 @@ class AmadeusXMLBuilder:
             </soapenv:Body>
         </soapenv:Envelope>
         """
+
+    def create_pnr(self, message_id, session_id, sequence_number, security_token):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        return f"""
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>
+                    <soapenv:Body>
+                        <PNR_AddMultiElements>
+                            <pnrActions>
+                                <optionCode>10</optionCode>
+                                <optionCode>30</optionCode>
+                            </pnrActions>
+                        </PNR_AddMultiElements>
+                    </soapenv:Body>
+                </soapenv:Envelope>
+                """
 
     def sell_from_recomendation(self, itineraries):
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)

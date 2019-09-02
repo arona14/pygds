@@ -166,16 +166,26 @@ class AmadeusClient(BaseClient):
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
-    def fare_check_rules(self):
+    def fare_check_rules(self, message_id, line_number):
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number,
+                                                         security_token, line_number)
+        response_data = self.__request_wrapper("check fare rules", request_data,
+                                               'http://webservices.amadeus.com/FARQNQ_07_1_1A')
+        print(response_data)
         return None
 
     def sell_from_recommandation(self, itineraries):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
                                                'http://webservices.amadeus.com/ITAREQ_05_2_IA')
-        return SessionExtractor(response_data).extract()
+        final_response = SessionExtractor(response_data).extract()
+        self.add_session(final_response.session_info)
+        return final_response
 
-    def fare_price_pnr_with_booking_class(self, office_id, message_id, session_id, sequence_number, security_token, pax_infos, price_request: PriceRequest = None):
+    def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest = None):
         """
         Price a PNR with a booking class.
         The PNR is supposed to be supplied in the session on a previous call.
@@ -183,11 +193,12 @@ class AmadeusClient(BaseClient):
         :param price_request:
         :return:
         """
-        # session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
-        # if security_token is None:
-        #     raise NoSessionError(message_id)
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number,
                                                                           security_token, price_request)
+        print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         # print(response_data)
@@ -210,6 +221,22 @@ class AmadeusClient(BaseClient):
         self.add_session(final_response.session_info)
         return final_response
 
+    def create_pnr(self, message_id):
+        """
+            create the PNR
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.create_pnr(message_id, session_id, sequence_number,
+                                                   security_token)
+        response_data = self.__request_wrapper("add_passenger_info", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        print(response_data)
+        return AddMultiElementExtractor(response_data).extract()
+        # return GetPnrResponseExtractor(response_data).extract()
+        # return None
+
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         """
         Send a command to Amadeus API
@@ -229,13 +256,17 @@ class AmadeusClient(BaseClient):
         self.add_session(res.session_info)
         return res
 
-    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
+    def add_passenger_info(self, office_id, message_id, infos):
         """
             add passenger info and create the PNR
         """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
                                                            security_token, infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         # print(response_data)
-        return AddMultiElementExtractor(response_data).extract()
+        # return AddMultiElementExtractor(response_data).extract()
+        return GetPnrResponseExtractor(response_data).extract()

@@ -10,7 +10,7 @@ from pygds.core.price import PriceRequest, Fare
 from pygds.core.types import SellItinerary
 from pygds.env_settings import get_setting
 from pygds import log_handler
-# from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
+from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
 def test():
@@ -31,7 +31,7 @@ def test():
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
-        #res_reservation = client.get_reservation(pnr, None, False)
+        # TravellerNumbering res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # log.info(session_info)
         # log.info(res_reservation)
@@ -92,7 +92,7 @@ def test():
         origin, destination, date_dep, date_arr = ("LON", "TYO", "050819", "100819")
         log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
         search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
-        # log.debug(search_results)
+        log.debug(search_results)
         segments = search_results[0]["itineraries"]
         # log.debug(f"segment length: {len(segments)}")
         itineraries = []
