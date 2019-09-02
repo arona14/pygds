@@ -2,6 +2,7 @@
 from pygds.core.request import LowFareSearchRequest
 from .create_pnr import CreatePnrRequest
 from pygds.sabre.jsonbuilders.create_pnr_builder import CreatePnrBuilder
+import json
 
 
 class SabreBFMBuilder:
@@ -366,4 +367,4 @@ class SabreJSONBuilder:
     def create_pnr_builder(self, create_pnr_request: CreatePnrRequest):
 
         create_builder = CreatePnrBuilder(create_pnr_request)
-        return create_builder.to_dict()
+        return json.dumps(create_builder.to_dict(), sort_keys=False, indent=4)

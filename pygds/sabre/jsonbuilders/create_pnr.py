@@ -42,9 +42,9 @@ class FlightSegment:
         }
 
 
-class Passengers:
+class PassengerFare:
     """
-        Passengers class
+        Passenger fare  class
     """
     def __init__(self):
         self.name_number: str
@@ -57,15 +57,11 @@ class Passengers:
         self.percent: str
         self.ticket_designator: str
         self.tour_code: str
-        self.base_fare: float
         self.total_fare: float
         self.service_fee: float
-        self.charge_amount: float
         self.phone: str
         self.email: str
         self.address: str
-        self.nationality: str
-        self.title: str
         self.middle_name: str
         self.deals: Deals()
 
@@ -81,15 +77,11 @@ class Passengers:
             "Percent": self.percent,
             "TicketDesignator": self.ticket_designator,
             "TourCode": self.tour_code,
-            "BaseFare": self.base_fare,
             "TotalFare": self.total_fare,
             "ServiceFee": self.service_fee,
-            "ChargeAmount": self.charge_amount,
             "Phone": self.phone,
             "Email": self.email,
             "Address": self.address,
-            "Nationality": self.nationality,
-            "Title": self.title,
             "MiddleName": self.middle_name,
             "deals": self.deals.to_dict()
         }
@@ -120,7 +112,7 @@ class CreatePnrRequest:
         the class who build the create pnr resquest
     """
 
-    def __init__(self, flight_segments: List[FlightSegment], passengers: List[Passengers], remarks: list, target_city: str, fare_type: str, customer_identifier: str, destination: str, bags: str, refund, refund_before, refund_after, exchange, exchange_after, exchange_before, airline, user, last_ticket_date, commission):
+    def __init__(self, flight_segments: List[FlightSegment], passengers: List[PassengerFare], remarks: list, target_city: str, fare_type: str, customer_identifier: str, user, last_ticket_date, commission):
 
         self.flight_segments = flight_segments
         self.passengers = passengers
@@ -128,15 +120,6 @@ class CreatePnrRequest:
         self.target_city = target_city
         self.fare_type = fare_type
         self.customer_identifier = customer_identifier
-        self.destination = destination
-        self.bags = bags
-        self.refund = refund
-        self.refund_before = refund_before
-        self.refund_after = refund_after
-        self.exchange = exchange
-        self.exchange_before = exchange_before
-        self.exchange_after = exchange_after
-        self.airline = airline
         self.user = user
         self.last_ticket_date = last_ticket_date
         self.commission = commission
@@ -149,15 +132,6 @@ class CreatePnrRequest:
             "TargetCity": self.target_city,
             "FareType": self.fare_type,
             "CustomerIdentifier": self.customer_identifier,
-            "Destination": self.destination,
-            "Bags": self.bags,
-            "Refund": self.refund,
-            "RefundAfter": self.refund_after,
-            "RefundBefore": self.refund_before,
-            "Exchange": self.exchange,
-            "ExchangeAfter": self.exchange_after,
-            "ExchangeBefore": self.exchange_before,
-            "Airline": self.airline,
             "LastTicketDate": self.last_ticket_date,
             "Commission": self.commission
         }

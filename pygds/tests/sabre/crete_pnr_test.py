@@ -4,9 +4,10 @@ import unittest
 from pygds.sabre.client import SabreClient
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
-from pygds.sabre.jsonbuilders.create_pnr import Passengers, FlightSegment, CreatePnrRequest, Deals
+from pygds.sabre.jsonbuilders.create_pnr import PassengerFare, FlightSegment, CreatePnrRequest, Deals
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.helpers import get_data_from_json as from_json
+from pygds.core.price import CreatePnrInfo
 
 
 class ClientCan(unittest.TestCase):
@@ -30,7 +31,7 @@ class ClientCan(unittest.TestCase):
     def test_create_pnr_request_json(self):
         pax_list = []
         for pax in self.create_pnr_request_json['Passengers']:
-            passenger = Passengers()
+            passenger = PassengerFare()
             passenger.name_number = pax['NameNumber']
             passenger.given_name = pax['GivenName']
             passenger.surname = pax['Surname']
@@ -41,15 +42,11 @@ class ClientCan(unittest.TestCase):
             passenger.percent = pax['Percent']
             passenger.ticket_designator = pax['TicketDesignator']
             passenger.tour_code = pax['TourCode']
-            passenger.base_fare = pax['BaseFare']
             passenger.total_fare = pax['TotalFare']
             passenger.service_fee = pax['ServiceFee']
-            passenger.charge_amount = pax['ChargeAmount']
             passenger.phone = pax['Phone']
             passenger.email = pax['Email']
             passenger.address = pax['Address']
-            passenger.nationality = pax['Nationality']
-            passenger.title = pax['Title']
             passenger.middle_name = pax['MiddleName']
             deals = Deals()
             deals.cts_reward = pax['deals']['cts_reward']
@@ -73,7 +70,7 @@ class ClientCan(unittest.TestCase):
             segment.operating_airline = flight_segment['OperatingAirline']
             segment.origin_location = flight_segment['OriginLocation']
             segments.append(segment)
-        create_pnr_object = CreatePnrRequest(segments, pax_list, self.create_pnr_request_json['Remarks'], self.create_pnr_request_json['TargetCity'], self.create_pnr_request_json['FareType'], self.create_pnr_request_json['CustomerIdentifier'], self.create_pnr_request_json['Destination'], self.create_pnr_request_json['Bags'], self.create_pnr_request_json['Refund'], self.create_pnr_request_json['RefundBefore'], self.create_pnr_request_json['RefundAfter'], self.create_pnr_request_json['Exchange'], self.create_pnr_request_json['ExchangeAfter'], self.create_pnr_request_json['ExchangeBefore'], self.create_pnr_request_json['Airline'], 'mbaye@ctsfares.com', self.create_pnr_request_json['LastTicketDate'], self.create_pnr_request_json['Commission'])
+        create_pnr_object = CreatePnrRequest(segments, pax_list, self.create_pnr_request_json['Remarks'], self.create_pnr_request_json['TargetCity'], self.create_pnr_request_json['FareType'], self.create_pnr_request_json['CustomerIdentifier'], 'mbaye@ctsfares.com', self.create_pnr_request_json['LastTicketDate'], self.create_pnr_request_json['Commission'])
         # print(create_pnr_object.to_dict())
         # create_pnr_builder = CreatePnrBuilder(create_pnr_object)
         # print(create_pnr_builder.to_dict())
@@ -81,11 +78,12 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(response)
         self.assertIsInstance(response, GdsResponse)
         self.assertIsNotNone(response.payload, GdsResponse)
-        self.assertEqual(from_json(response.payload, 'Status'), 'Complete')
-        self.assertIsInstance(from_json(response.payload, 'ItineraryRef'), dict)
-        self.assertIsInstance(from_json(response.payload, 'AirBook'), dict)
-        self.assertIsInstance(from_json(response.payload, 'AirPrice'), list)
-        self.assertIsInstance(from_json(response.payload, 'TravelItineraryRead'), dict)
+        self.assertIsInstance(response.payload, CreatePnrInfo)
+        self.assertEqual(from_json(response.payload.to_dict(), 'Status'), 'Complete')
+        self.assertIsInstance(from_json(response.payload.to_dict(), 'ItineraryRef'), dict)
+        self.assertIsInstance(from_json(response.payload.to_dict(), 'AirBook'), dict)
+        self.assertIsInstance(from_json(response.payload.to_dict(), 'AirPrice'), list)
+        self.assertIsInstance(from_json(response.payload.to_dict(), 'TravelItineraryRead'), dict)
 
 
 if __name__ == "__main__":

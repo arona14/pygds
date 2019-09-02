@@ -8,11 +8,12 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, CreatePnrExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder, SabreJSONBuilder
 from pygds.core.helpers import get_data_from_xml
+from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
 
 
 class SabreClient(BaseClient):
@@ -299,15 +300,8 @@ class SabreClient(BaseClient):
             token = self.session_token()
             session_info = SessionInfo(token, None, None, message_id, False)
             self.add_session(session_info)
-        else:
-            if not message_id:
-                message_id = generate_random_message_id()
-            token = self.session_token()
-            session_info = SessionInfo(token, None, None, message_id, False)
-            self.add_session(session_info)
-            self.log.info("You already have a token!")
-        response = self._rest_request_wrapper(json.dumps(request_data, sort_keys=False, indent=4), "/v2.1.0/passenger/records?mode=create", token)
-        response = json.loads((response.content).decode('utf8').replace("'", '"'))
-        gds_response = CreatePnrExtractor(response).extract()
+
+        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
+        gds_response = CreatePnrExtractor(response.content).extract()
         gds_response.session_info = session_info
         return gds_response

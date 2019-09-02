@@ -164,7 +164,7 @@ class CreatePnrBuilder:
             },
             {
                 "Type": 'Invoice',
-                "Text": "S*UD25 N" if self.create_pnr_request.fare_type == 'NET' else "S*UD25 P"
+                "Text": f"S*UD25 {'N' if self.create_pnr_request.fare_type == 'NET' else 'P'}"
             }
         ]
         if self.create_pnr_request.passengers[0].phone:
