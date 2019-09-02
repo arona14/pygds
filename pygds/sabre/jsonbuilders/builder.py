@@ -1,5 +1,7 @@
 
 from pygds.core.request import LowFareSearchRequest
+from .create_pnr import CreatePnrRequest
+from pygds.sabre.jsonbuilders.create_pnr_builder import CreatePnrBuilder
 
 
 class SabreBFMBuilder:
@@ -354,3 +356,14 @@ class SabreBFMBuilder:
                 "AvailableFlightsOnly": True
             }
         }
+
+
+class SabreJSONBuilder:
+    """This class can generate JSON needed for sabre search flight requests."""
+    def __init__(self, target):
+        self.target = target
+
+    def create_pnr_builder(self, create_pnr_request: CreatePnrRequest):
+
+        create_builder = CreatePnrBuilder(create_pnr_request)
+        return create_builder.to_dict()

@@ -8,10 +8,10 @@ from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, CreatePnrExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
-from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
+from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder, SabreJSONBuilder
 from pygds.core.helpers import get_data_from_xml
 
 
@@ -23,6 +23,7 @@ class SabreClient(BaseClient):
     def __init__(self, endpoint: str, rest_url, username: str, password: str, pcc: str, debug: bool = False):
         super().__init__(endpoint, username, password, pcc, debug)
         self.xml_builder = SabreXMLBuilder(endpoint, username, password, pcc)
+        self.json_builder = SabreJSONBuilder("Production")
         self.rest_url = rest_url
         self.header_template = {'content-type': 'text/xml; charset=utf-8'}
         self.rest_header = {
@@ -278,5 +279,35 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def create_pnr_rq(self, message_id, create_pnr_request):
+        """
+        the create pnr request builder
+        Arguments:
+            message_id : the messgae id
+            create_pnr_request {[CreatPnrRequest]} -- [the pnr request]
+
+        Returns:
+            [GdsResponse] -- [create pnr response ]
+        """
+        request_data = self.json_builder.create_pnr_builder(create_pnr_request)
+        _, _, token = self.get_or_create_session_details(message_id)
+        if not token:
+            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
+            token = self.session_token()
+            session_info = SessionInfo(token, None, None, message_id, False)
+            self.add_session(session_info)
+        else:
+            if not message_id:
+                message_id = generate_random_message_id()
+            token = self.session_token()
+            session_info = SessionInfo(token, None, None, message_id, False)
+            self.add_session(session_info)
+            self.log.info("You already have a token!")
+        response = self._rest_request_wrapper(json.dumps(request_data, sort_keys=False, indent=4), "/v2.1.0/passenger/records?mode=create", token)
+        response = json.loads((response.content).decode('utf8').replace("'", '"'))
+        gds_response = CreatePnrExtractor(response).extract()
         gds_response.session_info = session_info
         return gds_response
