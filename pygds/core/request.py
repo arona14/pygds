@@ -1,5 +1,4 @@
 from typing import List
-from types import SimpleNamespace
 from pygds.core.types import TravellerNumbering, BasicDataObject
 
 

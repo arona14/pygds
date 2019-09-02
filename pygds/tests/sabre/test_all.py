@@ -2,12 +2,10 @@
     This is for testing purposes like a suite.
 """
 import os
-import json
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
 from pygds.core.request import RequestedSegment, LowFareSearchRequest, TravellerNumbering
-from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 
 
 def test():
@@ -24,14 +22,6 @@ def test():
     rest_url = "https://api.havail.sabre.com"
     soap_url = "https://webservices3.sabre.com"
     client = SabreClient(soap_url, rest_url, username, password, pcc, False)
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    json_path_pub = os.path.join(base_path, "resources/sfjb/request_builder_pub.json")
-    json_path_net = os.path.join(base_path, "resources/sfjb/request_builder_net.json")
-
-    with open(json_path_pub) as j:
-        search_pub = json.load(j)
-    with open(json_path_net) as j:
-        search_net = json.load(j)
 
     segment1 = RequestedSegment("DTW", "NYC", "2019-09-10").to_data()
     segment2 = RequestedSegment("NYC", "DTW", "2019-09-21").to_data()

@@ -3,7 +3,7 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
 import requests
@@ -14,7 +14,6 @@ from pygds.core.helpers import get_data_from_xml
 from pygds.core.security_utils import generate_random_message_id
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
-from pygds.sabre.sabre_type import GdsResponse
 
 
 class SabreClient(BaseClient):
@@ -278,5 +277,24 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def seat_map(self, message_id, flight_request):
+        """[This function will return the result for the seat map request]
+
+        Arguments:
+            message_id {[str]} -- [the message id for the communication]
+            flight_request {[object]} -- [this will handler the flight request]
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        print(token_session)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        seat_map_request = self.xml_builder.seap_map_rq(token_session, flight_request)
+        search_price_response = self._soap_request_wrapper(seat_map_request)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = SeatMapResponseExtractor(search_price_response).extract()
         gds_response.session_info = session_info
         return gds_response
