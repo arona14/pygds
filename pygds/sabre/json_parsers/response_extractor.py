@@ -4,7 +4,7 @@ from pygds.core.sessions import SessionInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe
-from pygds.core.price import CreatePnrInfo
+from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
 
 
 class BaseResponseRestExtractor(object):
@@ -84,7 +84,7 @@ class CreatePnrExtractor(BaseResponseRestExtractor):
         payload = from_json(self.json_content, "CreatePassengerNameRecordRS")
 
         status = from_json(payload, "ApplicationResults", "status")
-        itinerary_ref = from_json(payload, "ItineraryRef")
+        itinerary_ref = from_json(payload, "ItineraryRef", "ID")
         air_book = from_json(payload, "AirBook")
         air_price = from_json(payload, "AirPrice")
         travel_itinerary_read = from_json(payload, "TravelItineraryRead")

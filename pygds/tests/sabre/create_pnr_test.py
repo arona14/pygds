@@ -7,7 +7,7 @@ from pygds.core.security_utils import decode_base64
 from pygds.sabre.jsonbuilders.create_pnr import PassengerFare, FlightSegment, CreatePnrRequest, Deals
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.helpers import get_data_from_json as from_json
-from pygds.core.price import CreatePnrInfo
+from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
 
 
 class ClientCan(unittest.TestCase):
@@ -80,7 +80,7 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(response.payload, GdsResponse)
         self.assertIsInstance(response.payload, CreatePnrInfo)
         self.assertEqual(from_json(response.payload.to_dict(), 'Status'), 'Complete')
-        self.assertIsInstance(from_json(response.payload.to_dict(), 'ItineraryRef'), dict)
+        self.assertIsInstance(from_json(response.payload.to_dict(), 'RecordLocator'), str)
         self.assertIsInstance(from_json(response.payload.to_dict(), 'AirBook'), dict)
         self.assertIsInstance(from_json(response.payload.to_dict(), 'AirPrice'), list)
         self.assertIsInstance(from_json(response.payload.to_dict(), 'TravelItineraryRead'), dict)
