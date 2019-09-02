@@ -524,7 +524,8 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
     """
 
     def __init__(self, xml_content):
-        super().__init__(xml_content, True, True, "Docseat_SEATMAPReply")
+        super().__init__(xml_content, True, True, "EnhancedSeatMapRS")
+        self.parsed = True
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body")

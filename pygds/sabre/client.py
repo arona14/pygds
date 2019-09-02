@@ -295,6 +295,6 @@ class SabreClient(BaseClient):
         search_price_response = self._soap_request_wrapper(seat_map_request)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
-        gds_response = SeatMapResponseExtractor(search_price_response).extract()
+        gds_response = SeatMapResponseExtractor(search_price_response.content).extract()
         gds_response.session_info = session_info
         return gds_response

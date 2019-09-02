@@ -14,10 +14,11 @@ class SeatMapTest(unittest.TestCase):
         rest_url = "https://api.havail.sabre.com"
         soap_url = "https://webservices3.sabre.com"
         client = SabreClient(soap_url, rest_url, username, password, pcc, False)
-        seat_map_xml = client.xml_builder.seap_map_rq("My token", "yes I am here")
-        seatmap = client.seat_map("message_id", seat_map_xml)
-        print(seatmap)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        session_info = client.open_session()
+        seat_map_xml = client.xml_builder.seap_map_rq(session_info.security_token, "Put your flight info here")
+        self.assertIsNotNone(seat_map_xml)
+        self.assertIn("soapenv:Envelope", seat_map_xml)
+        self.assertIn("<tag0:RequestType>Payload</tag0:RequestType>", seat_map_xml)
+        self.assertIn("<eb:Service>EnhancedSeatMapRQ</eb:Service>", seat_map_xml)
+        self.assertIn("<eb:Action>EnhancedSeatMapRQ</eb:Action>", seat_map_xml)
+        self.assertIn("Put your flight info here", seat_map_xml)
