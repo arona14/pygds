@@ -8,7 +8,9 @@ from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
+    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
+    ExchangePriceExtractor, ExchangeCommitExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
 import requests
@@ -279,6 +281,84 @@ class SabreClient(BaseClient):
         self.add_session(session_info)
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
         gds_response.session_info = session_info
+        return gds_response
+
+    def is_ticket_exchangeable(self, message_id, ticket_number):
+        """
+        A method to check if the ticket number is exchangeable
+        :param message_id: the message id
+        :param ticket_number: the ticket number
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        electronic_document_request = self.xml_builder.electronic_document_rq(token_session, ticket_number)
+        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def exchange_shopping(self, message_id, pnr, passengers: list = [], origin_destination: list = []):
+        """
+        A method to search for applicable itinerary reissue options for an existing ticket
+        :param message_id: the message id
+        :param passengers: passengers informations
+        :param origin_destination: itineraries informations
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token_session, pnr, passengers, origin_destination)
+        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = ExchangeShoppingExtractor(exchange_shopping_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def exchange_price(self, message_id, ticket_number, name_number, passenger_type):
+        """
+        A method to price an air ticket exchange
+        :param message_id: the message id
+        :param ticket_number: the ticket number
+        :param name_number: the passenger name number
+        :param passenger_type: the passenger type
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token_session, ticket_number, name_number, passenger_type)
+        exchange_price_response = self.__request_wrapper("exchange_price", exchange_price_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = ExchangePriceExtractor(exchange_price_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def exchange_commit(self, message_id, price_quote, form_of_payment, fare_type, percent, amount):
+        """
+        A method to price an air ticket exchange
+        :param message_id: the message id
+        :param price_quote: the pq number
+        :param form_of_payment: the type of payment
+        :param fare_type: the fare type
+        :param percent: the value of commission
+        :param amount: the value of amount
+        :return:
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token_session, price_quote, form_of_payment, fare_type, percent, amount)
+        exchange_commit_response = self.__request_wrapper("exchange_commit", exchange_commit_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
         return gds_response
 
     def create_pnr_rq(self, message_id, create_pnr_request):
