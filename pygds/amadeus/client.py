@@ -90,7 +90,6 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
-        # print(data)
         response = GetPnrResponseExtractor(data).extract()
         self.add_session(response.session_info)
         return response
@@ -197,10 +196,8 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number,
                                                                           security_token, price_request)
-        print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        # print(response_data)
         final_response = PricePNRExtractor(response_data).extract()
         self.add_session(final_response.session_info)
         return final_response
@@ -231,10 +228,7 @@ class AmadeusClient(BaseClient):
                                                    security_token)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        # print(response_data)
-        # return AddMultiElementExtractor(response_data).extract()
         return GetPnrResponseExtractor(response_data).extract()
-        # return None
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         """
@@ -266,6 +260,4 @@ class AmadeusClient(BaseClient):
                                                            security_token, infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        # print(response_data)
-        # return AddMultiElementExtractor(response_data).extract()
         return GetPnrResponseExtractor(response_data).extract()
