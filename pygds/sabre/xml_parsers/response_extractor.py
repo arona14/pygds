@@ -590,7 +590,7 @@ class ExchangeAppErrorExtractor(ExchangeBaseResponseExtractor):
         return ApplicationError(None, None, None, description)
 
 
-class ElectronicDocumentExtractor(ExchangeBaseResponseExtractor):
+class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
 
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="GetElectronicDocumentRS")
@@ -599,15 +599,15 @@ class ElectronicDocumentExtractor(ExchangeBaseResponseExtractor):
     def _extract(self):
 
         payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body")
-        electronic_document_rs = from_json(payload, "GetElectronicDocumentRS")
-        electronic_document_rs = str(electronic_document_rs).replace("@", "")
-        electronic_document_rs = eval(electronic_document_rs.replace("u'", "'"))
+        ticket_exchangeable_rs = from_json(payload, "GetElectronicDocumentRS")
+        ticket_exchangeable_rs = str(ticket_exchangeable_rs).replace("@", "")
+        ticket_exchangeable_rs = eval(ticket_exchangeable_rs.replace("u'", "'"))
 
         return {
-            'electronic_document': self.electronic_document(electronic_document_rs)
+            'is_ticket_exchangeable': self.is_ticket_exchangeable(ticket_exchangeable_rs)
         }
 
-    def electronic_document(self, data):
+    def is_ticket_exchangeable(self, data):
 
         status = from_json(data, "STL:STL_Header.RS", "STL:Results")
         agent_data = from_json(data, "Agent")

@@ -406,7 +406,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def exchange_shopping_rq(self, token, passengers_info, origin_destination_info):
+    def exchange_shopping_rq(self, token, pnr, passengers_info, origin_destination_info):
         """
             Return the xml request to search for available flights
             for a ticket number to be exchanged
@@ -422,7 +422,7 @@ class SabreXMLBuilder:
                         </STL_Header.RQ>
                         <TicketingProvider>1S</TicketingProvider>
                         <PassengerInformation>
-                            {get_passengers_exchange(passengers_info)}
+                            {get_passengers_exchange(pnr, passengers_info)}
                         </PassengerInformation>
                             {get_segments_exchange(origin_destination_info)}
                     </ExchangeShoppingRQ>
@@ -461,6 +461,14 @@ class SabreXMLBuilder:
         """
         header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
 
+        if percent is not None and percent > 0:
+            commission = get_commission_exchange(fare_type, percent)
+
+        elif amount is not None and amount > 0:
+            commission = get_commission_exchange(fare_type, amount)
+        else:
+            commission = ""
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
@@ -469,9 +477,9 @@ class SabreXMLBuilder:
                         <ExchangeConfirmation PQR_Number="{price_quote}">
                             <OptionalQualifiers>
                                 <FOP_Qualifiers>
-                                    {get_form_of_payment(form_of_payment)}
+                                    {get_form_of_payment(payment_type = form_of_payment["payment_type"], code_card = form_of_payment["code_card"], expire_date = form_of_payment["expire_date"], cc_number = form_of_payment["cc_number"])}
                                 </FOP_Qualifiers>
-                                {get_commission_exchange(fare_type, percent, amount)}
+                                {commission}
                             </OptionalQualifiers>
                         </ExchangeConfirmation>
                     </AutomatedExchangesRQ>

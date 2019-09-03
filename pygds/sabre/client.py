@@ -9,7 +9,7 @@ from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
-    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, ElectronicDocumentExtractor, ExchangeShoppingExtractor, ExchangePriceExtractor, ExchangeCommitExtractor
+    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, ExchangePriceExtractor, ExchangeCommitExtractor
 from pygds.core.security_utils import generate_random_message_id
 from pygds.errors.gdserrors import NoSessionError
 from pygds.sabre.jsonbuilders.builder import SabreBFMBuilder
@@ -282,7 +282,7 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def electronic_document(self, message_id, ticket_number):
+    def is_ticket_exchangeable(self, message_id, ticket_number):
         """
         A method to check if the ticket number is exchangeable
         :param message_id: the message id
@@ -293,14 +293,14 @@ class SabreClient(BaseClient):
         if token_session is None:
             raise NoSessionError(message_id)
         electronic_document_request = self.xml_builder.electronic_document_rq(token_session, ticket_number)
-        electronic_document_response = self.__request_wrapper("electronic_document", electronic_document_request, self.endpoint)
+        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
-        gds_response = ElectronicDocumentExtractor(electronic_document_response).extract()
+        gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
         gds_response.session_info = session_info
         return gds_response
 
-    def exchange_shopping(self, message_id, passengers: list = [], origin_destination: list = []):
+    def exchange_shopping(self, message_id, pnr, passengers: list = [], origin_destination: list = []):
         """
         A method to search for applicable itinerary reissue options for an existing ticket
         :param message_id: the message id
@@ -311,7 +311,7 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token_session, passengers, origin_destination)
+        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token_session, pnr, passengers, origin_destination)
         exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
