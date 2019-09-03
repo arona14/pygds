@@ -49,7 +49,3 @@ def test():
     my_request = LowFareSearchRequest(segments, "Y", "WR17", travel_number, [], "50ITINS", [], False, True, 2)
     result = client.search_flight(message_id, my_request, True, "PUB")
     print(result)
-
-
-if __name__ == "__main__":
-    test()

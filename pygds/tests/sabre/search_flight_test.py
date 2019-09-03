@@ -33,7 +33,7 @@ class ClientCan(unittest.TestCase):
         self.assertEqual('NYC', s["destination"])
 
     def test_session_token(self):
-        session = self.client.session_token()
+        session = self.client.new_rest_token()
         self.assertIsNotNone(session, "The result of open session token is None")
         self.assertIsNotNone(session.security_token, "You don't got a token")
         self.assertIsInstance(session.session_ended, bool)
@@ -41,7 +41,7 @@ class ClientCan(unittest.TestCase):
         self.assertIsInstance(session, SessionInfo)
 
     def test_open_session(self):
-        session = self.client.open_session()
+        session = self.client.new_rest_token()
         self.assertIsNotNone(session, " the result of open session is None")
         self.assertIsInstance(session, SessionInfo)
         self.assertIn("Shared", session.security_token)

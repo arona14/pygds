@@ -534,9 +534,12 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         if seat_map:
             for m in seat_map:
                 change_of_gauge = m["changeOfGaugeInd"]
+                equipement = m["Equipment"]
                 flight = m["Flight"]
-                seat = SeatMap(change_of_gauge, flight)
+                cabin = m["Cabin"]
+
+                seat = SeatMap(change_of_gauge, equipement, flight, cabin)
                 seats.append(seat)
         else:
-            change_of_gauge, flight = (None, None)
+            change_of_gauge, equipement, flight, cabin = (None, None, None, None)
         return seats

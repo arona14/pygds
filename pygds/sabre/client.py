@@ -170,14 +170,14 @@ class SabreClient(BaseClient):
         search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
         if not session_info:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
-            session_info = self.session_token()
+            session_info = self.new_rest_token()
         else:
-            session_info = self.session_token()
+            session_info = self.new_rest_token()
             self.log.info("Waao you already have a token!")
         search_response = self._rest_request_wrapper(json.dumps(search_flight_request), "/v4.1.0/shop/flights?mode=live", session_info.security_token)
         return search_response.content
 
-    def session_token(self):
+    def new_rest_token(self):
         """
         This will open a new session
         :return: a Session token
