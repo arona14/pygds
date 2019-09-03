@@ -18,12 +18,6 @@ class PriceRequest(PriceInfoBasic):
     A class to hold information about request of price PNR with booking class
     """
     def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB"):
-        """
-        This will create a price request
-        :param passengers: list of passenger references
-        :param segments: list of segment reference
-        :param fare_type: The requested fare type. Must be PUB, NET or COM
-        """
         self.passengers = passengers
         self.segments = segments
         self.fare_type = fare_type
@@ -40,6 +34,7 @@ class FareAmount(PriceInfoBasic):
     """
         A class to hold information about an amount and its related currency
     """
+
     def __init__(self, qualifier: str = None, amount: float = 0.0, currency: str = None):
         self.qualifier: str = qualifier         # An internal qualifier
         self.amount: float = amount             # The amount
@@ -57,6 +52,7 @@ class TaxInformation(PriceInfoBasic):
     """
         A class to represent tax information
     """
+
     def __init__(self):
         self.tax_qualifier: str = None       # The internal qualifier of the tax
         self.tax_identifier: str = None      # The identifier of the tax
@@ -78,6 +74,7 @@ class WarningInformation(PriceInfoBasic):
     """
         A class to specify a warning on a price proposal
     """
+
     def __init__(self):
         self.error_code: str            # The application error code
         self.qualifier: str             # The application code qualifier
@@ -109,6 +106,7 @@ class FareComponent(PriceInfoBasic):
     """
         A class to describe a component of a fare. The components explain the fare
     """
+
     def __init__(self):
         self.item_number: int                   # The number of the component
         self.item_type: str                     # The type of the component
@@ -142,6 +140,7 @@ class ValidityInformation(PriceInfoBasic):
     """
     This will gather information about the validity of a price
     """
+
     def __init__(self):
         self.business_semantic: str     # an internal codification with semantic
         self.date: date                 # The date of validity
@@ -185,6 +184,7 @@ class Fare(PriceInfoBasic):
     """
     A class to describe a price proposal
     """
+
     def __init__(self):
         self.fare_reference: str = None                        # the reference of the fare. To use on TST
         self.origin: str = None                                # The origin
@@ -218,6 +218,7 @@ class TstInformation(PriceInfoBasic):
     """
     This class will store information about A created TST
     """
+
     def __init__(self, pnr, tst_ref: str, pax_refs: List[str]):
         """
         Init
@@ -241,6 +242,7 @@ class SearchPriceInfos(PriceInfoBasic):
     """
         This class we will get the Info of Search price
     """
+
     def __init__(self):
         self.status: str = None  # the status of result
         self.air_itinerary_pricing_info: AirItineraryPricingInfo  # the aount of air itinenary pricing
