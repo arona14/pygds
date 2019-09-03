@@ -6,7 +6,7 @@ from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
-    CommandReplyExtractor, PricePNRExtractor, AddMultiElementExtractor, CreateTstResponseExtractor, \
+    CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
@@ -174,8 +174,7 @@ class AmadeusClient(BaseClient):
                                                          security_token, line_number)
         response_data = self.__request_wrapper("check fare rules", request_data,
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
-        print(response_data)
-        return None
+        return response_data
 
     def sell_from_recommandation(self, itineraries):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
@@ -232,9 +231,9 @@ class AmadeusClient(BaseClient):
                                                    security_token)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        print(response_data)
-        return AddMultiElementExtractor(response_data).extract()
-        # return GetPnrResponseExtractor(response_data).extract()
+        # print(response_data)
+        # return AddMultiElementExtractor(response_data).extract()
+        return GetPnrResponseExtractor(response_data).extract()
         # return None
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):

@@ -4,7 +4,7 @@ from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
-from pygds.core.payment import FormOfPayment, CreditCard
+from pygds.core.payment import CreditCard
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -62,8 +62,7 @@ class AmadeusXMLBuilder:
         </oas:Security>
         <AMA_SecurityHostedUser xmlns="http://xml.amadeus.com/2010/06/Security_v1">
             <UserID AgentDutyCode="SU" RequestorType="U" PseudoCityCode="{office_id}" POS_Type="1"/>
-        </AMA_SecurityHostedUser>{'' if close_trx else 
-        '<ses:Session xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" TransactionStatusCode="Start" />'}
+        </AMA_SecurityHostedUser>{'' if close_trx else '<ses:Session xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" TransactionStatusCode="Start" />'}
        """
 
     def continue_transaction_chunk(self, session_id, sequence_number, security_token, close_trx: bool = False):

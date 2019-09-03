@@ -110,6 +110,23 @@ class ClientCan(TestCase):
             self.assertIsNotNone(res_tst)
             self.assertIsInstance(res_tst, TstInformation)"""
 
+    def test_create_pnr(self):
+        search_results = self.client.send_command("AN11OCTLONTYO")
+        message_id = search_results.session_info.message_id
+        self.client.send_command("SS1Y1", message_id)
+        self.client.send_command("NM1DIALLO/AMADOU", message_id)
+        self.client.send_command("AP PAX CTC DEL 91 9865621231", message_id)
+        self.client.send_command("APE AWIILLIAMS@BINGO.COM", message_id)
+        self.client.send_command("TKOK", message_id)
+        self.client.send_command("FXP/R,UP", message_id)
+        self.client.send_command("RFAGENT", message_id)
+        self.client.send_command("FP*CHEQUE", message_id)
+        response_data = self.client.create_pnr(message_id)
+        pnr = response_data.payload["pnr_header"].controle_number
+        print("é")
+        self.assertEqual(len(pnr), 6)
+        print("me")
+
 
 if __name__ == "__main__":
     unittest.main()

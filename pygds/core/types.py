@@ -31,6 +31,7 @@ class FlightPointDetails(BasicDataObject):
     """
         Information about flight point details (on departure or arrival)
     """
+
     def __init__(self, departure_date_time: str = None, airport: str = None, terminal: str = None):
         self.airport = airport
         self.departure_date_time = departure_date_time
@@ -48,6 +49,7 @@ class FlightAirlineDetails(BasicDataObject):
     """
         Holds informations about airline
     """
+
     def __init__(self, airline_code: str = None, flight_number: str = None, airline_short_name: str = None, class_of_service: str = None):
         self.airline_code = airline_code
         self.flight_number = flight_number
@@ -81,6 +83,7 @@ class FlightMarriageGrp(BasicDataObject):
     """
     Holds information of MariageGroup
     """
+
     def __init__(self, ind: str = None, group: str = None, sequence: str = None):
         self.ind = ind
         self.group = group
@@ -98,6 +101,7 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
+
     def __init__(self, sequence: int = 1, res_book_desig_code: str = None, departure_date_time: str = None, departure_airport: FlightPointDetails = None, arrival_date_time: str = None, arrival_airpot: FlightPointDetails = None, airline: str = None, marketing: FlightAirlineDetails = None, operating: FlightAirlineDetails = None, disclosure_carrier: FlightDisclosureCarrier = None, mariage_group: FlightMarriageGrp = None, seats: str = None, action_code: str = None, segment_special_requests: str = None, schedule_change_indicator: str = None, segment_booked_date: str = None, air_miles_flown: str = None, funnel_flight: str = None, change_of_gauge: str = None, flight_number: str = None, class_of_service: str = None, elapsed_time: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None):
         self.sequence = sequence
         self.res_book_desig_code = res_book_desig_code
@@ -161,6 +165,7 @@ class Itinerary(BasicDataObject):
     """
         Holds information about an itinerary
     """
+
     def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
 
         self.segments: List[FlightSegment] = []
@@ -215,6 +220,7 @@ class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
     """
+
     def __init__(self, name_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, sur_name: str = None, fore_name: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None):
         self.name_id = name_id
         self.first_name = first_name
@@ -288,6 +294,7 @@ class FlightPriceQuote(BasicDataObject):
     Arguments:
         BasicDataObject {[type]} -- [description]
     """
+
     def __init__(self, latest_pq_flag: str = None, number: str = None, pricing_type: str = None, status: str = None, type_pq: str = None, itinerary_type: str = None, validating_carrier: str = None, local_create_date_time: str = None):
         self.latest_pq_flag = latest_pq_flag
         self.number = number
@@ -317,6 +324,7 @@ class FlightAmounts(BasicDataObject):
     Arguments:
         BasicDataObject {[type]} -- [description]
     """
+
     def __init__(self, currency_code: str = None, decimal_place: str = None, text: str = None):
         self.currency_code = currency_code
         self.decimal_place = decimal_place
@@ -335,6 +343,7 @@ class FlightPassenger_pq(BasicDataObject):
     Arguments:
         BasicDataObject {[type]} -- [description]
     """
+
     def __init__(self, passenger_type_count: str = None, requested_type: str = None, type_passenger: str = None):
         self.passenger_type_count = passenger_type_count
         self.requested_type = requested_type
@@ -352,6 +361,7 @@ class FlightSummary(BasicDataObject):
     """
     Holds informations Nameassociation for passengers
     """
+
     def __init__(self, first_name: str = None, last_name: str = None, name_id: str = None, name_number: str = None, pq: FlightPriceQuote = None, passenger: FlightPassenger_pq = None, amounts: FlightAmounts = None):
         self.first_name = first_name
         self.last_name = last_name
@@ -377,6 +387,7 @@ class PriceQuote(BasicDataObject):
     """
         This is to represent a price quote object
     """
+
     def __init__(self, summary: FlightSummary = None):
         self.summary = summary
 
@@ -417,6 +428,7 @@ class PriceQuote_(BasicDataObject):
     """
         This is to represent a price quote object
     """
+
     def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, passengers=None):
         self.price_quote_number = pq_number
         self.status = status
@@ -482,6 +494,7 @@ class TicketingInfo_(BasicDataObject):
     """
         Represents a ticketing information
     """
+
     def __init__(self, ticket_number: str = None, transaction_indicator: str = None, passenger: str = None, pcc: str = None, date_time: str = None):
         self.ticket_number = ticket_number
         self.transaction_indicator = transaction_indicator
@@ -503,7 +516,9 @@ class PnrInfo(BasicDataObject):
     """
     This class keep all informations of pnr
     """
-    def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None, creation_date: str = None):
+
+    def __init__(self, dk_number: str = None, agent_signature: str = None, creation_office_id: str = None,
+                 creation_date: str = None, controle_number: str = None, company_id: str = None):
         self.dk_number = dk_number
         self.agent_signature = agent_signature
         self.creation_office_id = creation_office_id
@@ -514,7 +529,28 @@ class PnrInfo(BasicDataObject):
             "dk_number": self.dk_number,
             "agent_signature": self.agent_signature,
             "creation_office_id": self.creation_office_id,
-            "creation_date": self.creation_date
+            "creation_date": self.creation_date,
+        }
+
+
+class PnrHeader(BasicDataObject):
+    """
+    This class keep all informations of pnr
+    """
+
+    def __init__(self, controle_number: str = None, company_id: str = None, creation_date: str = None,
+                 creation_time: str = None):
+        self.controle_number = controle_number
+        self.company_id = company_id
+        self.creation_date = creation_date
+        self.creation_time = creation_time
+
+    def to_data(self):
+        return {
+            "controle_number": self.controle_number,
+            "company_id": self.company_id,
+            "creation_date": self.creation_date,
+            "creation_time": self.creation_time
         }
 
 
@@ -522,6 +558,7 @@ class Remarks(BasicDataObject):
     """
      feep informations about remarks
     """
+
     def __init__(self, sequence: int = 1, type_remark: str = None, element_id: str = None, text: str = None):
         self.sequence = sequence
         self.type_remark = type_remark
@@ -630,6 +667,7 @@ class TravellerNumbering(BasicDataObject):
     """
         This class is for holding information about the numbering of traveller.
     """
+
     def to_data(self):
         return {"adults": self.adults, "children": self.children, "infants": self.infants}
 
@@ -639,10 +677,12 @@ class TravellerNumbering(BasicDataObject):
         self.infants = infants
 
     """ Gives the total number of traveller"""
+
     def total_travellers(self):
         return self.adults + self.children + self.infants
 
     """ Gives the total number of seats to occupy"""
+
     def total_seats(self):
         return self.adults + self.children
 
@@ -668,6 +708,7 @@ class SendCommand(BasicDataObject):
     """
         This is to represent a send command object
     """
+
     def __init__(self, response: str = None):
         self.response = response
 
@@ -680,6 +721,7 @@ class SendCommand(BasicDataObject):
 class EndTransaction():
     """This class is for holding information about end transaction
     """
+
     def __init__(self, status: str = None, id_ref: str = None, create_date_time: str = None, text_message: str = None):
         self.status = status
         self.id_ref = id_ref
@@ -693,6 +735,7 @@ class EndTransaction():
 class QueuePlace():
     """This class is for holding information about queue place
     """
+
     def __init__(self, status: str = None, type_response: str = None, text_message: str = None):
         self.status = status
         self.type_response = type_response
@@ -705,6 +748,7 @@ class QueuePlace():
 class IgnoreTransaction():
     """This class is for holding information about ignore transaction
     """
+
     def __init__(self, status: str = None, create_date_time: str = None):
         self.status = status
         self.create_date_time = create_date_time
