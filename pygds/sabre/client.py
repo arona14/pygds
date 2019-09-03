@@ -2,6 +2,11 @@
 # This file is for Sabre reservation classes and functions
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
+from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
+from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
+from pygds.core.request import LowFareSearchRequest
+from pygds.core.security_utils import generate_random_message_id
+from pygds.core.helpers import get_data_from_xml
 import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor
 from pygds.errors.gdserrors import NoSessionError
@@ -10,10 +15,6 @@ import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.core.helpers import get_data_from_xml
-from pygds.core.security_utils import generate_random_message_id
-from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
-from pygds.core.request import LowFareSearchRequest
 
 
 class SabreClient(BaseClient):
@@ -277,6 +278,29 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def create_pnr_rq(self, message_id, create_pnr_request):
+        """
+        the create pnr request builder
+        Arguments:
+            message_id : the messgae id
+            create_pnr_request {[CreatPnrRequest]} -- [the pnr request]
+
+        Returns:
+            [GdsResponse] -- [create pnr response ]
+        """
+        request_data = self.json_builder.create_pnr_builder(create_pnr_request)
+        _, _, token = self.get_or_create_session_details(message_id)
+        if not token:
+            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
+            token = self.new_rest_token()
+            session_info = SessionInfo(token, None, None, message_id, False)
+            self.add_session(session_info)
+
+        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token.security_token)
+        gds_response = CreatePnrExtractor(response.content).extract()
         gds_response.session_info = session_info
         return gds_response
 

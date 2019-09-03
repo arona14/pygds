@@ -1,0 +1,105 @@
+{
+    "FlightSegment": [
+      {
+        "ArrivalDateTime": "2019-09-19T11:55:00",
+        "DepartureDateTime": "2019-09-18T19:05:00",
+        "FlightNumber": "2",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "U",
+        "Status": "NN",
+        "DestinationLocation": "IST",
+        "MarketingAirline": "TK",
+        "MarriageGrp": "O",
+        "OperatingAirline": "TK",
+        "OriginLocation": "JFK"
+      },
+      {
+        "ArrivalDateTime": "2019-09-19T15:35:00",
+        "DepartureDateTime": "2019-09-19T15:35:00",
+        "FlightNumber": "1825",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "U",
+        "Status": "NN",
+        "DestinationLocation": "CDG",
+        "MarketingAirline": "TK",
+        "MarriageGrp": "I",
+        "OperatingAirline": "TK",
+        "OriginLocation": "IST"
+      },
+      {
+        "ArrivalDateTime": "2019-10-11T15:50:00",
+        "DepartureDateTime": "2019-10-11T11:20:00",
+        "FlightNumber": "1822",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "U",
+        "Status": "NN",
+        "DestinationLocation": "IST",
+        "MarketingAirline": "TK",
+        "MarriageGrp": "O",
+        "OperatingAirline": "TK",
+        "OriginLocation": "CDG"
+      },
+      {
+        "ArrivalDateTime": "2019-10-11T22:30:00",
+        "DepartureDateTime": "2019-10-11T18:35:00",
+        "FlightNumber": "11",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "U",
+        "Status": "NN",
+        "DestinationLocation": "JFK",
+        "MarketingAirline": "TK",
+        "MarriageGrp": "I",
+        "OperatingAirline": "TK",
+        "OriginLocation": "IST"
+      }
+    ],
+    "Passengers": [
+      {
+        "NameNumber": 1,
+        "GivenName": "Damiel",
+        "Surname": "Ndiaye",
+        "DateOfBirth": "1990-06-03",
+        "Gender": "Male",
+        "PassengerType": "ADT",
+        "Amount": 0,
+        "Percent": 7,
+        "TicketDesignator": null,
+        "TourCode": null,
+        "BaseFare": 175.0,
+        "TotalFare": 632.93,
+        "ServiceFee": 20,
+        "ChargeAmount": 0,
+        "Phone": null,
+        "Email": "virginie@ctsfares.com",
+        "Address": null,
+        "Nationality":"SN",
+        "Title":"MR",
+        "MiddleName":"",
+        "deals": {
+          "cts_reward": 2,
+          "cts_markup": 3,
+          "agency_markup": 3,
+          "agency_discount": 4
+        },
+        "month": "11",
+        "day": "12",
+        "year": "1994"
+      }
+      
+    ],
+    "Remarks": [],
+    "TargetCity": "WR17",
+    "FareType": "COM",
+    "CustomerIdentifier": "D586445858",
+    "Destination": "CDG",
+    "Bags": 0,
+    "Refund": false,
+    "RefundAfter":0,
+    "RefundBefore":300.0,
+    "Exchange": true,
+    "ExchangeAfter":300.0,
+    "ExchangeBefore":300.0,
+    "Airline": "TK",
+    "LastTicketDate": "2019-09-03",
+    "Commission": 7
+  }

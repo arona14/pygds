@@ -53,9 +53,9 @@ class BaseResponseExtractor(object):
         :return: GdsResponse
         """
         self.parse()
-        if self.parse_app_error and self.app_error is None:
-            self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
-        return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
+        # if self.parse_app_error and self.app_error is None:
+        #    self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
+        return GdsResponse(None, self._extract(), None)
 
     def _extract(self):
         """
