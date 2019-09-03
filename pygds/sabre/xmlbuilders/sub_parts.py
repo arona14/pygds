@@ -14,10 +14,9 @@ def get_segment_number(segment_select):
 
 def get_fare_type(fare_type):
     if fare_type == "Pub":
-        return
-        "<Account>"
-        "<Code>COM</Code>"
-        "</Account>"
+        return """<Account>
+        <Code>COM</Code>
+        </Account>"""
     return None
 
 
