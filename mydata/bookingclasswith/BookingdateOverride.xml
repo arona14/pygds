@@ -1,0 +1,13 @@
+<pricingOptionGroup>
+    <pricingOptionKey>
+        <pricingOptionKey>DO</pricingOptionKey>
+    </pricingOptionKey>
+    <dateInformation>
+        <businessSemantic>DO</businessSemantic>
+        <dateTime>
+            <year>2013</year>
+            <month>6</month>
+            <day>27</day>
+        </dateTime>
+    </dateInformation>
+</pricingOptionGroup>

@@ -1,0 +1,8 @@
+The function Fare_PricePNRWithBookingClass is used to price itineraries.
+========================================================================
+It can return one or several fare recommendations for the passenger(s) and for the itinerary of the active PNR.
+Only booking classes present in the flight segment of the PNR are considered.
+========================================================================
+After calling the Fare_PricePNRWithBookingClass function, the system keeps the recommendations stored
+internally for three minutes in a dedicated context. This context can be used to create a Transitional Stored
+Ticket (TST) by using Ticket_CreateTSTFromPricing.

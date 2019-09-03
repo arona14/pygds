@@ -1,0 +1,10 @@
+<pricingOptionGroup>
+    <pricingOptionKey>
+        <pricingOptionKey>RC</pricingOptionKey>
+    </pricingOptionKey>
+    <optionDetail>
+        <criteriaDetails>
+            <attributeType>012345</attributeType>
+        </criteriaDetails>
+    </optionDetail>
+</pricingOptionGroup>

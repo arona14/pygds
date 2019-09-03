@@ -1,0 +1,12 @@
+<pricingOptionGroup>
+    <pricingOptionKey>
+        <pricingOptionKey>AC</pricingOptionKey>
+    </pricingOptionKey>
+    <taxInformation>
+        <taxQualifier>7</taxQualifier>
+        <taxType>
+            <isoCountry>FR</isoCountry>
+        </taxType>
+        <taxData> </taxData>
+    </taxInformation>
+</pricingOptionGroup>

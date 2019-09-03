@@ -1,0 +1,15 @@
+<Fare_PricePNRWithBookingClass>
+    <overrideInformation>
+        <attributeDetails>
+            <attributeType>RP</attributeType>
+        </attributeDetails>
+        <attributeDetails>
+            <attributeType>RU</attributeType>
+        </attributeDetails>
+    </overrideInformation>
+    <validatingCarrier>
+        <carrierInformation>
+            <carrierCode>SU</carrierCode>
+        </carrierInformation>
+    </validatingCarrier>
+</Fare_PricePNRWithBookingClass>

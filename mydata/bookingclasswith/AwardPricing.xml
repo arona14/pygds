@@ -1,0 +1,28 @@
+<pricingOptionGroup>
+    <pricingOptionKey>
+        <pricingOptionKey>AWD</pricingOptionKey>
+    </pricingOptionKey>
+    <carrierInformation>
+        <companyIdentification>
+            <otherCompany>6X</otherCompany>
+        </companyIdentification>
+    </carrierInformation>
+    <frequentFlyerInformation>
+        <frequentTravellerDetails>
+            <tierLevel>GOLD</tierLevel>
+        </frequentTravellerDetails>
+    </frequentFlyerInformation>
+</pricingOptionGroup>
+<pricingOptionGroup>
+    <pricingOptionKey>
+        <pricingOptionKey>RW</pricingOptionKey>
+    </pricingOptionKey>
+    <optionDetail>
+        <criteriaDetails>
+            <attributeType>012345</attributeType>
+        </criteriaDetails>
+        <criteriaDetails>
+            <attributeType>456789</attributeType>
+        </criteriaDetails>
+    </optionDetail>
+</pricingOptionGroup>
