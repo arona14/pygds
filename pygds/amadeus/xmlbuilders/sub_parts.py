@@ -67,6 +67,18 @@ def mptbs_currency_conversion(currency: str):
     """
 
 
+def mptbs_pricing_types_com(types: str = None, identify: str = ""):
+    # type_com = "\n".join([f"<corporate><corporateId>{c_qualifier}{identity}</corporateId></corporate>" for c_qualifier in types and identity in identify])
+    return f"""
+    <corporate>
+        <corporateId>
+            <corporateQualifier>{types}</corporateQualifier>
+            <identity>{identify}</identity>
+        </corporateId>
+        </corporate>
+    """
+
+
 def mptbs_pricing_types(types: List[str]):
     price_types = "\n".join([f"<priceType>{p_type}</priceType>" for p_type in types])
     return f"""

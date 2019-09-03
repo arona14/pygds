@@ -214,6 +214,8 @@ class AmadeusXMLBuilder:
             </travelFlightInfo>
             """
         pricing_options = ["ET", "RP", "RU", "TAC"]
+        type_com = "RW"
+        identify = "COM"
         if currency_conversion:
             pricing_options.append("CUC")
         return f"""
@@ -241,6 +243,7 @@ class AmadeusXMLBuilder:
                         <pricingTickInfo>
                             {sub_parts.mptbs_pricing_types(pricing_options)}
                         </pricingTickInfo>
+                        {sub_parts.mptbs_pricing_types_com(type_com, identify)}
                         {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
                     {stop_option}
