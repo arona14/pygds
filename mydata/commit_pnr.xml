@@ -1,0 +1,41 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" 
+    xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" 
+    xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" 
+    xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" 
+    xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" 
+    xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+        <add:MessageID>WbsConsu-cAg9zULANwg0PVS6SNcRCfgACRRf9ut-Xekn8hbpX</add:MessageID>
+        <add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
+        <add:To>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</add:To>
+        <awsse:Session TransactionStatusCode="InSeries" 
+            xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3">
+            <awsse:SessionId>01K7YT82RA</awsse:SessionId>
+            <awsse:SequenceNumber>5</awsse:SequenceNumber>
+            <awsse:SecurityToken>DX92FPVBLZ5I101ZZ7WV6HAC8</awsse:SecurityToken>
+        </awsse:Session>
+    </soapenv:Header>
+    <soapenv:Body>
+        <PNR_AddMultiElements>
+            <pnrActions>
+                <optionCode>10</optionCode>
+            </pnrActions>
+            <dataElementsMaster>
+                <marker1/>
+                <dataElementsIndiv>
+                    <elementManagementData>
+                        <segmentName>RF</segmentName>
+                    </elementManagementData>
+                    <freetextData>
+                        <freetextDetail>
+                            <subjectQualifier>3</subjectQualifier>
+                            <type>P22</type>
+                        </freetextDetail>
+                        <longFreetext>DTW1S210B</longFreetext>
+                    </freetextData>
+                </dataElementsIndiv>
+            </dataElementsMaster>
+        </PNR_AddMultiElements>
+    </soapenv:Body>
+</soapenv:Envelope>
