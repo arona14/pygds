@@ -242,8 +242,8 @@
                         }
                     },
                     "BrandedFareIndicators": {
-                        "SingleBrandedFare": false,
-                        "MultipleBrandedFares": true
+                        "SingleBrandedFare": true,
+                        "MultipleBrandedFares": false
                     }
                 },
                 "NegotiatedFaresOnly": false

@@ -10,7 +10,7 @@ from pygds.core.ticket import TicketReply
 import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
     FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
-    Agent, ServiceCoupon, ElectronicDocument, TicketDetails
+    Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
 
 
 class BaseResponseExtractor(object):
@@ -54,9 +54,9 @@ class BaseResponseExtractor(object):
         :return: GdsResponse
         """
         self.parse()
-        if self.parse_app_error and self.app_error is None:
-            self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
-        return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
+        # if self.parse_app_error and self.app_error is None:
+        #    self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
+        return GdsResponse(None, self._extract(), None)
 
     def _extract(self):
         """
@@ -184,6 +184,7 @@ class IssueTicketExtractor(BaseResponseExtractor):
     """
         Class to extract issue ticket information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="AirTicketRS")
         self.parsed = True
@@ -213,6 +214,7 @@ class EndTransactionExtractor(BaseResponseExtractor):
     """
         Class to extract end transaction information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="EndTransactionRS")
         self.parsed = True
@@ -460,6 +462,7 @@ class SabreQueuePlaceExtractor(BaseResponseExtractor):
     """
         Class to extract Queue Place information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="QueuePlaceRS")
         self.parsed = True
@@ -487,6 +490,7 @@ class SabreIgnoreTransactionExtractor(BaseResponseExtractor):
     """
         Class to extract ignore transaction information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="IgnoreTransactionRS")
         self.parsed = True
@@ -504,6 +508,7 @@ class SendRemarkExtractor(BaseResponseExtractor):
 
     """Class to extract the send remark from XML response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="PassengerDetailsRS")
         self.parsed = True
@@ -699,3 +704,30 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         return {
             "commit_exchanges": automated_exchanges_rs
         }
+
+        
+class SeatMapResponseExtractor(BaseResponseExtractor):
+    """
+        Will extract response from seat map service
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "EnhancedSeatMapRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body")
+        seat_map = from_json_safe(payload, "EnhancedSeatMapRS", "SeatMap")
+        seats = []
+        if seat_map:
+            for m in seat_map:
+                change_of_gauge = m["changeOfGaugeInd"]
+                equipement = m["Equipment"]
+                flight = m["Flight"]
+                cabin = m["Cabin"]
+
+                seat = SeatMap(change_of_gauge, equipement, flight, cabin)
+                seats.append(seat)
+        else:
+            change_of_gauge, equipement, flight, cabin = (None, None, None, None)
+        return seats
