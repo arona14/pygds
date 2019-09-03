@@ -16,6 +16,7 @@ import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
+from pygds.sabre.xmlbuilders.update_passenger_sub_parts import PassengerUpdate
 
 
 class SabreClient(BaseClient):
@@ -324,7 +325,7 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def update_passenger(self, message_id: str, pnr: str, air_seat, passenger, ssr_code, dk):
+    def update_passenger(self, message_id: str, pnr: str, passenger_updt: PassengerUpdate):
         """
         Arguments:
             message_id {str} -- [ the message id ]
@@ -338,7 +339,7 @@ class SabreClient(BaseClient):
         print(token_session)
         if token_session is None:
             raise NoSessionError(message_id)
-        update_passenger_request = self.xml_builder.update_passenger_rq(token_session, pnr, air_seat, passenger, ssr_code, dk)
+        update_passenger_request = self.xml_builder.update_passenger_rq(token_session, pnr, passenger_updt)
         update_passenhger_response = self._soap_request_wrapper(update_passenger_request)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
