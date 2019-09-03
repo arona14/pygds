@@ -1,29 +1,5 @@
-import json
 from typing import List
-
-
-class BasicDataObject(object):
-    """
-        A basic class that contains data.
-    """
-
-    def to_data(self):
-        """
-            Method that returns a dictionary containing useful data. Must be implemented by sub-classes
-        """
-        raise NotImplementedError(" this is not yet implemented")
-
-    def to_json(self):
-        """
-            Dumps the object to json string
-        """
-        return json.dumps(self.to_data(), indent=4)
-
-    def __repr__(self):
-        """
-            method that redefined the string type
-        """
-        return self.to_json()
+from pygds.core.types import BasicDataObject
 
 
 class PriceDifference(BasicDataObject):

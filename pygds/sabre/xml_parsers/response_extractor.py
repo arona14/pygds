@@ -692,8 +692,8 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
                 list_segment.append(reservation_segment)
             origin_destination.segments = list_segment
 
-        book_itinerary = BookItinerary(origin_destination.to_data())
-        return book_itinerary.to_data()
+        book_itinerary = BookItinerary(origin_destination)
+        return book_itinerary
 
     def _fare(self, fare_data):
         valid = from_json(fare_data, "valid")
@@ -709,8 +709,8 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
         grand_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "#text")
         grand_total_difference = PriceDifference(grand_total_difference_currency_code, grand_total_difference_amount)
         total_price = TotalPriceDifference(sub_total_difference.to_data(), total_fee.to_data(), grand_total_difference.to_data())
-        to_return = Fare(valid, total_price.to_data())
-        return to_return.to_data()
+        to_return = Fare(valid, total_price)
+        return to_return
 
 
 class ExchangePriceExtractor(BaseResponseExtractor):
