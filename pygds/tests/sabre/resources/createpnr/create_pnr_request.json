@@ -1,0 +1,79 @@
+{
+    "FlightSegment": [
+      {
+        "ArrivalDateTime": "2019-09-17T12:15:00",
+        "DepartureDateTime": "2019-09-17T14:00:00",
+        "FlightNumber": "3409",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "N",
+        "Status": "NN",
+        "DestinationLocation": "EWR",
+        "MarketingAirline": "UA",
+        "MarriageGrp": "O",
+        "OperatingAirline": "UA",
+        "OriginLocation": "DTW"
+      },
+      {
+        "ArrivalDateTime": "2019-10-26T17:29:00",
+        "DepartureDateTime": "2019-10-26T15:30:00",
+        "FlightNumber": "3418",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "N",
+        "Status": "NN",
+        "DestinationLocation": "DTW",
+        "MarketingAirline": "UA",
+        "MarriageGrp": "O",
+        "OperatingAirline": "UA",
+        "OriginLocation": "EWR"
+      }
+    ],
+    "Passengers": [
+      {
+        "NameNumber": 1,
+        "GivenName": "Macky",
+        "Surname": "Diop",
+        "DateOfBirth": "1994-11-12",
+        "Gender": "Male",
+        "PassengerType": "ADT",
+        "Amount": null,
+        "Percent": 0,
+        "TicketDesignator": null,
+        "TourCode": null,
+        "BaseFare":174.88,
+        "TotalFare": 216.6,
+        "ServiceFee": 0,
+        "Markup": 0,
+        "ChargeAmount": 0,
+        "Phone": null,
+        "Email": null,
+        "Address": null,
+        "Nationality":"SN",
+        "Title":"MR",
+        "MiddleName":"",
+        "deals": {
+          "cts_reward": 0,
+          "cts_markup": 0,
+          "agency_markup": 0,
+          "agency_discount": 0
+        },
+        "month": "11",
+        "day": "12",
+        "year": "1994"
+      }
+      
+    ],
+    "Remarks": [],
+    "TargetCity": "WR17",
+    "FareType": "PUB",
+    "CustomerIdentifier": "D586445858",
+    "Destination": "EWR",
+    "Bags": 0,
+    "Refund": false,
+    "RefundAfter":0,
+    "RefundBefore":0,
+    "Exchange": true,
+    "ExchangeAfter":0,
+    "ExchangeBefore":0,
+    "Airline": "UA",
+    "LastTicketDate": "2019-09-03"
+  }

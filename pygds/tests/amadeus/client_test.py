@@ -81,7 +81,9 @@ class ClientCan(TestCase):
     def test_end_session_not_exists(self):
         self.assertRaises(NoSessionError, self.client.end_session, "fake-message-id")
 
-    """def test_create_tst(self):
+    """
+    def test_create_tst(self):
+
         m_id = None
         pnr = "Q68EFX"
         res_retrieve = self.client.get_reservation(pnr, m_id, True)
@@ -90,25 +92,25 @@ class ClientCan(TestCase):
         self.assertIsNotNone(session)
         self.assertFalse(session.session_ended)
 
-    #     res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
-    #     self.assertIsNotNone(res_price)
-    #     session = res_price.session_info
-    #     self.assertIsNotNone(session)
-    #     self.assertFalse(session.session_ended)
-    #     res_price = res_price.payload
-    #     self.assertIsInstance(res_price, list)
-    #     if len(res_price) >= 1:
-    #         my_fare: Fare = res_price[0]
-    #         self.assertIsInstance(my_fare, Fare)
+        #     res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
+        #     self.assertIsNotNone(res_price)
+        #     session = res_price.session_info
+        #     self.assertIsNotNone(session)
+        #     self.assertFalse(session.session_ended)
+        #     res_price = res_price.payload
+        #     self.assertIsInstance(res_price, list)
+        #     if len(res_price) >= 1:
+        #         my_fare: Fare = res_price[0]
+        #         self.assertIsInstance(my_fare, Fare)
 
-            res_tst = self.client.ticket_create_tst_from_price(session.message_id, my_fare.fare_reference)
-            self.assertIsNotNone(res_tst)
-            session = res_tst.session_info
-            self.assertIsNotNone(session)
-            self.assertFalse(session.session_ended)
-            res_tst = res_tst.payload
-            self.assertIsNotNone(res_tst)
-            self.assertIsInstance(res_tst, TstInformation)"""
+        res_tst = self.client.ticket_create_tst_from_price(session.message_id, my_fare.fare_reference)
+        self.assertIsNotNone(res_tst)
+        session = res_tst.session_info
+        self.assertIsNotNone(session)
+        self.assertFalse(session.session_ended)
+        res_tst = res_tst.payload
+        self.assertIsNotNone(res_tst)
+        """
 
     def test_create_pnr(self):
         search_results = self.client.send_command("AN11OCTLONTYO")

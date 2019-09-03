@@ -1,5 +1,4 @@
 from typing import List
-from types import SimpleNamespace
 from pygds.core.types import TravellerNumbering, BasicDataObject
 
 
@@ -86,11 +85,11 @@ class TravellerNumberingInfo(TravellerNumbering):
 
     def to_data(self):
 
-        return SimpleNamespace(**{
+        return {
             "adult": self.adults,
             "child": self.children,
             "infant": self.infants,
-        })
+        }
 
 
 class LowFareSearchRequest(BasicDataObject):
@@ -103,9 +102,7 @@ class LowFareSearchRequest(BasicDataObject):
         self.itineraries: List[RequestedSegment] = itineraries
         self.csv = csv
         self.pcc = pcc
-        self.adult = travelingNumber.adults
-        self.child = travelingNumber.children
-        self.infant = travelingNumber.infants
+        self.travelingNumber = travelingNumber
         self.alternatePcc = alternatePcc
         self.requestType = requestType
         self.preferredAirlines = preferredAirlines
@@ -113,17 +110,30 @@ class LowFareSearchRequest(BasicDataObject):
         self.excludeBasicEconomy = excludeBasicEconomy
         self.maxConnection = maxConnection
 
+    @property
+    def adult(self):
+        return self.travelingNumber.adults
+
+    @property
+    def child(self):
+        return self.travelingNumber.children
+
+    @property
+    def infant(self):
+        return self.travelingNumber.infants
+
     def to_data(self):
-        return SimpleNamespace(**{
+        return {
             "itineraries": [i for i in self.itineraries],
             "pcc": self.pcc,
             "adult": self.adult,
             "child": self.child,
             "infant": self.infant,
             "csv": self.csv,
-            "alternatePcc": [al for al in self.alternatePcc],
-            "requestType": self.requestType,
-            "preferredAirlines": self.preferredAirlines,
-            "baggagePref": self.baggagePref,
-            "excludeBasicEconomy": self.excludeBasicEconomy
-        })
+            "alternate_pcc": [al for al in self.alternatePcc],
+            "request_type": self.requestType,
+            "preferred_airlines": [pref for pref in self.preferredAirlines],
+            "baggage_pref": self.baggagePref,
+            "exclude_basic_economy": self.excludeBasicEconomy,
+            "max_connection": self.maxConnection
+        }
