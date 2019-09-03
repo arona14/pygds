@@ -88,3 +88,53 @@ def get_commision(baggage, pcc, region_name):
     if commission == "<MiscQualifiers></MiscQualifiers>":
         commission = ""
     return commission
+
+
+def exchange_pax(pnr, name_number, first_name, last_name, ticket_number):
+
+    return f"""<PassengerWithPNR pnrLocator="{pnr}" referenceNumber="{name_number}" firstName="{first_name}" lastName="{last_name}">
+                <DocumentNumber>{ticket_number}</DocumentNumber>
+            </PassengerWithPNR>"""
+
+
+def get_passengers_exchange(pnr, passengers):
+    return "\n".join([exchange_pax(pnr, p["name_number"], p["first_name"], p["last_name"], p["ticket_number"]) for p in passengers])
+
+
+def exchange_seg(departure_date_time, departure_airport, arrival_airport):
+
+    return f"""<OriginDestinationInformation shopIndicator="true">
+                <DateTimeSelection>
+                    <DepartureDate>{departure_date_time}</DepartureDate>
+                </DateTimeSelection>
+                <StartLocation>{departure_airport}</StartLocation>
+                <EndLocation>{arrival_airport}</EndLocation>
+            </OriginDestinationInformation>"""
+
+
+def get_segments_exchange(segments):
+    return "\n".join([exchange_seg(s["departure_date_time"], s["departure_airport"], s["arrival_airport"]) for s in segments])
+
+
+def get_form_of_payment(payment_type: str = None, code_card: str = None, expire_date: str = None, cc_number: str = None):
+
+    if payment_type == "CC":
+        return f"""<BasicFOP>
+                        <CC_Info Suppress="true">
+                            <PaymentCard Code="{code_card}" ExpireDate="{expire_date}" Number="{cc_number}"/>
+                        </CC_Info>
+                    </BasicFOP>"""
+    else:
+        return f"""<BasicFOP Type="{payment_type}"/>"""
+
+
+def get_commission_exchange(fare_type, value):
+
+    commission_value = ""
+    if fare_type == "PUB" and value is not None and value > 0:
+        commission_value = commission_value + f"""<MiscQualifiers><Commission Percent="{value}"/></MiscQualifiers>"""
+
+    elif fare_type == "NET" and value is not None and value > 0:
+        commission_value = commission_value + f"""<MiscQualifiers><Commission Amout="{value}"/></MiscQualifiers>"""
+
+    return commission_value
