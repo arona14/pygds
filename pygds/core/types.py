@@ -801,3 +801,208 @@ class ElectronicDocument(BasicDataObject):
             "agent": self.agent.to_data() if self.agent else None,
             "ticket_details": self.ticket_details.to_data() if self.ticket_details else None
         }
+
+
+class OperatingMarketing(BasicDataObject):
+    """This class is for holding information about Operating and Marketing Code
+    """
+
+    def __init__(self, carrier: str = None, code: str = None):
+        self.carrier = carrier
+        self.code = code
+
+    def to_data(self):
+        return {"carrier": self.carrier, "#text": self.code}
+
+
+class FlightInfo(BasicDataObject):
+    """This class is for holding information about the flight
+    """
+
+    def __init__(self, destination: str = None, origin: str = None, Departure_date: str = None, operating: OperatingMarketing = None, marketing: OperatingMarketing = None):
+        self.destination = destination
+        self.origin = origin
+        self.departure_date = Departure_date
+        self.operating = operating
+        self.marketing = marketing
+
+    def to_data(self):
+        return {
+            "destination": self.destination,
+            "origin": self.origin,
+            "DepartureDate": self.departure_date,
+            "Operating": self.operating.to_data() if self.operating is not None else None,
+            "Marketing": self.marketing.to_data() if self.marketing is not None else None
+        }
+
+
+class CabinClass(BasicDataObject):
+    """This class is for holding information about the cabin class
+    """
+
+    def __init__(self, class_of_service: str = None, marketing_description: str = None):
+        self.class_of_service = class_of_service
+        self.marketing_description = marketing_description
+
+    def to_data(self):
+        return {"RBD": self.class_of_service, "MarketingDescription": self.marketing_description}
+
+
+class TotalAmount(BasicDataObject):
+    """This class is for holding information about the total amount
+    """
+
+    def __init__(self, currency_code: str = None, text: str = None):
+        self.currency_code = currency_code
+        self.text = text
+
+    def to_data(self):
+        return {"currencyCode": self.currency_code, "#text": self.text}
+
+
+class Occupation(BasicDataObject):
+    """This class is for holding information about the Occupation
+    """
+
+    def __init__(self, detail: str = None):
+        self.detail = detail
+
+    def to_data(self):
+        return {"Detail": self.detail}
+
+
+class Facilities(BasicDataObject):
+    """This class is for holding information about the Facilities
+    """
+
+    def __init__(self, detail: str = None):
+        self.detail = detail
+
+    def to_data(self):
+        return {"Detail": self.detail}
+
+
+class BasePrice(BasicDataObject):
+    """This class is for holding information about the base price
+    """
+
+    def __init__(self, total_amount: TotalAmount = None):
+        self.total_amount = total_amount
+
+    def to_data(self):
+        return {"TotalAmount": self.total_amount.to_data() if self.total_amount is not None else {}}
+
+
+class Offer(BasicDataObject):
+    """This class is for holding information about the Offer
+    """
+
+    def __init__(self, entitle_ind: str = None, commercial_name: str = None, base_price: BasePrice = None):
+        self.entitle_ind = entitle_ind
+        self.commercial_name = commercial_name
+        self.base_price = base_price
+
+    def to_data(self):
+        return {
+            "entitledInd": self.entitle_ind,
+            "CommercialName": self.commercial_name,
+            "BasePrice": self.base_price.to_data() if self.base_price is not None else {}
+        }
+
+
+class SeatInfo(BasicDataObject):
+    """This class is for holding information about the flight
+    """
+
+    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_enfant_ind: str = None, number: str = None, occupation: Occupation = None, facilities: Facilities = None, offer: Offer = None):
+        self.occupied_ind = occupied_ind
+        self.inoperative_ind = inoperative_ind
+        self.premiun_ind = premiun_ind
+        self.chargeable_ind = chargeable_ind
+        self.exit_row_ind = exit_row_ind
+        self.restricted_reclined_ind = restricted_reclined_ind
+        self.no_enfant_ind = no_enfant_ind
+        self.number = number
+        self.occupation = occupation
+        self.facilities = facilities
+        self.offer = offer
+
+    def to_data(self):
+        return {
+            "occupiedInd": self.occupied_ind,
+            "inoperativeInd": self.inoperative_ind,
+            "premiumInd": self.premiun_ind,
+            "chargeableInd": self.chargeable_ind,
+            "exitRowInd": self.exit_row_ind,
+            "restrictedReclineInd": self.restricted_reclined_ind,
+            "noInfantInd": self.no_enfant_ind,
+            "Number": self.number,
+            "Occupation": self.occupation.to_data() if self.occupation is not None else None,
+            "Facilities": [self.facilities.to_data() if self.facilities is not None else None],
+            "Offer": self.offer.to_data() if self.offer is not None else None
+        }
+
+
+class RowInfo(BasicDataObject):
+    """This class is for holding information about the cabin class
+    """
+
+    def __init__(self, row_number: str = None, seat_info: SeatInfo = None):
+        self.row_number = row_number
+        self.seat_info = seat_info
+
+    def to_data(self):
+        return {"RowNumber": self.row_number, "Seat": [self.seat_info.to_data() if self.seat_info is not None else None]}
+
+
+class ColumnInfo(BasicDataObject):
+    """This class is for holding information about the cabin class
+    """
+
+    def __init__(self, column: str = None, caracteristics: str = None):
+        self.column = column
+        self.caracteristics = caracteristics
+
+    def to_data(self):
+        return {"Column": self.column, "Characteristics": self.caracteristics}
+
+
+class CabinInfo(BasicDataObject):
+    """This class is for holding information about the Cabin Info
+    """
+
+    def __init__(self, first_raw: str = None, last_raw: str = None, cabin_class: CabinClass = None, row: RowInfo = None, column: ColumnInfo = None):
+        self.first_raw = first_raw
+        self.last_raw = last_raw
+        self.cabin_class = cabin_class
+        self.row = row
+        self.column = column
+
+    def to_data(self):
+        return {
+            "firstRow": self.first_raw,
+            "lastRow": self.last_raw,
+            "CabinClass": self.cabin_class,
+            "Row": [self.row.to_data() if self.row is not None else None],
+            "Column": [self.column.to_data() if self.column is not None else None]
+        }
+
+
+class SeatMap(BasicDataObject):
+
+    """This class is for holding information about seat map
+    """
+
+    def __init__(self, change_of_gauge_ind: str = None, equipement: str = None, flights: FlightInfo = None, cabin: CabinInfo = None):
+        self.change_of_gauge_ind = change_of_gauge_ind
+        self.equipement = equipement
+        self.flights = flights
+        self.cabin = cabin
+
+    def to_data(self):
+        return {
+            "changeOfGaugeInd": self.change_of_gauge_ind,
+            "Equipement": self.equipement,
+            "Flight": self.flights if self.flights is not None else None,
+            "Cabin": self.cabin if self.cabin is not None else None
+        }

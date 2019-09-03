@@ -705,7 +705,7 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
             "commit_exchanges": automated_exchanges_rs
         }
 
-        
+
 class SeatMapResponseExtractor(BaseResponseExtractor):
     """
         Will extract response from seat map service
