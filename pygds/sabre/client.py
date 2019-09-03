@@ -8,7 +8,8 @@ from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, \
+    SeatMapResponseExtractor, UpdatePassengerExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
 import requests
@@ -320,5 +321,27 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = SeatMapResponseExtractor(search_price_response.content).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def update_passenger(self, message_id: str, pnr: str, air_seat, passenger, ssr_code, dk):
+        """
+        Arguments:
+            message_id {str} -- [ the message id ]
+            pnr {str} -- [ the pnr code ]
+            air_seat {[type]} -- [air_seat bloc (xml document)]
+            passenger {[type]} -- [passenger bloc (xml document)]
+            ssr_code {[type]} -- [ssr_code bloc (xml document)]
+            dk {[type]} -- [the customer dk bloc (xml document)]
+        """
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        print(token_session)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        update_passenger_request = self.xml_builder.update_passenger_rq(token_session, pnr, air_seat, passenger, ssr_code, dk)
+        update_passenhger_response = self._soap_request_wrapper(update_passenger_request)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = UpdatePassengerExtractor(update_passenhger_response.content).extract()
         gds_response.session_info = session_info
         return gds_response
