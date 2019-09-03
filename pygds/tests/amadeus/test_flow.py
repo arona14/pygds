@@ -5,9 +5,9 @@
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import FormOfPayment, CreditCard
-from pygds.core.price import PriceRequest, Fare
-from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
+# from pygds.core.payment import FormOfPayment, CreditCard
+# from pygds.core.price import PriceRequest, Fare
+# from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
 from pygds.env_settings import get_setting
 from pygds import log_handler
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
@@ -25,16 +25,16 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "KDN6HQ"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
+    # pnr = "KDN6HQ"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
-        res_reservation = client.get_reservation(pnr, None, False)
+        # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # log.info(session_info)
-        log.info(res_reservation)
+        # log.info(res_reservation)
         # m_id = session_info.message_id
         # seg_refs = []
         # pax_refs = []
