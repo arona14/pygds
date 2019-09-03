@@ -9,6 +9,7 @@ from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBrea
 from pygds.core.ticket import TicketReply
 import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction
+from pygds.core.rebook import RebookInfo
 
 
 class BaseResponseExtractor(object):
@@ -185,14 +186,12 @@ class RebookExtractor(BaseResponseExtractor):
         self.parsed = True
 
     def _extract(self):
+        rebook_info = RebookInfo()
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "EnhancedAirBookRS")
-        status = from_json(payload, "ApplicationResults", "@status")
-        air_book_rs = from_json(payload, "OTA_AirBookRS")
-        travel_itinerary_read_rs = from_json(payload, "TravelItineraryReadRS")
-        return {"status": status,
-                "air_book_rs": air_book_rs,
-                "travel_itinerary_read_rs": travel_itinerary_read_rs
-                }
+        rebook_info.status = from_json(payload, "ApplicationResults", "@status")
+        rebook_info.air_book_rs = from_json(payload, "OTA_AirBookRS")
+        rebook_info.travel_itinerary_read_rs = from_json(payload, "TravelItineraryReadRS")
+        return rebook_info
 
 
 class IssueTicketExtractor(BaseResponseExtractor):

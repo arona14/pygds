@@ -249,7 +249,6 @@ class SabreClient(BaseClient):
         if token_session is None:
             raise NoSessionError(message_id)
         re_book_air_segment_request = self.xml_builder.re_book_air_segment_rq(token_session, flight_segment, pnr)
-        print("re_book_air_segment_request")
         re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)

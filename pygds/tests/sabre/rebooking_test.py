@@ -3,7 +3,7 @@ from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
 from pygds.core.security_utils import decode_base64
 from pygds.amadeus.amadeus_types import GdsResponse
-from pygds.core.helpers import get_data_from_json as from_json
+from pygds.core.rebook import RebookInfo
 
 
 class RebookingTest(unittest.TestCase):
@@ -38,9 +38,10 @@ class RebookingTest(unittest.TestCase):
         rebooking = self.client.re_book_air_segment(message_id, flight_segment, pnr)
         self.assertIsNotNone(rebooking)
         self.assertIsInstance(rebooking, GdsResponse)
-        self.assertEqual(from_json(rebooking.payload, "status"), 'Complete')
-        self.assertIsInstance(from_json(rebooking.payload, "air_book_rs"), dict)
-        self.assertIsInstance(from_json(rebooking.payload, "travel_itinerary_read_rs"), dict)
+        self.assertIsInstance(rebooking.payload, RebookInfo)
+        self.assertEqual(rebooking.payload.status, 'Complete')
+        self.assertIsInstance(rebooking.payload.air_book_rs, dict)
+        self.assertIsInstance(rebooking.payload.travel_itinerary_read_rs, dict)
 
 
 if __name__ == "__main__":

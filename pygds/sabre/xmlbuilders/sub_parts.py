@@ -1,4 +1,5 @@
-from pygds.sabre.segment import Segment
+
+from pygds.core.types import FlightSegment, FlightPointDetails
 
 
 def get_segment_number(segment_select):
@@ -95,29 +96,19 @@ def get_commision(baggage, pcc, region_name):
 
 def _add_flight_segment_to_air_book(segment):
 
-    flight_segment = f"""<FlightSegment DepartureDateTime="{segment.departure_date_time}"  ArrivalDateTime="{segment.arrival_date_time}" FlightNumber="{segment.flight_number}" NumberInParty="{segment.number_in_party}" ResBookDesigCode="{segment.res_book_desig_code}" Status="{segment.status}" InstantPurchase="false">
-            <DestinationLocation LocationCode="{segment.destination}"/>
-            <MarketingAirline Code="{segment.marketing_code}" FlightNumber="{segment.flight_number}"/>
-            <OperatingAirline Code="{segment.operating_code}"/>
-            <OriginLocation LocationCode="{segment.origin}"/>
+    return f"""<FlightSegment DepartureDateTime="{segment.departure_date_time}"  ArrivalDateTime="{segment.arrival_date_time}" FlightNumber="{segment.flight_number}" NumberInParty="{segment.number_in_party}" ResBookDesigCode="{segment.res_book_desig_code}" Status="{segment.status}" InstantPurchase="false">
+            <DestinationLocation LocationCode="{segment.arrival_airpot.airport}"/>
+            <MarketingAirline Code="{segment.marketing}" FlightNumber="{segment.flight_number}"/>
+            <OperatingAirline Code="{segment.operating}"/>
+            <OriginLocation LocationCode="{segment.departure_airport.airport}"/>
         </FlightSegment>"""
-    return flight_segment
 
 
-def add_flight_segment_to_air_book(segment_list):
+def add_flight_segments_to_air_book(segment_list):
     segments = ""
     for flight_segment in segment_list:
-        segment = Segment()
-        segment.departure_date_time = flight_segment['departure_date_time']
-        segment.arrival_date_time = flight_segment['arrival_date_time']
-        segment.flight_number = flight_segment['flight_number']
-        segment.res_book_desig_code = flight_segment['res_book_desig_code']
-        segment.status = flight_segment['status']
-        segment.destination = flight_segment['destination']
-        segment.marketing_code = flight_segment['marketing_code']
-        segment.operating_code = flight_segment['operating_code']
-        segment.origin = flight_segment['origin']
-        segment.number_in_party = flight_segment['number_in_party']
+        arrival_airport = FlightPointDetails(airport=flight_segment['destination'])
+        departure_airport = FlightPointDetails(airport=flight_segment['origin'])
+        segment = FlightSegment(res_book_desig_code=flight_segment['res_book_desig_code'], departure_date_time=flight_segment['departure_date_time'], arrival_date_time=flight_segment['arrival_date_time'], flight_number=flight_segment['flight_number'], status=flight_segment['status'], arrival_airpot=arrival_airport, departure_airport=departure_airport, marketing=flight_segment['marketing_code'], operating=flight_segment['operating_code'], number_in_party=flight_segment['number_in_party'])
         segments = segments + _add_flight_segment_to_air_book(segment)
-
     return segments
