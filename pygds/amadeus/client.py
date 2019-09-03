@@ -146,14 +146,15 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
+    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date, numbering: TravellerNumbering):
         """
             A method for searching prices of an itinerary.
         """
         request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination,
-                                                                               departure_date, arrival_date)
+                                                                               departure_date, arrival_date, numbering)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
+        print(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
