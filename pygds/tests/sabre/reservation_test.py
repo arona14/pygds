@@ -14,6 +14,19 @@ class ClientCan(unittest.TestCase):
     def test_reformat_sabre_get_reservation(self):
         result = reformat_sabre_get_reservation("test me please")
         self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertIn("Itineraries", result)
+        self.assertIsInstance(result["Itineraries"], list)
+        self.assertIn("Passengers", result)
+        self.assertIsInstance(result["Passengers"], list)
+        self.assertIn("FormOfPayments", result)
+        self.assertIsInstance(result["FormOfPayments"], list)
+        self.assertIn("PriceQuotes", result)
+        self.assertIsInstance(result["PriceQuotes"], list)
+        self.assertIn("TicketingInfo", result)
+        self.assertIsInstance(result["TicketingInfo"], list)
+        self.assertIn("Remarks", result)
+        self.assertIsInstance(result["Remarks"], list)
 
     def test_reservation(self):
         result = SabreReservation().get(self.pnr, self.pcc, 'factory-test-pygds')
