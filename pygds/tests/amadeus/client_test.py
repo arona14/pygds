@@ -5,6 +5,7 @@ from pygds.amadeus.client import AmadeusClient
 from pygds.env_settings import get_setting
 from pygds.core.price import PriceRequest
 from pygds.errors.gdserrors import NoSessionError
+from pygds.core.types import TravellerInfo, ReservationInfo
 
 
 class ClientCan(TestCase):
@@ -12,9 +13,9 @@ class ClientCan(TestCase):
         endpoint = get_setting("AMADEUS_ENDPOINT_URL")
         username = get_setting("AMADEUS_USERNAME")
         password = get_setting("AMADEUS_PASSWORD")
-        office_id = get_setting("AMADEUS_OFFICE_ID")
+        self.office_id = get_setting("AMADEUS_OFFICE_ID")
         wsap = get_setting("AMADEUS_WSAP")
-        self.client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
+        self.client = AmadeusClient(endpoint, username, password, self.office_id, wsap, False)
 
     """def test_send_command(self):
         seq, m_id = (None, None)
@@ -35,6 +36,15 @@ class ClientCan(TestCase):
         # self.assertTrue(session.session_ended)
         reservation = res_retrieve.payload
         self.assertIsNotNone(reservation)"""
+
+    def test_add_passenger(self):
+        search_results = self.client.send_command("AN12OCTTRZKUL/KY/B2")
+        message_id = search_results.session_info.message_id
+        self.client.send_command("SS2Y1", message_id)
+        traveller_infos = [TravellerInfo(1, "Mouhamad", "JJ", "FALL", "03121990", "ADT"), TravellerInfo(2, "Amadou", "JJ", "Diallo", "03121990", "ADT")]
+        reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "diallo@gmail.com")
+        passenger_info_response = self.client.add_passenger_info(self.office_id, message_id, reservation_info)
+        self.assertEqual(len(passenger_info_response.payload["passengers"]), 2)
 
     def test_price_ok(self):
 

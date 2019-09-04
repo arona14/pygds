@@ -101,6 +101,7 @@ class FlightSegment(BasicDataObject):
     """
         Holds information about a segment
     """
+
     def __init__(self, sequence: int = 1, res_book_desig_code: str = None, departure_date_time: str = None, departure_airport: FlightPointDetails = None, arrival_date_time: str = None, arrival_airpot: FlightPointDetails = None, airline: str = None, marketing: FlightAirlineDetails = None, operating: FlightAirlineDetails = None, disclosure_carrier: FlightDisclosureCarrier = None, mariage_group: FlightMarriageGrp = None, seats: str = None, action_code: str = None, segment_special_requests: str = None, schedule_change_indicator: str = None, segment_booked_date: str = None, air_miles_flown: str = None, funnel_flight: str = None, change_of_gauge: str = None, flight_number: str = None, class_of_service: str = None, elapsed_time: str = None, equipment_type: str = None, eticket: str = None, number_in_party: str = None, code: str = None, status: str = None):
         self.sequence = sequence
         self.res_book_desig_code = res_book_desig_code
@@ -662,6 +663,15 @@ class TravellerInfo(BasicDataObject):
         self.pax_type = pax_type
 
 
+class ReservationInfo(BasicDataObject):
+
+    def __init__(self, traveller_info: List[TravellerInfo] = None, number_tel: str = None, number_tel_agent: str = None, email: str = None):
+        self.traveller_info = traveller_info
+        self.number_tel = number_tel
+        self.number_tel_agent = number_tel_agent
+        self.email = email
+
+
 class TravellerNumbering(BasicDataObject):
     """
         This class is for holding information about the numbering of traveller.
@@ -811,6 +821,7 @@ class ElectronicDocument(BasicDataObject):
     """
         Holds information about a segment
     """
+
     def __init__(self, status: str = None, agent: Agent = None, ticket_details: TicketDetails = None):
         self.status = status
         self.agent = agent

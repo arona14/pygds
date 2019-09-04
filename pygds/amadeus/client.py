@@ -231,6 +231,7 @@ class AmadeusClient(BaseClient):
                                                    security_token)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        print(response_data)
         return GetPnrResponseExtractor(response_data).extract()
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
@@ -261,6 +262,7 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
                                                            security_token, infos)
+        print(request_data)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return GetPnrResponseExtractor(response_data).extract()
