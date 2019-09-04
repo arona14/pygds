@@ -98,8 +98,9 @@ class SabreClient(BaseClient):
         :param token_session: the token session
         :return: None
         """
-        # SabreSession().close()
-        pass
+        _, _, token = self.get_or_create_session_details(message_id)
+        if token:
+            self.xml_builder.session_close_rq(token)
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
         """retrieve PNR
