@@ -88,6 +88,7 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_create_rq()
         response = self._request_wrapper(open_session_xml, None)
         r = jxmlease.parse(response.content)
+        print(r)
         token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
         session_info = SessionInfo(token, 1, token, message_id, False)
         self.add_session(session_info)
@@ -409,10 +410,7 @@ class SabreClient(BaseClient):
         Arguments:
             message_id {str} -- [ the message id ]
             pnr {str} -- [ the pnr code ]
-            air_seat {[type]} -- [air_seat bloc (xml document)]
-            passenger {[type]} -- [passenger bloc (xml document)]
-            ssr_code {[type]} -- [ssr_code bloc (xml document)]
-            dk {[type]} -- [the customer dk bloc (xml document)]
+            passenger_updt {[PassengerUpdate]} -- [the element to update]
         """
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         print(token_session)
