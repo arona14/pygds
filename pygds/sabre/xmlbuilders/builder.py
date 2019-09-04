@@ -1,6 +1,7 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
-from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request, PassengerUpdate
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
+    get_form_of_payment, get_commission_exchange
 
 
 class SabreXMLBuilder:
@@ -411,13 +412,13 @@ class SabreXMLBuilder:
                             <ns1:STL_Header.RQ xmlns:ns1="http://www.sabre.com/ns/Ticketing/EDocStl"/>
                             <ns2:POS xmlns:ns2="http://www.sabre.com/ns/Ticketing/EDocStl"/>
                             <SearchParameters>
-                                {ticket_number}
+                                <DocumentNumber>{str(ticket_number)}</DocumentNumber>
                             </SearchParameters>
                     </GetElectronicDocumentRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def exchange_shopping_rq(self, token, passengers_info, origin_destination_info):
+    def exchange_shopping_rq(self, token, pnr, passengers_info, origin_destination_info):
         """
             Return the xml request to search for available flights
             for a ticket number to be exchanged
@@ -433,9 +434,9 @@ class SabreXMLBuilder:
                         </STL_Header.RQ>
                         <TicketingProvider>1S</TicketingProvider>
                         <PassengerInformation>
-                            {passengers_info}
+                            {get_passengers_exchange(pnr, passengers_info)}
                         </PassengerInformation>
-                            {origin_destination_info}
+                            {get_segments_exchange(origin_destination_info)}
                     </ExchangeShoppingRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
@@ -465,12 +466,20 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, commission_value):
+    def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, fare_type, percent, amount):
         """
             Return the xml request to store a price
             for a ticket number to be exchanged
         """
         header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
+
+        if percent is not None and percent > 0:
+            commission = get_commission_exchange(fare_type, percent)
+
+        elif amount is not None and amount > 0:
+            commission = get_commission_exchange(fare_type, amount)
+        else:
+            commission = ""
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -480,9 +489,9 @@ class SabreXMLBuilder:
                         <ExchangeConfirmation PQR_Number="{price_quote}">
                             <OptionalQualifiers>
                                 <FOP_Qualifiers>
-                                    {form_of_payment}
+                                    {get_form_of_payment(payment_type = form_of_payment["payment_type"], code_card = form_of_payment["code_card"], expire_date = form_of_payment["expire_date"], cc_number = form_of_payment["cc_number"])}
                                 </FOP_Qualifiers>
-                                {commission_value}
+                                {commission}
                             </OptionalQualifiers>
                         </ExchangeConfirmation>
                     </AutomatedExchangesRQ>
@@ -640,7 +649,3 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
-
-
-def main():
-    pass
