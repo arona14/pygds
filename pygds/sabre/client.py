@@ -17,7 +17,7 @@ import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.core.types import PassengerUpdate
+from pygds.core.types import PassengerUpdate, FlightSeatMap
 
 
 class SabreClient(BaseClient):
@@ -434,12 +434,12 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def seat_map(self, message_id, flight_request):
+    def seat_map(self, message_id, flight_request: FlightSeatMap):
         """[This function will return the result for the seat map request]
 
         Arguments:
             message_id {[str]} -- [the message id for the communication]
-            flight_request {[object]} -- [this will handler the flight request]
+            flight_request {[FlightSeatMap]} -- [this will handler the flight request]
         """
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         print(token_session)
