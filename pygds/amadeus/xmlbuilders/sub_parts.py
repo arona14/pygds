@@ -407,11 +407,7 @@ def ppwbc_fare_type(fare_type):
                         <pricingOptionKey>{code}</pricingOptionKey>
                     </pricingOptionKey>
                 </pricingOptionGroup>
-                <pricingOptionGroup>
-                    <pricingOptionKey>
-                            <pricingOptionKey>RU</pricingOptionKey>
-                    </pricingOptionKey>
-                </pricingOptionGroup>"""
+                """
 
 
 def ppwbc_discount():
