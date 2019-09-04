@@ -10,7 +10,7 @@ from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.types import SellItinerary
 from pygds.env_settings import get_setting
 from pygds import log_handler
-from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
+# from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
 def test():
