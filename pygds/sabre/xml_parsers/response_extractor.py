@@ -11,7 +11,9 @@ import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
     FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
     Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
-from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData
+from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData, \
+    ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, FreeBaggageAllowance, ExchangeComparison, \
+    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, Taxes, TotalFare, TaxComparison, TaxData, ExchangeDetails, ChangeFeeCollectionOptions
 from pygds.core.rebook import RebookInfo
 
 
@@ -748,9 +750,74 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
-        return {
-            "automated_exchanges": automated_exchanges_rs
-        }
+        status = from_json(automated_exchanges_rs, "STL:ApplicationResults", "status")
+        baggage = self._baggage_info(from_json(automated_exchanges_rs, "BaggageInfo"))
+        comparaison = self._exchange_comparaison(from_json(automated_exchanges_rs, "ExchangeComparison"))
+        to_return = ExchangeComparisonInfos(status, baggage, comparaison)
+        return to_return
+
+    def _baggage_info(self, baggage_data):
+
+        list_flight_segment = []
+        for i in ensure_list(from_json(baggage_data, "FlightSegment")):
+            departure_date = from_json_safe(i, "DepartureDateTime")
+            arrival_date = from_json_safe(i, "ArrivalDateTime")
+            flight_number = from_json_safe(i, "FlightNumber")
+            rph = from_json_safe(i, "RPH")
+            segment_number = from_json_safe(i, "SegmentNumber")
+            origin = from_json_safe(i, "OriginLocation", "LocationCode")
+            destination = from_json_safe(i, "DestinationLocation", "LocationCode")
+            marketing_airline_code = from_json_safe(i, "MarketingAirline", "Code")
+            marketing_airline_flight_number = from_json_safe(i, "MarketingAirline", "FlightNumber")
+            marketing_airline = MarketingAirline(marketing_airline_code, marketing_airline_flight_number)
+            free_baggage = from_json_safe(i, "FreeBaggageAllowance", "Number")
+            free_baggage_allowance = FreeBaggageAllowance(free_baggage)
+            flight_segment = ExchangeFlightSegment(departure_date, arrival_date, origin, destination, flight_number, rph, segment_number, marketing_airline, free_baggage_allowance)
+            list_flight_segment.append(flight_segment)
+        baggage_info = BaggageInfo()
+        baggage_info.flight_segment = list_flight_segment
+        return baggage_info
+
+    def _exchange_comparaison(self, exchange_comparaison_data):
+
+        itinerary_pricing_list = []
+        tax_comparaison_list = []
+
+        for i in ensure_list(from_json(exchange_comparaison_data, "AirItineraryPricingInfo")):
+            base_fare_amount = from_json_safe(i, "ItinTotalFare", "BaseFare", "Amount")
+            base_fare_cc = from_json_safe(i, "ItinTotalFare", "BaseFare", "CurrencyCode")
+            taxe_total_amount = from_json_safe(i, "ItinTotalFare", "Taxes", "TotalAmount")
+            total_fare_amount = from_json_safe(i, "ItinTotalFare", "TotalFare", "Amount")
+            base_fare = BaseFare(base_fare_amount, base_fare_cc)
+            taxe = Taxes(taxe_total_amount)
+            total_fare = TotalFare(total_fare_amount)
+            itin_total_fare = ItinTotalFare(base_fare, taxe, total_fare)
+            price_type = from_json_safe(i, "Type")
+            air_itinerary_pricing_info = ExchangeAirItineraryPricingInfo(price_type, itin_total_fare)
+            itinerary_pricing_list.append(air_itinerary_pricing_info)
+
+        for t in ensure_list(from_json(exchange_comparaison_data, "TaxComparison")):
+            tax_type = from_json_safe(t, "Type")
+            tax_list = []
+            for t1 in ensure_list(from_json(t, "Tax")):
+                tax_amount = from_json_safe(t1, "Amount")
+                tax_code = from_json_safe(t1, "Amount")
+                tax_data = TaxData(tax_amount, tax_code)
+                tax_list.append(tax_data)
+            tax_comparison = TaxComparison(tax_type, tax_list)
+            tax_comparaison_list.append(tax_comparison)
+
+        fee_collection = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
+        change_fee_collection = ChangeFeeCollectionOptions(fee_collection)
+        exchange_reissue = from_json(exchange_comparaison_data, "ExchangeDetails", "ExchangeReissue")
+        change_fee = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
+        total_refund = from_json(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
+        exchange_details = ExchangeDetails(change_fee, exchange_reissue, total_refund, change_fee_collection)
+        pqr_number = from_json(exchange_comparaison_data, "ExchangeComparison", "PQR_Number")
+        exchange_comparison = ExchangeComparison(pqr_number, exchange_details)
+        exchange_comparison.air_itinerary_pricing_info = itinerary_pricing_list
+        exchange_comparison.tax_comparison = tax_comparaison_list
+        return exchange_comparison
 
 
 class ExchangeCommitExtractor(BaseResponseExtractor):
