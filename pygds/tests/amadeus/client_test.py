@@ -45,6 +45,7 @@ class ClientCan(TestCase):
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "diallo@gmail.com")
         passenger_info_response = self.client.add_passenger_info(self.office_id, message_id, reservation_info)
         self.assertEqual(len(passenger_info_response.payload["passengers"]), 2)
+        self.client.end_session(message_id)
 
     def test_price_ok(self):
 
