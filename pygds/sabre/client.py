@@ -17,7 +17,7 @@ import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.sabre.xmlbuilders.update_passenger_sub_parts import PassengerUpdate
+from pygds.core.types import PassengerUpdate
 
 
 class SabreClient(BaseClient):

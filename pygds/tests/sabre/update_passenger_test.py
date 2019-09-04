@@ -2,7 +2,7 @@ import unittest
 from pygds.sabre.client import SabreClient
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
-from pygds.sabre.xmlbuilders.update_passenger_sub_parts import PassengerUpdate
+from pygds.core.types import PassengerUpdate
 
 
 class UpdatePassengerTest(unittest.TestCase):

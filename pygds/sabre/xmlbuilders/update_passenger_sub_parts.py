@@ -23,16 +23,3 @@ def service_ssr_code(segment_number, ssr_code, name_number):
 
 def seat_request(name_number, seat_number, segment_number):
     return f"""<Seat NameNumber="{name_number}" Number="{seat_number}" SegmentNumber="{segment_number}"/>"""
-
-
-class PassengerUpdate:
-    def __init__(self):
-        self.name_number: str = None
-        self.dk_number: str = None
-        self.date_of_birth: str = None
-        self.gender: str = None
-        self.first_name: str = None
-        self.last_name: str = None
-        self.segment_number: str = None
-        self.ssr_code: str = None
-        self.seat_number: str = None
