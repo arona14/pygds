@@ -78,11 +78,15 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(response)
         """
         self.assertIsInstance(response, GdsResponse)
-        self.assertIsNotNone(response.payload, GdsResponse)
-        self.assertIsInstance(response.payload, CreatePnrInfo)
-        self.assertEqual(from_json(response.payload.to_dict(), 'Status'), 'Complete')
-        self.assertIsInstance(from_json(response.payload.to_dict(), 'RecordLocator'), str)
-        self.assertIsInstance(from_json(response.payload.to_dict(), 'AirBook'), dict)
-        self.assertIsInstance(from_json(response.payload.to_dict(), 'AirPrice'), list)
-        self.assertIsInstance(from_json(response.payload.to_dict(), 'TravelItineraryRead'), dict)
+        # self.assertIsNotNone(response.payload, GdsResponse)
+        # self.assertIsInstance(response.payload, CreatePnrInfo)
+        # self.assertEqual(from_json(response.payload.to_dict(), 'Status'), 'Complete')
+        # self.assertIsInstance(from_json(response.payload.to_dict(), 'RecordLocator'), str)
+        # self.assertIsInstance(from_json(response.payload.to_dict(), 'AirBook'), dict)
+        # self.assertIsInstance(from_json(response.payload.to_dict(), 'AirPrice'), list)
+        # self.assertIsInstance(from_json(response.payload.to_dict(), 'TravelItineraryRead'), dict)
         """
+
+
+if __name__ == "__main__":
+    unittest.main()
