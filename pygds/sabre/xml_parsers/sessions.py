@@ -21,4 +21,3 @@ class SessionExtractor(BaseResponseExtractor):
         session_id = json_safe(header, "eb:MessageData", "eb:MessageId")
 
         return SessionInfo(token, 1, session_id, conversation_id, False)
-

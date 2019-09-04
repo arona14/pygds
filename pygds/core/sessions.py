@@ -1,4 +1,6 @@
-from datetime import  datetime
+from datetime import datetime
+
+
 class SessionInfo:
     """
     This class is for containing information for a session

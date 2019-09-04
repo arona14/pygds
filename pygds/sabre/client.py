@@ -3,7 +3,6 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 from pygds.amadeus.errors import ServerError, ClientError
-from pygds.amadeus.xml_parsers.response_extractor import ErrorExtractor
 from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
@@ -16,7 +15,6 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, RebookExtractor, SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
-import jxmlease
 import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
