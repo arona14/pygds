@@ -11,6 +11,7 @@ import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
     FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
     Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
+from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData
 from pygds.core.rebook import RebookInfo
 
 
@@ -64,6 +65,18 @@ class BaseResponseExtractor(object):
             A private method that does the work of extracting useful data.
         """
         raise NotImplementedError("Sub class must implement '_extract' method")
+
+
+class SabreSoapErrorExtractor(BaseResponseExtractor):
+    """
+        Extractor for error
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, True, False)
+
+    def _extract(self):
+        return xmlparser.extract_single_elements(self.tree, "//faultcode/text()", "//faultstring/text()")
 
 
 class AppErrorExtractor(BaseResponseExtractor):
@@ -666,9 +679,57 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
         exchange_shopping_rs = from_json(payload, "ExchangeShoppingRS")
         exchange_shopping_rs = str(exchange_shopping_rs).replace("@", "")
         exchange_shopping_rs = eval(exchange_shopping_rs.replace("u'", "'"))
-        return {
-            "exchange_shopping": exchange_shopping_rs
-        }
+        status = from_json(exchange_shopping_rs, "ApplicationResults", "status")
+        to_return = []
+        for i in ensure_list(from_json(exchange_shopping_rs, "Solution")):
+            sequence = from_json(i, "sequence")
+            book_itinerary = self._book_itinerary(from_json(i, "BookItinerary"))
+            fare = self._fare(from_json(i, "Fare"))
+            exchange_data = ExchangeData(sequence, book_itinerary, fare)
+            to_return.append(exchange_data)
+        exchange_shopping = ExchangeShoppingInfos(status, to_return)
+        return exchange_shopping
+
+    def _book_itinerary(self, book_itinerary_data):
+
+        book_iti = BookItinerary()
+        for ori in ensure_list(from_json(book_itinerary_data, "OriginDestination")):
+            origin_destination = OriginDestination()
+            list_segment = []
+            list_itinerary = []
+            for book in ensure_list(from_json(ori, "ReservationSegment")):
+                segment_number = from_json_safe(book, "segmentNumber")
+                elapsed_time = from_json_safe(book, "elapsedTime")
+                departure_date = from_json_safe(book, "startDateTime")
+                arrival_date = from_json_safe(book, "endDateTime")
+                origin = from_json_safe(book, "startLocation")
+                destination = from_json_safe(book, "endLocation")
+                marketing_flight_number = from_json_safe(book, "marketingFlightNumber")
+                marketing = from_json_safe(book, "marketingProvider")
+                operating = from_json_safe(book, "operatingProvider")
+                reservation_segment = ReservationSegment(segment_number, elapsed_time, departure_date, arrival_date, origin, destination, marketing_flight_number, marketing, operating)
+                list_segment.append(reservation_segment)
+                origin_destination.segments = list_segment
+                list_itinerary.append(origin_destination)
+        book_iti.origin_destination = list_itinerary
+        return book_iti
+
+    def _fare(self, fare_data):
+        valid = from_json(fare_data, "valid")
+        sub_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "currencyCode")
+        sub_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "#text")
+        sub_total_difference = PriceDifference(sub_total_difference_currency_code, sub_total_difference_amount)
+
+        total_fee_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "currencyCode")
+        total_fee_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "#text")
+        total_fee = PriceDifference(total_fee_currency_code, total_fee_difference_amount)
+
+        grand_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "currencyCode")
+        grand_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "#text")
+        grand_total_difference = PriceDifference(grand_total_difference_currency_code, grand_total_difference_amount)
+        total_price = TotalPriceDifference(sub_total_difference, total_fee, grand_total_difference)
+        to_return = Fare(valid, total_price)
+        return to_return
 
 
 class ExchangePriceExtractor(BaseResponseExtractor):
@@ -738,3 +799,34 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         else:
             change_of_gauge, equipement, flight, cabin = (None, None, None, None)
         return seats
+
+
+class UpdatePassengerExtractor(BaseResponseExtractor):
+
+    """Class to extract the send remark from XML response
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="PassengerDetailsRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
+        status = from_json(payload, "ApplicationResults", "status")
+        return {'status': status}
+
+
+class CloseSessionExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "SessionCloseRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json(payload, "SessionCloseRS", "@status")
+        if status == 'Approved':
+            return True

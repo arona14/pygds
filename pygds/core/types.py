@@ -1027,3 +1027,16 @@ class SeatMap(BasicDataObject):
             "Flight": self.flights if self.flights is not None else None,
             "Cabin": self.cabin if self.cabin is not None else None
         }
+
+
+class PassengerUpdate:
+    def __init__(self):
+        self.name_number: str = None
+        self.dk_number: str = None
+        self.date_of_birth: str = None
+        self.gender: str = None
+        self.first_name: str = None
+        self.last_name: str = None
+        self.segment_number: str = None
+        self.ssr_code: str = None
+        self.seat_number: str = None
