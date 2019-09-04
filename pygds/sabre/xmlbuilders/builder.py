@@ -40,7 +40,7 @@ class SabreXMLBuilder:
             </eb:Security>
         </soapenv:Header>"""
 
-    def session_create_rq(self):
+    def session_create_rq(self, conversation_id: str):
         """
             Return the xml request to initiate a SOAP API session
         """
@@ -55,7 +55,7 @@ class SabreXMLBuilder:
                             <eb:PartyId />
                         </eb:To>
                         <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
                         <eb:Service>SessionCreateRQ</eb:Service>
                         <eb:Action>SessionCreateRQ</eb:Action>
                         <eb:MessageData>

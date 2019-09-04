@@ -67,6 +67,18 @@ class BaseResponseExtractor(object):
         raise NotImplementedError("Sub class must implement '_extract' method")
 
 
+class SabreSoapErrorExtractor(BaseResponseExtractor):
+    """
+        Extractor for error
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, True, False)
+
+    def _extract(self):
+        return xmlparser.extract_single_elements(self.tree, "//faultcode/text()", "//faultstring/text()")
+
+
 class AppErrorExtractor(BaseResponseExtractor):
     """
     Extract application error from response
