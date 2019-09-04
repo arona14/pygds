@@ -54,7 +54,7 @@ def test():
     # price = client.search_price_quote(message_id, retain=False, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type_price)
     store_price = client.store_price_quote(message_id, retain=True, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type, brand_id=brand_id)
     print(store_price)
-    client.close_session(message_id)
+    print(client.close_session(message_id))
 
 
 if __name__ == "__main__":
