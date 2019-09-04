@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import requests
 from requests import Response
@@ -59,6 +60,7 @@ class BaseClient:
         if session_info is None or session_info.session_ended is True:
             return False
         else:
+            session_info.last_access = datetime.now()
             self.session_holder.add_session(session_info)
             return True
 
