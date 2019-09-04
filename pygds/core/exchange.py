@@ -88,12 +88,12 @@ class OriginDestination(BasicDataObject):
 
 class BookItinerary(BasicDataObject):
 
-    def __init__(self, origin_destination: OriginDestination = None):
-        self.origin_destination = origin_destination
+    def __init__(self):
+        self.origin_destination: List[OriginDestination] = []
 
     def to_data(self):
         return{
-            "origin_destination": self.origin_destination
+            "origin_destination": [s.to_data() for s in self.origin_destination]
         }
 
 

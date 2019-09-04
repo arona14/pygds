@@ -673,11 +673,13 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
             "echange": exchange_shopping
         }
 
-    def _book_itinerary(self, book_itinerary):
+    def _book_itinerary(self, book_itinerary_data):
 
-        list_segment = []
-        for ori in ensure_list(from_json(book_itinerary, "OriginDestination")):
+        book_iti = BookItinerary()
+        for ori in ensure_list(from_json(book_itinerary_data, "OriginDestination")):
             origin_destination = OriginDestination()
+            list_segment = []
+            list_itinerary = []
             for book in ensure_list(from_json(ori, "ReservationSegment")):
                 segment_number = from_json_safe(book, "segmentNumber")
                 elapsed_time = from_json_safe(book, "elapsedTime")
@@ -690,10 +692,10 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
                 operating = from_json_safe(book, "operatingProvider")
                 reservation_segment = ReservationSegment(segment_number, elapsed_time, departure_date, arrival_date, origin, destination, marketing_flight_number, marketing, operating)
                 list_segment.append(reservation_segment)
-            origin_destination.segments = list_segment
-
-        book_itinerary = BookItinerary(origin_destination)
-        return book_itinerary
+                origin_destination.segments = list_segment
+                list_itinerary.append(origin_destination)
+        book_iti.origin_destination = list_itinerary
+        return book_iti.to_data()
 
     def _fare(self, fare_data):
         valid = from_json(fare_data, "valid")
