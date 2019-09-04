@@ -61,16 +61,22 @@ class OriginDestination_:
 
 
 class RequestedSegment:
-    def __init__(self, origin, destination, departureDate):
+    def __init__(self, sequence: str = None, origin: str = None, destination: str = None, departure_date: str = None, arrival_date: str = None, total_seats: str = None):
+        self.sequence = sequence
         self.origin = origin
         self.destination = destination
-        self.departureDate = departureDate
+        self.departure_date = departure_date
+        self.arrival_date = arrival_date
+        self.total_seats = total_seats
 
     def to_data(self):
         return {
+            "sequence": self.sequence,
             "origin": self.origin,
             "destination": self.destination,
-            "departureDate": self.departureDate
+            "departure_date": self.departure_date,
+            "arrival_date": self.arrival_date,
+            "total_seats": self.total_seats
         }
 
 

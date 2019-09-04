@@ -9,6 +9,7 @@ from pygds.core.price import PriceRequest, Fare
 from pygds.env_settings import get_setting
 from pygds import log_handler
 from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
+from pygds.core.request import RequestedSegment
 
 
 def test():
@@ -86,9 +87,10 @@ def test():
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
         # log.info(command_response)
-        origin, destination, date_dep, date_arr = ("ATH", "CDG", "051019", "101019")
-        log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
+        origine, destination, date_dep, date_arr = ("ATH", "CDG", "051019", "101019")
+        segments = RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)
+        log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
+        search_results = client.fare_master_pricer_travel_board_search(segments, TravellerNumbering(2))
         log.debug(search_results)
         # segments = search_results[0]["itineraries"]
         # log.debug(f"segment length: {len(segments)}")

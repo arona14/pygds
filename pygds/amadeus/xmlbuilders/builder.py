@@ -3,6 +3,7 @@ from typing import List
 
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
+from pygds.core.request import RequestedSegment
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.payment import FormOfPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
@@ -195,7 +196,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, origin, destination, departure_date, arrival_date,
+    def fare_master_pricer_travel_board_search(self, segments: RequestedSegment,
                                                numbering: TravellerNumbering, with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
@@ -214,8 +215,10 @@ class AmadeusXMLBuilder:
             </travelFlightInfo>
             """
         pricing_options = ["ET", "RP", "RU", "TAC"]
-        type_com = "RW"
-        identify = "COM"
+        # type_com = "RW"
+        # identify = "COM"
+        # if type_com:
+        #     pricing_options.append("RC")
         if currency_conversion:
             pricing_options.append("CUC")
         return f"""
@@ -243,36 +246,10 @@ class AmadeusXMLBuilder:
                         <pricingTickInfo>
                             {sub_parts.mptbs_pricing_types(pricing_options)}
                         </pricingTickInfo>
-                        {sub_parts.mptbs_pricing_types_com(type_com, identify)}
                         {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
                     {stop_option}
-                    <itinerary>
-                        <requestedSegmentRef>
-                            <segRef>1</segRef>
-                        </requestedSegmentRef>
-                        <departureLocalization>
-                        <depMultiCity>
-                            <locationId>{origin}</locationId>
-                            <airportCityQualifier>C</airportCityQualifier>
-                        </depMultiCity>
-                        </departureLocalization>
-                        <arrivalLocalization>
-                        <arrivalMultiCity>
-                            <locationId>{destination}</locationId>
-                            <airportCityQualifier>C</airportCityQualifier>
-                        </arrivalMultiCity>
-                        </arrivalLocalization>
-                        <timeDetails>
-                        <firstDateTimeDetail>
-                            <date>{departure_date}</date>
-                        </firstDateTimeDetail>
-                        <rangeOfDate>
-                            <rangeQualifier>M</rangeQualifier>
-                            <dayInterval>2</dayInterval>
-                        </rangeOfDate>
-                        </timeDetails>
-                    </itinerary>
+                    {"".join([sub_parts.mptbs_itinerary(segment) for segment in segments])}
                 </Fare_MasterPricerTravelBoardSearch>
             </soapenv:Body>
             </soapenv:Envelope>
