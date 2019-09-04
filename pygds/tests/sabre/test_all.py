@@ -27,25 +27,25 @@ def test():
     passenger_type = {
         "code": "ADT",
         "nameSelect": "01.01",
-        "firstName": "DEMBA",
-        "lastName": "NDIAYE",
-        "birthDate": "1984-07-13",
+        "firstName": "ARONA",
+        "lastName": "SOW",
+        "birthDate": "1991-01-21",
         "gender": "M",
         "markup": 0,
-        "commissionPercentage": 10,
+        "commissionPercentage": 86.20,
         "tourCode": "815ZU",
         "ticketDesignator": "PP10",
         "serviceFee": 0,
-        "baseFare": 26,
-        "totalFare": 371.93,
+        "baseFare": 862.00,
+        "totalFare": 1450.13,
         "paxType": "ADT",
-        "proposed": 371.93,
+        "proposed": 1450.13,
         "creditCard": None,
         "quantity": 1
     }
     # passenger_type_price = [{"code": "ADT", "nameSelect": ["01.01"], "quantity":1}]
     brand_id = None
-    display_pnr = client.get_reservation("WOHOIJ", None)
+    display_pnr = client.get_reservation("GZCKZY", None)
     session_info = display_pnr.session_info
     if not session_info:
         print("No session info")
@@ -54,6 +54,7 @@ def test():
     # price = client.search_price_quote(message_id, retain=False, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type_price)
     store_price = client.store_price_quote(message_id, retain=True, fare_type='Pub', segment_select=segment_select, passenger_type=passenger_type, brand_id=brand_id)
     print(store_price)
+    client.close_session(message_id)
 
 
 if __name__ == "__main__":

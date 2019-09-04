@@ -9,15 +9,13 @@ def get_segment_number(segment_select):
             segment_number = segment_number + "<SegmentSelect Number='" + str(k) + "'/>"
         segment_number = segment_number + "</ItineraryOptions>"
         return segment_number
-    return None
 
 
 def get_fare_type(fare_type):
     if fare_type == "Pub":
         return """<Account>
-        <Code>COM</Code>
-        </Account>"""
-    return None
+                    <Code>COM</Code>
+                </Account>"""
 
 
 def get_passenger_type(passenger_type, fare_type):
@@ -61,19 +59,21 @@ def __get_pax_type_with_net(pax, pax_type, child_list):
     return pax_type
 
 
+hemisphere_code = {
+    "United States": "0",
+    "Central America": "1",
+    "Caribbean": "2",
+    "Latin America": "3",
+    "Europe": "4",
+    "Africa": "5",
+    "Middle East": "6",
+    "Asia ": "7",
+    "Asia Pacific": "8",
+    "Canada": "9"
+}
+
+
 def _get_hemisphere_code(region_name):
-    hemisphere_code = {
-        "United States": "0",
-        "Central America": "1",
-        "Caribbean": "2",
-        "Latin America": "3",
-        "Europe": "4",
-        "Africa": "5",
-        "Middle East": "6",
-        "Asia ": "7",
-        "Asia Pacific": "8",
-        "Canada": "9"
-    }
     return hemisphere_code.get(region_name, "0")
 
 
@@ -82,11 +82,10 @@ def get_commision(baggage, pcc, region_name):
     hemisphere_code = _get_hemisphere_code(region_name)
     commission = "<MiscQualifiers>"
     if baggage > 0:
-        commission = commission + "<BaggageAllowance Number='" + str(baggage) + "'/>"
+        commission = commission + f"""<BaggageAllowance Number='{str(baggage)}'/>"""
     if pcc == "3GAH":
-        commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
-        commission = commission + "<JourneyCode>" + '2' + "</JourneyCode>"
-
+        commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
+                                        <JourneyCode>'2'</JourneyCode>"""
     commission = commission + "</MiscQualifiers>"
     if commission == "<MiscQualifiers></MiscQualifiers>":
         commission = ""
@@ -99,18 +98,23 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
     commission = ""
     if from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') == "":
         commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
-        commission = commission + "<MiscQualifiers><Commission Percent='" + str(commission_percentage) + "'/>"
+        commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
         if pcc == "3GAH":
-            commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
-            commission = commission + "<JourneyCode> 2 </JourneyCode>"
+            commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
+                                            <JourneyCode>'2'</JourneyCode>"""
         commission = commission + "</MiscQualifiers>"
 
     elif from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') != "":
         commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
-        commission = commission + "<MiscQualifiers><Commission Percent='" + str(commission_percentage) + "'/>"
+        commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
         if pcc == "3GAH":
-            commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
-            commission = commission + "<JourneyCode> 2 </JourneyCode>"
+            commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>"
+                                            "<JourneyCode>'2'</JourneyCode>"""
+        commission = commission + f"""<TourCode>
+                <SuppressIT Ind='true'/>
+                <Text>{passenger_type_data['tourCode']}</Text>
+            </TourCode>
+            </MiscQualifiers>"""
     return commission
 
 
@@ -120,10 +124,10 @@ def __store_commission_with_net(passenger_type_data, region_name, pcc):
     hemisphere_code = _get_hemisphere_code(region_name)
     if from_json_safe(passenger_type_data, 'markup') != "0" and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
-        commission = commission + "<MiscQualifiers><Commission Amount='" + str(commission_amount) + "'/>"
+        commission = commission + f"""<MiscQualifiers><Commission Amount='{str(commission_amount)}'/>"""
         if pcc == "3GAH":
-            commission = commission + "<HemisphereCode>" + hemisphere_code + "</HemisphereCode>"
-            commission = commission + "<JourneyCode> 2 </JourneyCode>"
+            commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
+                                        <JourneyCode>'2'</JourneyCode>"""
     return commission
 
 
@@ -139,22 +143,13 @@ def store_commission(fare_type, passenger_type_data, region_name, pcc):
     return commission
 
 
-def store_tour_code(passenger_type_data):
-    if from_json_safe(passenger_type_data, 'tourCode') != "":
-        return f"""<TourCode>
-        "<SuppressIT Ind='true'/>
-        <Text>{passenger_type_data['tourCode']}</Text>
-        </TourCode>
-    </MiscQualifiers>"""
-
-
 def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     ticket_designator = ""
     segment_number = ""
     if from_json_safe(passenger_type_data, 'ticketDesignator') != "":
-        ticket_designator = ticket_designator + """<CommandPricing RPH="1">"""
-        ticket_designator = ticket_designator + "<Discount Percent='0' AuthCode='" + passenger_type_data['ticketDesignator'] + "'/>"
-        ticket_designator = ticket_designator + "</CommandPricing>"
+        ticket_designator = ticket_designator + f"""<CommandPricing RPH="1">
+                                                        <Discount Percent='0' AuthCode='{passenger_type_data['ticketDesignator']}'/>
+                                                    </CommandPricing>"""
 
         if segment_select != []:
             segment_number = segment_number + "<ItineraryOptions>"
@@ -182,24 +177,18 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
 
 
 def store_pax_type(passenger_type_data):
-    pax_type = ""
-    pax_type = pax_type + "<PassengerType Code='" + passenger_type_data['code'] + "' Quantity='" + str(passenger_type_data["quantity"]) + "'/>"
-    return pax_type
+    return f"""<PassengerType Code='{passenger_type_data['code']}' Quantity='{str(passenger_type_data["quantity"])}'/>"""
 
 
 def store_name_select(passenger_type_data):
-    name_select = ""
-    name_select = name_select + "<NameSelect NameNumber='" + passenger_type_data['nameSelect'] + "'/>"
-    return name_select
+    return f"""<NameSelect NameNumber='{passenger_type_data['nameSelect']}'/>"""
 
 
 def store_plus_up(passenger_type_data, pcc):
     TWOPLACES = Decimal(10) ** -2
-    plus_up = ""
     if from_json_safe(passenger_type_data, 'markup') > 0 and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
-        plus_up = plus_up + "<PlusUp Amount='" + str(commission_amount) + "'></PlusUp>"
-    return plus_up
+        return f"""<PlusUp Amount='{str(commission_amount)}'></PlusUp>"""
 
 
 def exchange_pax(pnr, name_number, first_name, last_name, ticket_number):

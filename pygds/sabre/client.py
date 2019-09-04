@@ -167,7 +167,6 @@ class SabreClient(BaseClient):
             raise NoSessionError(message_id)
         store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name, brand_id=brand_id)
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
-        print("store_price_response")
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         response = PriceSearchExtractor(store_price_response).extract()

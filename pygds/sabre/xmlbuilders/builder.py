@@ -1,6 +1,6 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
-    get_form_of_payment, get_commission_exchange, store_commission, store_name_select, store_pax_type, store_plus_up, store_tour_code, store_ticket_designator
+    get_form_of_payment, get_commission_exchange, store_commission, store_name_select, store_pax_type, store_plus_up, store_ticket_designator
 
 
 class SabreXMLBuilder:
@@ -218,11 +218,14 @@ class SabreXMLBuilder:
         """
         if retain:
             name_select = store_name_select(passenger_type)
+            name_select = name_select if name_select else ""
             ticket_designator, segment_number = store_ticket_designator(passenger_type, segment_select, brand_id)
             pax_type = store_pax_type(passenger_type)
+            pax_type = pax_type if pax_type else ""
             commission = store_commission(fare_type, passenger_type, region_name, self.pcc)
-            tour_code = store_tour_code(passenger_type)
+            # tour_code = store_tour_code(passenger_type)
             plus_up = store_plus_up(passenger_type, self.pcc)
+            plus_up = plus_up if plus_up else ""
             fare_type_value = ""
         else:
             segment_number = get_segment_number(segment_select)
@@ -240,7 +243,6 @@ class SabreXMLBuilder:
                         <PriceRequestInformation Retain="{str(retain).lower()}">
                         <OptionalQualifiers>
                             {commission}
-                            {tour_code}
                             <PricingQualifiers>
                                 {fare_type_value}
                                 {ticket_designator}
