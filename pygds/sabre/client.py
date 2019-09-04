@@ -2,20 +2,25 @@
 # This file is for Sabre reservation classes and functions
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
+from pygds.amadeus.errors import ServerError, ClientError
+from pygds.amadeus.xml_parsers.response_extractor import ErrorExtractor
 from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
 import json
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
-    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
-    ExchangePriceExtractor, ExchangeCommitExtractor, RebookExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, \
+    IssueTicketExtractor, EndTransactionExtractor, \
+    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \
+    IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
+    ExchangePriceExtractor, ExchangeCommitExtractor, RebookExtractor, SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
 import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
+from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 
 
@@ -68,14 +73,14 @@ class SabreClient(BaseClient):
             self.log.debug(request_data)
             self.log.debug(response.content)
             self.log.debug(f"{method_name} status: {status}")
-        # if status == 500:
-        #     error = ErrorExtractor(response.content).extract()
-        #     sess, (faultcode, faultstring) = error.session_info, error.payload
-        #     self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
-        #     raise ServerError(sess, status, faultcode, faultstring)
-        # elif status == 400:
-        #     sess = SessionExtractor(response.content).extract()
-        #     raise ClientError(sess, status, "Client Error")
+        if status == 500:
+            error = SabreSoapErrorExtractor(response.content).extract()
+            sess, (faultcode, faultstring) = error.session_info, error.payload
+            self.log.error(f"faultcode: {faultcode}, faultstring: {faultstring}")
+            raise ServerError(sess, status, faultcode, faultstring)
+        elif status == 400:
+            sess = SessionExtractor(response.content).extract()
+            raise ClientError(sess, status, "Client Error")
         return response.content
 
     def open_session(self):
@@ -84,13 +89,11 @@ class SabreClient(BaseClient):
         :return: a token session
         """
         message_id = generate_random_message_id()
-        open_session_xml = self.xml_builder.session_create_rq()
-        response = self._request_wrapper(open_session_xml, None)
-        r = jxmlease.parse(response.content)
-        token = r[u'soap-env:Envelope'][u'soap-env:Header'][u'wsse:Security'][u'wsse:BinarySecurityToken']
-        session_info = SessionInfo(token, 1, token, message_id, False)
-        self.add_session(session_info)
-        return session_info
+        open_session_xml = self.xml_builder.session_create_rq(message_id)
+        response = self.__request_wrapper("open_session", open_session_xml, "SessionCreateRQ")
+        gds_response = SessionExtractor(response).extract()
+        self.add_session(gds_response.session_info)
+        return gds_response.session_info
 
     def close_session(self, message_id):
         """
