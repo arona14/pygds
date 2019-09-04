@@ -61,7 +61,7 @@ class OriginDestination_:
 
 
 class RequestedSegment:
-    def __init__(self, sequence: str = None, origin: str = None, destination: str = None, departure_date: str = None, arrival_date: str = None, total_seats: str = None):
+    def __init__(self, sequence: int = 1, origin: str = None, destination: str = None, departure_date: str = None, arrival_date: str = None, total_seats: str = None):
         self.sequence = sequence
         self.origin = origin
         self.destination = destination

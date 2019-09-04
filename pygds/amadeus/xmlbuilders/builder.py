@@ -3,8 +3,8 @@ from typing import List
 
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
-from pygds.core.request import RequestedSegment
 from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.request import RequestedSegment
 from pygds.core.payment import FormOfPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
@@ -196,7 +196,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, segments: RequestedSegment,
+    def fare_master_pricer_travel_board_search(self, office_id, segments: List[RequestedSegment],
                                                numbering: TravellerNumbering, with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
@@ -215,10 +215,10 @@ class AmadeusXMLBuilder:
             </travelFlightInfo>
             """
         pricing_options = ["ET", "RP", "RU", "TAC"]
-        # type_com = "RW"
-        # identify = "COM"
-        # if type_com:
-        #     pricing_options.append("RC")
+        type_com: str = None
+        if type_com:
+            pricing_options.append("RW")
+        # identify = "012345"
         if currency_conversion:
             pricing_options.append("CUC")
         return f"""
@@ -249,8 +249,8 @@ class AmadeusXMLBuilder:
                         {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
                     {stop_option}
-                    {"".join([sub_parts.mptbs_itinerary(segment) for segment in segments])}
-                </Fare_MasterPricerTravelBoardSearch>
+                    {''.join([sub_parts.mptbs_itinerary(segment) for segment in segments])}
+            </Fare_MasterPricerTravelBoardSearch>
             </soapenv:Body>
             </soapenv:Envelope>
         """

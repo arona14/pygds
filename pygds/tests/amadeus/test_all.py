@@ -5,10 +5,10 @@
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.price import PriceRequest, Fare
+# from pygds.core.price import PriceRequest, Fare
 from pygds.env_settings import get_setting
 from pygds import log_handler
-from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
+from pygds.core.types import TravellerNumbering  # SellItinerary, TravellerInfo
 from pygds.core.request import RequestedSegment
 
 
@@ -87,8 +87,8 @@ def test():
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
         # log.info(command_response)
-        origine, destination, date_dep, date_arr = ("ATH", "CDG", "051019", "101019")
-        segments = RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)
+        origine, destination, date_dep, date_arr = ("DTW", "CDG", "051019", "101019")
+        segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
         search_results = client.fare_master_pricer_travel_board_search(segments, TravellerNumbering(2))
         log.debug(search_results)
