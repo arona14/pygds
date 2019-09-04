@@ -10,7 +10,7 @@ from pygds.core.helpers import get_data_from_xml
 import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
-    ExchangePriceExtractor, ExchangeCommitExtractor, RebookExtractor
+    ExchangePriceExtractor, ExchangeCommitExtractor, RebookExtractor, CloseSessionExtractor
 from pygds.errors.gdserrors import NoSessionError
 import jxmlease
 import requests
@@ -96,10 +96,13 @@ class SabreClient(BaseClient):
         """
         A method to close a session
         :param token_session: the token session
-        :return: None
+        :return: True if session closed else None
         """
-        # SabreSession().close()
-        pass
+        _, _, token = self.get_or_create_session_details(message_id)
+        if token:
+            close_session_request = self.xml_builder.session_close_rq(token)
+            close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
+            return CloseSessionExtractor(close_session_response).extract().payload
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
         """retrieve PNR

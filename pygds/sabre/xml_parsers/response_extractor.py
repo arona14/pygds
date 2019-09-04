@@ -787,3 +787,19 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         else:
             change_of_gauge, equipement, flight, cabin = (None, None, None, None)
         return seats
+
+
+class CloseSessionExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "SessionCloseRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json(payload, "SessionCloseRS", "@status")
+        if status == 'Approved':
+            return True
