@@ -100,7 +100,8 @@ class SabreClient(BaseClient):
         """
         _, _, token = self.get_or_create_session_details(message_id)
         if token:
-            self.xml_builder.session_close_rq(token)
+            close_session_request = self.xml_builder.session_close_rq(token)
+            self.__request_wrapper("close_session", close_session_request, self.endpoint)
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
         """retrieve PNR
