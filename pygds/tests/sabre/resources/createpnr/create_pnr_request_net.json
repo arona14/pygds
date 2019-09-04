@@ -1,0 +1,105 @@
+{
+    "FlightSegment": [
+      {
+        "ArrivalDateTime": "2019-11-06T11:14:00",
+        "DepartureDateTime": "2019-11-06T09:40:00",
+        "FlightNumber": "5152",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "V",
+        "Status": "NN",
+        "DestinationLocation": "YUL",
+        "MarketingAirline": "DL",
+        "MarriageGrp": "O",
+        "OperatingAirline": "DL",
+        "OriginLocation": "JFK"
+      },
+      {
+        "ArrivalDateTime": "2019-11-07T11:15:00",
+        "DepartureDateTime": "2019-11-06T22:15:00",
+        "FlightNumber": "8613",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "V",
+        "Status": "NN",
+        "DestinationLocation": "CDG",
+        "MarketingAirline": "DL",
+        "MarriageGrp": "I",
+        "OperatingAirline": "AF",
+        "OriginLocation": "YUL"
+      },
+      {
+        "ArrivalDateTime": "2019-11-30T08:00:00",
+        "DepartureDateTime": "2019-11-30T07:35:00",
+        "FlightNumber": "8718",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "V",
+        "Status": "NN",
+        "DestinationLocation": "LHR",
+        "MarketingAirline": "DL",
+        "MarriageGrp": "O",
+        "OperatingAirline": "AF",
+        "OriginLocation": "CDG"
+      },
+      {
+        "ArrivalDateTime": "2019-11-30T23:20:00",
+        "DepartureDateTime": "2019-11-30T20:05:00",
+        "FlightNumber": "4376",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "V",
+        "Status": "NN",
+        "DestinationLocation": "JFK",
+        "MarketingAirline": "DL",
+        "MarriageGrp": "I",
+        "OperatingAirline": "VS",
+        "OriginLocation": "LHR"
+      }
+    ],
+    "Passengers": [
+      {
+        "NameNumber": 1,
+        "GivenName": "Mbaye",
+        "Surname": "Hann",
+        "DateOfBirth": "1990-03-09",
+        "Gender": "Male",
+        "PassengerType": "JCB",
+        "Amount": 6,
+        "Percent": null,
+        "TicketDesignator": null,
+        "TourCode": null,
+        "BaseFare": 175.0,
+        "TotalFare": 290.14,
+        "ServiceFee": 0,
+        "ChargeAmount": 0,
+        "Phone": null,
+        "Email": "mbaye@ctsfares.com",
+        "Address": null,
+        "Nationality":"SN",
+        "Title":"MR",
+        "MiddleName":"",
+        "deals": {
+          "cts_reward": 0,
+          "cts_markup": 0,
+          "agency_markup": 0,
+          "agency_discount": 0
+        },
+        "month": "11",
+        "day": "12",
+        "year": "1994"
+      }
+      
+    ],
+    "Remarks": [],
+    "TargetCity": "WR17",
+    "FareType": "NET",
+    "CustomerIdentifier": "D586445858",
+    "Destination": "CDG",
+    "Bags": 0,
+    "Refund": false,
+    "RefundAfter":0,
+    "RefundBefore":300.0,
+    "Exchange": true,
+    "ExchangeAfter":300.0,
+    "ExchangeBefore":300.0,
+    "Airline": "AY",
+    "LastTicketDate": "2019-09-03",
+    "Commission": 0
+  }

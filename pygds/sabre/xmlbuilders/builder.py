@@ -1,5 +1,6 @@
 from pygds.core.security_utils import generate_random_message_id, generate_created
-from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
+    get_form_of_payment, get_commission_exchange, store_commission, store_name_select, store_pax_type, store_plus_up, store_ticket_designator, add_flight_segments_to_air_book
 
 
 class SabreXMLBuilder:
@@ -211,24 +212,37 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def price_quote_rq(self, token, retain: bool = False, tour_code: str = '', fare_type: str = '', ticket_designator: str = '', segment_select: list = [], passenger_type: list = [], plus_up: str = '', baggage: int = 0, region_name: str = ""):
+    def price_quote_rq(self, token, retain: bool, tour_code: str = '', fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
             Return the xml request to price air itineraries
         """
-        segment_number = get_segment_number(segment_select)
-        pax_type, name_select = get_passenger_type(passenger_type, fare_type)
-        fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
-        commission = get_commision(baggage, self.pcc, region_name)
+        if retain:
+            name_select = store_name_select(passenger_type)
+            name_select = name_select if name_select else ""
+            ticket_designator, segment_number = store_ticket_designator(passenger_type, segment_select, brand_id)
+            pax_type = store_pax_type(passenger_type)
+            pax_type = pax_type if pax_type else ""
+            commission = store_commission(fare_type, passenger_type, region_name, self.pcc)
+            # tour_code = store_tour_code(passenger_type)
+            plus_up = store_plus_up(passenger_type, self.pcc)
+            plus_up = plus_up if plus_up else ""
+            fare_type_value = ""
+        else:
+            segment_number = get_segment_number(segment_select)
+            pax_type, name_select = get_passenger_type(passenger_type, fare_type)
+            fare_type_value = get_fare_type(fare_type) if get_fare_type(fare_type) else ""
+            commission = get_commision(baggage, self.pcc, region_name)
+            plus_up = ""
+            ticket_designator = ""
         header = self.generate_header("Session", "OTA_AirPriceLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
                 <soapenv:Body>
                     <OTA_AirPriceRQ Version="2.17.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                        <PriceRequestInformation Retain="{retain}">
+                        <PriceRequestInformation Retain="{str(retain).lower()}">
                         <OptionalQualifiers>
                             {commission}
-                            {tour_code}
                             <PricingQualifiers>
                                 {fare_type_value}
                                 {ticket_designator}
@@ -294,6 +308,7 @@ class SabreXMLBuilder:
         """
             Return the xml request to book flight  segment
         """
+        flight_segment = add_flight_segments_to_air_book(flight_segment)
         header = self.generate_header("EnhancedAirBookRQ", "EnhancedAirBookRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -399,13 +414,13 @@ class SabreXMLBuilder:
                             <ns1:STL_Header.RQ xmlns:ns1="http://www.sabre.com/ns/Ticketing/EDocStl"/>
                             <ns2:POS xmlns:ns2="http://www.sabre.com/ns/Ticketing/EDocStl"/>
                             <SearchParameters>
-                                {ticket_number}
+                                <DocumentNumber>{str(ticket_number)}</DocumentNumber>
                             </SearchParameters>
                     </GetElectronicDocumentRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def exchange_shopping_rq(self, token, passengers_info, origin_destination_info):
+    def exchange_shopping_rq(self, token, pnr, passengers_info, origin_destination_info):
         """
             Return the xml request to search for available flights
             for a ticket number to be exchanged
@@ -421,9 +436,9 @@ class SabreXMLBuilder:
                         </STL_Header.RQ>
                         <TicketingProvider>1S</TicketingProvider>
                         <PassengerInformation>
-                            {passengers_info}
+                            {get_passengers_exchange(pnr, passengers_info)}
                         </PassengerInformation>
-                            {origin_destination_info}
+                            {get_segments_exchange(origin_destination_info)}
                     </ExchangeShoppingRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
@@ -453,12 +468,20 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, commission_value):
+    def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, fare_type, percent, amount):
         """
             Return the xml request to store a price
             for a ticket number to be exchanged
         """
         header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
+
+        if percent is not None and percent > 0:
+            commission = get_commission_exchange(fare_type, percent)
+
+        elif amount is not None and amount > 0:
+            commission = get_commission_exchange(fare_type, amount)
+        else:
+            commission = ""
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -468,9 +491,9 @@ class SabreXMLBuilder:
                         <ExchangeConfirmation PQR_Number="{price_quote}">
                             <OptionalQualifiers>
                                 <FOP_Qualifiers>
-                                    {form_of_payment}
+                                    {get_form_of_payment(payment_type = form_of_payment["payment_type"], code_card = form_of_payment["code_card"], expire_date = form_of_payment["expire_date"], cc_number = form_of_payment["cc_number"])}
                                 </FOP_Qualifiers>
-                                {commission_value}
+                                {commission}
                             </OptionalQualifiers>
                         </ExchangeConfirmation>
                     </AutomatedExchangesRQ>

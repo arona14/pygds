@@ -1,0 +1,241 @@
+{
+	"CreatePassengerNameRecordRQ": {
+		"AirBook": {
+			"HaltOnStatus": [
+				{
+					"Code": "NO"
+				},
+				{
+					"Code": "NN"
+				},
+				{
+					"Code": "UC"
+				},
+				{
+					"Code": "US"
+				}
+			],
+			"OriginDestinationInformation": {
+				"FlightSegment": [
+					{
+						"ArrivalDateTime": "2019-11-06T11:14:00",
+						"DepartureDateTime": "2019-11-06T09:40:00",
+						"FlightNumber": "5152",
+						"NumberInParty": "1",
+						"ResBookDesigCode": "V",
+						"Status": "NN",
+						"DestinationLocation": {
+							"LocationCode": "YUL"
+						},
+						"MarketingAirline": {
+							"Code": "DL",
+							"FlightNumber": "5152"
+						},
+						"MarriageGrp": "O",
+						"OperatingAirline": {
+							"Code": "DL"
+						},
+						"OriginLocation": {
+							"LocationCode": "JFK"
+						}
+					},
+					{
+						"ArrivalDateTime": "2019-11-07T11:15:00",
+						"DepartureDateTime": "2019-11-06T22:15:00",
+						"FlightNumber": "8613",
+						"NumberInParty": "1",
+						"ResBookDesigCode": "V",
+						"Status": "NN",
+						"DestinationLocation": {
+							"LocationCode": "CDG"
+						},
+						"MarketingAirline": {
+							"Code": "DL",
+							"FlightNumber": "8613"
+						},
+						"MarriageGrp": "I",
+						"OperatingAirline": {
+							"Code": "AF"
+						},
+						"OriginLocation": {
+							"LocationCode": "YUL"
+						}
+					},
+					{
+						"ArrivalDateTime": "2019-11-30T08:00:00",
+						"DepartureDateTime": "2019-11-30T07:35:00",
+						"FlightNumber": "8718",
+						"NumberInParty": "1",
+						"ResBookDesigCode": "V",
+						"Status": "NN",
+						"DestinationLocation": {
+							"LocationCode": "LHR"
+						},
+						"MarketingAirline": {
+							"Code": "DL",
+							"FlightNumber": "8718"
+						},
+						"MarriageGrp": "O",
+						"OperatingAirline": {
+							"Code": "AF"
+						},
+						"OriginLocation": {
+							"LocationCode": "CDG"
+						}
+					},
+					{
+						"ArrivalDateTime": "2019-11-30T23:20:00",
+						"DepartureDateTime": "2019-11-30T20:05:00",
+						"FlightNumber": "4376",
+						"NumberInParty": "1",
+						"ResBookDesigCode": "V",
+						"Status": "NN",
+						"DestinationLocation": {
+							"LocationCode": "JFK"
+						},
+						"MarketingAirline": {
+							"Code": "DL",
+							"FlightNumber": "4376"
+						},
+						"MarriageGrp": "I",
+						"OperatingAirline": {
+							"Code": "VS"
+						},
+						"OriginLocation": {
+							"LocationCode": "LHR"
+						}
+					}
+				]
+			},
+			"RedisplayReservation": {
+				"NumAttempts": 2,
+				"WaitInterval": 2000
+			},
+			"RetryRebook": {
+				"Option": false
+			}
+		},
+		"AirPrice": [
+			{
+				"PriceRequestInformation": {
+					"Retain": true,
+					"OptionalQualifiers": {
+						"MiscQualifiers": {
+							"AirExtras": {
+								"Ind": true
+							},
+							"Commission": {
+								"Amount": "6"
+							}
+						},
+						"PricingQualifiers": {
+							"PassengerType": [
+								{
+									"Code": "JCB",
+									"Quantity": "1"
+								}
+							],
+							"PlusUp": {
+								"Amount": "6"
+							}
+						}
+					}
+				}
+			}
+		],
+		"PostProcessing": {
+			"EndTransaction": {
+				"Source": {
+					"ReceivedFrom": "E"
+				}
+			},
+			"RedisplayReservation": true,
+			"UnmaskCreditCard": true
+		},
+		"SpecialReqDetails": {
+			"SpecialService": {
+				"SpecialServiceInfo": {
+					"SecureFlight": [
+						{
+							"PersonName": {
+								"GivenName": "Mbaye ",
+								"NameNumber": "1.1",
+								"Surname": "Hann",
+								"Gender": "M",
+								"DateOfBirth": "1990-03-09"
+							},
+							"SegmentNumber": "A"
+						}
+					]
+				}
+			},
+			"AddRemark": {
+				"RemarkInfo": {
+					"Remark": [
+						{
+							"Type": "Invoice",
+							"Text": "S*UD100 ibou"
+						},
+						{
+							"Type": "Invoice",
+							"Text": "S*UD25 N"
+						},
+						{
+							"Type": "General",
+							"Text": "PAXINFO 772323424222"
+						},
+						{
+							"Type": "General",
+							"Text": "PAXINFO mbaye¤ctsfares.com"
+						},
+						{
+							"Type": "General",
+							"Text": "PROPOSED 290.14"
+						}
+					]
+				}
+			}
+		},
+		"TravelItineraryAddInfo": {
+			"AgencyInfo": {
+				"Ticketing": {
+					"TicketType": "7TAW03SEP/1159P"
+				}
+			},
+			"CustomerInfo": {
+				"ContactNumbers": {
+					"ContactNumber": [
+						{
+							"NameNumber": "1.1",
+							"Phone": "772323424222",
+							"PhoneUseType": "H"
+						}
+					]
+				},
+				"CreditCardData": {
+					"PreferredCustomer": {
+						"ind": true
+					}
+				},
+				"CustomerIdentifier": "D586445858",
+				"PersonName": [
+					{
+						"GivenName": "Mbaye ",
+						"Infant": false,
+						"NameNumber": "1.1",
+						"PassengerType": "JCB",
+						"Surname": "Hann"
+					}
+				],
+				"Email": [
+					{
+						"Address": "mbaye@ctsfares.com"
+					}
+				]
+			}
+		},
+		"targetCity": "WR17",
+		"version": "2.1.0"
+	}
+}
+

@@ -8,7 +8,11 @@ from pygds.core.sessions import SessionInfo
 from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
 from pygds.core.ticket import TicketReply
 import re
-from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction
+from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
+    FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
+    Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
+from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData
+from pygds.core.rebook import RebookInfo
 
 
 class BaseResponseExtractor(object):
@@ -52,9 +56,9 @@ class BaseResponseExtractor(object):
         :return: GdsResponse
         """
         self.parse()
-        if self.parse_app_error and self.app_error is None:
-            self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
-        return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
+        # if self.parse_app_error and self.app_error is None:
+        #    self.app_error = AppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
+        return GdsResponse(None, self._extract(), None)
 
     def _extract(self):
         """
@@ -124,28 +128,19 @@ class PriceSearchExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.passenger_type = from_json(i, "@Code")
             air_itinerary_pricing_info.passenger_quantity = from_json(i, "@Quantity")
             air_itinerary_pricing_info.charge_amount = from_json(air_itinerary_pricing, "ItinTotalFare", "TotalFare", "@Amount")
-            air_itinerary_pricing_info.tour_code = self._get_tour_code(air_itinerary_pricing)
-            air_itinerary_pricing_info.ticket_designator = self._get_get_ticket_designator(air_itinerary_pricing)
+            air_itinerary_pricing_info.tour_code = self._get_tour_code_or_ticket_designator(air_itinerary_pricing, 'TC')
+            air_itinerary_pricing_info.ticket_designator = self._get_tour_code_or_ticket_designator(air_itinerary_pricing, 'TD')
             air_itinerary_pricing_info.commission_percentage = self._get_commission_percent(air_itinerary_pricing)
             air_itinerary_pricing_info.fare_break_down = self._get_fare_break_down(air_itinerary_pricing)
 
             return air_itinerary_pricing_info
 
-    def _get_tour_code(self, air_itinerary_pricing):
+    def _get_tour_code_or_ticket_designator(self, air_itinerary_pricing, code):
         result = None
         if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
-            if 'TC' in text:
-                text = re.findall("TC ([0-9A-Z]+)", str)[0]
-                result = text
-        return result
-
-    def _get_get_ticket_designator(self, air_itinerary_pricing):
-        result = None
-        if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
-            text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
-            if 'TD' in text:
-                text = re.findall("TD ([0-9A-Z]+)", str)[0]
+            if code in text:
+                text = re.findall(code + " ([0-9A-Z]+)", text)[0]
                 result = text
         return result
 
@@ -162,10 +157,10 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
     def _get_fare_break_down(self, air_itinerary_pricing):
 
-        fare_breakdown = FareBreakdown()
         fare_break_list = ensure_list(from_json(air_itinerary_pricing, "PTC_FareBreakdown"))
         fare_breakdown_list = []
         for fare_break in fare_break_list:
+            fare_breakdown = FareBreakdown()
             fare_breakdown.cabin = from_json(fare_break, "Cabin")
             fare_breakdown.fare_basis_code = from_json(fare_break, "FareBasis", "@Code")
             fare_breakdown.fare_amount = from_json(fare_break, "FareBasis", "@FareAmount") if "@FareAmount" in from_json(fare_break, "FareBasis") else None
@@ -178,10 +173,26 @@ class PriceSearchExtractor(BaseResponseExtractor):
         return fare_breakdown_list
 
 
+class RebookExtractor(BaseResponseExtractor):
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="EnhancedAirBookRS")
+        self.parsed = True
+
+    def _extract(self):
+        rebook_info = RebookInfo()
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "EnhancedAirBookRS")
+        rebook_info.status = from_json(payload, "ApplicationResults", "@status")
+        rebook_info.air_book_rs = from_json(payload, "OTA_AirBookRS")
+        rebook_info.travel_itinerary_read_rs = from_json(payload, "TravelItineraryReadRS")
+        return rebook_info
+
+
 class IssueTicketExtractor(BaseResponseExtractor):
     """
         Class to extract issue ticket information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="AirTicketRS")
         self.parsed = True
@@ -211,6 +222,7 @@ class EndTransactionExtractor(BaseResponseExtractor):
     """
         Class to extract end transaction information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="EndTransactionRS")
         self.parsed = True
@@ -458,6 +470,7 @@ class SabreQueuePlaceExtractor(BaseResponseExtractor):
     """
         Class to extract Queue Place information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="QueuePlaceRS")
         self.parsed = True
@@ -485,6 +498,7 @@ class SabreIgnoreTransactionExtractor(BaseResponseExtractor):
     """
         Class to extract ignore transaction information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="IgnoreTransactionRS")
         self.parsed = True
@@ -502,6 +516,7 @@ class SendRemarkExtractor(BaseResponseExtractor):
 
     """Class to extract the send remark from XML response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="PassengerDetailsRS")
         self.parsed = True
@@ -510,3 +525,281 @@ class SendRemarkExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
         status = from_json(payload, "ApplicationResults", "@status")
         return {'status': status}
+
+
+class ExchangeBaseResponseExtractor(object):
+    """
+        This is a base class for all response extractor. A helpful class to extract useful info from an XML.
+    """
+
+    def __init__(self, xml_content: str, parse_session: bool = True, parse_app_error: bool = True,
+                 main_tag: str = None):
+        """
+        constructor for base class
+        :param xml_content: The content as XML
+        :param parse_session: A boolean to tell if we will the session part
+        :param parse_app_error: A boolean to tell if we will parse application error part
+        :param main_tag: The main tag of the reply
+        """
+        self.xml_content = xml_content
+        self.tree = None
+        self.parsed = False
+        self.parse_session = parse_session
+        self.parse_app_error = parse_app_error
+        self.main_tag = main_tag
+        self.log = logging.getLogger(str(self.__class__))
+        self.session_info: SessionInfo = None
+        self.app_error: ApplicationError = None
+
+    def default_value(self):
+        return None
+
+    def parse(self):
+        """
+            If not already done, it parses the XML content to JSON and save it.
+        """
+        if not self.parsed:
+            self.tree = xmlparser.parse_xml(self.xml_content)
+            self.parsed = True
+
+    def extract(self):
+        """
+        The public method to call when extracting useful data.
+        :return: GdsResponse
+        """
+        self.parse()
+        if self.parse_app_error and self.app_error is None:
+            self.app_error = ExchangeAppErrorExtractor(self.xml_content, self.main_tag).extract().application_error
+        return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
+
+    def _extract(self):
+        """
+            A private method that does the work of extracting useful data.
+        """
+        raise NotImplementedError("Sub class must implement '_extract' method")
+
+
+class ExchangeAppErrorExtractor(ExchangeBaseResponseExtractor):
+    """
+    Extract application error from response
+    """
+
+    def __init__(self, xml_content: str, main_tag: str):
+        super().__init__(xml_content, False, False, main_tag)
+        self.parsed = True
+
+    def extract(self):
+        response = super().extract()
+        response.application_error = response.payload
+        return response
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body", self.main_tag)
+        app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
+        if not app_error_data:
+            return None
+
+        description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
+        return ApplicationError(None, None, None, description)
+
+
+class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="GetElectronicDocumentRS")
+        self.parsed = True
+
+    def _extract(self):
+
+        payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body")
+        ticket_exchangeable_rs = from_json(payload, "GetElectronicDocumentRS")
+        ticket_exchangeable_rs = str(ticket_exchangeable_rs).replace("@", "")
+        ticket_exchangeable_rs = eval(ticket_exchangeable_rs.replace("u'", "'"))
+
+        return {
+            'is_ticket_exchangeable': self.is_ticket_exchangeable(ticket_exchangeable_rs)
+        }
+
+    def is_ticket_exchangeable(self, data):
+
+        status = from_json(data, "STL:STL_Header.RS", "STL:Results")
+        agent_data = from_json(data, "Agent")
+        sine = from_json_safe(agent_data, "sine")
+        ticketing_provider = from_json_safe(agent_data, "TicketingProvider")
+        work_location = from_json_safe(agent_data, "WorkLocation")
+        home_location = from_json_safe(agent_data, "HomeLocation")
+        iso_country_code = from_json_safe(agent_data, "IsoCountryCode")
+        agent_ = Agent(sine, ticketing_provider, work_location, home_location, iso_country_code)
+        for t in ensure_list(from_json(data, "DocumentDetailsDisplay", "Ticket")):
+            number = from_json(t, "number")
+            traveler = from_json(t, "Customer", "Traveler")
+            ticket_details = TicketDetails(number, traveler)
+            for i in from_json_safe(t, "ServiceCoupon"):
+                coupon = from_json(i, "coupon")
+                marketing_provider = from_json(i, "MarketingProvider")
+                marketing_flight_number = from_json(i, "MarketingFlightNumber")
+                operating_provider = from_json(i, "OperatingProvider")
+                origin = from_json(i, "StartLocation")
+                destination = from_json(i, "EndLocation")
+                class_of_service = from_json(i, "ClassOfService", "name")
+                booking_status = from_json(i, "BookingStatus")
+                current_status = from_json(i, "CurrentStatus")
+                service_coupon = ServiceCoupon(coupon, marketing_provider, marketing_flight_number, operating_provider, origin, destination, class_of_service, booking_status, current_status)
+                ticket_details.add_service_coupon(service_coupon)
+        to_return = ElectronicDocument(status, agent_, ticket_details)
+
+        return to_return
+
+
+class ExchangeShoppingExtractor(BaseResponseExtractor):
+
+    """
+        A class to extract itineraries for ticket exchange
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="ExchangeShoppingRS")
+        self.parsed = True
+
+    def _extract(self):
+
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        exchange_shopping_rs = from_json(payload, "ExchangeShoppingRS")
+        exchange_shopping_rs = str(exchange_shopping_rs).replace("@", "")
+        exchange_shopping_rs = eval(exchange_shopping_rs.replace("u'", "'"))
+        status = from_json(exchange_shopping_rs, "ApplicationResults", "status")
+        to_return = []
+        for i in ensure_list(from_json(exchange_shopping_rs, "Solution")):
+            sequence = from_json(i, "sequence")
+            book_itinerary = self._book_itinerary(from_json(i, "BookItinerary"))
+            fare = self._fare(from_json(i, "Fare"))
+            exchange_data = ExchangeData(sequence, book_itinerary, fare)
+            to_return.append(exchange_data)
+        exchange_shopping = ExchangeShoppingInfos(status, to_return)
+        return exchange_shopping
+
+    def _book_itinerary(self, book_itinerary_data):
+
+        book_iti = BookItinerary()
+        for ori in ensure_list(from_json(book_itinerary_data, "OriginDestination")):
+            origin_destination = OriginDestination()
+            list_segment = []
+            list_itinerary = []
+            for book in ensure_list(from_json(ori, "ReservationSegment")):
+                segment_number = from_json_safe(book, "segmentNumber")
+                elapsed_time = from_json_safe(book, "elapsedTime")
+                departure_date = from_json_safe(book, "startDateTime")
+                arrival_date = from_json_safe(book, "endDateTime")
+                origin = from_json_safe(book, "startLocation")
+                destination = from_json_safe(book, "endLocation")
+                marketing_flight_number = from_json_safe(book, "marketingFlightNumber")
+                marketing = from_json_safe(book, "marketingProvider")
+                operating = from_json_safe(book, "operatingProvider")
+                reservation_segment = ReservationSegment(segment_number, elapsed_time, departure_date, arrival_date, origin, destination, marketing_flight_number, marketing, operating)
+                list_segment.append(reservation_segment)
+                origin_destination.segments = list_segment
+                list_itinerary.append(origin_destination)
+        book_iti.origin_destination = list_itinerary
+        return book_iti
+
+    def _fare(self, fare_data):
+        valid = from_json(fare_data, "valid")
+        sub_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "currencyCode")
+        sub_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "#text")
+        sub_total_difference = PriceDifference(sub_total_difference_currency_code, sub_total_difference_amount)
+
+        total_fee_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "currencyCode")
+        total_fee_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "#text")
+        total_fee = PriceDifference(total_fee_currency_code, total_fee_difference_amount)
+
+        grand_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "currencyCode")
+        grand_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "#text")
+        grand_total_difference = PriceDifference(grand_total_difference_currency_code, grand_total_difference_amount)
+        total_price = TotalPriceDifference(sub_total_difference, total_fee, grand_total_difference)
+        to_return = Fare(valid, total_price)
+        return to_return
+
+
+class ExchangePriceExtractor(BaseResponseExtractor):
+
+    """
+        A class to extract Price from response of price an air ticket exchange.
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="AutomatedExchangesRS")
+        self.parsed = True
+
+    def _extract(self):
+
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
+        automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
+        automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
+        return {
+            "automated_exchanges": automated_exchanges_rs
+        }
+
+
+class ExchangeCommitExtractor(BaseResponseExtractor):
+
+    """
+        A class to extract Reservation from response of retrieve PNR.
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="AutomatedExchangesRS")
+        self.parsed = True
+
+    def _extract(self):
+
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
+        automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
+        automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
+        return {
+            "commit_exchanges": automated_exchanges_rs
+        }
+
+
+class SeatMapResponseExtractor(BaseResponseExtractor):
+    """
+        Will extract response from seat map service
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "EnhancedSeatMapRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body")
+        seat_map = from_json_safe(payload, "EnhancedSeatMapRS", "SeatMap")
+        seats = []
+        if seat_map:
+            for m in seat_map:
+                change_of_gauge = m["changeOfGaugeInd"]
+                equipement = m["Equipment"]
+                flight = m["Flight"]
+                cabin = m["Cabin"]
+
+                seat = SeatMap(change_of_gauge, equipement, flight, cabin)
+                seats.append(seat)
+        else:
+            change_of_gauge, equipement, flight, cabin = (None, None, None, None)
+        return seats
+
+
+class CloseSessionExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "SessionCloseRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json(payload, "SessionCloseRS", "@status")
+        if status == 'Approved':
+            return True
