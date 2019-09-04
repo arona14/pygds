@@ -1,3 +1,4 @@
+from datetime import  datetime
 class SessionInfo:
     """
     This class is for containing information for a session
@@ -9,6 +10,7 @@ class SessionInfo:
         self.session_id = session_id
         self.message_id = message_id
         self.session_ended = session_ended
+        self.last_access: datetime = None
 
     def __repr__(self):
         return {
@@ -16,7 +18,8 @@ class SessionInfo:
             "sequence_number": self.sequence_number,
             "session_id": self.session_id,
             "message_id": self.message_id,
-            "session_ended": self.session_ended
+            "session_ended": self.session_ended,
+            "last_access": self.last_access
         }
 
     def __str__(self):
