@@ -244,6 +244,24 @@ def _traveler_ref(pax_type, begin, pax_number):
             <ptc>{pax_type}</ptc>
             {travellers}
         </paxReference>
+
+        """
+
+
+def travel_flight_info(cabin, ):
+
+    return f"""
+        <travelFlightInfo>
+            <cabinId>
+                <cabinQualifier>RC</cabinQualifier>
+                <cabin>F</cabin>
+            </cabinId>
+            <companyIdentity>
+                <carrierQualifier>F</carrierQualifier>
+                <carrierId>DL</carrierId>
+                <carrierId>AF</carrierId>
+            </companyIdentity>
+        </travelFlightInfo>
         """
 
 
