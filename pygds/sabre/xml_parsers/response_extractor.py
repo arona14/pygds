@@ -13,7 +13,7 @@ from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassenge
     Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
 from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData, \
     ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, ExchangeComparison, \
-    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, TaxComparison, TaxData, ExchangeDetails
+    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, TaxComparison, TaxData, ExchangeDetails, SourceData, ExchangeConfirmationInfos
 from pygds.core.rebook import RebookInfo
 
 
@@ -832,9 +832,26 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
+
+        status = self._source(from_json(automated_exchanges_rs, "STL:ApplicationResults", "status"))
+        pqr_number = self._source(from_json(automated_exchanges_rs, "STL:ExchangeConfirmation", "PQR_Number"))
+        source = self._source(from_json(automated_exchanges_rs, "Source"))
+        exchange_confirmation = ExchangeConfirmationInfos(status, pqr_number, source)
+
         return {
-            "commit_exchanges": automated_exchanges_rs
+            "exchange_confirmation": exchange_confirmation
         }
+
+    def _source(self, source_data):
+
+        agency_city = from_json_safe(source_data, "AgencyCity")
+        agent_duty_sine = from_json_safe(source_data, "AgentDutySine")
+        agent_work_area = from_json_safe(source_data, "AgentWorkArea")
+        create_date_time = from_json_safe(source_data, "CreateDateTime")
+        iata_number = from_json_safe(source_data, "IATA_Number")
+        pseudo_city_code = from_json_safe(source_data, "PseudoCityCode")
+        to_return = SourceData(agency_city, agent_duty_sine, agent_work_area, create_date_time, iata_number, pseudo_city_code)
+        return to_return
 
 
 class SeatMapResponseExtractor(BaseResponseExtractor):
