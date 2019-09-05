@@ -129,21 +129,9 @@ class ExchangeShoppingInfos(BasicDataObject):
         }
 
 
-class ChangeFeeCollectionOptions(BasicDataObject):
-
-    def __init__(self, fee_collection_method):
-
-        self.fee_collection_method = fee_collection_method
-
-    def to_data(self):
-        return {
-            "fee_collection_method": self.fee_collection_method
-        }
-
-
 class ExchangeDetails(BasicDataObject):
 
-    def __init__(self, change_fee: str = None, exchange_reissue: str = None, total_refund: str = None, change_fee_collectionOptions: ChangeFeeCollectionOptions = None):
+    def __init__(self, change_fee: str = None, exchange_reissue: str = None, total_refund: str = None, change_fee_collectionOptions: str = None):
 
         self.change_fee = change_fee
         self.exchange_reissue = exchange_reissue
@@ -188,30 +176,6 @@ class TaxComparison(BasicDataObject):
         }
 
 
-class TotalFare(BasicDataObject):
-
-    def __init__(self, amount: str = None):
-        self.amount = amount
-
-    def to_data(self):
-
-        return {
-            "amount": self.amount
-        }
-
-
-class Taxes(BasicDataObject):
-
-    def __init__(self, total_amount: str = None):
-        self.total_amount = total_amount
-
-    def to_data(self):
-
-        return {
-            "total_amount": self.total_amount
-        }
-
-
 class BaseFare(BasicDataObject):
 
     def __init__(self, amount: str = None, currency_code: str = None):
@@ -228,7 +192,7 @@ class BaseFare(BasicDataObject):
 
 class ItinTotalFare(BasicDataObject):
 
-    def __init__(self, base_fare: BaseFare = None, taxes: Taxes = None, total_fare: TotalFare = None):
+    def __init__(self, base_fare: BaseFare = None, taxes: str = None, total_fare: str = None):
 
         self.base_fare = base_fare
         self.taxes = taxes
@@ -271,17 +235,6 @@ class ExchangeComparison(BasicDataObject):
         }
 
 
-class FreeBaggageAllowance(BasicDataObject):
-
-    def __init__(self, number):
-        self.number = number
-
-    def to_data(self):
-        return {
-            "number": self.number
-        }
-
-
 class MarketingAirline(BasicDataObject):
 
     def __init__(self, code, flight_number):
@@ -297,7 +250,7 @@ class MarketingAirline(BasicDataObject):
 
 class ExchangeFlightSegment(BasicDataObject):
 
-    def __init__(self, departure_date: str = None, arrival_date: str = None, origin: str = None, destination: str = None, flight_number: str = None, rph: str = None, segment_number: str = None, marketing_airline: MarketingAirline = None, free_baggage_allowance: FreeBaggageAllowance = None):
+    def __init__(self, departure_date: str = None, arrival_date: str = None, origin: str = None, destination: str = None, flight_number: str = None, rph: str = None, segment_number: str = None, marketing_airline: MarketingAirline = None, free_baggage_allowance: str = None):
         self.departure_date = departure_date
         self.arrival_date = arrival_date
         self.origin = origin

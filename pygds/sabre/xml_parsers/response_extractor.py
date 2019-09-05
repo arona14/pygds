@@ -12,8 +12,8 @@ from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassenge
     FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
     Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
 from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData, \
-    ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, FreeBaggageAllowance, ExchangeComparison, \
-    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, Taxes, TotalFare, TaxComparison, TaxData, ExchangeDetails, ChangeFeeCollectionOptions
+    ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, ExchangeComparison, \
+    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, TaxComparison, TaxData, ExchangeDetails
 from pygds.core.rebook import RebookInfo
 
 
@@ -770,8 +770,7 @@ class ExchangePriceExtractor(BaseResponseExtractor):
             marketing_airline_code = from_json_safe(i, "MarketingAirline", "Code")
             marketing_airline_flight_number = from_json_safe(i, "MarketingAirline", "FlightNumber")
             marketing_airline = MarketingAirline(marketing_airline_code, marketing_airline_flight_number)
-            free_baggage = from_json_safe(i, "FreeBaggageAllowance", "Number")
-            free_baggage_allowance = FreeBaggageAllowance(free_baggage)
+            free_baggage_allowance = from_json_safe(i, "FreeBaggageAllowance", "Number")
             flight_segment = ExchangeFlightSegment(departure_date, arrival_date, origin, destination, flight_number, rph, segment_number, marketing_airline, free_baggage_allowance)
             list_flight_segment.append(flight_segment)
         baggage_info = BaggageInfo()
@@ -786,11 +785,9 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         for i in ensure_list(from_json(exchange_comparaison_data, "AirItineraryPricingInfo")):
             base_fare_amount = from_json_safe(i, "ItinTotalFare", "BaseFare", "Amount")
             base_fare_cc = from_json_safe(i, "ItinTotalFare", "BaseFare", "CurrencyCode")
-            taxe_total_amount = from_json_safe(i, "ItinTotalFare", "Taxes", "TotalAmount")
-            total_fare_amount = from_json_safe(i, "ItinTotalFare", "TotalFare", "Amount")
+            taxe = from_json_safe(i, "ItinTotalFare", "Taxes", "TotalAmount")
+            total_fare = from_json_safe(i, "ItinTotalFare", "TotalFare", "Amount")
             base_fare = BaseFare(base_fare_amount, base_fare_cc)
-            taxe = Taxes(taxe_total_amount)
-            total_fare = TotalFare(total_fare_amount)
             itin_total_fare = ItinTotalFare(base_fare, taxe, total_fare)
             price_type = from_json_safe(i, "Type")
             air_itinerary_pricing_info = ExchangeAirItineraryPricingInfo(price_type, itin_total_fare)
@@ -807,8 +804,7 @@ class ExchangePriceExtractor(BaseResponseExtractor):
             tax_comparison = TaxComparison(tax_type, tax_list)
             tax_comparaison_list.append(tax_comparison)
 
-        fee_collection = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
-        change_fee_collection = ChangeFeeCollectionOptions(fee_collection)
+        change_fee_collection = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
         exchange_reissue = from_json(exchange_comparaison_data, "ExchangeDetails", "ExchangeReissue")
         change_fee = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
         total_refund = from_json(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
