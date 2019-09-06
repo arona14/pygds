@@ -1,7 +1,7 @@
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
-from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml
 from pygds.core.price import Fare, FareAmount, TaxInformation, WarningInformation, FareComponent, CouponDetails, \
     SegmentInformation, ValidityInformation, TstInformation
@@ -200,35 +200,35 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json(payload, "pnrHeader", "reservationInfo", "reservation")
+        pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation")
         pnr_data = {"pnr_number": pnr}
-        travellers_info = from_json(payload, "travellerInfo")
+        travellers_info = from_json_safe(payload, "travellerInfo")
         passengers = []
         travellers_info = ensure_list(travellers_info)
         for idx, pax in enumerate(travellers_info):
-            info = from_json(pax, "passengerData", "travellerInformation")
-            surname = from_json(info, "traveller", "surname")
-            name = from_json(info, "passenger", "firstName")
-            passenge_type = from_json(info, "passenger", "type")
+            info = from_json_safe(pax, "passengerData", "travellerInformation")
+            surname = from_json_safe(info, "traveller", "surname")
+            name = from_json_safe(info, "passenger", "firstName")
+            passenge_type = from_json_safe(info, "passenger", "type")
             date_of_birth = ""
             passengers.append({"surname": surname, "name": name, "type": passenge_type, "date_of_birth": date_of_birth})
         pnr_data["passengers"] = passengers
 
-        itineraries_info = from_json(payload, "originDestinationDetails", "itineraryInfo")
+        itineraries_info = from_json_safe(payload, "originDestinationDetails", "itineraryInfo")
         itineraries_info = ensure_list(itineraries_info)
         segments = []
         for idx, seg in enumerate(itineraries_info):
-            travel_details = from_json(seg, "travelProduct")
-            from_city = from_json(travel_details, "boardpointDetail", "cityCode")
-            to_city = from_json(travel_details, "offpointDetail", "cityCode")
-            company = from_json(travel_details, "companyDetail", "identification")
-            product = from_json(travel_details, "product")
-            dep_date = from_json(product, "depDate")
-            dep_time = from_json(product, "depTime")
-            arr_date = from_json(product, "arrDate")
-            arr_time = from_json(product, "arrTime")
+            travel_details = from_json_safe(seg, "travelProduct")
+            from_city = from_json_safe(travel_details, "boardpointDetail", "cityCode")
+            to_city = from_json_safe(travel_details, "offpointDetail", "cityCode")
+            company = from_json_safe(travel_details, "companyDetail", "identification")
+            product = from_json_safe(travel_details, "product")
+            dep_date = from_json_safe(product, "depDate")
+            dep_time = from_json_safe(product, "depTime")
+            arr_date = from_json_safe(product, "arrDate")
+            arr_time = from_json_safe(product, "arrTime")
 
-            fligth_number = from_json(travel_details, "productDetails", "identification")
+            fligth_number = from_json_safe(travel_details, "productDetails", "identification")
             segments.append({"from_city": from_city, "to_city": to_city, "company": company, "dep_date": dep_date,
                              "dep_time": dep_time, "arr_date": arr_date, "arr_time": arr_time,
                              "fligth_number": fligth_number})
@@ -246,7 +246,7 @@ class PricePNRExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_PricePNRWithBookingClassReply")
-        fare_list = from_json(payload, "fareList")
+        fare_list = from_json_safe(payload, "fareList")
         fare_list = ensure_list(fare_list)
         fares = []
         for idx, fare in enumerate(fare_list):
@@ -255,7 +255,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             ref_type = ref["referenceType"]
             if ref_type.upper() == "TST":
                 _fare.fare_reference = ref["uniqueReference"]
-            places = from_json(fare, "originDestination", "cityCode")
+            places = from_json_safe(fare, "originDestination", "cityCode")
             places = ensure_list(places)
             if len(places) != 2:
                 self.log.error("The Origin destination must contain 2 elements")
@@ -279,7 +279,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[str]
         """
         refs = []
-        for pax_ref in ensure_list(from_json(fare, "paxSegReference", "refDetails")):
+        for pax_ref in ensure_list(from_json_safe(fare, "paxSegReference", "refDetails")):
             if pax_ref["refQualifier"] == 'PA':
                 refs.append(pax_ref["refNumber"])
         return refs
@@ -291,9 +291,9 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[Amount]
         """
         amounts = []
-        fare_amounts = from_json(fare, "fareDataInformation")
-        fare_main = from_json(fare_amounts, "fareDataMainInformation")
-        fare_amounts = ensure_list(from_json(fare_amounts, "fareDataSupInformation"))
+        fare_amounts = from_json_safe(fare, "fareDataInformation")
+        fare_main = from_json_safe(fare_amounts, "fareDataMainInformation")
+        fare_amounts = ensure_list(from_json_safe(fare_amounts, "fareDataSupInformation"))
         fare_amounts.append(fare_main)
         for am in fare_amounts:
             amounts.append(extract_amount(am))
@@ -306,14 +306,14 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[Amount]
         """
         taxes = []
-        for tax_info in ensure_list(from_json(fare, "taxInformation")):
+        for tax_info in ensure_list(from_json_safe(fare, "taxInformation")):
             tax: TaxInformation = TaxInformation()
-            tax_details = from_json(tax_info, "taxDetails")
+            tax_details = from_json_safe(tax_info, "taxDetails")
             tax.tax_qualifier = from_json_safe(tax_details, "taxQualifier")
             tax.tax_identifier = from_json_safe(tax_details, "taxIdentification", "taxIdentifier")
             tax.tax_type = from_json_safe(tax_details, "taxType", "isoCountry")
             tax.tax_nature = from_json_safe(tax_details, "taxNature")
-            tax.tax_amount = extract_amount(from_json(tax_info, "amountDetails", "fareDataMainInformation"))
+            tax.tax_amount = extract_amount(from_json_safe(tax_info, "amountDetails", "fareDataMainInformation"))
             taxes.append(tax)
         return taxes
 
@@ -324,7 +324,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[Amount]
         """
         warnings = []
-        for warning_info in ensure_list(from_json(fare, "warningInformation")):
+        for warning_info in ensure_list(from_json_safe(fare, "warningInformation")):
             warning: WarningInformation = WarningInformation()
             details = from_json_safe(warning_info, "warningCode", "applicationErrorDetail")
             warning.error_code = from_json_safe(details, "applicationErrorCode")
@@ -341,15 +341,15 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[Amount]
         """
         components = []
-        for comp in ensure_list(from_json(fare, "fareComponentDetailsGroup")):
+        for comp in ensure_list(from_json_safe(fare, "fareComponentDetailsGroup")):
             fare_component: FareComponent = FareComponent()
             item_details = from_json_safe(comp, "fareComponentID", "itemNumberDetails")
             fare_component.item_number = from_json_safe(item_details, "number")
             fare_component.item_type = from_json_safe(item_details, "type")
 
-            places = from_json(comp, "marketFareComponent")
-            fare_component.departure = from_json(places, "boardPointDetails", "trueLocationId")
-            fare_component.arrival = from_json(places, "offpointDetails", "trueLocationId")
+            places = from_json_safe(comp, "marketFareComponent")
+            fare_component.departure = from_json_safe(places, "boardPointDetails", "trueLocationId")
+            fare_component.arrival = from_json_safe(places, "offpointDetails", "trueLocationId")
             fare_component.monetary_info = extract_amount(
                 from_json_safe(comp, "monetaryInformation", "monetaryDetails"),
                 "typeQualifier", "amount", "currency")
@@ -379,24 +379,24 @@ class PricePNRExtractor(BaseResponseExtractor):
         :return: List[Amount]
         """
         segments = []
-        for sg in ensure_list(from_json(fare, "segmentInformation")):
+        for sg in ensure_list(from_json_safe(fare, "segmentInformation")):
             segment: SegmentInformation = SegmentInformation()
-            s_ref = from_json(sg, "segmentReference", "refDetails")
+            s_ref = from_json_safe(sg, "segmentReference", "refDetails")
             if s_ref and s_ref["refQualifier"] == "S":
                 segment.segment_reference = s_ref["refNumber"]
             segment.segment_sequence_number = from_json_safe(sg, "sequenceInformation", "sequenceSection",
                                                              "sequenceNumber")
-            segment.connection_type = from_json(sg, "connexInformation", "connecDetails", "connexType")
-            segment.class_of_service = from_json(sg, "segDetails", "segmentDetail", "classOfService")
+            segment.connection_type = from_json_safe(sg, "connexInformation", "connecDetails", "connexType")
+            segment.class_of_service = from_json_safe(sg, "segDetails", "segmentDetail", "classOfService")
 
-            fare_basis = from_json(sg, "fareQualifier", "fareBasisDetails")
-            segment.fare_basis_primary_code = from_json(fare_basis, "primaryCode")
-            segment.fare_basis_code = from_json(fare_basis, "fareBasisCode")
-            segment.fare_basis_ticket_designator = from_json(fare_basis, "discTktDesignator")
+            fare_basis = from_json_safe(sg, "fareQualifier", "fareBasisDetails")
+            segment.fare_basis_primary_code = from_json_safe(fare_basis, "primaryCode")
+            segment.fare_basis_code = from_json_safe(fare_basis, "fareBasisCode")
+            segment.fare_basis_ticket_designator = from_json_safe(fare_basis, "discTktDesignator")
 
-            baggage_allowance = from_json(sg, "bagAllowanceInformation", "bagAllowanceDetails")
-            segment.baggage_allowance_quantity = from_json(baggage_allowance, "baggageQuantity")
-            segment.baggage_allowance_type = from_json(baggage_allowance, "baggageType")
+            baggage_allowance = from_json_safe(sg, "bagAllowanceInformation", "bagAllowanceDetails")
+            segment.baggage_allowance_quantity = from_json_safe(baggage_allowance, "baggageQuantity")
+            segment.baggage_allowance_type = from_json_safe(baggage_allowance, "baggageType")
 
             for validity in ensure_list(from_json_safe(sg, "validityInformation")):
                 validity_info: ValidityInformation = ValidityInformation()
@@ -420,7 +420,7 @@ class CommandReplyExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Command_CrypticReply")
-        return from_json(payload, "longTextString", "textStringDetails")
+        return from_json_safe(payload, "longTextString", "textStringDetails")
 
 
 class FormOfPaymentExtractor(BaseResponseExtractor):
@@ -446,15 +446,15 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
         pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
-        tst_data = from_json(payload, "tstList")
-        tst_ref_data = from_json(tst_data, "tstReference")
+        tst_data = from_json_safe(payload, "tstList")
+        tst_ref_data = from_json_safe(tst_data, "tstReference")
         tst_ref = None
         if from_json_safe(tst_ref_data, "referenceType") == "TST":
             tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
-        passengers_data = ensure_list(from_json(tst_data, "paxInformation", "refDetails"))
+        passengers_data = ensure_list(from_json_safe(tst_data, "paxInformation", "refDetails"))
         pax_refs = []
         for p in passengers_data:
-            pax_refs.append(from_json(p, "refNumber"))
+            pax_refs.append(from_json_safe(p, "refNumber"))
         return TstInformation(pnr, tst_ref, pax_refs)
 
 

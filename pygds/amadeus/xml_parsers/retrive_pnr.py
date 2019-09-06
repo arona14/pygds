@@ -1,10 +1,10 @@
 import re
 from pygds.amadeus.xml_parsers.response_extractor import BaseResponseExtractor, extract_amount
-from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list, \
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
-    TicketingInfo, FormOfPayment, PnrInfo
+    TicketingInfo, FormOfPayment, PnrInfo, PnrHeader
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
@@ -29,8 +29,19 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'remarks': self._remark(),
             'pnr_info': self._pnr_info(),
             'dk_number': self._dk_number(),
-            'tst_data': self._tst_data()
+            'tst_data': self._tst_data(),
+            'pnr_header': self.pnr_header()
         }
+
+    def pnr_header(self):
+        pnr_header = from_json_safe(self.payload, "pnrHeader", "reservationInfo", "reservation")
+        if isinstance(pnr_header, dict):
+            controle_number = from_json_safe(pnr_header, "controlNumber")
+            company_id = from_json_safe(pnr_header, "companyId")
+            creation_date = from_json_safe(pnr_header, "date")
+            creation_time = from_json_safe(pnr_header, "time")
+            return PnrHeader(controle_number, company_id, creation_date, creation_time)
+        return None
 
     def _segments(self):
         segments_list = []
@@ -102,7 +113,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         passengers_list = []
         date_of_bt = self._date_of_birth()
         gender = self._gender()
-        for traveller in ensure_list(from_json(self.payload, "travellerInfo")):
+        for traveller in ensure_list(from_json_safe(self.payload, "travellerInfo")):
             ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
             data = from_json_safe(traveller, "passengerData")
             traveller_info = from_json_safe(data, "travellerInformation")
@@ -125,9 +136,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _dk_number(self):
         dk = ""
-        for data in ensure_list(from_json(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             if "accounting" in data:
-                data_account = from_json(data, "accounting")
+                data_account = from_json_safe(data, "accounting")
                 dk = from_json_safe(data_account, "account", "number")
         return dk
 
@@ -282,7 +293,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         total_taxes = 0.0
         total_taxes_currency = None
         taxes = []
-        for tax_info in ensure_list(from_json(tst_data, "fareData", "taxFields")):
+        for tax_info in ensure_list(from_json_safe(tst_data, "fareData", "taxFields")):
             tax: TaxInformation = TaxInformation()
             tax.tax_type = from_json_safe(tax_info, "taxCountryCode")
             tax.tax_nature = from_json_safe(tax_info, "taxNatureCode")
