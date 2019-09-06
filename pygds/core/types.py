@@ -529,7 +529,28 @@ class PnrInfo(BasicDataObject):
             "dk_number": self.dk_number,
             "agent_signature": self.agent_signature,
             "creation_office_id": self.creation_office_id,
-            "creation_date": self.creation_date
+            "creation_date": self.creation_date,
+        }
+
+
+class PnrHeader(BasicDataObject):
+    """
+    This class keep all informations of pnr
+    """
+
+    def __init__(self, controle_number: str = None, company_id: str = None, creation_date: str = None,
+                 creation_time: str = None):
+        self.controle_number = controle_number
+        self.company_id = company_id
+        self.creation_date = creation_date
+        self.creation_time = creation_time
+
+    def to_data(self):
+        return {
+            "controle_number": self.controle_number,
+            "company_id": self.company_id,
+            "creation_date": self.creation_date,
+            "creation_time": self.creation_time
         }
 
 
