@@ -50,7 +50,7 @@ class BFMBuilder:
                         "LocationCode": i["destination"],
                         "CodeContext": "IATA"
                     },
-                    "DepartureDateTime": i["departureDate"] + "T11:00:00"
+                    "DepartureDateTime": i["departure_date"]
                 }
             )
         return my_return
