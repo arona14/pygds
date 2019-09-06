@@ -138,22 +138,22 @@ class PriceSearchExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body",
                            "Fare_MasterPricerTravelBoardSearchReply")
-        recommendations = from_json(payload, "recommendation")
+        recommendations = from_json_safe(payload, "recommendation")
         recommendations = ensure_list(recommendations)
         recs = []
-        currency = from_json(payload, "conversionRate", "conversionRateDetail", "currency")
+        currency = from_json_safe(payload, "conversionRate", "conversionRateDetail", "currency")
 
-        flights = from_json(payload, "flightIndex")
+        flights = from_json_safe(payload, "flightIndex")
         flights = ensure_list(flights)
         for rec in recommendations:
-            prices = from_json(rec, "recPriceInfo", "monetaryDetail")  # [0].amount
+            prices = from_json_safe(rec, "recPriceInfo", "monetaryDetail")  # [0].amount
             price = ensure_list(prices)[0]["amount"]
-            segment_flights = from_json(rec, "segmentFlightRef")
+            segment_flights = from_json_safe(rec, "segmentFlightRef")
             segment_flights = ensure_list(segment_flights)
             for seg in segment_flights:
                 reco = {"price": price, "currency": currency}
                 itineraries = []
-                flight_indexes = from_json(seg, "referencingDetail")
+                flight_indexes = from_json_safe(seg, "referencingDetail")
                 flight_indexes = ensure_list(flight_indexes)
                 flight_indexes = [x["refNumber"] for x in flight_indexes if x["refQualifier"] == 'S']
                 for idx, val in enumerate(flight_indexes):
@@ -161,9 +161,9 @@ class PriceSearchExtractor(BaseResponseExtractor):
                     flight_details = flights[idx]["groupOfFlights"][int(val) - 1]["flightDetails"]
                     flight_details = ensure_list(flight_details)
                     for leg, flight in enumerate(flight_details):
-                        flight_info = from_json(flight, "flightInformation")
-                        flight_number = from_json(flight_info, "flightOrtrainNumber")
-                        locations = from_json(flight_info, "location")
+                        flight_info = from_json_safe(flight, "flightInformation")
+                        flight_number = from_json_safe(flight_info, "flightOrtrainNumber")
+                        locations = from_json_safe(flight_info, "location")
                         locations = ensure_list(locations)
                         board_airport = locations[0]["locationId"]
                         off_airport = locations[1]["locationId"]
