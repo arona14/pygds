@@ -2,12 +2,16 @@ from typing import List
 
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
+from pygds.core.request import RequestedSegment
 
 
-def mptbs_itinerary(segment: FlightSegment):
-    origin = segment.departure.airport if segment.departure.airport is not None else segment.departure.city
-    destination = segment.arrival.airport if segment.arrival.airport is not None else segment.arrival.city
-    departure_date = segment.departure.date
+def mptbs_itinerary(segment: RequestedSegment):
+    # origin = segment.departure.airport if segment.departure.airport is not None else segment.departure.city
+    # destination = segment.arrival.airport if segment.arrival.airport is not None else segment.arrival.city
+    # departure_date = segment.departure.date
+    origin = segment.origin
+    destination = segment.destination
+    departure_date = segment.departure_date
     return f"""
     <itinerary>
         <requestedSegmentRef>
@@ -64,6 +68,18 @@ def mptbs_currency_conversion(currency: str):
             <currency>{currency}</currency>
         </conversionRateDetail>
     </conversionRate>
+    """
+
+
+def mptbs_pricing_types_com(types: str = None, identify: str = ""):
+    # type_com = "\n".join([f"<corporate><corporateId>{c_qualifier}{identity}</corporateId></corporate>" for c_qualifier in types and identity in identify])
+    return f"""
+    <corporate>
+        <corporateId>
+            <corporateQualifier>{types}</corporateQualifier>
+            <identity>{identify}</identity>
+        </corporateId>
+        </corporate>
     """
 
 
