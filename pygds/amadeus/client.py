@@ -1,12 +1,10 @@
 # coding: utf-8
 from typing import List
-<<<<<<< HEAD
 # from pygds import log_handler
-=======
->>>>>>> 6f9e10c9c90e3be79dcf26c913fea1922de022d8
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.request import RequestedSegment
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
@@ -151,7 +149,6 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-<<<<<<< HEAD
     def fare_master_pricer_travel_board_search(self, segments: List[RequestedSegment], currency_conversion=None, numbering: TravellerNumbering = "", cabin="Y", c_qualifier="RC", carrrier="F"):
         """
             A method for searching prices of an itinerary.
@@ -162,17 +159,6 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         # log.debug(response_data)
-=======
-    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date,
-                                               numbering: TravellerNumbering):
-        """
-            A method for searching prices of an itinerary.
-        """
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination,
-                                                                               departure_date, arrival_date, numbering)
-        response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
-                                               'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
->>>>>>> 6f9e10c9c90e3be79dcf26c913fea1922de022d8
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
@@ -187,8 +173,7 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number,
-                                                         security_token, line_number)
+        request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number, security_token, line_number)
         response_data = self.__request_wrapper("check fare rules", request_data,
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
         return response_data
