@@ -153,9 +153,7 @@ class AmadeusClient(BaseClient):
         """
             A method for searching prices of an itinerary.
         """
-        # log = log_handler.get_logger("test_all")
         request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, segments, currency_conversion, numbering, cabin, c_qualifier, carrrier)
-        # log.debug(request_data)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         # log.debug(response_data)
