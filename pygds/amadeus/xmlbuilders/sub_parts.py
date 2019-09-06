@@ -248,21 +248,27 @@ def _traveler_ref(pax_type, begin, pax_number):
         """
 
 
-def travel_flight_info(cabin, ):
-
+def travel_flight_info(cabin: str = "F", c_qualifier=None, carrier_ids: List[str] = "", carrier=None):
+    c_qualifier = "<cabinQualifier>RC</cabinQualifier>"
     return f"""
         <travelFlightInfo>
             <cabinId>
-                <cabinQualifier>RC</cabinQualifier>
-                <cabin>F</cabin>
+                {c_qualifier}
+                <cabin>{cabin}</cabin>
             </cabinId>
-            <companyIdentity>
-                <carrierQualifier>F</carrierQualifier>
-                <carrierId>DL</carrierId>
-                <carrierId>AF</carrierId>
-            </companyIdentity>
         </travelFlightInfo>
         """
+
+
+def _tfi_company_identity(carrier_ids: List[str] = "", carrier=None):
+    carrier_qualifier = "<carrierQualifier>F</carrierQualifier>"
+    carrierid_flightinfo = "\n".join([f"<carrierId>{carrierid}</carrierId>" for carrierid in carrier_ids])
+    return f"""
+    <companyIdentity>
+        {carrier_qualifier}
+        {carrierid_flightinfo}
+    </companyIdentity>
+    """
 
 
 def add_multi_element_data_element(segment_name, qualifier, data_type, free_text):

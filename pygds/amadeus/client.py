@@ -149,12 +149,13 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, segments: List[RequestedSegment], numbering: TravellerNumbering):
+    def fare_master_pricer_travel_board_search(self, segments: List[RequestedSegment], currency_conversion=None, numbering: TravellerNumbering = "", cabin="Y", c_qualifier="RC", carrrier="F"):
         """
             A method for searching prices of an itinerary.
         """
         log = log_handler.get_logger("test_all")
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, segments, numbering)
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, segments, currency_conversion, numbering, cabin, c_qualifier, carrrier)
+        # log.debug(request_data)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         log.debug(response_data)
@@ -162,7 +163,7 @@ class AmadeusClient(BaseClient):
         return extractor.extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
-        request_data = self.xmlbuilder.fare_informative_price_without_pnr(numbering, itineraries)
+        request_data = self.xml_builder.fare_informative_price_without_pnr(numbering, itineraries)
         response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data,
                                                'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)

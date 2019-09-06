@@ -90,7 +90,8 @@ def test():
         origine, destination, date_dep, date_arr = ("DTW", "CDG", "051019", "101019")
         segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        search_results = client.fare_master_pricer_travel_board_search(segments, TravellerNumbering(2))
+        currency_code, cabin, c_qualifier, carrrier = ("EUR", "Y", "RC", "F")
+        search_results = client.fare_master_pricer_travel_board_search(segments, currency_code, TravellerNumbering(2), cabin, c_qualifier, carrrier)
         log.debug(search_results)
         # segments = search_results[0]["itineraries"]
         # log.debug(f"segment length: {len(segments)}")

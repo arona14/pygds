@@ -1,6 +1,5 @@
 from time import gmtime, strftime
 from typing import List
-
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
@@ -196,15 +195,15 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, segments: List[RequestedSegment],
-                                               numbering: TravellerNumbering, with_stops=True, result_count=250):
+    def fare_master_pricer_travel_board_search(self, office_id, segments: List[RequestedSegment], currency_conversion=None,
+                                               numbering: TravellerNumbering = "", cabin="Y", c_qualifier="RC", carrrier="F", with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
         """
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time)
-        currency_conversion: str = None
+        # currency_conversion: str = None
         stop_option = ""
         if not with_stops:
             stop_option = """
@@ -215,9 +214,10 @@ class AmadeusXMLBuilder:
             </travelFlightInfo>
             """
         pricing_options = ["ET", "RP", "RU", "TAC"]
-        type_com: str = None
-        if type_com:
-            pricing_options.append("RW")
+        carrierid_options = ["DL", "AF"]
+        # type_com: str = None
+        # if type_com:
+        #     pricing_options.append("RW")
         # identify = "012345"
         if currency_conversion:
             pricing_options.append("CUC")
@@ -248,6 +248,7 @@ class AmadeusXMLBuilder:
                         </pricingTickInfo>
                         {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
+                    {sub_parts.travel_flight_info(cabin, c_qualifier, carrierid_options, carrrier)}
                     {stop_option}
                     {''.join([sub_parts.mptbs_itinerary(segment) for segment in segments])}
             </Fare_MasterPricerTravelBoardSearch>
