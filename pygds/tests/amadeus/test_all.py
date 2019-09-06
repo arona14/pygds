@@ -2,14 +2,13 @@
     This is for testing purposes like a suite.
 """
 
+from pygds.core.request import RequestedSegment
+from pygds.core.types import TravellerNumbering  # SellItinerary, TravellerInfo
+from pygds import log_handler
+from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-# from pygds.core.price import PriceRequest, Fare
-from pygds.env_settings import get_setting
-from pygds import log_handler
-from pygds.core.types import TravellerNumbering  # SellItinerary, TravellerInfo
-from pygds.core.request import RequestedSegment
 
 
 def test():
@@ -24,15 +23,16 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    # pnr = "RUGHSI"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
+    pnr = "RUGHSI"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
-        # res_reservation = client.get_reservation(pnr, None, False)
-        # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        # log.info(session_info)
+
+        res_reservation = client.get_reservation(pnr, None, False)
+        session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        log.info(session_info)
         # log.info(res_reservation)
         # m_id = session_info.message_id
         # seg_refs = []
@@ -45,19 +45,21 @@ def test():
 
         # res_price = client.fare_price_pnr_with_booking_class(m_id, price_request)
         # session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
-        # log.info(session_info)
-        # log.info(app_error)
+        # log.debug(session_info)
         # if app_error:
         #     log.error(f"We have an error: {app_error}")
         #     return
         # if len(res_price) <= 0:
         #     log.error("No price proposed")
         #     return
+        # # log.info(res_price)
         # chosen_price: Fare = res_price[0]
         # log.info(f"Chosen price: {chosen_price}")
         # m_id = session_info.message_id
         # res_tst = client.ticket_create_tst_from_price(m_id, chosen_price.fare_reference)
         # session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
+        # log.info(f"session from tst: {session_info}")
+        # log.info(f"response from tst: {res_tst}")
         # log.debug(f"session formation from tst: {session_info}")
         # log.debug(f"response from tst: {res_tst}")
         # if app_error:

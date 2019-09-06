@@ -1,10 +1,8 @@
 # coding: utf-8
 from typing import List
-from pygds import log_handler
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
-from pygds.core.request import RequestedSegment
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
@@ -150,15 +148,15 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, segments: List[RequestedSegment], numbering: TravellerNumbering):
+    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date,
+                                               numbering: TravellerNumbering):
         """
             A method for searching prices of an itinerary.
         """
-        log = log_handler.get_logger("test_all")
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, segments, numbering)
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination,
+                                                                               departure_date, arrival_date, numbering)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-        log.debug(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
