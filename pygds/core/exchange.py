@@ -303,3 +303,42 @@ class ExchangeComparisonInfos(BasicDataObject):
             "baggage_info": self.baggage_info,
             "exchange_comparison": self.exchange_comparison
         }
+
+
+class SourceData(BasicDataObject):
+
+    def __init__(self, agency_city: str = None, agent_duty_sine: str = None, agent_wok_area: str = None, create_date_time: str = None, iata_number: str = None, pseudo_city_code: str = None):
+
+        self.agency_city = agency_city
+        self.agent_duty_sine = agent_duty_sine
+        self.agent_wok_area = agent_wok_area
+        self.create_date_time = create_date_time
+        self.iata_number = iata_number
+        self.pseudo_city_code = pseudo_city_code
+
+    def to_data(self):
+        return{
+            "agency_city": self.agency_city,
+            "agent_duty_sine": self.agent_duty_sine,
+            "agent_wok_area": self.agent_wok_area,
+            "create_date_time": self.create_date_time,
+            "iata_number": self.iata_number,
+            "pseudo_city_code": self.pseudo_city_code
+        }
+
+
+class ExchangeConfirmationInfos(BasicDataObject):
+    """
+        This class we will get the Info of Search price
+    """
+    def __init__(self, status: str = None, pqr_number: str = None, source: SourceData = None):
+        self.status = status
+        self.pqr_number = pqr_number
+        self.source = source
+
+    def to_data(self):
+        return {
+            "status": self.status,
+            "pqr_number": self.pqr_number,
+            "source": self.source
+        }

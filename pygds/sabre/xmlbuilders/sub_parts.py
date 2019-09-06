@@ -261,3 +261,17 @@ def get_commission_exchange(fare_type, value):
         commission_value = commission_value + f"""<MiscQualifiers><Commission Amout="{value}"/></MiscQualifiers>"""
 
     return commission_value
+
+
+def add_flight_segment(origin, destination, depart_date, operating_code, marketing_code, flight_number, arrival_date, class_of_service, currency_code):
+
+    return f"""<tag0:Flight origin="{origin}" destination="{destination}">
+      <tag0:DepartureDate>{depart_date}</tag0:DepartureDate>
+      <tag0:Operating carrier="{operating_code}">{flight_number}</tag0:Operating>
+      <tag0:Marketing carrier="{marketing_code}">{flight_number}</tag0:Marketing>
+      <tag0:ArrivalDate>{arrival_date}</tag0:ArrivalDate>
+    </tag0:Flight>
+    <tag0:CabinDefinition>
+      <tag0:RBD>{class_of_service}</tag0:RBD>
+    </tag0:CabinDefinition>
+    <Currency>{currency_code}</Currency>"""
