@@ -2,15 +2,13 @@
     This is for testing purposes like a suite.
 """
 
+from pygds.core.request import RequestedSegment
+from pygds.core.types import TravellerNumbering  # SellItinerary, TravellerInfo
+from pygds import log_handler
+from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-# from pygds.core.payment import FormOfPayment, CreditCard
-# from pygds.core.price import PriceRequest, Fare
-# from pygds.core.types import SellItinerary
-from pygds.env_settings import get_setting
-from pygds import log_handler
-# from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
 def test():
@@ -31,6 +29,7 @@ def test():
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
+
         res_reservation = client.get_reservation(pnr, None, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
@@ -61,6 +60,8 @@ def test():
         # session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
         # log.info(f"session from tst: {session_info}")
         # log.info(f"response from tst: {res_tst}")
+        # log.debug(f"session formation from tst: {session_info}")
+        # log.debug(f"response from tst: {res_tst}")
         # if app_error:
         #     log.error(f"Something went wrong on create TST: {app_error}")
         #     return
@@ -70,7 +71,7 @@ def test():
         # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])  # i'm changing this
-        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
+        # # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
         # log.debug(res_issue)  # i'm changing this
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)
@@ -89,11 +90,12 @@ def test():
         # session_info, command_response = (res_command.session_info, res_command.payload)
         # log.info(session_info)
         # log.info(command_response)
-        # origin, destination, date_dep, date_arr = ("LON", "TYO", "050819", "100819")
-        # log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        # search_results = client.fare_master_pricer_travel_board_search(origin, destination, date_dep, date_arr, TravellerNumbering(2))
-        # log.debug(search_results)
-        # segments = search_results.payload["itineraries"]
+        origine, destination, date_dep, date_arr = ("DTW", "CDG", "051019", "101019")
+        segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
+        log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
+        search_results = client.fare_master_pricer_travel_board_search(segments, TravellerNumbering(2))
+        log.debug(search_results)
+        # segments = search_results[0]["itineraries"]
         # log.debug(f"segment length: {len(segments)}")
         # itineraries = []
         # for s in segments:

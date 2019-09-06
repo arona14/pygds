@@ -11,6 +11,9 @@ import re
 from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
     FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
     Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
+from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData, \
+    ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, ExchangeComparison, \
+    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, TaxComparison, TaxData, ExchangeDetails, SourceData, ExchangeConfirmationInfos
 from pygds.core.rebook import RebookInfo
 
 
@@ -64,6 +67,18 @@ class BaseResponseExtractor(object):
             A private method that does the work of extracting useful data.
         """
         raise NotImplementedError("Sub class must implement '_extract' method")
+
+
+class SabreSoapErrorExtractor(BaseResponseExtractor):
+    """
+        Extractor for error
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, True, False)
+
+    def _extract(self):
+        return xmlparser.extract_single_elements(self.tree, "//faultcode/text()", "//faultstring/text()")
 
 
 class AppErrorExtractor(BaseResponseExtractor):
@@ -666,9 +681,57 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
         exchange_shopping_rs = from_json(payload, "ExchangeShoppingRS")
         exchange_shopping_rs = str(exchange_shopping_rs).replace("@", "")
         exchange_shopping_rs = eval(exchange_shopping_rs.replace("u'", "'"))
-        return {
-            "exchange_shopping": exchange_shopping_rs
-        }
+        status = from_json(exchange_shopping_rs, "ApplicationResults", "status")
+        to_return = []
+        for i in ensure_list(from_json(exchange_shopping_rs, "Solution")):
+            sequence = from_json(i, "sequence")
+            book_itinerary = self._book_itinerary(from_json(i, "BookItinerary"))
+            fare = self._fare(from_json(i, "Fare"))
+            exchange_data = ExchangeData(sequence, book_itinerary, fare)
+            to_return.append(exchange_data)
+        exchange_shopping = ExchangeShoppingInfos(status, to_return)
+        return exchange_shopping
+
+    def _book_itinerary(self, book_itinerary_data):
+
+        book_iti = BookItinerary()
+        for ori in ensure_list(from_json(book_itinerary_data, "OriginDestination")):
+            origin_destination = OriginDestination()
+            list_segment = []
+            list_itinerary = []
+            for book in ensure_list(from_json(ori, "ReservationSegment")):
+                segment_number = from_json_safe(book, "segmentNumber")
+                elapsed_time = from_json_safe(book, "elapsedTime")
+                departure_date = from_json_safe(book, "startDateTime")
+                arrival_date = from_json_safe(book, "endDateTime")
+                origin = from_json_safe(book, "startLocation")
+                destination = from_json_safe(book, "endLocation")
+                marketing_flight_number = from_json_safe(book, "marketingFlightNumber")
+                marketing = from_json_safe(book, "marketingProvider")
+                operating = from_json_safe(book, "operatingProvider")
+                reservation_segment = ReservationSegment(segment_number, elapsed_time, departure_date, arrival_date, origin, destination, marketing_flight_number, marketing, operating)
+                list_segment.append(reservation_segment)
+                origin_destination.segments = list_segment
+                list_itinerary.append(origin_destination)
+        book_iti.origin_destination = list_itinerary
+        return book_iti
+
+    def _fare(self, fare_data):
+        valid = from_json(fare_data, "valid")
+        sub_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "currencyCode")
+        sub_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "#text")
+        sub_total_difference = PriceDifference(sub_total_difference_currency_code, sub_total_difference_amount)
+
+        total_fee_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "currencyCode")
+        total_fee_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "#text")
+        total_fee = PriceDifference(total_fee_currency_code, total_fee_difference_amount)
+
+        grand_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "currencyCode")
+        grand_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "#text")
+        grand_total_difference = PriceDifference(grand_total_difference_currency_code, grand_total_difference_amount)
+        total_price = TotalPriceDifference(sub_total_difference, total_fee, grand_total_difference)
+        to_return = Fare(valid, total_price)
+        return to_return
 
 
 class ExchangePriceExtractor(BaseResponseExtractor):
@@ -687,9 +750,70 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
-        return {
-            "automated_exchanges": automated_exchanges_rs
-        }
+        status = from_json(automated_exchanges_rs, "STL:ApplicationResults", "status")
+        baggage = self._baggage_info(from_json(automated_exchanges_rs, "BaggageInfo"))
+        comparaison = self._exchange_comparaison(from_json(automated_exchanges_rs, "ExchangeComparison"))
+        to_return = ExchangeComparisonInfos(status, baggage, comparaison)
+        return to_return
+
+    def _baggage_info(self, baggage_data):
+
+        list_flight_segment = []
+        for i in ensure_list(from_json(baggage_data, "FlightSegment")):
+            departure_date = from_json_safe(i, "DepartureDateTime")
+            arrival_date = from_json_safe(i, "ArrivalDateTime")
+            flight_number = from_json_safe(i, "FlightNumber")
+            rph = from_json_safe(i, "RPH")
+            segment_number = from_json_safe(i, "SegmentNumber")
+            origin = from_json_safe(i, "OriginLocation", "LocationCode")
+            destination = from_json_safe(i, "DestinationLocation", "LocationCode")
+            marketing_airline_code = from_json_safe(i, "MarketingAirline", "Code")
+            marketing_airline_flight_number = from_json_safe(i, "MarketingAirline", "FlightNumber")
+            marketing_airline = MarketingAirline(marketing_airline_code, marketing_airline_flight_number)
+            free_baggage_allowance = from_json_safe(i, "FreeBaggageAllowance", "Number")
+            flight_segment = ExchangeFlightSegment(departure_date, arrival_date, origin, destination, flight_number, rph, segment_number, marketing_airline, free_baggage_allowance)
+            list_flight_segment.append(flight_segment)
+        baggage_info = BaggageInfo()
+        baggage_info.flight_segment = list_flight_segment
+        return baggage_info
+
+    def _exchange_comparaison(self, exchange_comparaison_data):
+
+        itinerary_pricing_list = []
+        tax_comparaison_list = []
+
+        for i in ensure_list(from_json(exchange_comparaison_data, "AirItineraryPricingInfo")):
+            base_fare_amount = from_json_safe(i, "ItinTotalFare", "BaseFare", "Amount")
+            base_fare_cc = from_json_safe(i, "ItinTotalFare", "BaseFare", "CurrencyCode")
+            taxe = from_json_safe(i, "ItinTotalFare", "Taxes", "TotalAmount")
+            total_fare = from_json_safe(i, "ItinTotalFare", "TotalFare", "Amount")
+            base_fare = BaseFare(base_fare_amount, base_fare_cc)
+            itin_total_fare = ItinTotalFare(base_fare, taxe, total_fare)
+            price_type = from_json_safe(i, "Type")
+            air_itinerary_pricing_info = ExchangeAirItineraryPricingInfo(price_type, itin_total_fare)
+            itinerary_pricing_list.append(air_itinerary_pricing_info)
+
+        for t in ensure_list(from_json(exchange_comparaison_data, "TaxComparison")):
+            tax_type = from_json_safe(t, "Type")
+            tax_list = []
+            for t1 in ensure_list(from_json(t, "Tax")):
+                tax_amount = from_json_safe(t1, "Amount")
+                tax_code = from_json_safe(t1, "Amount")
+                tax_data = TaxData(tax_amount, tax_code)
+                tax_list.append(tax_data)
+            tax_comparison = TaxComparison(tax_type, tax_list)
+            tax_comparaison_list.append(tax_comparison)
+
+        change_fee_collection = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
+        exchange_reissue = from_json(exchange_comparaison_data, "ExchangeDetails", "ExchangeReissue")
+        change_fee = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
+        total_refund = from_json(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
+        exchange_details = ExchangeDetails(change_fee, exchange_reissue, total_refund, change_fee_collection)
+        pqr_number = from_json(exchange_comparaison_data, "ExchangeComparison", "PQR_Number")
+        exchange_comparison = ExchangeComparison(pqr_number, exchange_details)
+        exchange_comparison.air_itinerary_pricing_info = itinerary_pricing_list
+        exchange_comparison.tax_comparison = tax_comparaison_list
+        return exchange_comparison
 
 
 class ExchangeCommitExtractor(BaseResponseExtractor):
@@ -708,9 +832,26 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
+
+        status = self._source(from_json(automated_exchanges_rs, "STL:ApplicationResults", "status"))
+        pqr_number = self._source(from_json(automated_exchanges_rs, "STL:ExchangeConfirmation", "PQR_Number"))
+        source = self._source(from_json(automated_exchanges_rs, "Source"))
+        exchange_confirmation = ExchangeConfirmationInfos(status, pqr_number, source)
+
         return {
-            "commit_exchanges": automated_exchanges_rs
+            "exchange_confirmation": exchange_confirmation
         }
+
+    def _source(self, source_data):
+
+        agency_city = from_json_safe(source_data, "AgencyCity")
+        agent_duty_sine = from_json_safe(source_data, "AgentDutySine")
+        agent_work_area = from_json_safe(source_data, "AgentWorkArea")
+        create_date_time = from_json_safe(source_data, "CreateDateTime")
+        iata_number = from_json_safe(source_data, "IATA_Number")
+        pseudo_city_code = from_json_safe(source_data, "PseudoCityCode")
+        to_return = SourceData(agency_city, agent_duty_sine, agent_work_area, create_date_time, iata_number, pseudo_city_code)
+        return to_return
 
 
 class SeatMapResponseExtractor(BaseResponseExtractor):
@@ -738,3 +879,34 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         else:
             change_of_gauge, equipement, flight, cabin = (None, None, None, None)
         return seats
+
+
+class UpdatePassengerExtractor(BaseResponseExtractor):
+
+    """Class to extract the send remark from XML response
+    """
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="PassengerDetailsRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
+        status = from_json(payload, "ApplicationResults", "status")
+        return {'status': status}
+
+
+class CloseSessionExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "SessionCloseRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json(payload, "SessionCloseRS", "@status")
+        if status == 'Approved':
+            return True

@@ -1,6 +1,9 @@
+from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.core.security_utils import generate_random_message_id, generate_created
+from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
-    get_form_of_payment, get_commission_exchange, store_commission, store_name_select, store_pax_type, store_plus_up, store_ticket_designator, add_flight_segments_to_air_book
+    get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, store_pax_type, store_plus_up, \
+    store_ticket_designator, add_flight_segment
 
 
 class SabreXMLBuilder:
@@ -38,7 +41,7 @@ class SabreXMLBuilder:
             </eb:Security>
         </soapenv:Header>"""
 
-    def session_create_rq(self):
+    def session_create_rq(self, conversation_id: str):
         """
             Return the xml request to initiate a SOAP API session
         """
@@ -53,7 +56,7 @@ class SabreXMLBuilder:
                             <eb:PartyId />
                         </eb:To>
                         <eb:CPAId>{self.pcc}</eb:CPAId>
-                        <eb:ConversationId>{self.conversation_id}</eb:ConversationId>
+                        <eb:ConversationId>{conversation_id}</eb:ConversationId>
                         <eb:Service>SessionCreateRQ</eb:Service>
                         <eb:Action>SessionCreateRQ</eb:Action>
                         <eb:MessageData>
@@ -156,7 +159,6 @@ class SabreXMLBuilder:
             </soap-env:Envelope>"""
 
     def end_transaction_rq(self, token):
-
         """ end transaction xml"""
         header = self.generate_header("EndTransactionLLSRQ", "EndTransactionLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -330,11 +332,22 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def update_passenger_rq(self, token, pnr, air_seat, passenger, ssr_code, dk):
+    def update_passenger_rq(self, token, pnr, p_update: PassengerUpdate):
         """
             Return the xml request to update a passenger in pnr
         """
         header = self.generate_header("PassengerDetailsRQ", "PassengerDetailsRQ", token)
+        if p_update.name_number:
+            seat_part = seat_request(p_update.name_number, p_update.seat_number,
+                                     p_update.segment_number) if p_update.seat_number and p_update.segment_number else ""
+            passenger_info_part = passenger_info(p_update.date_of_birth, p_update.gender, p_update.name_number,
+                                                 p_update.first_name, p_update.last_name) if p_update.date_of_birth and p_update.gender and p_update.first_name and p_update.last_name else ""
+            service_ssr_part = service_ssr_code(p_update.segment_number, p_update.ssr_code, p_update.name_number) if p_update.segment_number and p_update.ssr_code else ""
+        else:
+            seat_part, passenger_info_part, service_ssr_part = ("", "", "")
+
+        dk_number_part = customer_id(p_update.dk_number) if p_update.dk_number else ""
+
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
@@ -350,15 +363,15 @@ class SabreXMLBuilder:
                                 <UniqueID id="{pnr}"/>
                             </PreProcessing>
                         <SpecialReqDetails>
-                            {air_seat}
+                            {seat_part}
                             <SpecialServiceRQ>
                             <SpecialServiceInfo>
-                                {passenger}
-                                {ssr_code}
+                                {passenger_info_part}
+                                {service_ssr_part}
                             </SpecialServiceInfo>
                             </SpecialServiceRQ>
                         </SpecialReqDetails>
-                            {dk}
+                            {dk_number_part}
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
@@ -380,11 +393,12 @@ class SabreXMLBuilder:
                 {commission_value}"""
         return payment_infos
 
-    def seap_map_rq(self, token, flight_infos):
+    def seap_map_rq(self, token, flight_infos: FlightSeatMap):
         """
             Return the xml request to search a seap map
         """
         header = self.generate_header("EnhancedSeatMapRQ", "EnhancedSeatMapRQ", token)
+        flight_info = add_flight_segment(flight_infos.origin, flight_infos.destination, flight_infos.depart_date, flight_infos.operating_code, flight_infos.marketing_code, flight_infos.flight_number, flight_infos.arrival_date, flight_infos.class_of_service, flight_infos.currency_code)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                {header}
@@ -392,7 +406,7 @@ class SabreXMLBuilder:
                     <tag0:EnhancedSeatMapRQ xmlns:tag0="http://stl.sabre.com/Merchandising/v6" version="6">
                         <tag0:RequestType>Payload</tag0:RequestType>
                         <tag0:SeatMapQueryEnhanced correlationID="20190218103518">
-                                {flight_infos}
+                                {flight_info}
                             <tag0:POS>
                             <tag0:PCC>{self.pcc}</tag0:PCC>
                             </tag0:POS>
@@ -651,7 +665,3 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
-
-
-def main():
-    pass

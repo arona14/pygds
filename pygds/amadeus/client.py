@@ -23,6 +23,7 @@ class AmadeusClient(BaseClient):
         :param wsap: The Amadeus Wep Service Access Point
         :param debug: Telling if the client is debugging requests and responses.
     """
+    # log = log_handler.get_logger("test_all")
 
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str, debug: bool = False):
         super().__init__(endpoint, username, password, office_id, debug)
