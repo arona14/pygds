@@ -12,8 +12,6 @@ from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.payment import FormOfPayment, CreditCard
 # from pygds.core.price import PriceRequest, Fare
 # from pygds.core.types import SellItinerary
-from pygds.env_settings import get_setting
-from pygds import log_handler
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 

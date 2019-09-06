@@ -134,6 +134,5 @@ class ClientCan(TestCase):
         return message_id
 
 
-
 if __name__ == "__main__":
     unittest.main()
