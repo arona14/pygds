@@ -400,9 +400,9 @@ def ppwbc_passenger_segment_selection(price_request: PriceRequest):
     pax_refs = []
     seg_refs = []
     for r in price_request.passengers:
-        pax_refs.append(ppwbc_ref_detail("P", r))
+        pax_refs.append(_ppwbc_ref_detail("P", r))
     for s in price_request.segments:
-        seg_refs.append(ppwbc_ref_detail("S", s))
+        seg_refs.append(_ppwbc_ref_detail("S", s))
     return f"""
     <pricingOptionGroup>
         <pricingOptionKey>
@@ -416,7 +416,7 @@ def ppwbc_passenger_segment_selection(price_request: PriceRequest):
     """
 
 
-def ppwbc_ref_detail(ref_type, ref_value):
+def _ppwbc_ref_detail(ref_type, ref_value):
     """
     This method generates price reference details for Price Pnr With Booking Class
     :param ref_type: The reference type (P for Passenger, S for Segment, PA, PI)
@@ -427,4 +427,48 @@ def ppwbc_ref_detail(ref_type, ref_value):
     <referenceDetails>
         <type>{ref_type}</type>
         <value>{ref_value}</value>
+    </referenceDetails>"""
+
+
+_fare_types_association = {
+    "PUB": "RP",
+    "NET": "RU",
+    "COM": "RC"
+}
+
+
+def ppwbc_fare_type(fare_type):
+    try:
+        code = _fare_types_association[fare_type]
+    except KeyError:
+        return ""
+    return f"""<pricingOptionGroup>
+                    <pricingOptionKey>
+                        <pricingOptionKey>{code}</pricingOptionKey>
+                    </pricingOptionKey>
+                </pricingOptionGroup>
+                """
+
+
+def ppwbc_discount():
+    return """
+    <discountInformation>
+        <penDisInformation>
+          <infoQualifier>ZAP</infoQualifier>
+          <penDisData>
+            <penaltyType>701</penaltyType>
+            <penaltyQualifier>708</penaltyQualifier>
+            <penaltyAmount>10</penaltyAmount>
+            <discountCode>AC479</discountCode>
+          </penDisData>
+        </penDisInformation>
+    </discountInformation>
+    """
+
+
+def ticket_issue_tst_ref(ref):
+    return f"""
+    <referenceDetails>
+        <type>TS</type>
+        <value>{ref}</value>
     </referenceDetails>"""
