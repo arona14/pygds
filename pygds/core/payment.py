@@ -13,7 +13,7 @@ class CreditCard(FormOfPayment):
     A credit card as form of payment
     """
     def __init__(self, company_code, vendor_code, card_number, security_id, expiry_date):
-        super().__init__("", "", company_code)  # TODO: complete with exact type and code
+        super().__init__("CCVI", "CC", company_code)  # TODO: complete with exact type and code
         self.vendor_code = vendor_code
         self.card_number = card_number
         self.security_id = security_id
