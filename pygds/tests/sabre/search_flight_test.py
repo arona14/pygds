@@ -25,8 +25,8 @@ class ClientCan(unittest.TestCase):
         self.assertEqual(r.adults, 1)
 
     def test_request_segment(self):
-        s = RequestedSegment("DTW", "NYC", "2019-08-29").to_data()
-        self.assertEqual(s, {'origin': 'DTW', 'destination': 'NYC', 'departureDate': '2019-08-29'})
+        s = RequestedSegment(1, "DTW", "NYC", "2019-09-24", "2019-09-29", "1").to_data()
+        self.assertEqual(s, {'sequence': 1, 'origin': 'DTW', 'destination': 'NYC', 'departure_date': '2019-09-24', "arrival_date": '2019-09-29', 'total_seats': '1'})
         self.assertIsInstance(s, dict)
         self.assertIn('origin', s)
         self.assertEqual('DTW', s["origin"])
@@ -37,7 +37,6 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(session, "The result of open session token is None")
         self.assertIsNotNone(session.security_token, "You don't got a token")
         self.assertIsInstance(session.session_ended, bool)
-
         self.assertIsInstance(session, SessionInfo)
 
     def test_open_session(self):

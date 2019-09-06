@@ -127,3 +127,179 @@ class ExchangeShoppingInfos(BasicDataObject):
             "status": self.status,
             "exchange": self.exchange
         }
+
+
+class ExchangeDetails(BasicDataObject):
+
+    def __init__(self, change_fee: str = None, exchange_reissue: str = None, total_refund: str = None, change_fee_collectionOptions: str = None):
+
+        self.change_fee = change_fee
+        self.exchange_reissue = exchange_reissue
+        self.total_refund = total_refund
+        self.change_fee_collectionOptions = change_fee_collectionOptions
+
+    def to_data(self):
+
+        return {
+            "change_fee": self.change_fee,
+            "exchange_reissue": self.exchange_reissue,
+            "total_refund": self.total_refund,
+            "change_fee_collectionOptions": self.change_fee_collectionOptions
+        }
+
+
+class TaxData(BasicDataObject):
+
+    def __init__(self, amount: str = None, tax_code: str = None):
+        self.amount = amount
+        self.tax_code = tax_code
+
+    def to_data(self):
+
+        return {
+            "amount": self.amount,
+            "tax_code": self.tax_code
+        }
+
+
+class TaxComparison(BasicDataObject):
+
+    def __init__(self, tax_type: str = None):
+        self.tax_type = tax_type
+        self.tax: List[TaxData] = []
+
+    def to_data(self):
+
+        return {
+            "tax_type": self.tax_type,
+            "tax": [t.to_data() for t in self.tax]
+        }
+
+
+class BaseFare(BasicDataObject):
+
+    def __init__(self, amount: str = None, currency_code: str = None):
+        self.amount = amount
+        self.currency_code = currency_code
+
+    def to_data(self):
+
+        return {
+            "amount": self.amount,
+            "currency_code": self.currency_code
+        }
+
+
+class ItinTotalFare(BasicDataObject):
+
+    def __init__(self, base_fare: BaseFare = None, taxes: str = None, total_fare: str = None):
+
+        self.base_fare = base_fare
+        self.taxes = taxes
+        self.total_fare = total_fare
+
+    def to_data(self):
+
+        return {
+            "base_fare": self.base_fare,
+            "taxes": self.taxes,
+            "total_fare": self.total_fare
+
+        }
+
+
+class ExchangeAirItineraryPricingInfo(BasicDataObject):
+
+    def __init__(self, price_type: str = None, itin_total_fare: ItinTotalFare = None):
+
+        self.price_type = price_type
+        self.itin_total_fare = itin_total_fare
+
+
+class ExchangeComparison(BasicDataObject):
+
+    def __init__(self, pqr_number: str = None, exchange_details: ExchangeDetails = None):
+
+        self.pqr_number = pqr_number
+        self.air_itinerary_pricing_info: List[ExchangeAirItineraryPricingInfo] = []
+        self.tax_comparison: List[TaxComparison] = []
+        self.exchange_details = exchange_details
+
+    def to_data(self):
+
+        return {
+            "pqr_number": self.pqr_number,
+            "air_itinerary_pricing_info": [price.to_data() for price in self.air_itinerary_pricing_info],
+            "tax_comparison": [t.to_data() for t in self.tax_comparison],
+            "exchange_details": self.exchange_details
+        }
+
+
+class MarketingAirline(BasicDataObject):
+
+    def __init__(self, code, flight_number):
+        self.code = code
+        self.flight_number = flight_number
+
+    def to_data(self):
+        return {
+            "code": self.code,
+            "flight_number": self.flight_number
+        }
+
+
+class ExchangeFlightSegment(BasicDataObject):
+
+    def __init__(self, departure_date: str = None, arrival_date: str = None, origin: str = None, destination: str = None, flight_number: str = None, rph: str = None, segment_number: str = None, marketing_airline: MarketingAirline = None, free_baggage_allowance: str = None):
+        self.departure_date = departure_date
+        self.arrival_date = arrival_date
+        self.origin = origin
+        self.destination = destination
+        self.flight_number = flight_number
+        self.rph = rph
+        self.segment_number = segment_number
+        self.marketing_airline = marketing_airline
+        self.free_baggage_allowance = free_baggage_allowance
+
+    def to_data(self):
+        return{
+            "departure_date": self.departure_date,
+            "arrival_date": self.arrival_date,
+            "origin": self.origin,
+            "destination": self.destination,
+            "flight_number": self.flight_number,
+            "rph": self.rph,
+            "segment_number": self.segment_number,
+            "marketing_airline": self.marketing_airline,
+            "free_baggage_allowance": self.free_baggage_allowance
+
+        }
+
+
+class BaggageInfo(BasicDataObject):
+
+    def __init__(self):
+        self.flight_segment: List[ExchangeFlightSegment] = []
+
+    def to_data(self):
+        return{
+            "flight_segment": [s.to_data() for s in self.segments]
+
+        }
+
+
+class ExchangeComparisonInfos(BasicDataObject):
+    """
+        This class we will get the Info of Search price
+    """
+    def __init__(self, status: str = None, baggage_info: BaggageInfo = None, exchange_comparison: ExchangeComparison = None):
+        self.status = status
+        self.baggage_info = baggage_info
+        self.exchange_comparison = exchange_comparison
+
+    def to_data(self):
+        return {
+            "status": self.status,
+            "baggage_info": self.baggage_info,
+            "exchange_comparison": self.exchange_comparison
+        }
