@@ -3,6 +3,7 @@ import unittest
 from pygds.amadeus.client import AmadeusClient
 # from pygds.core.app_error import ApplicationError
 from pygds.env_settings import get_setting
+from pygds.core.price import PriceRequest
 from pygds.errors.gdserrors import NoSessionError
 
 
@@ -35,36 +36,26 @@ class ClientCan(TestCase):
         reservation = res_retrieve.payload
         self.assertIsNotNone(reservation)"""
 
-    """def test_price_ok(self):
-        m_id = None
-        pnr = "Q68EFX"
-        res_retrieve = self.client.get_reservation(pnr, m_id, True)
-        self.assertIsNotNone(res_retrieve)
-        session = res_retrieve.session_info
-        self.assertIsNotNone(session)
-        self.assertFalse(session.session_ended)
-        res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
-        self.assertIsNotNone(res_price)
-        fares = res_price.payload
-        self.assertIsNotNone(fares)
-        if len(fares) >= 1:
-            first_fare = fares[0]
-            self.assertIsInstance(first_fare, Fare)"""
+    def test_price_ok(self):
 
-    # def test_price_past_date(self):
-    #     m_id = None
-    #     pnr = "WKHPRE"
-    #     res_retrieve = self.client.get_reservation(pnr, m_id, True)
-    #     self.assertIsNotNone(res_retrieve)
-    #     session = res_retrieve.session_info
-    #     self.assertIsNotNone(session)
-    #     self.assertFalse(session.session_ended)
-    #     res_price = self.client.fare_price_pnr_with_booking_class(session.message_id)
-    #     self.assertIsNotNone(res_price)
-    #     app_error = res_price.application_error
-    #     self.assertIsNotNone(app_error)
-    #     self.assertIsInstance(app_error, ApplicationError)
-    #     self.assertEqual(app_error.error_code, "3024")
+        message_id = self.sub_processing()
+        response_data = self.client.create_pnr(message_id)
+        self.client.end_session(message_id)
+        pnr = response_data.payload["pnr_header"].controle_number
+        self.assertEqual(len(pnr), 6)
+        res_reservation = self.client.get_reservation(pnr, None, False)
+        res_reservation, message_id = res_reservation.payload, res_reservation.session_info.message_id
+        seg_refs = []
+        pax_refs = []
+        for seg in res_reservation["itineraries"]:
+            seg_refs.append(seg.segment_reference)
+        for pax in res_reservation["passengers"]:
+            pax_refs.append(pax.name_id)
+        price_request = PriceRequest(pax_refs, seg_refs)
+        res_price = self.client.fare_price_pnr_with_booking_class(message_id, price_request)
+        self.client.end_session(message_id)
+        fare_reference = res_price.payload[0].fare_reference
+        self.assertIsNotNone(fare_reference)
 
     def test_end_session(self):
         res_command = self.client.send_command("HELP")
@@ -113,6 +104,13 @@ class ClientCan(TestCase):
         """
 
     def test_create_pnr(self):
+        message_id = self.sub_processing()
+        response_data = self.client.create_pnr(message_id)
+        self.client.end_session(message_id)
+        pnr = response_data.payload["pnr_header"].controle_number
+        self.assertEqual(len(pnr), 6)
+
+    def sub_processing(self):
         search_results = self.client.send_command("AN12OCTTRZKUL/KY")
         message_id = search_results.session_info.message_id
         self.client.send_command("SS1Y1", message_id)
@@ -122,9 +120,7 @@ class ClientCan(TestCase):
         self.client.send_command("TKOK", message_id)
         self.client.send_command("RFTHIAM", message_id)
         self.client.send_command("FP*CHEQUE", message_id)
-        response_data = self.client.create_pnr(message_id)
-        pnr = response_data.payload["pnr_header"].controle_number
-        self.assertEqual(len(pnr), 6)
+        return message_id
 
 
 if __name__ == "__main__":
