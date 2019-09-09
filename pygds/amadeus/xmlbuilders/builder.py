@@ -477,13 +477,13 @@ class AmadeusXMLBuilder:
                             </elementManagementData>
                             <optionElement>
                                 <optionDetail>
-                                    <officeId>{office_id}</officeId>
+                                    <officeId>{office_id if office_id is not None else ""}</officeId>
                                 </optionDetail>
                             </optionElement>
                         </dataElementsIndiv>
-                        {sub_parts.add_multi_element_contact_element(7, "6", infos.number_tel)}
-                        {sub_parts.add_multi_element_contact_element(7, "7", infos.number_tel_agent)}
-                        {sub_parts.add_multi_element_contact_element(7, "P02", infos.email)}
+                        {sub_parts.add_multi_element_contact_element("7", infos.number_tel) if infos.number_tel else ""}
+                        {sub_parts.add_multi_element_contact_element("6", infos.number_tel_agent) if infos.number_tel else ""}
+                        {sub_parts.add_multi_element_contact_element("P02", infos.email) if infos.number_tel else ""}
                         <dataElementsIndiv>
                             <elementManagementData>
                                 <segmentName>TK</segmentName>
