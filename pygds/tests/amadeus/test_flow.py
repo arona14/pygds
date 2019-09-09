@@ -6,7 +6,7 @@ import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.payment import FormOfPayment, CreditCard
-# from pygds.core.price import PriceRequest, Fare
+from pygds.core.price import PriceRequest  # , Fare
 # from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
 from pygds.env_settings import get_setting
 from pygds import log_handler
@@ -93,7 +93,7 @@ def test():
         # log.info(command_response)
         # origin, destination, date_dep, date_arr = ("LON", "TYO", "051019", "101019")
         # log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        search_results = client.send_command("AN11OCTLONTYO")
+        search_results = client.send_command("AN12OCTTRZKUL/KY")
         log.debug("fare_master_pricer_travel_board_search")
         log.debug(search_results.payload)
         message_id = search_results.session_info.message_id
@@ -118,9 +118,6 @@ def test():
         log.debug(add_email.payload)
         add_tk = client.send_command("TKOK", message_id)
         log.debug(add_tk.payload)
-        log.debug("pricing")
-        pricing = client.send_command("FXP/R,UP", message_id)
-        log.debug(pricing.payload)
         log.debug("ad RF")
         add_rf = client.send_command("RFAGENT", message_id)
         log.debug(add_rf.payload)
@@ -129,7 +126,35 @@ def test():
         log.debug(form_payment.payload)
         log.debug("Create pnr")
         response_data = client.create_pnr(message_id)
+        client.end_session(message_id)
         log.debug(response_data.payload)
+        pnr = response_data.payload["pnr_header"].controle_number
+        log.debug("display pnr " + pnr)
+        res_reservation = client.get_reservation(pnr, None, False)
+        res_reservation, message_id = res_reservation.payload, res_reservation.session_info.message_id
+
+        log.info(res_reservation)
+        seg_refs = []
+        pax_refs = []
+        for seg in res_reservation["itineraries"]:
+            seg_refs.append(seg.segment_reference)
+        for pax in res_reservation["passengers"]:
+            pax_refs.append(pax.name_id)
+        log.info("price pnr")
+        price_request = PriceRequest(pax_refs, seg_refs)
+
+        res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
+        client.end_session(message_id)
+        log.debug(res_price.payload)
+        # session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
+        # log.debug(session_info)
+        # if app_error:
+        #     log.error(f"We have an error: {app_error}")
+        #     return
+        # if len(res_price) <= 0:
+        #     log.error("No price proposed")
+        #     return
+        # # log.info(res_price)
         # pax_infos = [TravellerInfo(1, "Mouhamad", "JJ", "FALL", "03121990", "CH")]
         # passenger_info_response = client.add_passenger_info(office_id, message_id, pax_infos)
         # log.debug("session after add_passenger_info")
