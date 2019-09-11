@@ -273,24 +273,26 @@ def _tfi_company_identity(carrier_ids: List[str] = ""):
 
 
 def add_multi_element_data_element(segment_name, qualifier, data_type, free_text):
+    if free_text is None:
+        return ""
     return f"""
-    <dataElementsIndiv>
-        <elementManagementData>
-            <segmentName>{segment_name}</segmentName>
-        </elementManagementData>
-        <freetextData>
-            <freetextDetail>
-                <subjectQualifier>{qualifier}</subjectQualifier>
-                <type>{data_type}</type>
-            </freetextDetail>
-            <longFreetext>{free_text}</longFreetext>
-        </freetextData>
-    </dataElementsIndiv>
+        <dataElementsIndiv>
+            <elementManagementData>
+                <segmentName>{segment_name}</segmentName>
+            </elementManagementData>
+            <freetextData>
+                <freetextDetail>
+                    <subjectQualifier>{qualifier}</subjectQualifier>
+                    <type>{data_type}</type>
+                </freetextDetail>
+                <longFreetext>{free_text}</longFreetext>
+            </freetextData>
+        </dataElementsIndiv>
     """
 
 
-def add_multi_element_contact_element(contact_type, passenger_ref, contact):
-    return add_multi_element_data_element("AP", passenger_ref, contact_type, contact)
+def add_multi_element_contact_element(contact_type, contact):
+    return add_multi_element_data_element("AP", "3", contact_type, contact)
 
 
 def fare_informative_price_passengers(travellers_info: TravellerNumbering):
