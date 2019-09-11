@@ -102,7 +102,7 @@ class LowFareSearchRequest(BasicDataObject):
 
     def __init__(self, itineraries: List[RequestedSegment], csv: str = "Y", pcc: str = None,
                  travelingNumber: TravellerNumberingInfo = None, alternatePcc: list = [],
-                 requestType: str = "", preferredAirlines: list = [str], baggagePref: bool = False,
+                 requestType: str = "", preferredAirlines: list = [], baggagePref: bool = False,
                  excludeBasicEconomy: bool = True, maxConnection: int = 3):
 
         self.itineraries: List[RequestedSegment] = itineraries

@@ -1,6 +1,5 @@
 # coding: utf-8
 from typing import List
-from pygds import log_handler
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
@@ -153,12 +152,9 @@ class AmadeusClient(BaseClient):
         """
             A method for searching prices of an itinerary.
         """
-        log = log_handler.get_logger("client")
         request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search, currency_conversion, c_qualifier)
-        log.debug(request_data)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-        log.debug(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
