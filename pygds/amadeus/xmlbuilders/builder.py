@@ -3,7 +3,7 @@ from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
-from pygds.core.request import RequestedSegment
+from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import CreditCard
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
@@ -194,8 +194,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, segments: List[RequestedSegment], currency_conversion=None,
-                                               numbering: TravellerNumbering = "", cabin="Y", c_qualifier="RC", carrrier="F", with_stops=True, result_count=250):
+    def fare_master_pricer_travel_board_search(self, office_id, low_fare_search: LowFareSearchRequest, currency_conversion=None, c_qualifier="RC", with_stops=True, result_count=250):
         """
             Search prices for origin/destination and departure/arrival dates
         """
@@ -213,7 +212,7 @@ class AmadeusXMLBuilder:
             </travelFlightInfo>
             """
         pricing_options = ["ET", "RP", "RU", "TAC"]
-        carrierid_options = ["DL", "AF"]
+        # carrierid_options = ["DL", "AF"]
         # type_com: str = None
         # if type_com:
         #     pricing_options.append("RW")
@@ -232,7 +231,7 @@ class AmadeusXMLBuilder:
                 <Fare_MasterPricerTravelBoardSearch>
                     <numberOfUnit>
                         <unitNumberDetail>
-                            <numberOfUnits>{numbering.total_seats()}</numberOfUnits>
+                            <numberOfUnits>{low_fare_search.travelingNumber.total_seats()}</numberOfUnits>
                             <typeOfUnit>PX</typeOfUnit>
                         </unitNumberDetail>
                         <unitNumberDetail>
@@ -240,16 +239,16 @@ class AmadeusXMLBuilder:
                             <typeOfUnit>RC</typeOfUnit>
                         </unitNumberDetail>
                     </numberOfUnit>
-                    {sub_parts.generate_seat_traveller_numbering(numbering)}
+                    {sub_parts.generate_seat_traveller_numbering(low_fare_search.travelingNumber)}
                     <fareOptions>
                         <pricingTickInfo>
                             {sub_parts.mptbs_pricing_types(pricing_options)}
                         </pricingTickInfo>
                         {sub_parts.mptbs_currency_conversion(currency_conversion)}
                     </fareOptions>
-                    {sub_parts.travel_flight_info(cabin, c_qualifier, carrierid_options, carrrier)}
+                    {sub_parts.travel_flight_info(low_fare_search, c_qualifier)}
                     {stop_option}
-                    {''.join([sub_parts.mptbs_itinerary(segment) for segment in segments])}
+                    {''.join([sub_parts.mptbs_itinerary(segment) for segment in low_fare_search.itineraries])}
             </Fare_MasterPricerTravelBoardSearch>
             </soapenv:Body>
             </soapenv:Envelope>

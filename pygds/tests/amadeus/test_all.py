@@ -2,7 +2,7 @@
     This is for testing purposes like a suite.
 """
 
-from pygds.core.request import RequestedSegment
+from pygds.core.request import RequestedSegment, LowFareSearchRequest
 from pygds.core.types import TravellerNumbering  # SellItinerary, TravellerInfo
 from pygds import log_handler
 from pygds.env_settings import get_setting
@@ -23,16 +23,16 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "RUGHSI"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
+    # pnr = "RUGHSI"  # "Q68EFX"  # "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
 
-        res_reservation = client.get_reservation(pnr, None, False)
-        session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        log.info(session_info)
+        # res_reservation = client.get_reservation(pnr, None, False)
+        # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        # log.info(session_info)
         # log.info(res_reservation)
         # m_id = session_info.message_id
         # seg_refs = []
@@ -92,9 +92,10 @@ def test():
         # log.info(command_response)
         origine, destination, date_dep, date_arr = ("DTW", "CDG", "051019", "101019")
         segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
+        low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(2), "", "", ["DL", "AF"], "", "", 1)
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        currency_code, cabin, c_qualifier, carrrier = ("EUR", "Y", "RC", "F")
-        search_results = client.fare_master_pricer_travel_board_search(segments, currency_code, TravellerNumbering(2), cabin, c_qualifier, carrrier)
+        currency_code, c_qualifier = ("EUR", "RC")
+        search_results = client.fare_master_pricer_travel_board_search(low_fare_search, currency_code, c_qualifier)
         log.debug(search_results)
         # segments = search_results[0]["itineraries"]
         # log.debug(f"segment length: {len(segments)}")

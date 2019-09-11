@@ -1,10 +1,10 @@
 # coding: utf-8
 from typing import List
-# from pygds import log_handler
+from pygds import log_handler
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
-from pygds.core.request import RequestedSegment
+from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
@@ -149,14 +149,16 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, segments: List[RequestedSegment], currency_conversion=None, numbering: TravellerNumbering = "", cabin="Y", c_qualifier="RC", carrrier="F"):
+    def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest, currency_conversion=None, c_qualifier="RC"):
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, segments, currency_conversion, numbering, cabin, c_qualifier, carrrier)
+        log = log_handler.get_logger("client")
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search, currency_conversion, c_qualifier)
+        log.debug(request_data)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-        # log.debug(response_data)
+        log.debug(response_data)
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
