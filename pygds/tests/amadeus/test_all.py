@@ -9,6 +9,10 @@ from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
+# from pygds.core.payment import FormOfPayment, CreditCard
+# from pygds.core.price import PriceRequest, Fare
+# from pygds.core.types import SellItinerary
+# from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
 
 
 def test():
@@ -60,8 +64,6 @@ def test():
         # session_info, res_tst, app_error = (res_tst.session_info, res_tst.payload, res_tst.application_error)
         # log.info(f"session from tst: {session_info}")
         # log.info(f"response from tst: {res_tst}")
-        # log.debug(f"session formation from tst: {session_info}")
-        # log.debug(f"response from tst: {res_tst}")
         # if app_error:
         #     log.error(f"Something went wrong on create TST: {app_error}")
         #     return
@@ -71,7 +73,7 @@ def test():
         # res_reservation = client.get_reservation(pnr, None, False)
         # session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         # res_issue = client.ticketing_pnr(session_info.message_id, "PAX", pax_refs[1])  # i'm changing this
-        # # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
+        # res_issue = client.issue_ticket_with_retrieve(session_info.message_id)
         # log.debug(res_issue)  # i'm changing this
         # res_command = client.send_command("IR", m_id)
         # session_info, command_response = (res_command.session_info, res_command.payload)

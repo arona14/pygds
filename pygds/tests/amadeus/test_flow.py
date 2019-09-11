@@ -10,7 +10,7 @@ from pygds.core.price import PriceRequest  # , Fare
 # from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
 from pygds.env_settings import get_setting
 from pygds import log_handler
-# from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
+from pygds.core.types import TravellerInfo, ReservationInfo
 
 
 def test():
@@ -93,7 +93,7 @@ def test():
         # log.info(command_response)
         # origin, destination, date_dep, date_arr = ("LON", "TYO", "051019", "101019")
         # log.debug(f"making search from '{origin}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        search_results = client.send_command("AN12OCTTRZKUL/KY")
+        search_results = client.send_command("AN12OCTTRZKUL/KY/B2")
         log.debug("fare_master_pricer_travel_board_search")
         log.debug(search_results.payload)
         message_id = search_results.session_info.message_id
@@ -106,21 +106,14 @@ def test():
         #     seg = s[0]
         #     itinerary = SellItinerary(seg["board_airport"], seg["off_airport"], seg["departure_date"], seg["marketing_company"], seg["flight_number"], seg["book_class"], 2)
         #     itineraries.append(itinerary)
-        choise_segment = client.send_command("SS1Y1", message_id)
+        choise_segment = client.send_command("SS2Y1", message_id)
         log.debug("sell_from_recommandation")
         log.debug(choise_segment.payload)
-        log.debug("add element")
-        add_name = client.send_command("NM1DIALLO/AMADOU", message_id)
-        log.debug(add_name.payload)
-        add_tel = client.send_command("AP PAX CTC DEL 91 9865621231", message_id)
-        log.debug(add_tel.payload)
-        add_email = client.send_command("APE AWIILLIAMS@BINGO.COM", message_id)
-        log.debug(add_email.payload)
-        add_tk = client.send_command("TKOK", message_id)
-        log.debug(add_tk.payload)
-        log.debug("ad RF")
-        add_rf = client.send_command("RFAGENT", message_id)
-        log.debug(add_rf.payload)
+        traveller_infos = [TravellerInfo(1, "Mouhamad", "JJ", "FALL", "03121990", "ADT"),
+                           TravellerInfo(2, "Amadou", "JJ", "Diallo", "03121990", "ADT")]
+        reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "diallo@gmail.com")
+        passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info)
+        log.debug(passenger_info_response.payload)
         log.debug("add form of payment")
         form_payment = client.send_command("FP*CHEQUE", message_id)
         log.debug(form_payment.payload)
@@ -129,7 +122,7 @@ def test():
         client.end_session(message_id)
         log.debug(response_data.payload)
         pnr = response_data.payload["pnr_header"].controle_number
-        log.debug("display pnr " + pnr)
+        log.debug("display pnr " + pnr if pnr is not None else "")
         res_reservation = client.get_reservation(pnr, None, False)
         res_reservation, message_id = res_reservation.payload, res_reservation.session_info.message_id
 

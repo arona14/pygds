@@ -447,10 +447,13 @@ class AmadeusXMLBuilder:
     def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
-        for i in infos:
+        for i in infos.traveller_info:
             passenger_infos.append(
                 sub_parts.add_multi_elements_traveller_info(i.ref_number, i.first_name, i.surname, i.last_name,
                                                             i.date_of_birth, i.pax_type))
+        # type = 6 Travel agent telephone number
+        # type = PO2 E-mail address
+        # type = 7 Mobile Phone Number
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
             <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
@@ -469,18 +472,18 @@ class AmadeusXMLBuilder:
                         <marker1/>
                         {sub_parts.add_multi_element_data_element("RF", 3, "P22", office_id)}
                         <dataElementsIndiv>
-                        <elementManagementData>
-                            <segmentName>OP</segmentName>
-                        </elementManagementData>
-                        <optionElement>
-                            <optionDetail>
-                                <officeId>{office_id}</officeId>
-                            </optionDetail>
-                        </optionElement>
+                            <elementManagementData>
+                                <segmentName>OP</segmentName>
+                            </elementManagementData>
+                            <optionElement>
+                                <optionDetail>
+                                    <officeId>{office_id if office_id is not None else ""}</officeId>
+                                </optionDetail>
+                            </optionElement>
                         </dataElementsIndiv>
-                        {sub_parts.add_multi_element_contact_element(7, "6", "0722541415")}
-                        {sub_parts.add_multi_element_contact_element(7, "7", "0722541415")}
-                        {sub_parts.add_multi_element_contact_element(7, "P02", "cjebelean@xvalue.ro")}
+                        {sub_parts.add_multi_element_contact_element("7", infos.number_tel) if infos.number_tel else ""}
+                        {sub_parts.add_multi_element_contact_element("6", infos.number_tel_agent) if infos.number_tel else ""}
+                        {sub_parts.add_multi_element_contact_element("P02", infos.email) if infos.number_tel else ""}
                         <dataElementsIndiv>
                             <elementManagementData>
                                 <segmentName>TK</segmentName>

@@ -217,6 +217,28 @@ class PassengerPreferences(BasicDataObject):
         return self.prefs
 
 
+class TravellerInfo(BasicDataObject):
+    def to_data(self):
+        pass
+
+    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+        self.ref_number = ref_number
+        self.first_name = first_name
+        self.surname = surname
+        self.last_name = last_name
+        self.date_of_birth = date_of_birth
+        self.pax_type = pax_type
+
+
+class ReservationInfo(BasicDataObject):
+
+    def __init__(self, traveller_info: List[TravellerInfo] = None, number_tel: str = None, number_tel_agent: str = None, email: str = None):
+        self.traveller_info = traveller_info
+        self.number_tel = number_tel
+        self.number_tel_agent = number_tel_agent
+        self.email = email
+
+
 class Passenger(BasicDataObject):
     """
         A class to keep information about a passenger
