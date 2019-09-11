@@ -100,18 +100,18 @@ class TravellerNumberingInfo(TravellerNumbering):
 
 class LowFareSearchRequest(BasicDataObject):
 
-    def __init__(self, itineraries: List[RequestedSegment], csv, pcc,
+    def __init__(self, itineraries: List[RequestedSegment], csv: str = "Y", pcc: str = None,
                  travelingNumber: TravellerNumberingInfo = None, alternatePcc: list = [],
-                 requestType: str = '', preferredAirlines: list = [], baggagePref: bool = False,
+                 requestType: str = "", preferredAirlines: list = [], baggagePref: bool = False,
                  excludeBasicEconomy: bool = True, maxConnection: int = 3):
 
         self.itineraries: List[RequestedSegment] = itineraries
-        self.csv = csv
+        self.csv = csv  # the class of service/the cabine class
         self.pcc = pcc
         self.travelingNumber = travelingNumber
         self.alternatePcc = alternatePcc
-        self.requestType = requestType
-        self.preferredAirlines = preferredAirlines
+        self.requestType = requestType  #
+        self.preferredAirlines = preferredAirlines  # carrierId in Amadeus
         self.baggagePref = baggagePref
         self.excludeBasicEconomy = excludeBasicEconomy
         self.maxConnection = maxConnection

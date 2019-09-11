@@ -2,7 +2,7 @@ from typing import List
 
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
-from pygds.core.request import RequestedSegment
+from pygds.core.request import RequestedSegment, LowFareSearchRequest
 
 
 def mptbs_itinerary(segment: RequestedSegment):
@@ -72,7 +72,7 @@ def mptbs_currency_conversion(currency: str):
 
 
 def mptbs_pricing_types_com(types: str = None, identify: str = ""):
-    # type_com = "\n".join([f"<corporate><corporateId>{c_qualifier}{identity}</corporateId></corporate>" for c_qualifier in types and identity in identify])
+
     return f"""
     <corporate>
         <corporateId>
@@ -244,7 +244,32 @@ def _traveler_ref(pax_type, begin, pax_number):
             <ptc>{pax_type}</ptc>
             {travellers}
         </paxReference>
+
         """
+
+
+def travel_flight_info(low_fare_search: LowFareSearchRequest, c_qualifier=None):
+    c_qualifier = "<cabinQualifier>RC</cabinQualifier>"
+    return f"""
+        <travelFlightInfo>
+            <cabinId>
+                {c_qualifier}
+                <cabin>{low_fare_search.csv}</cabin>
+            </cabinId>
+            {_tfi_company_identity(low_fare_search.preferredAirlines)}
+        </travelFlightInfo>
+        """
+
+
+def _tfi_company_identity(carrier_ids: List[str] = ""):
+    carrier_qualifier = "<carrierQualifier>F</carrierQualifier>"
+    carrierid_flightinfo = "\n".join([f"<carrierId>{carrierid}</carrierId>" for carrierid in carrier_ids])
+    return f"""
+    <companyIdentity>
+        {carrier_qualifier}
+        {carrierid_flightinfo}
+    </companyIdentity>
+    """
 
 
 def add_multi_element_data_element(segment_name, qualifier, data_type, free_text):
