@@ -3,7 +3,7 @@ import unittest
 from pygds.amadeus.client import AmadeusClient
 # from pygds.core.app_error import ApplicationError
 from pygds.env_settings import get_setting
-from pygds.core.price import PriceRequest
+# from pygds.core.price import PriceRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.types import TravellerInfo, ReservationInfo
 
@@ -47,7 +47,7 @@ class ClientCan(TestCase):
         self.assertEqual(len(passenger_info_response.payload["passengers"]), 2)
         self.client.end_session(message_id)
 
-    def test_price_ok(self):
+    """ def test_price_ok(self):
 
         message_id = self.sub_processing()
         response_data = self.client.create_pnr(message_id)
@@ -66,7 +66,7 @@ class ClientCan(TestCase):
         res_price = self.client.fare_price_pnr_with_booking_class(message_id, price_request)
         self.client.end_session(message_id)
         fare_reference = res_price.payload[0].fare_reference
-        self.assertIsNotNone(fare_reference)
+        self.assertIsNotNone(fare_reference)"""
 
     def test_end_session(self):
         res_command = self.client.send_command("HELP")
@@ -114,12 +114,12 @@ class ClientCan(TestCase):
         self.assertIsNotNone(res_tst)
         """
 
-    def test_create_pnr(self):
+    """" def test_create_pnr(self):
         message_id = self.sub_processing()
         response_data = self.client.create_pnr(message_id)
         self.client.end_session(message_id)
         pnr = response_data.payload["pnr_header"].controle_number
-        self.assertEqual(len(pnr), 6)
+        self.assertEqual(len(pnr), 6)"""
 
     def sub_processing(self):
         search_results = self.client.send_command("AN12OCTTRZKUL/KY")
