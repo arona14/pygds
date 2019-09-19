@@ -4,7 +4,7 @@ import unittest
 from pygds.sabre.client import SabreClient
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
-from pygds.sabre.jsonbuilders.create_pnr import PassengerFare, FlightSegment, CreatePnrRequest, Deals
+from pygds.sabre.jsonbuilders.create_pnr import PassengerFare, FlightSegment, CreatePnrRequest
 # from pygds.amadeus.amadeus_types import GdsResponse
 # from pygds.core.helpers import get_data_from_json as from_json
 # from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
@@ -48,12 +48,6 @@ class ClientCan(unittest.TestCase):
             passenger.email = pax['Email']
             passenger.address = pax['Address']
             passenger.middle_name = pax['MiddleName']
-            deals = Deals()
-            deals.cts_reward = pax['deals']['cts_reward']
-            deals.cts_markup = pax['deals']['cts_markup']
-            deals.agency_markup = pax['deals']['agency_markup']
-            deals.agency_discount = pax['deals']['agency_discount']
-            passenger.deals = deals
             pax_list.append(passenger)
         segments = []
         for flight_segment in self.create_pnr_request_json['FlightSegment']:

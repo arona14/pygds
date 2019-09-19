@@ -1,64 +1,51 @@
 {
     "FlightSegment": [
       {
-        "ArrivalDateTime": "2019-09-19T11:55:00",
-        "DepartureDateTime": "2019-09-18T19:05:00",
-        "FlightNumber": "2",
+        "ArrivalDateTime": "2019-10-10T07:53:00",
+        "DepartureDateTime": "2019-10-10T06:16:00",
+        "FlightNumber": "4376",
         "NumberInParty": 1,
-        "ResBookDesigCode": "U",
+        "ResBookDesigCode": "B",
         "Status": "NN",
-        "DestinationLocation": "IST",
-        "MarketingAirline": "TK",
+        "DestinationLocation": "DCA",
+        "MarketingAirline": "AA",
         "MarriageGrp": "O",
-        "OperatingAirline": "TK",
-        "OriginLocation": "JFK"
+        "OperatingAirline": "AA",
+        "OriginLocation": "DTW"
       },
       {
-        "ArrivalDateTime": "2019-09-19T15:35:00",
-        "DepartureDateTime": "2019-09-19T15:35:00",
-        "FlightNumber": "1825",
+        "ArrivalDateTime": "2019-10-10T09:55:00",
+        "DepartureDateTime": "2019-10-10T08:30:00",
+        "FlightNumber": "2654",
         "NumberInParty": 1,
-        "ResBookDesigCode": "U",
-        "Status": "NN",
-        "DestinationLocation": "CDG",
-        "MarketingAirline": "TK",
-        "MarriageGrp": "I",
-        "OperatingAirline": "TK",
-        "OriginLocation": "IST"
-      },
-      {
-        "ArrivalDateTime": "2019-10-11T15:50:00",
-        "DepartureDateTime": "2019-10-11T11:20:00",
-        "FlightNumber": "1822",
-        "NumberInParty": 1,
-        "ResBookDesigCode": "U",
-        "Status": "NN",
-        "DestinationLocation": "IST",
-        "MarketingAirline": "TK",
-        "MarriageGrp": "O",
-        "OperatingAirline": "TK",
-        "OriginLocation": "CDG"
-      },
-      {
-        "ArrivalDateTime": "2019-10-11T22:30:00",
-        "DepartureDateTime": "2019-10-11T18:35:00",
-        "FlightNumber": "11",
-        "NumberInParty": 1,
-        "ResBookDesigCode": "U",
+        "ResBookDesigCode": "B",
         "Status": "NN",
         "DestinationLocation": "JFK",
-        "MarketingAirline": "TK",
+        "MarketingAirline": "AA",
         "MarriageGrp": "I",
-        "OperatingAirline": "TK",
-        "OriginLocation": "IST"
+        "OperatingAirline": "AA",
+        "OriginLocation": "DCA"
+      },
+      {
+        "ArrivalDateTime": "2019-10-31T16:02:00",
+        "DepartureDateTime": "2019-10-31T13:59:00",
+        "FlightNumber": "4461",
+        "NumberInParty": 1,
+        "ResBookDesigCode": "B",
+        "Status": "NN",
+        "DestinationLocation": "DTW",
+        "MarketingAirline": "AA",
+        "MarriageGrp": "O",
+        "OperatingAirline": "AA",
+        "OriginLocation": "LGA"
       }
     ],
     "Passengers": [
       {
         "NameNumber": 1,
-        "GivenName": "Damiel",
-        "Surname": "Ndiaye",
-        "DateOfBirth": "1990-06-03",
+        "GivenName": "Arona",
+        "Surname": "hann",
+        "DateOfBirth": "1993-09-14",
         "Gender": "Male",
         "PassengerType": "ADT",
         "Amount": 0,
@@ -87,9 +74,30 @@
       }
       
     ],
-    "Remarks": [],
+    "Remarks": [
+      {
+        "Type": "Invoice",
+        "Text": "S*UD100 virginie"
+      },
+      {
+        "Type": "Invoice",
+        "Text": "S*UD25 P"
+      },
+      {
+        "Type": "General",
+        "Text": "PAXINFO 12345678"
+      },
+      {
+        "Type": "General",
+        "Text": "PAXINFO virginielamesse¤gmail.com"
+      },
+      {
+        "Type": "General",
+        "Text": "PROPOSED 175.3"
+      }
+    ],
     "TargetCity": "WR17",
-    "FareType": "COM",
+    "FareType": "PUB",
     "CustomerIdentifier": "D586445858",
     "Destination": "CDG",
     "Bags": 0,
@@ -99,7 +107,7 @@
     "Exchange": true,
     "ExchangeAfter":300.0,
     "ExchangeBefore":300.0,
-    "Airline": "TK",
-    "LastTicketDate": "2019-09-03",
-    "Commission": 7
+    "Airline": "AA",
+    "LastTicketDate": "2019-09-20",
+    "Commission": 0
   }
