@@ -63,7 +63,6 @@ class PassengerFare:
         self.email: str
         self.address: str
         self.middle_name: str
-        self.deals: Deals()
 
     def to_dict(self):
         return {
@@ -83,26 +82,6 @@ class PassengerFare:
             "Email": self.email,
             "Address": self.address,
             "MiddleName": self.middle_name,
-            "deals": self.deals.to_dict()
-        }
-
-
-class Deals:
-    """
-    the Deals class
-    """
-    def __init__(self):
-        self.cts_reward: float
-        self.cts_markup: float
-        self.agency_markup: float
-        self.agency_discount: float
-
-    def to_dict(self):
-        return {
-            "cts_reward": self.cts_reward,
-            "cts_markup": self.cts_markup,
-            "agency_markup": self.agency_markup,
-            "agency_discount": self.agency_discount
         }
 
 
@@ -112,7 +91,7 @@ class CreatePnrRequest:
         the class who build the create pnr resquest
     """
 
-    def __init__(self, flight_segments: List[FlightSegment], passengers: List[PassengerFare], remarks: list, target_city: str, fare_type: str, customer_identifier: str, user, last_ticket_date, commission):
+    def __init__(self, flight_segments: List[FlightSegment], passengers: List[PassengerFare], remarks: List[dict], target_city: str, fare_type: str, customer_identifier: str, user, last_ticket_date, commission):
 
         self.flight_segments = flight_segments
         self.passengers = passengers

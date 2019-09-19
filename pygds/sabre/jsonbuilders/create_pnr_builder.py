@@ -13,29 +13,19 @@ class CreatePnrBuilder:
     def air_price(self):
         price_request_info = []
         for pax in self.create_pnr_request.passengers:
-            if len(self.create_pnr_request.passengers) == 1:
-                pricing_qualifiers = {
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ]
-                }
-            else:
-                pricing_qualifiers = {
-                    "NameSelect": [
-                        {
-                            "NameNumber": str(pax.name_number) + ".1"
-                        }
-                    ],
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ],
-                }
+            pricing_qualifiers = {
+                "NameSelect": [
+                    {
+                        "NameNumber": str(pax.name_number) + ".1"
+                    }
+                ],
+                "PassengerType": [
+                    {
+                        "Code": pax.passenger_type,
+                        "Quantity": "1"
+                    }
+                ],
+            }
             misc_qualifiers = {
                 "AirExtras": {
                     "Ind": True
@@ -170,59 +160,6 @@ class CreatePnrBuilder:
 
         return gender
 
-    def remarks(self):
-        remrks = [
-            {
-                "Type": 'Invoice',
-                "Text": "S*UD100 " + self.create_pnr_request.user.split("@")[0]
-            },
-            {
-                "Type": 'Invoice',
-                "Text": f"S*UD25 {'N' if self.create_pnr_request.fare_type == 'NET' else 'P'}"
-            }
-        ]
-        if self.create_pnr_request.passengers[0].phone:
-            remrks.append({
-                "Type": 'General',
-                "Text": "PAXINFO " + self.create_pnr_request.passengers[0].phone
-            })
-        if self.create_pnr_request.passengers[0].email:
-            remrks.append({
-                "Type": 'General',
-                "Text": "PAXINFO " + (self.create_pnr_request.passengers[0].email).replace("@", "¤")
-            })
-        for pax in self.create_pnr_request.passengers:
-            if pax.service_fee:
-                remrks.append({
-                    "Type": 'General',
-                    "Text": "MCO " + str(pax.name_number) + ".1-S1 " + str(pax.service_fee)
-                })
-        agency = 0
-        for pax in self.create_pnr_request.passengers:
-            agency += pax.deals.agency_discount
-        if agency:
-            remrks.append({
-                "Type": 'General',
-                "Text": str(agency) + " INTERNAL PROMOTION WAS APPLIED DISCOUNT"
-            })
-        agency_markup = 0
-        for pax in self.create_pnr_request.passengers:
-            agency_markup += pax.deals.agency_markup
-        if agency_markup:
-            remrks.append({
-                "Type": 'General',
-                "Text": str(agency_markup) + " INTERNAL PROMOTION WAS APPLIED MARKUP"
-            })
-        amount_proposed = 0
-        for pax in self.create_pnr_request.passengers:
-            markup = pax.amount if pax.amount else 0
-            amount_proposed += markup + pax.total_fare + pax.service_fee - pax.deals.agency_discount
-        remrks.append({
-            "Type": 'General',
-            "Text": "AMOUNT PROPOSED " + str(amount_proposed)
-        })
-        return remrks
-
     def get_number_infant(self):
         infants_in_party = []
         for pax in self.create_pnr_request.passengers:
@@ -234,7 +171,6 @@ class CreatePnrBuilder:
     def sepecial_req_details(self):
         infants_in_party = self.get_number_infant()
         secure_flight = self.secure_flight(self.create_pnr_request.passengers)
-        remarks = self.remarks()
         secure = {
             "SpecialService": {
                 "SpecialServiceInfo": {
@@ -243,7 +179,7 @@ class CreatePnrBuilder:
             },
             "AddRemark": {
                 "RemarkInfo": {
-                    "Remark": remarks
+                    "Remark": self.create_pnr_request.remarks
                 }
             }
         }
