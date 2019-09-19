@@ -3,7 +3,7 @@ import unittest
 from pygds.amadeus.client import AmadeusClient
 # from pygds.core.app_error import ApplicationError
 from pygds.env_settings import get_setting
-from pygds.core.price import PriceRequest
+# from pygds.core.price import PriceRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.types import TravellerInfo, ReservationInfo
 
