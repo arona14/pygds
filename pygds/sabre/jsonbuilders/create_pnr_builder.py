@@ -13,29 +13,19 @@ class CreatePnrBuilder:
     def air_price(self):
         price_request_info = []
         for pax in self.create_pnr_request.passengers:
-            if len(self.create_pnr_request.passengers) == 1:
-                pricing_qualifiers = {
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ]
-                }
-            else:
-                pricing_qualifiers = {
-                    "NameSelect": [
-                        {
-                            "NameNumber": str(pax.name_number) + ".1"
-                        }
-                    ],
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ],
-                }
+            pricing_qualifiers = {
+                "NameSelect": [
+                    {
+                        "NameNumber": str(pax.name_number) + ".1"
+                    }
+                ],
+                "PassengerType": [
+                    {
+                        "Code": pax.passenger_type,
+                        "Quantity": "1"
+                    }
+                ],
+            }
             misc_qualifiers = {
                 "AirExtras": {
                     "Ind": True
