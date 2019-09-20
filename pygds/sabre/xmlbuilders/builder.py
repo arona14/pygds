@@ -623,7 +623,11 @@ class SabreXMLBuilder:
             fop = self.info_cash_or_cheque(payment_type, commission_value)
         return fop
 
-    def air_ticket_rq(self, token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value):
+    def get_name_select(self, name_select=None):
+
+        return f"""<NameSelect NameNumber="{name_select}"/>""" if name_select else ""
+
+    def air_ticket_rq(self, token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value, name_select):
         """
             Return the xml request to issue air tickets
         """
@@ -658,6 +662,7 @@ class SabreXMLBuilder:
                                 {self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)}
                                 <PricingQualifiers>
                                     <PriceQuote>
+                                        {self.get_name_select(name_select)}
                                         <Record Number="{price_quote}"/>
                                     </PriceQuote>
                                 </PricingQualifiers>

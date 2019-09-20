@@ -220,7 +220,7 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token, 1, message_id, token, False)
         return session_info
 
-    def issue_ticket(self, message_id, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
+    def issue_ticket(self, message_id, price_quote, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None, name_select=None):
         """
         This function is make for the ticket process.
         she does not want to make the end transaction at the end to commit the change
@@ -229,8 +229,7 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        # self.send_command_befor_issue_ticket(message_id)
-        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)
+        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value, name_select)
         response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
         return IssueTicketExtractor(response_data).extract()
 
