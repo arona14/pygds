@@ -1,3 +1,4 @@
+from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.core.security_utils import generate_random_message_id, generate_created
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
@@ -615,15 +616,21 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def fop_choice(self, code_cc=None, expire_date=None, cc_number=None, approval_code=None, payment_type=None, commission_value=None):
-        fop = ""
-        if code_cc and expire_date and cc_number is not None:
-            fop = self.info_credit_card(code_cc, expire_date, cc_number, approval_code, commission_value)
-        elif payment_type and commission_value is not None:
-            fop = self.info_cash_or_cheque(payment_type, commission_value)
-        return fop
+    def fop_choice(self, fop: FormOfPayment, commission_value=None):
+        if not fop or fop.is_valid() is False:
+            return ""
+        if isinstance(fop, CreditCard):
+            return self.info_credit_card(fop.vendor_code, fop.expiry_date, fop.card_number, fop.approval_code,
+                                         commission_value)
+        if commission_value is not None:
+            return self.info_cash_or_cheque(fop.p_type, commission_value)
+        return ""
 
-    def air_ticket_rq(self, token_value, price_quote, code_cc, expire_date, cc_number, approval_code, payment_type, commission_value):
+    def get_name_select(self, name_select=None):
+
+        return f"""<NameSelect NameNumber="{name_select}"/>""" if name_select else ""
+
+    def air_ticket_rq(self, token_value, price_quote, form_of_payment: FormOfPayment, commission_value, name_select):
         """
             Return the xml request to issue air tickets
         """
@@ -655,9 +662,10 @@ class SabreXMLBuilder:
                     <soapenv:Body>
                         <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
                             <OptionalQualifiers>
-                                {self.fop_choice(code_cc, expire_date, cc_number, approval_code, payment_type, commission_value)}
+                                {self.fop_choice(form_of_payment, commission_value)}
                                 <PricingQualifiers>
                                     <PriceQuote>
+                                        {self.get_name_select(name_select)}
                                         <Record Number="{price_quote}"/>
                                     </PriceQuote>
                                 </PricingQualifiers>
