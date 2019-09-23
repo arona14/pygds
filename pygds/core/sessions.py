@@ -1,4 +1,11 @@
+import enum
 from datetime import datetime
+from typing import Dict
+
+
+class TokenType(enum.Enum):
+    REST_TOKEN = 0
+    SESSION_TOKEN = 1
 
 
 class SessionInfo:
@@ -6,13 +13,14 @@ class SessionInfo:
     This class is for containing information for a session
     """
     def __init__(self, security_token: str, sequence_number: int, session_id: str, message_id: str,
-                 session_ended: bool = True):
+                 session_ended: bool = True, token_type: TokenType = TokenType.SESSION_TOKEN):
         self.security_token = security_token
         self.sequence_number = sequence_number
         self.session_id = session_id
         self.message_id = message_id
         self.session_ended = session_ended
         self.last_access: datetime = None
+        self.token_type = token_type
 
     def __repr__(self):
         return str(self.__data())
@@ -38,7 +46,7 @@ class SessionHolder(object):
 
     """
     def __init__(self):
-        self.current_sessions = {}
+        self.current_sessions: Dict[str, SessionInfo] = {}
 
     def add_session(self, session_info: SessionInfo) -> None:
         """
@@ -76,3 +84,6 @@ class SessionHolder(object):
             Tells weather the holder contains a message id or not.
         """
         return self.current_sessions.__contains__(message_id)
+
+    def get_expired_sessions(self, leeway: datetime):
+        return [session for session in self.current_sessions.values() if session.last_access < leeway]

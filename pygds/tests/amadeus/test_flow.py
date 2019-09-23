@@ -119,7 +119,7 @@ def test():
         log.debug(form_payment.payload)
         log.debug("Create pnr")
         response_data = client.create_pnr(message_id)
-        client.end_session(message_id)
+        client.close_session(message_id)
         log.debug(response_data.payload)
         pnr = response_data.payload["pnr_header"].controle_number
         log.debug("display pnr " + pnr if pnr is not None else "")
@@ -137,7 +137,7 @@ def test():
         price_request = PriceRequest(pax_refs, seg_refs)
 
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
-        client.end_session(message_id)
+        client.close_session(message_id)
         log.debug(res_price.payload)
         # session_info, res_price, app_error = (res_price.session_info, res_price.payload, res_price.application_error)
         # log.debug(session_info)
