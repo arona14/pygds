@@ -5,6 +5,7 @@ from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, c
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, store_pax_type, store_plus_up, \
     store_ticket_designator, add_flight_segment
+from decimal import Decimal
 
 
 class SabreXMLBuilder:
@@ -377,22 +378,28 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def info_credit_card(self, code_cc, expire_date, cc_number, commission_value, approval_code=None):
+    def info_credit_card_approal_code(self, code_cc, expire_date, cc_number, approval_code):
         return f"""<FOP_Qualifiers>
-                <BasicFOP>
-                    <CC_Info Suppress="true">
-                        <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" ManualApprovalCode ="{approval_code}" Number="{cc_number}"/>
-                    </CC_Info>
-                </BasicFOP>
-                </FOP_Qualifiers>
-                {commission_value}"""
+                    <BasicFOP>
+                        <CC_Info Suppress="true">
+                            <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" ManualApprovalCode ="{approval_code}" Number="{cc_number}"/>
+                        </CC_Info>
+                    </BasicFOP>
+                </FOP_Qualifiers>"""
 
-    def info_cash_or_cheque(self, payment_type, commission_value):
-        payment_infos = f"""<FOP_Qualifiers>
-                <BasicFOP Type="{payment_type}"/>
-                </FOP_Qualifiers>
-                {commission_value}"""
-        return payment_infos
+    def info_credit_card(self, code_cc, expire_date, cc_number):
+        return f"""<FOP_Qualifiers>
+                    <BasicFOP>
+                        <CC_Info Suppress="true">
+                            <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" Number="{cc_number}"/>
+                        </CC_Info>
+                    </BasicFOP>
+                </FOP_Qualifiers>"""
+
+    def info_cash_or_cheque(self, payment_type):
+        return f"""<FOP_Qualifiers>
+                    <BasicFOP Type="{payment_type}"/>
+                </FOP_Qualifiers>"""
 
     def seap_map_rq(self, token, flight_infos: FlightSeatMap):
         """
@@ -616,21 +623,33 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def fop_choice(self, fop: FormOfPayment, commission_value=None):
+    def fop_choice(self, fop: FormOfPayment):
         if not fop or fop.is_valid() is False:
             return ""
-        if isinstance(fop, CreditCard):
-            return self.info_credit_card(fop.vendor_code, fop.expiry_date, fop.card_number, fop.approval_code,
-                                         commission_value)
-        if commission_value is not None:
-            return self.info_cash_or_cheque(fop.p_type, commission_value)
+        if isinstance(fop, CreditCard) and fop.approval_code is None:
+            return self.info_credit_card(fop.vendor_code, fop.expiry_date, fop.card_number)
+        elif isinstance(fop, CreditCard) and fop.approval_code is not None:
+            return self.info_credit_card_approal_code(fop.vendor_code, fop.expiry_date, fop.card_number, fop.approval_code)
+        else:
+            return self.info_cash_or_cheque(fop.p_type)
         return ""
+
+    def get_commission_value(self, fare_type, commission_percentage, markup):
+        TWOPLACES = Decimal(10) ** -2
+        commission_value = "<MiscQualifiers><Commission "
+        if commission_percentage is not None and commission_percentage >= 0 and fare_type == "PUB":
+            commission_value = commission_value + f"""Percent="{Decimal(commission_percentage).quantize(TWOPLACES)}"/></MiscQualifiers>"""
+        elif markup is not None and markup >= 0 and fare_type == "NET":
+            commission_value = commission_value + f"""Amount="{Decimal(markup).quantize(TWOPLACES)}"/></MiscQualifiers>"""
+        if commission_value == "<MiscQualifiers><Commission ":
+            commission_value = ""
+        return commission_value
 
     def get_name_select(self, name_select=None):
 
         return f"""<NameSelect NameNumber="{name_select}"/>""" if name_select else ""
 
-    def air_ticket_rq(self, token_value, price_quote, form_of_payment: FormOfPayment, commission_value, name_select):
+    def air_ticket_rq(self, token_value, price_quote, form_of_payment: FormOfPayment, fare_type, commission_percentage, markup, name_select):
         """
             Return the xml request to issue air tickets
         """
@@ -662,7 +681,8 @@ class SabreXMLBuilder:
                     <soapenv:Body>
                         <AirTicketRQ Version="2.12.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="true">
                             <OptionalQualifiers>
-                                {self.fop_choice(form_of_payment, commission_value)}
+                                {self.fop_choice(form_of_payment)}
+                                {self.get_commission_value(fare_type, commission_percentage, markup)}
                                 <PricingQualifiers>
                                     <PriceQuote>
                                         {self.get_name_select(name_select)}

@@ -95,15 +95,18 @@ class SabreClient(BaseClient):
 
     def close_session(self, message_id):
         """
-        A method to close a session
-        :param token_session: the token session
-        :return: True if session closed else None
+        This function is for end transaction
         """
-        _, _, token = self.get_or_create_session_details(message_id)
-        if token:
-            close_session_request = self.xml_builder.session_close_rq(token)
-            close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
-            return CloseSessionExtractor(close_session_response).extract().payload
+        _, sequence, token_session = self.get_or_create_session_details(message_id)
+        if token_session is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.session_close_rq(token_session)
+        response_data = self.__request_wrapper("close_session", request_data, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = CloseSessionExtractor(response_data).extract()
+        gds_response.session_info = session_info
+        return gds_response
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
         """retrieve PNR
@@ -117,15 +120,12 @@ class SabreClient(BaseClient):
         if not token:
             session_info = self.open_session()
             token = session_info.security_token
-
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
         display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         gds_response.session_info = session_info
-
         if need_close:
             self.close_session(message_id)
-
         return gds_response
 
     def search_price_quote(self, message_id, retain: bool = False, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = ""):
@@ -221,7 +221,8 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token, 1, message_id, token, False)
         return session_info
 
-    def issue_ticket(self, message_id, price_quote, form_of_payment: FormOfPayment, commission_value=None, name_select=None):
+    def issue_ticket(self, message_id, price_quote, form_of_payment: FormOfPayment, fare_type=None, commission_percentage=None, markup=None, name_select=None):
+        # token_value, price_quote, form_of_payment: FormOfPayment, fare_type, commission_percentage, markup, name_select
         """
         This function is make for the ticket process.
         she does not want to make the end transaction at the end to commit the change
@@ -230,10 +231,13 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.air_ticket_rq(token_session, price_quote, form_of_payment, commission_value,
-                                                      name_select)
-        response_data = self.__request_wrapper("air_ticket_rq", request_data, self.endpoint)
-        return IssueTicketExtractor(response_data).extract()
+        air_ticket_request = self.xml_builder.air_ticket_rq(token_session, price_quote, form_of_payment, fare_type, commission_percentage, markup, name_select)
+        air_ticket_response = self.__request_wrapper("issue_ticket", air_ticket_request, self.endpoint)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        self.add_session(session_info)
+        gds_response = IssueTicketExtractor(air_ticket_response).extract()
+        gds_response.session_info = session_info
+        return gds_response
 
     def end_transaction(self, message_id):
         """
@@ -259,7 +263,8 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        send_remark_request = self.xml_builder.send_remark_rq(token_session, text)
+        request = self.xml_builder.send_remark_rq(token_session, text)
+        send_remark_request = request.encode(encoding='UTF-8')
         send_remark_response = self.__request_wrapper("send_remark", send_remark_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
@@ -295,7 +300,8 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        command_request = self.xml_builder.sabre_command_lls_rq(token_session, command)
+        request = self.xml_builder.sabre_command_lls_rq(token_session, command)
+        command_request = request.encode(encoding='UTF-8')
         command_response = self.__request_wrapper("send_command", command_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
