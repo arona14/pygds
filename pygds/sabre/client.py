@@ -95,18 +95,15 @@ class SabreClient(BaseClient):
 
     def close_session(self, message_id):
         """
-        This function is for end transaction
+        A method to close a session
+        :param token_session: the token session
+        :return: True if session closed else None
         """
-        _, sequence, token_session = self.get_or_create_session_details(message_id)
-        if token_session is None:
-            raise NoSessionError(message_id)
-        request_data = self.xml_builder.session_close_rq(token_session)
-        response_data = self.__request_wrapper("close_session", request_data, self.endpoint)
-        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
-        self.add_session(session_info)
-        gds_response = CloseSessionExtractor(response_data).extract()
-        gds_response.session_info = session_info
-        return gds_response
+        _, _, token = self.get_or_create_session_details(message_id)
+        if token:
+            close_session_request = self.xml_builder.session_close_rq(token)
+            close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
+            return CloseSessionExtractor(close_session_response).extract().payload
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
         """retrieve PNR
