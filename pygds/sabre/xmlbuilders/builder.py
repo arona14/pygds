@@ -378,20 +378,17 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def info_credit_card_approal_code(self, code_cc, expire_date, cc_number, approval_code):
-        return f"""<FOP_Qualifiers>
-                    <BasicFOP>
-                        <CC_Info Suppress="true">
-                            <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" ManualApprovalCode ="{approval_code}" Number="{cc_number}"/>
-                        </CC_Info>
-                    </BasicFOP>
-                </FOP_Qualifiers>"""
+    def approval_code_info(approval_code):
+        if approval_code is not None:
+            return f"""ManualApprovalCode = "{approval_code}" """
+        else:
+            ""
 
-    def info_credit_card(self, code_cc, expire_date, cc_number):
+    def info_credit_card(self, code_cc, expire_date, cc_number, approval_code):
         return f"""<FOP_Qualifiers>
                     <BasicFOP>
                         <CC_Info Suppress="true">
-                            <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" Number="{cc_number}"/>
+                            <PaymentCard Code="{code_cc}" ExpireDate="{expire_date}" {self.approval_code_info(approval_code)} Number="{cc_number}"/>
                         </CC_Info>
                     </BasicFOP>
                 </FOP_Qualifiers>"""
@@ -626,24 +623,24 @@ class SabreXMLBuilder:
     def fop_choice(self, fop: FormOfPayment):
         if not fop or fop.is_valid() is False:
             return ""
-        if isinstance(fop, CreditCard) and fop.approval_code is None:
-            return self.info_credit_card(fop.vendor_code, fop.expiry_date, fop.card_number)
-        elif isinstance(fop, CreditCard) and fop.approval_code is not None:
-            return self.info_credit_card_approal_code(fop.vendor_code, fop.expiry_date, fop.card_number, fop.approval_code)
+        if isinstance(fop, CreditCard):
+            return self.info_credit_card(fop.vendor_code, fop.expiry_date, fop.card_number, fop.approval_code)
         else:
             return self.info_cash_or_cheque(fop.p_type)
         return ""
 
     def get_commission_value(self, fare_type, commission_percentage, markup):
+
         TWOPLACES = Decimal(10) ** -2
-        commission_value = "<MiscQualifiers><Commission "
         if commission_percentage is not None and commission_percentage >= 0 and fare_type == "PUB":
-            commission_value = commission_value + f"""Percent="{Decimal(commission_percentage).quantize(TWOPLACES)}"/></MiscQualifiers>"""
+            return f"""<MiscQualifiers>
+                    <Commission Percent="{Decimal(commission_percentage).quantize(TWOPLACES)}"/>
+                </MiscQualifiers>"""
         elif markup is not None and markup >= 0 and fare_type == "NET":
-            commission_value = commission_value + f"""Amount="{Decimal(markup).quantize(TWOPLACES)}"/></MiscQualifiers>"""
-        if commission_value == "<MiscQualifiers><Commission ":
-            commission_value = ""
-        return commission_value
+            return f"""<MiscQualifiers>
+                    <Commission Amount="{Decimal(markup).quantize(TWOPLACES)}"/>
+                </MiscQualifiers>"""
+        return ""
 
     def get_name_select(self, name_select=None):
 
