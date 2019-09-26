@@ -452,13 +452,14 @@ class PriceQuote_(BasicDataObject):
         This is to represent a price quote object
     """
 
-    def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, passengers=None):
+    def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, validating_carrier=None, passengers=None):
         self.price_quote_number = pq_number
         self.status = status
         self.fare_type = fare_type
         self.base_fare = base_fare
         self.total_fare = total_fare
         self.total_tax = total_tax
+        self.validating_carrier = validating_carrier
         self.passengers = passengers
 
     def to_data(self):
@@ -469,6 +470,7 @@ class PriceQuote_(BasicDataObject):
             "base_fare": self.base_fare,
             "total_fare": self.total_fare,
             "total_tax": self.total_tax,
+            "validating_carrier": self.validating_carrier,
             "passengers": self.passengers,
 
         }
