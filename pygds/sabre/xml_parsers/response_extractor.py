@@ -197,14 +197,10 @@ class RebookExtractor(BaseResponseExtractor):
         rebook_info = RebookInfo()
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "EnhancedAirBookRS")
         rebook_info.status = from_json(payload, "ApplicationResults", "@status")
-        if "OTA_AirBookRS" in payload:
-            rebook_info.air_book_rs = from_json(payload, "OTA_AirBookRS")
-        else:
-            rebook_info.air_book_rs = {}
-        if "TravelItineraryReadRS" in payload:
-            rebook_info.travel_itinerary_read_rs = from_json(payload, "TravelItineraryReadRS")
-        else:
-            rebook_info.travel_itinerary_read_rs = {}
+        air_book = from_json_safe(payload, "OTA_AirBookRS")
+        rebook_info.air_book_rs = air_book if air_book is not None else {}
+        travel_itinerary = from_json_safe(payload, "TravelItineraryReadRS")
+        rebook_info.travel_itinerary_read_rs = travel_itinerary if travel_itinerary is not None else {}
         return rebook_info
 
 
