@@ -382,7 +382,7 @@ class SabreXMLBuilder:
         if approval_code is not None:
             return f"""ManualApprovalCode = "{approval_code}" """
         else:
-            ""
+            return ""
 
     def info_credit_card(self, code_cc, expire_date, cc_number, approval_code):
         return f"""<FOP_Qualifiers>
