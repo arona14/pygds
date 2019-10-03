@@ -178,15 +178,7 @@ class SabreClient(BaseClient):
         """
         A method to cancel segment
         :param token_session: the token session
-        :param retain: the token session
-        :param commission: the commission is used to specify the numeric amount or  the precentage of commission being claimed if applicable
-        :param tour_code: the token session
-        :param fare_type: the token session
-        :param ticket_designator: the token session
-        :param segment_number: the segment number is used to instruct the system to price specified itinerary segments
-        :param name_select: the name select is used to instruct the system to price theitinerary based upon a particular name field
-        :param passenger_type: the passenger type is used to specify a passenger type code.
-        :param plus_up: the plus up is used to specify an amount to add on top of the fare
+        :param list_segment: the list of segment selected
         """
         return self.xml_builder.cancel_segment_rq(token_session, list_segment)
 
