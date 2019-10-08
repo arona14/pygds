@@ -378,7 +378,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def approval_code_info(approval_code):
+    def approval_code_info(self, approval_code):
         if approval_code is not None:
             return f"""ManualApprovalCode = "{approval_code}" """
         else:
@@ -606,7 +606,9 @@ class SabreXMLBuilder:
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
                 <soapenv:Body>
-                    <PassengerDetailsRQ haltOnError="true" ignoreOnError="true" xmlns="http://services.sabre.com/sp/pd/v3_4" version="3.4.0">
+                    <PassengerDetailsRQ haltOnError="true" ignoreOnError="false" xmlns="http://services.sabre.com/sp/pd/v3_4" version="3.4.0">
+                        <PostProcessing unmaskCreditCard="true" ignoreAfter="false">
+                        </PostProcessing>
                         <SpecialReqDetails>
                             <AddRemarkRQ>
                                 <RemarkInfo>

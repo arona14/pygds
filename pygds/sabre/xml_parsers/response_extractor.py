@@ -411,7 +411,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 pass
             else:
                 name_id = from_json(pax, "nameId")
-                for ticket in ensure_list(from_json(passengers, "stl18:TicketingInfo", "stl18:TicketDetails")):
+                for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
                     ticket_number = from_json_safe(ticket, "stl18:TicketNumber")
                     transaction_indicator = from_json_safe(ticket, "stl18:TransactionIndicator")
                     agency_location = from_json_safe(ticket, "stl18:AgencyLocation")
