@@ -64,7 +64,7 @@ class ClientCan(unittest.TestCase):
             segment.operating_airline = flight_segment['OperatingAirline']
             segment.origin_location = flight_segment['OriginLocation']
             segments.append(segment)
-        create_pnr_object = CreatePnrRequest(segments, pax_list, self.create_pnr_request_json['Remarks'], self.create_pnr_request_json['TargetCity'], self.create_pnr_request_json['FareType'], self.create_pnr_request_json['CustomerIdentifier'], 'mbaye@ctsfares.com', self.create_pnr_request_json['LastTicketDate'], self.create_pnr_request_json['Commission'])
+        create_pnr_object = CreatePnrRequest(segments, pax_list, self.create_pnr_request_json['Remarks'], self.create_pnr_request_json['TargetCity'], self.create_pnr_request_json['FareType'], self.create_pnr_request_json['CustomerIdentifier'], 'mbaye@ctsfares.com', self.create_pnr_request_json['LastTicketDate'])
         # print(create_pnr_object.to_dict())
         # create_pnr_builder = CreatePnrBuilder(create_pnr_object)
         # print(create_pnr_builder.to_dict())
