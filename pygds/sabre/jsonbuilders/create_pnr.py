@@ -91,7 +91,7 @@ class CreatePnrRequest:
         the class who build the create pnr resquest
     """
 
-    def __init__(self, flight_segments: List[FlightSegment], passengers: List[PassengerFare], remarks: List[dict], target_city: str, fare_type: str, customer_identifier: str, user, last_ticket_date, commission):
+    def __init__(self, flight_segments: List[FlightSegment], passengers: List[PassengerFare], remarks: List[dict], target_city: str, fare_type: str, customer_identifier: str, user, last_ticket_date):
 
         self.flight_segments = flight_segments
         self.passengers = passengers
@@ -101,7 +101,6 @@ class CreatePnrRequest:
         self.customer_identifier = customer_identifier
         self.user = user
         self.last_ticket_date = last_ticket_date
-        self.commission = commission
 
     def to_dict(self):
         return {
@@ -112,5 +111,4 @@ class CreatePnrRequest:
             "FareType": self.fare_type,
             "CustomerIdentifier": self.customer_identifier,
             "LastTicketDate": self.last_ticket_date,
-            "Commission": self.commission
         }
