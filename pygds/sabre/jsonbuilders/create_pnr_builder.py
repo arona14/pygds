@@ -39,7 +39,7 @@ class CreatePnrBuilder:
             else:
                 misc_qualifiers["Commission"]["Percent"] = "0"
             if self.create_pnr_request.fare_type == 'COM':
-                misc_qualifiers["Commission"]["Percent"] = str(self.create_pnr_request.commission)
+                misc_qualifiers["Commission"]["Percent"] = str(pax.percent)
                 if pax.tour_code and pax.passenger_type in self.infant_pax_types:
                     misc_qualifiers["TourCode"]["Percent"] = {
                         "SuppressIT": {
