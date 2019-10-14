@@ -149,7 +149,7 @@ class SabreClient(BaseClient):
         response.session_info = session_info
         return response
 
-    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
+    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passenger_type: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
         :param message_id: the message id
