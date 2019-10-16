@@ -1,10 +1,12 @@
 import json
 import logging
+
 from pygds.core.sessions import SessionInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe
 from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
+from pygds.sabre.json_parsers.revalidate_extract import RevalidateItinerarieInfo
 
 
 class BaseResponseRestExtractor(object):
@@ -96,3 +98,23 @@ class CreatePnrExtractor(BaseResponseRestExtractor):
         create_pnr_info.travel_itinerary_read = travel_itinerary_read
 
         return create_pnr_info
+
+
+class RevalidateItineraryExtractor(BaseResponseRestExtractor):
+    """
+    This class retrieves information for revalidate itinerary
+    """
+    def __init__(self, json_content):
+        super().__init__(json_content, main_tag="OTA_AirLowFareSearchRS")
+
+    def _extract(self):
+        revalidate_itinerarie = RevalidateItinerarieInfo()
+        self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
+        payload = from_json_safe(self.json_content, "OTA_AirLowFareSearchRS")
+
+        revalidate_itinerarie.status = from_json_safe(payload, "Success")
+        revalidate_itinerarie.brand_feature = from_json_safe(payload, "BrandFeatures")
+        revalidate_itinerarie.priced_itinerarie = from_json_safe(payload, "PricedItineraries")
+        revalidate_itinerarie.tpa_extension = from_json_safe(payload, "TPA_Extensions")
+
+        return revalidate_itinerarie

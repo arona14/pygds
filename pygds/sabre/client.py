@@ -7,7 +7,7 @@ import requests
 
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
-from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor, RevalidateExtractor
+from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor, RevalidateItineraryExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
@@ -38,6 +38,7 @@ class SabreClient(BaseClient):
             'Authorization': "Bearer",
             'Content-Type': 'application/json; charset=utf-8'
         }
+        self.pcc = pcc
 
     def _rest_request_wrapper(self, request_data, url_path, token):
         """
@@ -467,9 +468,22 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def revalidate(self, message_id: str = None, request_revalidate=None, passengers: list = [], fare_type: str = None):
+    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
+        """
+        The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
+        specific itinerary option without booking the itinerary.
+        The solution re-validates if the itinerary option is valid for purchase.
+        Arguments:
+            message_id : the messgae id
+            itineraries{list}: list itineraries
+            passengers{list}: list passengers
+            fare_type{str}: fare type(Net or Pub)
 
-        revalidate_request = json.dumps(self.json_builder.revalidate_build(self.pcc, request_revalidate, passengers, fare_type))
+        Returns:
+            [GdsResponse] -- [revalidate itinerary response]
+        """
+
+        revalidate_request = json.dumps(self.json_builder.revalidate_build(self.pcc, itineraries, passengers, fare_type))
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
@@ -478,6 +492,6 @@ class SabreClient(BaseClient):
             self.add_session(session_info)
 
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token.security_token)
-        gds_response = RevalidateExtractor(revalidate_response.content).extract()
+        gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
         gds_response.session_info = session_info
         return gds_response

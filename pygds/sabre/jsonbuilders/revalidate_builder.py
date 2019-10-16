@@ -1,11 +1,10 @@
-from .revalidate import Itineraries
-from typing import List
+from .revalidate import Itineraries, FlightSegment
 
 
 class RevalidateBuilder:
     """This class can generate JSON needed for sabre search flight requests."""
 
-    def __init__(self, pcc, itineraries: List[Itineraries], passengers: list = [], fare_type: str = "", target: str = ""):
+    def __init__(self, pcc, itineraries: list = [], passengers: list = [], fare_type: str = "", target: str = ""):
         self.pcc = pcc
         self.itineraries = itineraries
         self.passengers = passengers
@@ -31,7 +30,27 @@ class RevalidateBuilder:
         }
 
     def origin_destination_information(self):
-        return self.itineraries
+        list_itineraries = []
+        for itin_index, itin in enumerate(self.itineraries):
+            list_segments = []
+            for seg in itin.segments:
+                flight = FlightSegment()
+                flight.flight_number = int(seg.flight_number)
+                flight.departure_date_time = seg.departure_date_time
+                flight.arrival_date_time = seg.arrival_date_time
+                flight.res_book_desig_code = seg.res_book_desig_code
+                flight.origin_location = seg.departure_airport.airport
+                flight.destination_location = seg.arrival_airpot.airport
+                flight.marketing_airline = seg.marketing.airline_code
+                flight.operating_airline = seg.operating.airline_code
+                list_segments.append(flight.to_dict())
+            origin = itin.segments[0].departure_airport.airport
+            destination = itin.segments[-1].arrival_airpot.airport
+            departure_date = itin.segments[0].departure_date_time
+            itinerary = Itineraries(str(itin_index + 1), origin, destination, departure_date, list_segments).to_dict()
+            list_itineraries.append(itinerary)
+
+        return list_itineraries
 
     def get_tpa_extension(self):
         return {

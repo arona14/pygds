@@ -34,8 +34,8 @@ class SabreJSONBuilder:
         create_builder = CreatePnrBuilder(create_pnr_request)
         return json.dumps(create_builder.to_dict(), sort_keys=False, indent=4)
 
-    def revalidate_build(self, pcc, search_request: list = [], passengers: list = [], fare_type: str = "Pub"):
-        revalidate_builder = RevalidateBuilder(pcc, search_request, passengers, fare_type, self.target)
+    def revalidate_build(self, pcc, itineraries: list = [], passengers: list = [], fare_type: str = "Pub"):
+        revalidate_builder = RevalidateBuilder(pcc, itineraries, passengers, fare_type, self.target)
         return {
             "OTA_AirLowFareSearchRQ": {
                 "POS": revalidate_builder.pos(),

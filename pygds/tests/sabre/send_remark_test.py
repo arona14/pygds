@@ -16,7 +16,7 @@ class SendRemarkTest(unittest.TestCase):
         self.client = SabreClient("https://webservices3.sabre.com", self.rest_url, self.username, self.password, self.pcc, False)
 
     def test_send_remark(self):
-        display_pnr = self.client.get_reservation("TLRYVS", None)
+        display_pnr = self.client.get_reservation("KZYVQV", None)
         session_info = display_pnr.session_info
         if not session_info:
             print("No session info")

@@ -14,14 +14,14 @@ class ClientCan(unittest.TestCase):
         self.rest_url = "https://api.havail.sabre.com"
         self.soap_url = "https://webservices3.sabre.com"
         self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
-        self.display_pnr = self.client.get_reservation("TLRYVS", None)
+        self.display_pnr = self.client.get_reservation("KZYVQV", None)
         self.session_info = self.display_pnr.session_info
         self.message_id = self.session_info.message_id
 
         print(self.username, self.password, self.pcc)
 
     def test_send_command(self):
-        result = self.client.send_command(self.message_id, "*DJICXH")
+        result = self.client.send_command(self.message_id, "*KZYVQV")
         self.assertIsNotNone(result, "Cannot sent command")
 
     def test_get_reservation(self):
@@ -29,7 +29,7 @@ class ClientCan(unittest.TestCase):
         self.assertIsNotNone(display_pnr, "The result of display pnr is None")
 
     def test_queue_place(self):
-        result = self.client.queue_place(self.message_id, 111, "TLRYVS")
+        result = self.client.queue_place(self.message_id, 111, "KZYVQV")
         self.assertIsNotNone(result.payload.status)
         self.assertIsNotNone(result.payload.type_response)
         self.assertIsNotNone(result.payload.text_message)
@@ -47,12 +47,6 @@ class ClientCan(unittest.TestCase):
     def test_end_transaction(self):
         result = self.client.end_transaction(self.message_id)
         self.assertIsNotNone(result, "Cannot end the transaction")
-        # self.assertIsNotNone(result.payload)
-        # self.assertTrue(isinstance(result.payload.status), str)
-        # self.assertTrue(isinstance(result.payload.id_ref), str)
-        # self.assertTrue(isinstance(result.payload.create_date_time), str)
-        # self.assertTrue(isinstance(result.payload.text_message), str)
-        # self.assertEquals(result.payload.status, "Complete")
 
 
 if __name__ == "__main__":
