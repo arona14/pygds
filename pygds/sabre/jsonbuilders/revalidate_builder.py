@@ -94,11 +94,11 @@ class RevalidateBuilder:
 
             elif self.fare_type == "Net":
                 if pax['code'] in self.list_adult:
-                        list_passengers.append({
-                            "Code": "JCB",
-                            "Quantity": pax['quantity'],
-                            "TPA_Extensions": self.get_tpa_extension()
-                        })
+                    list_passengers.append({
+                        "Code": "JCB",
+                        "Quantity": pax['quantity'],
+                        "TPA_Extensions": self.get_tpa_extension()
+                    })
 
                 elif pax['code'] in self.list_child:
                     list_passengers.append({
