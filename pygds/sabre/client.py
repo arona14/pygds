@@ -7,7 +7,8 @@ import requests
 
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
-from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor, RevalidateItineraryExtractor
+from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
+from pygds.sabre.json_parsers.revalidate_extract import RevalidateItineraryExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
