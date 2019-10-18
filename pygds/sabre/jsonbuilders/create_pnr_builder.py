@@ -55,10 +55,10 @@ class CreatePnrBuilder:
                         }
                     ]
 
-            if "CommandPricing" not in pricing_qualifiers and pax.brand_id is not None:
+            if "CommandPricing" not in pricing_qualifiers and self.create_pnr_request.brand_id is not None:
                 pricing_qualifiers["Brand"] = [
                     {
-                        "content": pax.brand_id
+                        "content": self.create_pnr_request.brand_id
                     }
                 ]
 
