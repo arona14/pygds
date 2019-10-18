@@ -137,7 +137,6 @@ class RevalidateBuilder:
         return {
             "ETicketDesired": True,
             "ValidInterlineTicket": True,
-            "MaxStopsQuantity": 2,
             "TPA_Extensions": {
                 "VerificationItinCallLogic": {
                     "Value": "B"
