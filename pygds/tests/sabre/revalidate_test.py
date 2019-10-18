@@ -1,47 +1,65 @@
 """
 This is for testing purposes like a suite.
 """
-from pygds.core.security_utils import decode_base64
-from pygds.env_settings import get_setting
-from pygds.sabre.client import SabreClient
-from pygds.sabre.jsonbuilders.revalidate import Itineraries, FlightSegment
+from pygds.sabre.jsonbuilders.revalidate import FlightSegment, Itineraries
 
 
 def test():
 
-    username = get_setting("SABRE_USERNAME")
-    pcc = get_setting("SABRE_PCC")
-    password = decode_base64(get_setting("SABRE_PASSWORD"))
-    rest_url = "https://api.havail.sabre.com"
-    soap_url = "https://webservices3.sabre.com"
-    client = SabreClient(soap_url, rest_url, username, password, pcc, False)
-    retrieve_pnr = client.get_reservation("SKENNM", None, True)
-    list_itineraries = []
-    for itin_index, itin in enumerate(retrieve_pnr.payload["itineraries"]):
-        list_segments = []
-        for seg in itin.segments:
-            flight = FlightSegment()
-            flight.flight_number = int(seg.flight_number)
-            flight.departure_date_time = seg.departure_date_time
-            flight.arrival_date_time = seg.arrival_date_time
-            flight.res_book_desig_code = seg.res_book_desig_code
-            flight.origin_location = seg.departure_airport.airport
-            flight.destination_location = seg.arrival_airpot.airport
-            flight.marketing_airline = seg.marketing.airline_code
-            flight.operating_airline = seg.operating.airline_code
-            list_segments.append(flight.to_dict())
-        origin = itin.segments[0].departure_airport.airport
-        destination = itin.segments[-1].arrival_airpot.airport
-        departure_date = itin.segments[0].departure_date_time
-        itinerary = Itineraries(str(itin_index + 1), origin, destination, departure_date, list_segments).to_dict()
-        list_itineraries.append(itinerary)
-    passengers = [
-        {
-            "code": "JCB",
-            "quantity": 1
-        }
-    ]
-    client.revalidate_itinerary(None, list_itineraries, passengers, "Pub")
+    flight_first_itineratie = []
+    flight_second_itineratie = []
+    flight_1 = FlightSegment()
+    flight_1.flight_number = 3410
+    flight_1.departure_date_time = "2019-11-07T14:15:00"
+    flight_1.arrival_date_time = "2019-11-07T16:15:00"
+    flight_1.res_book_desig_code = "S"
+    flight_1.origin_location = "DTW"
+    flight_1.destination_location = "EWR"
+    flight_1.marketing_airline = "UA"
+    flight_1.operating_airline = "UA"
+
+    flight_2 = FlightSegment()
+    flight_2.flight_number = 7960
+    flight_2.departure_date_time = "2019-11-07T18:25:00"
+    flight_2.arrival_date_time = "2019-11-08T07:25:00"
+    flight_2.res_book_desig_code = "S"
+    flight_2.origin_location = "EWR"
+    flight_2.destination_location = "CDG"
+    flight_2.marketing_airline = "LH"
+    flight_2.operating_airline = "UA"
+
+    flight_first_itineratie.append(flight_1.to_dict())
+    flight_first_itineratie.append(flight_2.to_dict())
+
+    flight_3 = FlightSegment()
+    flight_3.flight_number = 9334
+    flight_3.departure_date_time = "2019-11-28T11:40:00"
+    flight_3.arrival_date_time = "2019-11-28T14:10:00"
+    flight_3.res_book_desig_code = "S"
+    flight_3.origin_location = "CDG"
+    flight_3.destination_location = "ORD"
+    flight_3.marketing_airline = "LH"
+    flight_3.operating_airline = "UA"
+
+    flight_4 = FlightSegment()
+    flight_4.flight_number = 5947
+    flight_4.departure_date_time = "2019-11-28T15:50:00"
+    flight_4.arrival_date_time = "2019-11-28T18:19:00"
+    flight_4.res_book_desig_code = "S"
+    flight_4.origin_location = "ORD"
+    flight_4.destination_location = "DTW"
+    flight_4.marketing_airline = "UA"
+    flight_4.operating_airline = "UA"
+
+    flight_second_itineratie.append(flight_3.to_dict())
+    flight_second_itineratie.append(flight_4.to_dict())
+    list_itinerarie = []
+    first_itinerary = Itineraries("1", "DTW", "CDG", "2019-11-07T14:15:00", flight_first_itineratie).to_dict()
+    second_itinerary = Itineraries("2", "CDG", "DTW", "2019-11-28T11:40:00", flight_second_itineratie).to_dict()
+    list_itinerarie.append(first_itinerary)
+    list_itinerarie.append(second_itinerary)
+
+    print(list_itinerarie)
 
 
 if __name__ == "__main__":

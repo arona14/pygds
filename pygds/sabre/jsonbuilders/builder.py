@@ -36,7 +36,7 @@ class SabreJSONBuilder:
 
     def revalidate_build(self, pcc, itineraries: list = [], passengers: list = [], fare_type: str = "Pub"):
         revalidate_builder = RevalidateBuilder(pcc, itineraries, passengers, fare_type, self.target)
-        return {
+        to_return = {
             "OTA_AirLowFareSearchRQ": {
                 "POS": revalidate_builder.pos(),
                 "OriginDestinationInformation": revalidate_builder.origin_destination_information(),
@@ -47,3 +47,4 @@ class SabreJSONBuilder:
                 "AvailableFlightsOnly": True
             }
         }
+        return json.dumps(to_return, sort_keys=False, indent=4)

@@ -475,7 +475,7 @@ class SabreClient(BaseClient):
         specific itinerary option without booking the itinerary.
         The solution re-validates if the itinerary option is valid for purchase.
         Arguments:
-            message_id : the messgae id
+            message_id{str} : the message identifier
             itineraries{list}: list itineraries
             passengers{list}: list passengers
             fare_type{str}: fare type(Net or Pub)
@@ -484,13 +484,13 @@ class SabreClient(BaseClient):
             [GdsResponse] -- [revalidate itinerary response]
         """
 
-        revalidate_request = json.dumps(self.json_builder.revalidate_build(self.pcc, itineraries, passengers, fare_type))
+        revalidate_request = self.json_builder.revalidate_build(self.pcc, itineraries, passengers, fare_type)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.new_rest_token()
-            session_info = SessionInfo(token, None, None, message_id, False)
-            self.add_session(session_info)
+        session_info = SessionInfo(token, None, None, message_id, False)
+        self.add_session(session_info)
 
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token.security_token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
