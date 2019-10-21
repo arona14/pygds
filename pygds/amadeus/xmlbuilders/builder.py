@@ -816,7 +816,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def cancel_documents(self, session_info: SessionInfo, ticket_numbers: List[str]):
+    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str]):
         message_id = session_info.message_id
         session_id = session_info.session_id
         sequence_number = session_info.sequence_number
@@ -834,6 +834,27 @@ class AmadeusXMLBuilder:
                 <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_14_1_1A" >
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
                 </Ticket_CancelDocument>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def cancel_pnr(self, session_info: SessionInfo, close_session: bool = False):
+        message_id = session_info.message_id
+        session_id = session_info.session_id
+        sequence_number = session_info.sequence_number
+        security_token = session_info.security_token
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            {self.generate_header("PNRXCL_17_1_1A", message_id, session_id, sequence_number, security_token, close_session)}
+            <soapenv:Body>
+                <PNR_Cancel xmlns="http://xml.amadeus.com/PNRXCL_17_1_1A">
+                    <pnrActions>
+                        <optionCode>10</optionCode>
+                    </pnrActions>
+                    <cancelElements>
+                        <entryType>I</entryType>
+                    </cancelElements>
+                </PNR_Cancel>
             </soapenv:Body>
         </soapenv:Envelope>
         """
