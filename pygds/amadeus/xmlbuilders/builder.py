@@ -787,3 +787,26 @@ class AmadeusXMLBuilder:
             </soapenv:Body>
         </soapenv:Envelope>
         """
+
+    def issue_combined(self, message_id, session_id, sequence_number, security_token, passengers: List[str],
+                       segments: List[str], retrieve_pnr: bool = False):
+
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {self.generate_header("TCTMIQ_15_1_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <DocIssuance_IssueCombined xmlns="http://xml.amadeus.com/TCTMIQ_15_1_1A">
+                    {sub_parts.itc_segment_select(segments) if segments else ""}
+                    {"".join([sub_parts.itc_pax_selection(p) for p in passengers])}
+                    {sub_parts.itc_option_group("TKT")}
+                    {sub_parts.itc_option_group("RT") if retrieve_pnr else ""}
+                </DocIssuance_IssueCombined>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """

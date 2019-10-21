@@ -569,3 +569,43 @@ def _fibpwp_tax(tax_information: InformativeFareTax):
         </taxData>
     </taxInformation>
     """
+
+
+def itc_pax_selection(passenger_tattoo: str):
+    return f"""
+    <paxSelection>
+        <passengerReference>
+            <type>PT</type>
+            <value>{passenger_tattoo}</value>
+        </passengerReference>
+    </paxSelection>
+    """
+
+
+def itc_option_group(indicator: str):
+    return f"""
+    <optionGroup>
+        <switches>
+            <statusDetails>
+                <indicator>{indicator}</indicator>
+            </statusDetails>
+        </switches>
+    </optionGroup>
+    """
+
+
+def itc_segment_select(segments: List[str]):
+    return f"""
+    <selection>
+        {"".join([_itc_single_segment_select(s) for s in segments])}
+    </selection>
+    """
+
+
+def _itc_single_segment_select(segment_tattoo):
+    return f"""
+    <referenceDetails>
+        <type>ST</type>
+        <value>{segment_tattoo}</value>
+    </referenceDetails>
+    """
