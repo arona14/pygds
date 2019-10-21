@@ -1,5 +1,6 @@
 from typing import List
 
+from pygds.amadeus.price import InformativeFareTax
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
@@ -296,18 +297,23 @@ def add_multi_element_contact_element(contact_type, contact):
 
 
 def fare_informative_price_passengers(travellers_info: TravellerNumbering):
-    seq = 1
+    """
+    Fare_InformativePricingWihtoutPNR
+    :param travellers_info:
+    :return:
+    """
+    group_number = 1
     adults, children, infants = "", "", ""
     start = 1
     if travellers_info.adults > 0:
-        adults = _fare_informative_price_passenger_group(seq, start, travellers_info.adults, 'ADT')
+        adults = _fare_informative_price_passenger_group(group_number, start, travellers_info.adults, 'ADT')
         start = travellers_info.adults
-        seq += 1
+        group_number += 1
     if travellers_info.children > 0:
-        children = _fare_informative_price_passenger_group(seq, start, travellers_info.children, 'CH')
-        seq += 1
+        children = _fare_informative_price_passenger_group(group_number, start, travellers_info.children, 'CH')
+        group_number += 1
     if travellers_info.infants > 0:
-        infants = _fare_informative_price_passenger_group(seq, 1, travellers_info.infants, 'INF')
+        infants = _fare_informative_price_passenger_group(group_number, 1, travellers_info.infants, 'INF')
     return f"""
     {adults}
     {children}
@@ -475,3 +481,91 @@ def ticket_issue_tst_ref(ref):
         <type>TS</type>
         <value>{ref}</value>
     </referenceDetails>"""
+
+
+def queue_place_target_queue(pcc: str, queue_number: str, category: str = "0"):
+    return f"""
+    <targetDetails>
+        <targetOffice>
+            <sourceType>
+                <sourceQualifier1>3</sourceQualifier1>
+            </sourceType>
+            <originatorDetails>
+                <inHouseIdentification1>{pcc}</inHouseIdentification1>
+            </originatorDetails>
+        </targetOffice>
+        <queueNumber>
+            <queueDetails>
+                <number>{queue_number}</number>
+            </queueDetails>
+        </queueNumber>
+        <categoryDetails>
+            <subQueueInfoDetails>
+                <identificationType>C</identificationType>
+                <itemNumber>{category}</itemNumber>
+            </subQueueInfoDetails>
+        </categoryDetails>
+    </targetDetails>
+    """
+
+
+def fibpwp_pax_groups(numbering: TravellerNumbering):
+    """
+    Fare_InformativeBestPricingWithoutPNR
+    :param numbering: TravellerNumbering -> The object holding info about travellers
+    :return: str
+    """
+    return fare_informative_price_passengers(numbering)
+
+
+def fibpwp_add_taxes(tax_infos: List[InformativeFareTax]):
+    """
+    builds pricing option group to add taxes (AT)
+    :param tax_infos: List[InformativeFareTax]
+    :return: str
+    """
+    f"""
+    <pricingOptionGroup>
+        <pricingOptionKey>
+            <pricingOptionKey>AT</pricingOptionKey>
+        </pricingOptionKey>
+        {"".join([_fibpwp_tax(t) for t in tax_infos])}
+    </pricingOptionGroup>
+    """
+
+
+def fibpwp_add_country_taxes(tax_infos: List[InformativeFareTax]):
+    """
+    builds pricing option group to add country taxes (AC)
+    :param tax_infos: List[InformativeFareTax]
+    :return: str
+    """
+    f"""
+    <pricingOptionGroup>
+        <pricingOptionKey>
+            <pricingOptionKey>AC</pricingOptionKey>
+        </pricingOptionKey>
+        {"".join([_fibpwp_tax(t) for t in tax_infos])}
+    </pricingOptionGroup>
+    """
+
+
+def _fibpwp_tax(tax_information: InformativeFareTax):
+    """
+    This method generate tax information block for Fare_InformativeBestPricingWithoutPNR
+    :param tax_information: InformativeFareTax -> Holds tax infos
+    :return: str
+    """
+    return f"""
+    <taxInformation>
+        <taxQualifier>7</taxQualifier>
+        <taxType>
+            <isoCountry>{tax_information.country}</isoCountry>
+        </taxType>
+        <taxNature>{tax_information.nature}</taxNature>
+        <taxData>
+            <taxRate>{tax_information.rate}</taxRate>
+            <taxValueQualifier>{tax_information.value_type}</taxValueQualifier>
+        </taxData>
+    </taxInformation>
+    """

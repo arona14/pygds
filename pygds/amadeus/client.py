@@ -260,3 +260,17 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return GetPnrResponseExtractor(response_data).extract()
+
+    def queue_place_pnr(self, message_id: str, pnr: str, queues: List[str]):
+
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.queue_place_pnr(message_id, session_id, sequence_number, security_token, pnr,
+                                                        queues)
+        response_data = self.__request_wrapper("queue_place_pnr", request_data, 'http://webservices.amadeus.com/QUQPCQ_03_1_1A')
+        print(response_data)
+        return response_data
+        # return GetPnrResponseExtractor(response_data).extract()
+
+    def 

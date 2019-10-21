@@ -1,11 +1,11 @@
 import setuptools
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = "\n".join(fh.readlines())
 
 setuptools.setup(
     name='pygds',
-    version='0.0.3',
+    version='0.0.4',
     description='A python package to make it easy interacting with gds ',
     long_description=long_description,
     long_description_content_type="text/markdown",

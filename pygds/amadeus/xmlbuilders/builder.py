@@ -745,3 +745,45 @@ class AmadeusXMLBuilder:
                </soapenv:Body>
             </soapenv:Envelope>
         """
+
+    def queue_place_pnr(self, message_id: str, session_id: str, sequence_number: str, security_token: str, pnr: str, queues: List[str]):
+        header = self.generate_header("QUQPCQ_03_1_1A", message_id, session_id, sequence_number, security_token)
+        return f"""
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {header}
+            <soapenv:Body>
+                <Queue_PlacePNR>
+                    <placementOption>
+                        <selectionDetails>
+                            <option>QEQ</option>
+                        </selectionDetails>
+                    </placementOption>
+                    {"".join([sub_parts.queue_place_target_queue(self.office_id, q, "0") for q in queues])}
+                    <recordLocator>
+                        <reservation>
+                            <controlNumber>{pnr}</controlNumber>
+                        </reservation>
+                    </recordLocator>
+                </Queue_PlacePNR>
+            </soapenv:Body>
+        </soapenv:Envelope>"""
+
+    def fare_informative_best_pricing_without_pnr(self, message_id, session_id, sequence_number, security_token, numbering: TravellerNumbering, itineraries: List[Itinerary]):
+
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+           {self.generate_header("QUQPCQ_03_1_1A", message_id, session_id, sequence_number, security_token)}
+           <soapenv:Body>
+              <Fare_InformativePricingWithoutPNR>
+                 {sub_parts.fare_informative_price_passengers(numbering)}
+                 {sub_parts.fare_informative_price_segments(itineraries)}
+              </Fare_InformativePricingWithoutPNR>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
