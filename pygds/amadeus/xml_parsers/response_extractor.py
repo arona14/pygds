@@ -123,7 +123,7 @@ class SessionExtractor(BaseResponseExtractor):
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()",
             "//*[local-name()='Session']/@TransactionStatusCode")
-        return SessionInfo(tok, int(seq), ses, m_id, status != "InSeries")
+        return SessionInfo(tok, int(seq) if seq else 0, ses, m_id, status != "InSeries")
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
