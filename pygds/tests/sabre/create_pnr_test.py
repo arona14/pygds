@@ -48,6 +48,7 @@ class ClientCan(unittest.TestCase):
             passenger.email = pax['Email']
             passenger.address = pax['Address']
             passenger.middle_name = pax['MiddleName']
+            passenger.brand_id = None
             pax_list.append(passenger)
         segments = []
         for flight_segment in self.create_pnr_request_json['FlightSegment']:

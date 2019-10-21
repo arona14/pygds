@@ -63,6 +63,7 @@ class PassengerFare:
         self.email: str
         self.address: str
         self.middle_name: str
+        self.brand_id: str
 
     def to_dict(self):
         return {
@@ -82,6 +83,7 @@ class PassengerFare:
             "Email": self.email,
             "Address": self.address,
             "MiddleName": self.middle_name,
+            "Brand": self.brand_id
         }
 
 
@@ -110,5 +112,6 @@ class CreatePnrRequest:
             "TargetCity": self.target_city,
             "FareType": self.fare_type,
             "CustomerIdentifier": self.customer_identifier,
-            "LastTicketDate": self.last_ticket_date,
+            "LastTicketDate": self.last_ticket_date
+
         }
