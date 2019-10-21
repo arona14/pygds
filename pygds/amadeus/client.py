@@ -273,7 +273,7 @@ class AmadeusClient(BaseClient):
         return response_data
         # return GetPnrResponseExtractor(response_data).extract()
 
-    def issue_combined(self, message_id: str, passengers: List[str], retrieve_pnr: bool):
+    def issue_combined(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):
         """
         This service is used to issue miscellaneous documents (MCO, TASF, XSB and/or EMD) and tickets SIMULTANEOUSLY.
         The ISSUANCE TRANSACTION is the process whereby the reservation and the pricing information are converted into
@@ -282,6 +282,7 @@ class AmadeusClient(BaseClient):
         provider (e.g. validating carrier of an airline product).
         :param message_id: str -> the message id
         :param passengers: List[str] -> List of passenger tattoos
+        :param segments: List[str] -> List of segment tattoos
         :param retrieve_pnr: to tell if we will retrieve PNR again
         :return:
         """
@@ -289,7 +290,7 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.issue_combined(message_id, session_id, sequence_number, security_token,
-                                                       passengers, retrieve_pnr)
+                                                       passengers, segments, retrieve_pnr)
         response_data = self.__request_wrapper("issue_combined", request_data,
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
         print(response_data)
