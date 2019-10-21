@@ -609,3 +609,13 @@ def _itc_single_segment_select(segment_tattoo):
         <value>{segment_tattoo}</value>
     </referenceDetails>
     """
+
+
+def tcd_ticket_number(ticket_number: str):
+    return f"""
+    <documentNumberDetails>
+        <documentDetails>
+            <number>{ticket_number}</number>
+        </documentDetails>
+    </documentNumberDetails>
+    """

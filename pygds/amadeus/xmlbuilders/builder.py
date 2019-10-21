@@ -2,6 +2,7 @@ from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
+from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import CreditCard
@@ -788,8 +789,12 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def issue_combined(self, message_id, session_id, sequence_number, security_token, passengers: List[str],
+    def issue_combined(self, session_info: SessionInfo, passengers: List[str],
                        segments: List[str], retrieve_pnr: bool = False):
+        message_id = session_info.message_id
+        session_id = session_info.session_id
+        sequence_number = session_info.sequence_number
+        security_token = session_info.security_token
 
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -807,6 +812,28 @@ class AmadeusXMLBuilder:
                     {sub_parts.itc_option_group("TKT")}
                     {sub_parts.itc_option_group("RT") if retrieve_pnr else ""}
                 </DocIssuance_IssueCombined>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def cancel_documents(self, session_info: SessionInfo, ticket_numbers: List[str]):
+        message_id = session_info.message_id
+        session_id = session_info.session_id
+        sequence_number = session_info.sequence_number
+        security_token = session_info.security_token
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {self.generate_header("TRCANQ_14_1_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_14_1_1A" >
+                    {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
+                </Ticket_CancelDocument>
             </soapenv:Body>
         </soapenv:Envelope>
         """

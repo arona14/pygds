@@ -2,6 +2,7 @@
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
+from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
@@ -289,9 +290,26 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.issue_combined(message_id, session_id, sequence_number, security_token,
-                                                       passengers, segments, retrieve_pnr)
+        session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
+        request_data = self.xml_builder.issue_combined(session_info, passengers, segments, retrieve_pnr)
         response_data = self.__request_wrapper("issue_combined", request_data,
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
+        print(response_data)
+        return response_data
+
+    def cancel_document(self, message_id: str, ticket_numbers: List[str]):
+        """
+        Cancel documents by ticket numbers
+        :param message_id: str -> the message id
+        :param ticket_numbers: List[str] -> List of ticket numbers
+        :return:
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
+        request_data = self.xml_builder.cancel_documents(session_info, ticket_numbers)
+        response_data = self.__request_wrapper("cancel_document", request_data,
+                                               'http://webservices.amadeus.com/TRCANQ_14_1_1A')
         print(response_data)
         return response_data
