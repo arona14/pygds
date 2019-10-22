@@ -15,8 +15,7 @@ def test():
     url = "https://webservices3.sabre.com"
 
     client = SabreClient(url, "", username, password, pcc, False)
-    message_id = None
-    client.get_or_create_session_details(message_id)
+    print(client)
 
 
 if __name__ == "__main__":
