@@ -420,10 +420,11 @@ class SabreClient(BaseClient):
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.new_rest_token()
-            session_info = SessionInfo(token, None, None, message_id, False)
-            self.add_session(session_info)
-
-        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token.security_token)
+            message_id = token.message_id
+            token = token.security_token
+        session_info = SessionInfo(token, None, None, message_id, False)
+        self.add_session(session_info)
+        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
         gds_response = CreatePnrExtractor(response.content).extract()
         gds_response.session_info = session_info
         return gds_response
