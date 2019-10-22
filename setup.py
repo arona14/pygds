@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='pygds',
-    version='0.0.4',
+    version='0.0.5',
     description='A python package to make it easy interacting with gds ',
     long_description=long_description,
     long_description_content_type="text/markdown",
