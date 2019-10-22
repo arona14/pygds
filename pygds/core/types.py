@@ -1079,3 +1079,14 @@ class FlightSeatMap:
         self.arrival_date: str = None
         self.class_of_service: str = None
         self.currency_code: str = None
+
+
+class CancelPnrReply(BasicDataObject):
+    def __init__(self, pnr: str):
+        self.pnr = pnr
+
+    def to_data(self):
+        return {
+            "pnr": self.pnr,
+            "cancelled": self.pnr is not None
+        }

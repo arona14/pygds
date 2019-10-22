@@ -9,6 +9,7 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
+from pygds.core.types import CancelPnrReply
 
 
 class BaseResponseExtractor(object):
@@ -477,6 +478,16 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         else:
             error_code, qualifier, source, encoding, description = (None, None, None, None, None)
         return TicketReply(status, error_code, qualifier, source, encoding, description)
+
+
+class CancelPnrExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "PNR_Reply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
+        return CancelPnrReply(pnr)
 
 
 def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",

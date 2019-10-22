@@ -9,7 +9,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -79,9 +79,11 @@ class AmadeusClient(BaseClient):
         if not security_token:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
-        response_data = self.__request_wrapper("start_new_session", request_data,
+        response_data = self.__request_wrapper("end_new_session", request_data,
                                                'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
-        return SessionExtractor(response_data).extract()
+        response = SessionExtractor(response_data).extract()
+        self.session_holder.remove_session(message_id)
+        return response
 
     def get_reservation(self, record_locator: str, message_id: str = None, close_trx: bool = False):
         """
@@ -323,5 +325,5 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.cancel_pnr(session_info, close_session)
         response_data = self.__request_wrapper("cancel_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRXCL_17_1_1A')
-        return response_data
+        return CancelPnrExtractor(response_data).extract()
         # return GetPnrResponseExtractor(response_data).extract()
