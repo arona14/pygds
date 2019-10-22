@@ -1,0 +1,353 @@
+{
+   "session_info": {
+     "security_token": "Shared/IDL:IceSess\\/SessMgr:1\\.0.IDL/Common/!ICESMS\\/RESG!ICESMSLB\\/RES.LB!-2968302584965560941!785414!0",
+     "sequence_number": 1,
+     "session_id": "3767232395790570840",
+     "message_id": "56aa52a0-4c13-4543-8425-182c0f49ae1b",
+     "session_ended": false,
+     "last_access": "2019-10-01T10:59:39.239736"
+   },
+   "payload": {
+     "passengers": [
+       {
+         "name_id": "01.01",
+         "first_name": "MAMADOU",
+         "last_name": "SARR",
+         "date_of_birth": "1986-09-14",
+         "gender": "M",
+         "sur_name": "",
+         "fore_name": "",
+         "middle_name": "",
+         "action_code": "",
+         "number_in_party": "1",
+         "vendor_code": "",
+         "passenger_type": "JCB",
+         "preferences": {
+           "prefs": {}
+         }
+       }
+     ],
+     "itineraries": [
+       {
+         "segments": [
+           {
+             "sequence": 1,
+             "res_book_desig_code": "N",
+             "departure_date_time": "2019-11-14T12:01:00",
+             "departure_airport": {
+               "airport": "DTW",
+               "departure_date_time": "2019-11-14T12:01:00",
+               "terminal": "N"
+             },
+             "arrival_date_time": "2019-11-14T12:32:00",
+             "arrival_airpot": {
+               "airport": "ORD",
+               "departure_date_time": "2019-11-14T12:32:00",
+               "terminal": "3"
+             },
+             "airline": "FPULZC",
+             "marketing": {
+               "airline_code": "AA",
+               "flight_number": "3414",
+               "airline_short_name": "",
+               "class_of_service": "N"
+             },
+             "operating": {
+               "airline_code": "AA",
+               "flight_number": "3414",
+               "airline_short_name": "AMERICAN AIRLINES",
+               "class_of_service": "N"
+             },
+             "disclosure_carrier": {
+               "code": "",
+               "dot": "",
+               "banner": ""
+             },
+             "mariage_group": {
+               "ind": "0",
+               "group": "1",
+               "sequence": "1"
+             },
+             "seats": null,
+             "segment_special_requests": null,
+             "schedule_change_indicator": "false",
+             "segment_booked_date": "2019-09-30T06:37:00",
+             "air_miles_flown": "0235",
+             "funnel_flight": "false",
+             "change_of_gauge": "false",
+             "flight_number": "3414",
+             "class_of_service": "N",
+             "elapsed_time": "01.31",
+             "equipment_type": "ER4",
+             "eticket": "true",
+             "number_in_party": "1",
+             "code": "AA",
+             "action_code": "HK",
+             "status": null
+           },
+           {
+             "sequence": 1,
+             "res_book_desig_code": "N",
+             "departure_date_time": "2019-11-14T19:10:00",
+             "departure_airport": {
+               "airport": "ORD",
+               "departure_date_time": "2019-11-14T19:10:00",
+               "terminal": "3"
+             },
+             "arrival_date_time": "2019-11-15T10:05:00",
+             "arrival_airpot": {
+               "airport": "CDG",
+               "departure_date_time": "2019-11-15T10:05:00",
+               "terminal": "2A"
+             },
+             "airline": "FPULZC",
+             "marketing": {
+               "airline_code": "AA",
+               "flight_number": "0150",
+               "airline_short_name": "",
+               "class_of_service": "N"
+             },
+             "operating": {
+               "airline_code": "AA",
+               "flight_number": "0150",
+               "airline_short_name": "AMERICAN AIRLINES",
+               "class_of_service": "N"
+             },
+             "disclosure_carrier": {
+               "code": "",
+               "dot": "",
+               "banner": ""
+             },
+             "mariage_group": {
+               "ind": "0",
+               "group": "1",
+               "sequence": "2"
+             },
+             "seats": null,
+             "segment_special_requests": null,
+             "schedule_change_indicator": "false",
+             "segment_booked_date": "2019-09-30T06:37:00",
+             "air_miles_flown": "4152",
+             "funnel_flight": "false",
+             "change_of_gauge": "false",
+             "flight_number": "0150",
+             "class_of_service": "N",
+             "elapsed_time": "07.55",
+             "equipment_type": "788",
+             "eticket": "true",
+             "number_in_party": "1",
+             "code": "AA",
+             "action_code": "HK",
+             "status": null
+           }
+         ],
+         "itinerary_type": null,
+         "elapsed_time": null
+       },
+       {
+         "segments": [
+           {
+             "sequence": 2,
+             "res_book_desig_code": "N",
+             "departure_date_time": "2019-12-11T12:15:00",
+             "departure_airport": {
+               "airport": "CDG",
+               "departure_date_time": "2019-12-11T12:15:00",
+               "terminal": "2A"
+             },
+             "arrival_date_time": "2019-12-11T14:35:00",
+             "arrival_airpot": {
+               "airport": "ORD",
+               "departure_date_time": "2019-12-11T14:35:00",
+               "terminal": "5"
+             },
+             "airline": "FPULZC",
+             "marketing": {
+               "airline_code": "AA",
+               "flight_number": "0151",
+               "airline_short_name": "",
+               "class_of_service": "N"
+             },
+             "operating": {
+               "airline_code": "AA",
+               "flight_number": "0151",
+               "airline_short_name": "AMERICAN AIRLINES",
+               "class_of_service": "N"
+             },
+             "disclosure_carrier": {
+               "code": "",
+               "dot": "",
+               "banner": ""
+             },
+             "mariage_group": {
+               "ind": "0",
+               "group": "2",
+               "sequence": "1"
+             },
+             "seats": null,
+             "segment_special_requests": null,
+             "schedule_change_indicator": "false",
+             "segment_booked_date": "2019-09-30T06:37:00",
+             "air_miles_flown": "4152",
+             "funnel_flight": "false",
+             "change_of_gauge": "false",
+             "flight_number": "0151",
+             "class_of_service": "N",
+             "elapsed_time": "09.20",
+             "equipment_type": "788",
+             "eticket": "true",
+             "number_in_party": "1",
+             "code": "AA",
+             "action_code": "HK",
+             "status": null
+           },
+           {
+             "sequence": 1,
+             "res_book_desig_code": "N",
+             "departure_date_time": "2019-12-11T17:00:00",
+             "departure_airport": {
+               "airport": "ORD",
+               "departure_date_time": "2019-12-11T17:00:00",
+               "terminal": "3"
+             },
+             "arrival_date_time": "2019-12-11T19:30:00",
+             "arrival_airpot": {
+               "airport": "DTW",
+               "departure_date_time": "2019-12-11T19:30:00",
+               "terminal": "N"
+             },
+             "airline": "FPULZC",
+             "marketing": {
+               "airline_code": "AA",
+               "flight_number": "3059",
+               "airline_short_name": "",
+               "class_of_service": "N"
+             },
+             "operating": {
+               "airline_code": "AA",
+               "flight_number": "3059",
+               "airline_short_name": "AMERICAN AIRLINES",
+               "class_of_service": "N"
+             },
+             "disclosure_carrier": {
+               "code": "",
+               "dot": "",
+               "banner": ""
+             },
+             "mariage_group": {
+               "ind": "0",
+               "group": "2",
+               "sequence": "2"
+             },
+             "seats": null,
+             "segment_special_requests": null,
+             "schedule_change_indicator": "false",
+             "segment_booked_date": "2019-09-30T06:37:00",
+             "air_miles_flown": "0235",
+             "funnel_flight": "false",
+             "change_of_gauge": "false",
+             "flight_number": "3059",
+             "class_of_service": "N",
+             "elapsed_time": "01.30",
+             "equipment_type": "CR7",
+             "eticket": "true",
+             "number_in_party": "1",
+             "code": "AA",
+             "action_code": "HK",
+             "status": null
+           }
+         ],
+         "itinerary_type": null,
+         "elapsed_time": null
+       }
+     ],
+     "form_of_payments": [
+       {
+         "type_payment": "",
+         "form_payment": "CREDIT CARD DATA EXISTS *CC TO DISPLAY",
+         "vendor_code": "",
+         "credit_card_number": "",
+         "expire_date": ""
+       }
+     ],
+     "price_quotes": [
+       {
+         "price_quote_number": "1",
+         "status": "A",
+         "fare_type": "NET",
+         "base_fare": {
+           "amount": "86.00",
+           "currency_code": "USD"
+         },
+         "total_fare": {
+           "amount": "572.83",
+           "currency_code": "USD"
+         },
+         "total_tax": {
+           "amount": "486.83",
+           "currency_code": "USD"
+         },
+         "validating_carrier": "AA",
+         "passengers": [
+           {
+             "name_number": "1.1",
+             "passenger_type": "JCB"
+           }
+         ]
+       }
+     ],
+     "ticketing_info": [],
+     "remarks": [
+       {
+         "sequence": "1",
+         "type_remark": "INVOICE",
+         "element_id": "pnr-18",
+         "text": "S*UD100 VIRGINIE"
+       },
+       {
+         "sequence": "2",
+         "type_remark": "INVOICE",
+         "element_id": "pnr-19",
+         "text": "S*UD25 N"
+       },
+       {
+         "sequence": "3",
+         "type_remark": "REG",
+         "element_id": "pnr-20",
+         "text": "PAXINFO 12345678"
+       },
+       {
+         "sequence": "4",
+         "type_remark": "REG",
+         "element_id": "pnr-21",
+         "text": "PAXINFO VIRGINIELAMESSE¤GMAIL.COM"
+       },
+       {
+         "sequence": "5",
+         "type_remark": "REG",
+         "element_id": "pnr-22",
+         "text": "PROPOSED 572.83"
+       },
+       {
+         "sequence": "6",
+         "type_remark": "INVOICE",
+         "element_id": "pnr-28",
+         "text": "S*UD25 N"
+       },
+       {
+         "sequence": "7",
+         "type_remark": "INVOICE",
+         "element_id": "pnr-29",
+         "text": "S*UD100 VIRGINIE"
+       },
+       {
+         "sequence": "8",
+         "type_remark": "REG",
+         "element_id": "pnr-30",
+         "text": "PROPOSED 572.83"
+       }
+     ],
+     "dk_number": "D586445858"
+   },
+   "application_error": null
+ }

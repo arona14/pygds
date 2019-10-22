@@ -149,7 +149,7 @@ class SabreClient(BaseClient):
         response.session_info = session_info
         return response
 
-    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
+    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
         :param message_id: the message id
@@ -166,7 +166,7 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name, brand_id=brand_id)
+        store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passengers, baggage=baggage, region_name=region_name, brand_id=brand_id)
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)

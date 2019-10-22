@@ -40,20 +40,28 @@ class CreatePnrBuilder:
                 misc_qualifiers["Commission"]["Percent"] = "0"
             if self.create_pnr_request.fare_type == 'COM':
                 misc_qualifiers["Commission"]["Percent"] = str(pax.percent)
-                if pax.tour_code and pax.passenger_type in self.infant_pax_types:
+                if pax.tour_code and pax.passenger_type not in self.infant_pax_types:
                     misc_qualifiers["TourCode"]["Percent"] = {
                         "SuppressIT": {
                             "Ind": True
                         },
                         "Text": pax.tour_code
                     }
-                if pax.ticket_designator and pax.passenger_type in self.infant_pax_types:
+                if pax.ticket_designator and pax.passenger_type not in self.infant_pax_types:
                     pricing_qualifiers["CommandPricing"] = [
                         {
                             "Discount": "0",
-                            "AuthCode": self.create_pnr_request.ticket_designator
+                            "AuthCode": self.pax.ticket_designator
                         }
                     ]
+
+            if "CommandPricing" not in pricing_qualifiers and pax.brand_id is not None:
+                pricing_qualifiers["Brand"] = [
+                    {
+                        "content": pax.brand_id
+                    }
+                ]
+
             price_request_info.append(
                 {
                     "PriceRequestInformation": {
