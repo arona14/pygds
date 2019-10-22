@@ -727,6 +727,56 @@ class AmadeusXMLBuilder:
        </soapenv:Body>
     </soapenv:Envelope> """
 
+    def pnr_add_multi_element_for_pax_info_builder(self, session_id, sequence_number, security_token, message_id, option_code,
+                                                   segment_name, family_name, quantity, f_name, pax_type, inf_number, d_of_birth):
+
+        return f"""
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+                xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+                xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+                xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+                xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+                xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                {self.generate_header("PNRADD_17_1_1A", message_id, session_id, sequence_number, security_token)}
+                <soapenv:Body>
+                    <PNR_AddMultiElements>
+                    <pnrActions>
+                        <optionCode>{option_code}</optionCode>
+                    </pnrActions>
+                    <travellerInfo>
+                        <elementManagementPassenger>
+                            <reference>
+                                <qualifier>PR</qualifier>
+                                <number>1</number>
+                            </reference>
+                            <segmentName>{segment_name}</segmentName>
+                        </elementManagementPassenger>
+                        <passengerData>
+                            <travellerInformation>
+                                <traveller>
+                                    <surname>{family_name}</surname>
+                                    <quantity>{quantity}</quantity>
+                                </traveller>
+                                <passenger>
+                                    <firstName>{f_name}</firstName>
+                                    <type>{pax_type}</type>
+                                    <infantIndicator>{inf_number}</infantIndicator>
+                                </passenger>
+                            </travellerInformation>
+                            <dateOfBirth>
+                                <dateAndTimeDetails>
+                                    <date>{d_of_birth}</date>
+                                </dateAndTimeDetails>
+                            </dateOfBirth>
+
+                        </passengerData>
+                        </travellerInfo>
+
+                    </PNR_AddMultiElements>
+                </soapenv:Body>
+            </soapenv:Envelope> """
+
     def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id, tst_refs: List[str]):
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"

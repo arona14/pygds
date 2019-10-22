@@ -127,6 +127,20 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return response_data
 
+    def pnr_add_multi_for_pax_info_element(self, message_id, option_code, segment_name, family_name, quantity,
+                                           f_name, pax_type, inf_number, d_of_birth):
+        """
+            This method modifies the elements of a PNR (passengers, etc.)
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
+                                                                                   message_id, option_code, segment_name, family_name, quantity, f_name, pax_type, inf_number, d_of_birth)
+        print(request_data)
+        response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        print(response_data)
+        return GetPnrResponseExtractor(response_data).extract()
+
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
             PNR ticketing process.
@@ -273,7 +287,7 @@ class AmadeusClient(BaseClient):
                                                         queues)
         response_data = self.__request_wrapper("queue_place_pnr", request_data, 'http://webservices.amadeus.com/QUQPCQ_03_1_1A')
         return response_data
-        # return GetPnrResponseExtractor(response_data).extract()
+        return GetPnrResponseExtractor(response_data).extract()
 
     def issue_combined(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):
         """
@@ -327,3 +341,5 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRXCL_17_1_1A')
         return CancelPnrExtractor(response_data).extract()
         # return GetPnrResponseExtractor(response_data).extract()
+        print(response_data)
+        return GetPnrResponseExtractor(response_data).extract()
