@@ -971,7 +971,7 @@ class SeatInfo(BasicDataObject):
     """This class is for holding information about the flight
     """
 
-    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: TypeInfo = None, location: List[TypeInfo] = None, facilities: TypeInfo = None):
+    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: List[TypeInfo] = None, location: List[TypeInfo] = None, facilities: TypeInfo = None):
         self.occupied_ind = occupied_ind
         self.inoperative_ind = inoperative_ind
         self.premiun_ind = premiun_ind
@@ -994,9 +994,9 @@ class SeatInfo(BasicDataObject):
             "RestrictedReclineInd": self.restricted_reclined_ind,
             "NoInfantInd": self.no_infant_ind,
             "Number": self.number,
-            "Occupation": self.occupation,
-            "Location": self.location,
-            "Facilities": self.facilities
+            "Occupation": [occupation.to_data() for occupation in self.occupation],
+            "Location": [location.to_data() for location in self.location],
+            "Facilities": self.facilities.to_data()
         }
 
 
@@ -1041,10 +1041,10 @@ class CabinInfo(BasicDataObject):
         return {
             "firstRow": self.first_row,
             "lastRow": self.last_row,
-            "CabinClass": self.cabin_class,
+            "CabinClass": self.cabin_class.to_data(),
             "seatOccupationDefault": self.seat_occupation_default,
-            "Row": self.row,
-            "Column": self.column
+            "Row": [row.to_data() for row in self.row],
+            "Column": [column.to_data() for column in self.column]
         }
 
 
@@ -1063,8 +1063,8 @@ class SeatMap(BasicDataObject):
         return {
             "changeOfGaugeInd": self.change_of_gauge_ind,
             "Equipement": self.equipement,
-            "Flight": self.flights if self.flights is not None else None,
-            "Cabin": self.cabin if self.cabin is not None else None
+            "Flight": self.flights.to_data() if self.flights is not None else None,
+            "Cabin": self.cabin.to_data() if self.cabin is not None else None
         }
 
 

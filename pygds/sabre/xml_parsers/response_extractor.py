@@ -896,7 +896,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             cabin = self._get_cabin_info(seat_map["Cabin"])
             seat = SeatMap(change_of_gauge, equipement, flight, cabin).to_data()
         else:
-            seat = SeatMap(None, None, None, None)
+            seat = SeatMap(None, None, None, None).to_data()
         return seat
 
     def _get_flight_info(self, flight):
@@ -911,21 +911,21 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         code = from_json_safe(flight, "Marketing", "#text")
         operating = OperatingMarketing(carrier=carrier, code=code)
         marketing = OperatingMarketing(carrier=carrier, code=code)
-        return FlightInfo(destination=destination, origin=origin, departure_date=departure_date, operating=operating, marketing=marketing).to_data()
+        return FlightInfo(destination=destination, origin=origin, departure_date=departure_date, operating=operating, marketing=marketing)
 
     def _get_cabin_info(self, cabin):
         first_row = from_json_safe(cabin, "@firstRow")
         last_row = from_json_safe(cabin, "@lastRow")
         seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault")
         cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
-        row = [row.to_data() for row in self.__get_row_info(from_json_safe(cabin, "Row"))]
-        column = [column_info.to_data() for column_info in self.__get_column_info(from_json_safe(cabin, "Column"))]
-        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column).to_data()
+        row = self.__get_row_info(from_json_safe(cabin, "Row"))
+        column = self.__get_column_info(from_json_safe(cabin, "Column"))
+        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column)
 
     def __get_cabin_class(self, cabin_class):
         cabin_type = from_json_safe(cabin_class, "CabinType")
         class_of_service = from_json_safe(cabin_class, "RBD")
-        return CabinClass(class_of_service=class_of_service, marketing_description=cabin_type).to_data()
+        return CabinClass(class_of_service=class_of_service, marketing_description=cabin_type)
 
     def __get_row_info(self, rows):
         row_info = []
@@ -949,11 +949,11 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             exit_row_ind = from_json_safe(seat, "@exitRowInd")
             restricted_recline_ind = from_json_safe(seat, "@restrictedReclineInd")
             no_infant_ind = from_json_safe(seat, "@noInfantInd")
-            number = from_json_safe(seat, "@Number")
-            occupation = [TypeInfo(extension=from_json_safe(occupation, "Detail", "@extension"), code=from_json_safe(occupation, "Detail", "#text")).to_data() for occupation in ensure_list(from_json_safe(seat, "Occupation"))]
+            number = from_json_safe(seat, "Number")
+            occupation = [TypeInfo(extension=from_json_safe(occupation, "Detail", "@extension"), code=from_json_safe(occupation, "Detail", "#text")) for occupation in ensure_list(from_json_safe(seat, "Occupation"))]
             location = [type_info for type_info in self.__get_location_info(from_json_safe(seat, "Location"))]
             detail_facilities = from_json_safe(seat, "Facilities", "Detail")
-            facilities = TypeInfo(extension=from_json_safe(detail_facilities, "@extension"), code=from_json_safe(detail_facilities, "#text")).to_data()
+            facilities = TypeInfo(extension=from_json_safe(detail_facilities, "@extension"), code=from_json_safe(detail_facilities, "#text"))
             seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities))
         return seats
 
@@ -961,7 +961,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         locations = []
         for location in location_info:
             detail = from_json_safe(location, "Detail")
-            locations.append(TypeInfo(extension=from_json_safe(detail, "@extension"), code=from_json_safe(detail, "#text")).to_data())
+            locations.append(TypeInfo(extension=from_json_safe(detail, "@extension"), code=from_json_safe(detail, "#text")))
         return locations
 
     def __get_column_info(self, column_info):
