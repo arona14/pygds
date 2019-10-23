@@ -1,20 +1,40 @@
+import logging
+import re
+
+from pygds.core.types import SeatInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
-from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe, ensure_list, \
-    get_data_from_xml as from_xml
-import logging
-from pygds.core.sessions import SessionInfo
-from pygds.core.price import AirItineraryPricingInfo, SearchPriceInfos, FareBreakdown
-from pygds.core.ticket import TicketReply
-import re
-from pygds.core.types import SendCommand, Passenger, PriceQuote_, FormatPassengersInPQ, FormatAmount, Itinerary, FlightSegment, FlightPointDetails, \
-    FormOfPayment, Remarks, FlightAirlineDetails, FlightDisclosureCarrier, FlightMarriageGrp, TicketingInfo_, EndTransaction, QueuePlace, IgnoreTransaction, \
-    Agent, ServiceCoupon, ElectronicDocument, TicketDetails, SeatMap
-from pygds.core.exchange import ExchangeShoppingInfos, OriginDestination, ReservationSegment, BookItinerary, PriceDifference, TotalPriceDifference, Fare, ExchangeData, \
-    ExchangeComparisonInfos, BaggageInfo, ExchangeFlightSegment, MarketingAirline, ExchangeComparison, \
-    ExchangeAirItineraryPricingInfo, ItinTotalFare, BaseFare, TaxComparison, TaxData, ExchangeDetails, SourceData, ExchangeConfirmationInfos
+from pygds.core.exchange import (BaggageInfo, BaseFare, BookItinerary,
+                                 ExchangeAirItineraryPricingInfo,
+                                 ExchangeComparison, ExchangeComparisonInfos,
+                                 ExchangeConfirmationInfos, ExchangeData,
+                                 ExchangeDetails, ExchangeFlightSegment,
+                                 ExchangeShoppingInfos, Fare, ItinTotalFare,
+                                 MarketingAirline, OriginDestination,
+                                 PriceDifference, ReservationSegment,
+                                 SourceData, TaxComparison, TaxData,
+                                 TotalPriceDifference)
+from pygds.core.helpers import ensure_list
+from pygds.core.helpers import get_data_from_json as from_json
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe
+from pygds.core.helpers import get_data_from_xml as from_xml
+from pygds.core.price import (AirItineraryPricingInfo, FareBreakdown,
+                              SearchPriceInfos)
 from pygds.core.rebook import RebookInfo
+from pygds.core.sessions import SessionInfo
+from pygds.core.ticket import TicketReply
+from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
+                              ElectronicDocument, EndTransaction,
+                              FlightAirlineDetails, FlightDisclosureCarrier,
+                              FlightInfo, FlightMarriageGrp,
+                              FlightPointDetails, FlightSegment, FormatAmount,
+                              FormatPassengersInPQ, FormOfPayment,
+                              IgnoreTransaction, Itinerary,
+                              OperatingMarketing, Passenger, PriceQuote_,
+                              QueuePlace, Remarks, RowInfo, SeatMap,
+                              SendCommand, ServiceCoupon, TicketDetails,
+                              TicketingInfo_, TypeInfo)
 
 
 class BaseResponseExtractor(object):
@@ -867,21 +887,85 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         self.parsed = True
 
     def _extract(self):
-        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body")
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
         seat_map = from_json_safe(payload, "EnhancedSeatMapRS", "SeatMap")
-        seats = []
         if seat_map:
-            for m in seat_map:
-                change_of_gauge = m["changeOfGaugeInd"]
-                equipement = m["Equipment"]
-                flight = m["Flight"]
-                cabin = m["Cabin"]
-
-                seat = SeatMap(change_of_gauge, equipement, flight, cabin)
-                seats.append(seat)
+            change_of_gauge = seat_map["@changeOfGaugeInd"]
+            equipement = seat_map["Equipment"]
+            flight = self._get_flight_info(seat_map["Flight"])
+            cabin = self._get_cabin_info(seat_map["Cabin"])
+            seat = SeatMap(change_of_gauge, equipement, flight, cabin)
         else:
-            change_of_gauge, equipement, flight, cabin = (None, None, None, None)
+            seat = SeatMap(None, None, None, None)
+        return seat
+
+    def _get_flight_info(self, flight):
+        """" In this method we get the seat map flight info
+        :param: flight: dict of flight
+        :return FlightInfo: the flight info class"""
+
+        destination = from_json_safe(flight, "@destination")
+        origin = from_json_safe(flight, "@origin")
+        departure_date = from_json_safe(flight, "DepartureDate", "#text")
+        carrier = from_json_safe(flight, "Marketing", "@carrier")
+        code = from_json_safe(flight, "Marketing", "#text")
+        operating = OperatingMarketing(carrier=carrier, code=code)
+        marketing = OperatingMarketing(carrier=carrier, code=code)
+        return FlightInfo(destination=destination, origin=origin, departure_date=departure_date, operating=operating, marketing=marketing)
+
+    def _get_cabin_info(self, cabin):
+        first_row = from_json_safe(cabin, "@firstRow")
+        last_row = from_json_safe(cabin, "@lastRow")
+        seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault")
+        cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
+        row = self.__get_row_info(from_json_safe(cabin, "Row"))
+        column = self.__get_column_info(from_json_safe(cabin, "Column"))
+        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column)
+
+    def __get_cabin_class(self, cabin_class):
+        cabin_type = from_json_safe(cabin_class, "CabinType")
+        class_of_service = from_json_safe(cabin_class, "RBD")
+        return CabinClass(class_of_service=class_of_service, marketing_description=cabin_type)
+
+    def __get_row_info(self, rows):
+        row_info = []
+        for row in rows:
+            row_number = from_json_safe(row, "RowNumber")
+            type_info = self.__get_type_info(from_json_safe(row, "Type"))
+            seat = self.__get_seat_info(from_json_safe(row, "Seat")) if from_json_safe(row, "Seat") else []
+            row_info.append(RowInfo(row_number=row_number, type_info=type_info, seat_info=seat))
+        return row_info
+
+    def __get_type_info(self, type_info):
+        return [TypeInfo(extension=from_json_safe(seat_type, "@extension"), code=from_json_safe(seat_type, "#text")) for seat_type in ensure_list(type_info)]
+
+    def __get_seat_info(self, seat_info):
+        seats = []
+        for seat in seat_info:
+            occupied_ind = from_json_safe(seat, "@occupiedInd")
+            inoperative_ind = from_json_safe(seat, "@inoperativeInd")
+            premium_ind = from_json_safe(seat, "@premiumInd")
+            chargeable_ind = from_json_safe(seat, "@chargeableInd")
+            exit_row_ind = from_json_safe(seat, "@exitRowInd")
+            restricted_recline_ind = from_json_safe(seat, "@restrictedReclineInd")
+            no_infant_ind = from_json_safe(seat, "@noInfantInd")
+            number = from_json_safe(seat, "Number")
+            occupation = [TypeInfo(extension=from_json_safe(occupation, "Detail", "@extension"), code=from_json_safe(occupation, "Detail", "#text")) for occupation in ensure_list(from_json_safe(seat, "Occupation"))]
+            location = [type_info for type_info in self.__get_location_info(from_json_safe(seat, "Location"))]
+            detail_facilities = from_json_safe(seat, "Facilities", "Detail")
+            facilities = TypeInfo(extension=from_json_safe(detail_facilities, "@extension"), code=from_json_safe(detail_facilities, "#text"))
+            seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities))
         return seats
+
+    def __get_location_info(self, location_info):
+        locations = []
+        for location in location_info:
+            detail = from_json_safe(location, "Detail")
+            locations.append(TypeInfo(extension=from_json_safe(detail, "@extension"), code=from_json_safe(detail, "#text")))
+        return locations
+
+    def __get_column_info(self, column_info):
+        return [ColumnInfo(column=from_json_safe(column, "Column"), caracteristics=from_json_safe(column, "Characteristics")) for column in column_info]
 
 
 class UpdatePassengerExtractor(BaseResponseExtractor):

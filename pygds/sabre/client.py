@@ -437,14 +437,13 @@ class SabreClient(BaseClient):
             flight_request {[FlightSeatMap]} -- [this will handler the flight request]
         """
         _, sequence, token_session = self.get_or_create_session_details(message_id)
-        print(token_session)
         if token_session is None:
             raise NoSessionError(message_id)
         seat_map_request = self.xml_builder.seap_map_rq(token_session, flight_request)
-        search_price_response = self._soap_request_wrapper(seat_map_request)
+        seat_map_response = self.__request_wrapper("seat_map", seat_map_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
-        gds_response = SeatMapResponseExtractor(search_price_response.content).extract()
+        gds_response = SeatMapResponseExtractor(seat_map_response).extract()
         gds_response.session_info = session_info
         return gds_response
 
