@@ -894,9 +894,9 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             equipement = seat_map["Equipment"]
             flight = self._get_flight_info(seat_map["Flight"])
             cabin = self._get_cabin_info(seat_map["Cabin"])
-            seat = SeatMap(change_of_gauge, equipement, flight, cabin).to_data()
+            seat = SeatMap(change_of_gauge, equipement, flight, cabin)
         else:
-            seat = SeatMap(None, None, None, None).to_data()
+            seat = SeatMap(None, None, None, None)
         return seat
 
     def _get_flight_info(self, flight):

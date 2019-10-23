@@ -996,7 +996,7 @@ class SeatInfo(BasicDataObject):
             "Number": self.number,
             "Occupation": [occupation.to_data() for occupation in self.occupation],
             "Location": [location.to_data() for location in self.location],
-            "Facilities": self.facilities.to_data()
+            "Facilities": self.facilities.to_data() if self.facilities else None
         }
 
 
@@ -1041,10 +1041,10 @@ class CabinInfo(BasicDataObject):
         return {
             "firstRow": self.first_row,
             "lastRow": self.last_row,
-            "CabinClass": self.cabin_class.to_data(),
+            "CabinClass": self.cabin_class.to_data() if self.cabin_class else None,
             "seatOccupationDefault": self.seat_occupation_default,
-            "Row": [row.to_data() for row in self.row],
-            "Column": [column.to_data() for column in self.column]
+            "Row": [row.to_data() for row in self.row if self.row],
+            "Column": [column.to_data() for column in self.column if self.column]
         }
 
 
