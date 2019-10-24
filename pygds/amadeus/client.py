@@ -99,33 +99,35 @@ class AmadeusClient(BaseClient):
         self.add_session(response.session_info)
         return response
 
-    def add_form_of_payment(self, message_id, form_of_payment, passenger_reference_type, passenger_reference_value,
-                            form_of_payment_sequence_number, group_usage_attribute_type, fop: FormOfPayment):
+    def add_form_of_payment(self, message_id: str, fop: FormOfPayment, segment_refs: List[str], pax_refs: List[str], inf_refs: List[str], fop_sequence_number: str):
         """
             This method adds a form of payment to a PNR.
             The session must exists and a current PNR defined.
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.add_form_of_payment_builder(
-            message_id, session_id, sequence_number, security_token, form_of_payment, passenger_reference_type,
-            passenger_reference_value, form_of_payment_sequence_number, group_usage_attribute_type,
-            fop)
+            message_id, session_id, sequence_number, security_token, fop, segment_refs, pax_refs, inf_refs, fop_sequence_number)
+        print(request_data)
         response_data = self.__request_wrapper("add_form_of_payment", request_data,
                                                'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
         return response_data
 
-    def pnr_add_multi_element(self, session_id, sequence_number, security_token, message_id, option_code, segment_name,
-                              identification, credit_card_code, account_number, expiry_date, currency_code):
+    def pnr_add_multi_element(self, message_id, option_code, segment_name):
         """
             This method modifies the elements of a PNR (passengers, etc.)
         """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.pnr_add_multi_element_builder(session_id, sequence_number, security_token,
-                                                                      message_id, option_code, segment_name,
-                                                                      identification, credit_card_code, account_number,
-                                                                      expiry_date, currency_code)
+                                                                      message_id, option_code, segment_name)
         response_data = self.__request_wrapper("pnr_add_multi_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        return response_data
+        response = GetPnrResponseExtractor(response_data).extract()
+        self.add_session(response.session_info)
+        return response
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
@@ -140,11 +142,12 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def issue_ticket_with_retrieve(self, message_id):
+    def issue_ticket_with_retrieve(self, message_id, tst_refs: List[str], pax_refs: List[str]):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if not session_id:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.issue_ticket_retrieve(message_id, security_token, sequence_number, session_id)
+        request_data = self.xml_builder.issue_ticket_retrieve(message_id, security_token, sequence_number, session_id,
+                                                              tst_refs, pax_refs)
         response_data = self.__request_wrapper("issue_ticket_with_retrieve", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
         final_result = IssueTicketResponseExtractor(response_data).extract()
