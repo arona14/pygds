@@ -101,13 +101,13 @@ def test():
 
         log.debug(res_price.payload)
         # log.debug("End ")
-        # log.debug("End result price")
-        # chosen_price: Fare = res_price.payload[0]
-        # log.info(f"Chosen price: {chosen_price}")
-        # res_tst = client.ticket_create_tst_from_price(message_id, chosen_price.fare_reference)
-        # log.debug("result TST")
-        # session_info, res_tst = (res_tst.session_info, res_tst.payload)
-        # log.debug(res_tst)
+        log.debug("End result price")
+        chosen_price: Fare = res_price.payload[0]
+        log.info(f"Chosen price: {chosen_price}")
+        res_tst = client.ticket_create_tst_from_price(message_id, chosen_price.fare_reference)
+        log.debug("result TST")
+        session_info, res_tst = (res_tst.session_info, res_tst.payload)
+        log.debug(res_tst)
         # log.debug("Test queue_place_pnr ")
         # rest_q_place = client.queue_place_pnr(message_id, pnr, [68, 25, 46])
         # log.debug(rest_q_place)

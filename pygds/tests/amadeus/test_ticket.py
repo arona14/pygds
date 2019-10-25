@@ -33,19 +33,20 @@ def test():
     # import web_pdb; web_pdb.set_trace()
     try:
         message_id = None
-        log.info("1. Getting Reservation")
+        log.info("1. Getting Reservation****************************")
         res_reservation = client.get_reservation(pnr, message_id, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)
         if session_info.session_ended is True:
-            log.error("The session is ended when retrieving PNR")
+            log.error("The session is ended when retrieving PNR*********************")
             return
 
         company_id = res_reservation["pnr_header"].company_id
-        log.info("2. Pricing PNR")
+        log.info("2. Pricing PNR ***********************************")
         message_id = session_info.message_id
         passengers = [p.name_id for p in res_reservation["passengers"]]
+        print(passengers)
         segments = [s.segment_reference for s in res_reservation["itineraries"]]
         price_request = PriceRequest(passengers, segments, "PUB")
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
