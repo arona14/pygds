@@ -6,7 +6,7 @@ from pygds.core.request import RequestedSegment, LowFareSearchRequest
 from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary
 from pygds import log_handler
 from pygds.env_settings import get_setting
-# from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list
+from pygds.core.helpers import reformat_date
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
@@ -91,7 +91,9 @@ def test():
         client.end_session(message_id)
         # mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
         # mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
-        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 0, "SS1", "Ndiaye", 2, "Ibrahima", "ADT", 1, "05JAN92")
+        # r_date = reformat_date("10JUN78", "%d%m%y%H%M", "")
+
+        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 0, "S1", "Ndiaye", 2, "Ibrahima", "ADT", 1, "10JUN78")
         # log.debug(mise_a_j)
         log.debug("update passenger")
         log.debug(res_updat_pas.payload)

@@ -147,6 +147,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             agent_signature = from_json_safe(data, "agentSignature")
             creation_office_id = from_json_safe(data, "creationOfficeId")
             creation_date = from_json_safe(data, "creationDate")
+            print("****** Test Creation DAte ********")
+            print(creation_date)
             creation_time = from_json_safe(data, "creationTime")
             creation_date_time = reformat_date(creation_date + creation_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
             pnr = PnrInfo(dk, agent_signature, creation_office_id, creation_date_time)
@@ -188,7 +190,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _ticketing_info(self):
         list_ticket = []
-        for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for ticket in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
             if "ticketElement" in ticket:
                 data_element = from_json_safe(ticket, "ticketElement")
                 ticket_element = from_json_safe(data_element, "ticket")

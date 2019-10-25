@@ -764,15 +764,8 @@ class AmadeusXMLBuilder:
                                     <infantIndicator>{inf_number}</infantIndicator>
                                 </passenger>
                             </travellerInformation>
-                            <dateOfBirth>
-                                <dateAndTimeDetails>
-                                    <date>{d_of_birth}</date>
-                                </dateAndTimeDetails>
-                            </dateOfBirth>
-
                         </passengerData>
                         </travellerInfo>
-
                     </PNR_AddMultiElements>
                 </soapenv:Body>
             </soapenv:Envelope> """
