@@ -449,7 +449,7 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
         pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
         tst_datas = from_json_safe(payload, "tstList")
         tst_info = []
-        for tst_data in tst_datas:
+        for tst_data in ensure_list(tst_datas):
             tst_ref_data = from_json_safe(tst_data, "tstReference")
             tst_ref = None
             if from_json_safe(tst_ref_data, "referenceType") == "TST":

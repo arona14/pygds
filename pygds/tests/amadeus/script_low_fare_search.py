@@ -84,6 +84,29 @@ def test():
         for pax in res_reservation["passengers"]:
             pax_refs.append(pax.name_id)
         log.info("price pnr")
+
+        print("Add form of payment")
+        log.info("4. Add form of payment")
+        message_id = session_info.message_id
+        # fop = CheckPayment("CHEQUE", "MOO")
+        fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
+        res_fop = client.add_form_of_payment(message_id, fop, segments, passengers, None, "1")
+        # session_info, res_fop = (res_fop.session_info, res_fop.payload)
+        # log.info(session_info)
+        log.info(res_fop)
+        if session_info.session_ended is True:
+            log.error("The session is ended when adding Form")
+            return
+
+        log.info("5. Save")
+        res_save = client.pnr_add_multi_element(message_id, 11, "AIR")
+        session_info, res_save = (res_save.session_info, res_save.payload)
+        log.debug(session_info)
+        log.debug(res_save)
+        if session_info.session_ended is True:
+            log.error("The session is ended when saving PNR")
+            return
+
         price_request = PriceRequest(pax_refs, seg_refs)
         log.debug("result of price_request")
         log.debug(price_request)
@@ -108,6 +131,8 @@ def test():
         log.debug("result TST")
         session_info, res_tst = (res_tst.session_info, res_tst.payload)
         log.debug(res_tst)
+
+
         # log.debug("Test queue_place_pnr ")
         # rest_q_place = client.queue_place_pnr(message_id, pnr, [68, 25, 46])
         # log.debug(rest_q_place)

@@ -216,7 +216,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _remark(self):
         list_remark = []
         sequence = 1
-        for data_element in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for data_element in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
             data_remarks = from_json_safe(data_element, "miscellaneousRemarks")
             # print(data_remarks)
             if data_remarks and from_json_safe(data_remarks, "remarks", "type") == "RM":

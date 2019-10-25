@@ -10,7 +10,7 @@ from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-# from pygds.core.payment import FormOfPayment, CreditCard
+from pygds.core.payment import CheckPayment, CreditCard
 from pygds.core.price import PriceRequest, Fare
 # from pygds.core.types import SellItinerary
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
@@ -82,6 +82,28 @@ def test():
         for pax in res_reservation["passengers"]:
             pax_refs.append(pax.name_id)
         log.info("price pnr")
+        print("Testing FOP ***********")
+        log.info("4. Add form of payment")
+        # message_id = session_info.message_id
+        # fop = CheckPayment("CHEQUE", "MOO")
+        company_id = res_reservation["pnr_header"].company_id
+        fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
+        res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
+        # session_info, res_fop = (res_fop.session_info, res_fop.payload)
+        # log.info(session_info)
+        log.info(res_fop)
+        if session_info.session_ended is True:
+            log.error("The session is ended when adding Form")
+            return
+
+        log.info("5. Save")
+        res_save = client.pnr_add_multi_element(message_id, 11, "AIR")
+        session_info, res_save = (res_save.session_info, res_save.payload)
+        log.debug(session_info)
+        log.debug(res_save)
+        if session_info.session_ended is True:
+            log.error("The session is ended when saving PNR")
+            return
         price_request = PriceRequest(pax_refs, seg_refs)
         log.debug("result of price_request")
         log.debug(price_request)
@@ -106,6 +128,7 @@ def test():
         log.debug(res_tst)
         rf = client.send_command("RFSaliou", message_id)
         log.debug(rf)
+
         log.debug("***** Testing ticket ******")
         res_issue = client.ticketing_pnr(message_id, "ADT", pax_refs)
         # res_issue = client.issue_ticket_with_retrieve(message_id, [1])
