@@ -617,5 +617,4 @@ def tcd_ticket_number(ticket_number: str):
         <documentDetails>
             <number>{ticket_number}</number>
         </documentDetails>
-    </documentNumberDetails>
-    """
+    </documentNumberDetails> """

@@ -106,9 +106,14 @@ def test():
         log.debug(res_tst)
         rf = client.send_command("RFSaliou", message_id)
         log.debug(rf)
-        # res_issue = client.ticketing_pnr(message_id, "PAX", pax_refs[1])
+        log.debug("***** Testing ticket ******")
+        res_issue = client.ticketing_pnr(message_id, "ADT", pax_refs)
         # res_issue = client.issue_ticket_with_retrieve(message_id, [1])
-        # log.debug(res_issue)
+
+        session_info = res_issue.session_info
+        if session_info.session_ended is False:
+            client.end_session(message_id)
+        log.debug(res_issue)
         # log.debug("")
     except ClientError as ce:
         log.error(f"client_error: {ce}")

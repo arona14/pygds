@@ -879,10 +879,16 @@ class AmadeusXMLBuilder:
             xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
             xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
             xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-            {self.generate_header("TRCANQ_14_1_1A", message_id, session_id, sequence_number, security_token)}
+            {self.generate_header("TRCANQ_11_1_1A", message_id, session_id, sequence_number, security_token)}
             <soapenv:Body>
-                <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_14_1_1A" >
+                <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_11_1_1A" >
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
+                    <stockProviderDetails>
+                        <officeSettingsDetails>
+                            <stockProviderCode>6X</stockProviderCode>
+                        </officeSettingsDetails>
+                    </stockProviderDetails>
+
                 </Ticket_CancelDocument>
             </soapenv:Body>
         </soapenv:Envelope>
