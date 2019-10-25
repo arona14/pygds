@@ -15,6 +15,9 @@ class SessionInfo:
         self.last_access: datetime = None
 
     def __repr__(self):
+        return str(self.__data())
+
+    def __data(self):
         return {
             "security_token": self.security_token,
             "sequence_number": self.sequence_number,
@@ -25,7 +28,7 @@ class SessionInfo:
         }
 
     def __str__(self):
-        return str(self.__repr__())
+        return str(self.__data())
 
 
 class SessionHolder(object):

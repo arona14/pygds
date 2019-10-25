@@ -11,67 +11,68 @@ class CreatePnrBuilder:
         self.infant_pax_types: list = ["JNF", "INF"]
 
     def air_price(self):
+        price_request_info = []
         for pax in self.create_pnr_request.passengers:
-            if len(self.create_pnr_request.passengers) == 1:
-                pricing_qualifiers = {
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ]
-                }
-            else:
-                pricing_qualifiers = {
-                    "NameSelect": [
-                        {
-                            "NameNumber": str(pax.name_number) + ".1"
-                        }
-                    ],
-                    "PassengerType": [
-                        {
-                            "Code": pax.passenger_type,
-                            "Quantity": "1"
-                        }
-                    ],
-                }
+            pricing_qualifiers = {
+                "NameSelect": [
+                    {
+                        "NameNumber": str(pax.name_number) + ".1"
+                    }
+                ],
+                "PassengerType": [
+                    {
+                        "Code": pax.passenger_type,
+                        "Quantity": "1"
+                    }
+                ],
+            }
             misc_qualifiers = {
                 "AirExtras": {
                     "Ind": True
                 },
                 "Commission": {}
             }
-            if pax.passenger_type in self.net_pax_types:
+            if pax.passenger_type.startswith("J"):
                 misc_qualifiers["Commission"]["Amount"] = str(pax.amount)
                 if pax.amount:
                     pricing_qualifiers["PlusUp"] = {"Amount": str(pax.amount)}
             else:
                 misc_qualifiers["Commission"]["Percent"] = "0"
             if self.create_pnr_request.fare_type == 'COM':
-                misc_qualifiers["Commission"]["Percent"] = str(self.create_pnr_request.commission)
-                if pax.tour_code and pax.passenger_type in self.infant_pax_types:
+                misc_qualifiers["Commission"]["Percent"] = str(pax.percent)
+                if pax.tour_code and pax.passenger_type not in self.infant_pax_types:
                     misc_qualifiers["TourCode"]["Percent"] = {
                         "SuppressIT": {
                             "Ind": True
                         },
                         "Text": pax.tour_code
                     }
-                if pax.ticket_designator and pax.passenger_type in self.infant_pax_types:
+                if pax.ticket_designator and pax.passenger_type not in self.infant_pax_types:
                     pricing_qualifiers["CommandPricing"] = [
                         {
                             "Discount": "0",
-                            "AuthCode": self.create_pnr_request.ticket_designator
+                            "AuthCode": self.pax.ticket_designator
                         }
                     ]
-            return {
-                "PriceRequestInformation": {
-                    "Retain": True,
-                    "OptionalQualifiers": {
-                        "MiscQualifiers": misc_qualifiers,
-                        "PricingQualifiers": pricing_qualifiers
+
+            if "CommandPricing" not in pricing_qualifiers and pax.brand_id is not None:
+                pricing_qualifiers["Brand"] = [
+                    {
+                        "content": pax.brand_id
                     }
-                }
-            }
+                ]
+
+            price_request_info.append(
+                {
+                    "PriceRequestInformation": {
+                        "Retain": True,
+                        "OptionalQualifiers": {
+                            "MiscQualifiers": misc_qualifiers,
+                            "PricingQualifiers": pricing_qualifiers
+                        }
+                    }
+                })
+        return price_request_info
 
     def flight_segment(self):
         segments = []
@@ -145,109 +146,68 @@ class CreatePnrBuilder:
             "UnmaskCreditCard": True
         }
 
-    def secure_flight(self, passenger):
-        return {
-            "PersonName": {
-                "GivenName": str(passenger.given_name) + " " + str(passenger.middle_name),
-                "NameNumber": "1.1" if passenger.passenger_type in self.infant_pax_types else str(passenger.name_number) + ".1",
-                "Surname": passenger.surname,
-                "DateOfBirth": passenger.date_of_birth,
-            },
-            "SegmentNumber": 'A'
-        }
-
-    def remarks(self):
-        remrks = [
+    def secure_flight(self, passengers):
+        return [
             {
-                "Type": 'Invoice',
-                "Text": "S*UD100 " + self.create_pnr_request.user.split("@")[0]
-            },
-            {
-                "Type": 'Invoice',
-                "Text": f"S*UD25 {'N' if self.create_pnr_request.fare_type == 'NET' else 'P'}"
+                "PersonName": {
+                    "GivenName": str(passenger.given_name) + " " + str(passenger.middle_name),
+                    "NameNumber": "1.1" if passenger.passenger_type in self.infant_pax_types else str(passenger.name_number) + ".1",
+                    "Surname": passenger.surname,
+                    "Gender": self.get_gender(passenger),
+                    "DateOfBirth": passenger.date_of_birth
+                },
+                "SegmentNumber": 'A'
             }
+            for passenger in passengers
         ]
-        if self.create_pnr_request.passengers[0].phone:
-            remrks.append({
-                "Type": 'General',
-                "Text": "PAXINFO " + self.create_pnr_request.passengers[0].phone
-            })
-        if self.create_pnr_request.passengers[0].email:
-            remrks.append({
-                "Type": 'General',
-                "Text": "PAXINFO " + (self.create_pnr_request.passengers[0].email).replace("@", "¤")
-            })
-        for pax in self.create_pnr_request.passengers:
-            if pax.service_fee:
-                remrks.append({
-                    "Type": 'General',
-                    "Text": "MCO " + str(pax.name_number) + ".1-S1 " + str(pax.service_fee)
-                })
-        agency = 0
-        for pax in self.create_pnr_request.passengers:
-            agency += pax.deals.agency_discount
-        if agency:
-            remrks.append({
-                "Type": 'General',
-                "Text": str(agency) + " INTERNAL PROMOTION WAS APPLIED DISCOUNT"
-            })
-        agency_markup = 0
-        for pax in self.create_pnr_request.passengers:
-            agency_markup += pax.deals.agency_markup
-        if agency_markup:
-            remrks.append({
-                "Type": 'General',
-                "Text": str(agency_markup) + " INTERNAL PROMOTION WAS APPLIED MARKUP"
-            })
-        amount_proposed = 0
-        for pax in self.create_pnr_request.passengers:
-            markup = pax.amount if pax.amount else 0
-            amount_proposed += markup + pax.total_fare + pax.service_fee - pax.deals.agency_discount
-        remrks.append({
-            "Type": 'General',
-            "Text": "AMOUNT PROPOSED " + str(amount_proposed)
-        })
-        return remrks
 
-    def sepecial_req_details(self):
+    def get_gender(self, pax):
+        gender = "M" if pax.gender == "Male" else "F"
+        if pax.passenger_type in self.infant_pax_types:
+            gender = "MI" if pax.gender == "Male" else "FI"
+
+        return gender
+
+    def get_number_infant(self):
         infants_in_party = []
         for pax in self.create_pnr_request.passengers:
-            gender = "M" if pax.gender == "Male" else "F"
             if pax.passenger_type in self.infant_pax_types:
-                gender = "MI" if pax.gender == "Male" else "FI"
                 infants_in_party.append(pax)
 
-            secure_flight = self.secure_flight(pax)
-            secure_flight["PersonName"]["Gender"] = gender
-            remarks = self.remarks()
-            secure = {
-                "SpecialService": {
-                    "SpecialServiceInfo": {
-                        "SecureFlight": [secure_flight],
-                    }
-                },
-                "AddRemark": {
-                    "RemarkInfo": {
-                        "Remark": remarks
-                    }
+        return infants_in_party
+
+    def sepecial_req_details(self):
+        infants_in_party = self.get_number_infant()
+        secure_flight = self.secure_flight(self.create_pnr_request.passengers)
+        secure = {
+            "SpecialService": {
+                "SpecialServiceInfo": {
+                    "SecureFlight": secure_flight,
+                }
+            },
+            "AddRemark": {
+                "RemarkInfo": {
+                    "Remark": self.create_pnr_request.remarks
                 }
             }
-            if len(infants_in_party) > 0:
-                service = self.service(infants_in_party)
-                secure["SpecialService"]["SpecialServiceInfo"]["Service"] = service
-            return secure
+        }
+        if len(infants_in_party) > 0:
+            service = self.service(infants_in_party)
+            secure["SpecialService"]["SpecialServiceInfo"]["Service"] = service
+        return secure
 
     def service(self, infants_in_party):
-        for inf in infants_in_party:
-            given_name = str(inf.given_name) + " " + str(inf.middle_name)
-            return{
+        return [
+            {
                 "PersonName": {
                     "NameNumber": "1.1"
                 },
-                "Text": inf.surname.upper() + "/" + given_name.upper() + "/" + reformat_date(inf.date_of_birth, "%Y-%m-%d", "%d%b%y"),
+                "Text": inf.surname.upper() + "/" + str(inf.given_name) + " " + str(inf.middle_name).upper() + "/" + reformat_date(inf.date_of_birth, "%Y-%m-%d", "%d%b%y"),
                 "SegmentNumber": "A",
                 "SSR_Code": "INFT"
             }
+            for inf in infants_in_party
+        ]
 
     def travel_itinerarry_add_info(self, pnr_request):
         info = {
@@ -291,7 +251,7 @@ class CreatePnrBuilder:
         return {
             "CreatePassengerNameRecordRQ": {
                 "AirBook": self.air_book(),
-                "AirPrice": [self.air_price()],
+                "AirPrice": self.air_price(),
                 "PostProcessing": self.post_processing(),
                 "SpecialReqDetails": self.sepecial_req_details(),
                 "TravelItineraryAddInfo": self.travel_itinerarry_add_info(self.create_pnr_request),

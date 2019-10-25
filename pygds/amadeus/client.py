@@ -3,6 +3,7 @@ from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
@@ -147,20 +148,18 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date,
-                                               numbering: TravellerNumbering):
+    def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest, currency_conversion=None, c_qualifier="RC"):
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, origin, destination,
-                                                                               departure_date, arrival_date, numbering)
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search, currency_conversion, c_qualifier)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
         return extractor.extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
-        request_data = self.xmlbuilder.fare_informative_price_without_pnr(numbering, itineraries)
+        request_data = self.xml_builder.fare_informative_price_without_pnr(numbering, itineraries)
         response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data,
                                                'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
         extractor = PriceSearchExtractor(response_data)
@@ -170,8 +169,7 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number,
-                                                         security_token, line_number)
+        request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number, security_token, line_number)
         response_data = self.__request_wrapper("check fare rules", request_data,
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
         return response_data
