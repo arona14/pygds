@@ -47,6 +47,8 @@ def test():
         message_id = session_info.message_id
         passengers = [p.name_id for p in res_reservation["passengers"]]
         segments = [s.segment_reference for s in res_reservation["itineraries"]]
+        print("****** Values passengers and segments")
+        print(passengers, segments)
         price_request = PriceRequest(passengers, segments, "PUB")
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
         session_info, res_price = (res_price.session_info, res_price.payload)
