@@ -447,16 +447,19 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
         pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
-        tst_data = from_json_safe(payload, "tstList")
-        tst_ref_data = from_json_safe(tst_data, "tstReference")
-        tst_ref = None
-        if from_json_safe(tst_ref_data, "referenceType") == "TST":
-            tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
-        passengers_data = ensure_list(from_json_safe(tst_data, "paxInformation", "refDetails"))
-        pax_refs = []
-        for p in passengers_data:
-            pax_refs.append(from_json_safe(p, "refNumber"))
-        return TstInformation(pnr, tst_ref, pax_refs)
+        tst_datas = from_json_safe(payload, "tstList")
+        tst_info = []
+        for tst_data in tst_datas:
+            tst_ref_data = from_json_safe(tst_data, "tstReference")
+            tst_ref = None
+            if from_json_safe(tst_ref_data, "referenceType") == "TST":
+                tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
+            passengers_data = ensure_list(from_json_safe(tst_data, "paxInformation", "refDetails"))
+            pax_refs = []
+            for p in passengers_data:
+                pax_refs.append(from_json_safe(p, "refNumber"))
+            tst_info.append(TstInformation(pnr, tst_ref, pax_refs))
+        return tst_info
 
 
 class IssueTicketResponseExtractor(BaseResponseExtractor):

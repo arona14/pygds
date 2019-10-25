@@ -1,6 +1,7 @@
 from typing import List
 
 from pygds.amadeus.price import InformativeFareTax
+from pygds.core.payment import CreditCard, FormOfPayment
 from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
@@ -404,7 +405,7 @@ def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type)
 
 
 def ppwbc_passenger_segment_selection(price_request: PriceRequest):
-    if not price_request or (not price_request.segments and not price_request.passengers):
+    if not price_request or not(price_request.segments or price_request.passengers):
         return ""
     pax_refs = []
     seg_refs = []
@@ -481,6 +482,17 @@ def ticket_issue_tst_ref(ref):
         <type>TS</type>
         <value>{ref}</value>
     </referenceDetails>"""
+
+
+def issue_ticket_pax(ref_type, ref):
+    return f"""
+    <paxSelection>
+        <passengerReference>
+            <type>{ref_type}</type>
+            <value>{ref}</value>
+        </passengerReference>
+    </paxSelection>
+    """
 
 
 def queue_place_target_queue(pcc: str, queue_number: str, category: str = "0"):
@@ -618,3 +630,61 @@ def tcd_ticket_number(ticket_number: str):
             <number>{ticket_number}</number>
         </documentDetails>
     </documentNumberDetails> """
+
+
+def fop_credit_card(credit_card: CreditCard):
+    return f"""
+    <creditCardData>
+        <creditCardDetails>
+            <ccInfo>
+                <vendorCode>{credit_card.vendor_code}</vendorCode>
+                <cardNumber>{credit_card.card_number}</cardNumber>
+                <securityId>{credit_card.security_id}</securityId>
+                <expiryDate>{credit_card.expiry_date}</expiryDate>
+            </ccInfo>
+        </creditCardDetails>
+    </creditCardData>
+    """
+
+
+def fop_form_of_payment(fop: FormOfPayment):
+    if isinstance(fop, CreditCard):
+        return fop_credit_card(fop)
+    return f"""
+    """
+
+
+def fop_passenger(passenger_type, passenger_value):
+    return f"""
+    <passengerAssociation>
+        <passengerReference>
+            <type>{passenger_type}</type>
+            <value>{passenger_value}</value>
+        </passengerReference>
+    </passengerAssociation>
+    """
+
+
+def fop_tst():
+    pass
+
+
+def fop_segment(segment_ref):
+    return f"""
+    <pnrElementAssociation>
+        <referenceDetails>
+            <type>SEG</type>
+            <value>{segment_ref}</value>
+        </referenceDetails>
+    </pnrElementAssociation>
+    """
+
+
+def fop_sequence_number(sequence_number: str):
+    return f"""
+    <fopSequenceNumber>
+        <sequenceDetails>
+            <number>{sequence_number}</number>
+        </sequenceDetails>
+    </fopSequenceNumber>
+    """
