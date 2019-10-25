@@ -66,6 +66,7 @@ def test():
         session_info, res_store_price = (res_store_price.session_info, res_store_price.payload)
         log.info(session_info)
         log.info(res_store_price)
+        tst_refs = [tst.tst_reference for tst in res_store_price]
         if session_info.session_ended is True:
             log.error("The session is ended when storing TST")
             return
@@ -93,7 +94,7 @@ def test():
 
         log.info("6. Ticket")
         message_id = session_info.message_id
-        res_ticket = client.issue_ticket_with_retrieve(message_id, [], [])
+        res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
         session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
         log.info(session_info)
         log.info(res_ticket)
