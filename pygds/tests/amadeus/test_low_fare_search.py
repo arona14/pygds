@@ -68,18 +68,18 @@ def test():
         search_results = client.fare_master_pricer_travel_board_search(
             low_fare_search, currency_code, c_qualifier
         )
-
-        log.info("End of Low Fare Search ********************************************************************************")
-
-        ressults, session_info = (search_results.payload, search_results.session_info)
+        results, session_info = (search_results.payload, search_results.session_info)
+        log.info(results)
 
         if session_info.session_ended:
             log.error("Session is ended after search")
             return
 
+        log.info("End of Low Fare Search ********************************************************************************")
+
         log.info("Begin call of sell from recommandation *************************************************************")
 
-        itineraries = ressults[0]['itineraries']
+        itineraries = results[0]['itineraries']
 
         list_segments = []
 
@@ -104,6 +104,7 @@ def test():
         )
 
         result_sell, session_info = (result_sell.payload, result_sell.session_info)
+        log.info(result_sell)
 
         if session_info.session_ended:
 
@@ -125,6 +126,7 @@ def test():
         passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info)
 
         passenger_info_response, session_info = (passenger_info_response.payload, passenger_info_response.session_info)
+        log.info(passenger_info_response)
 
         if session_info.session_ended:
 
@@ -135,6 +137,7 @@ def test():
         log.info("End of Calling of Add Passenger Information ****************************************")
 
         log.info("Begin Call of Pricing Segment for some passenger ***********************************")
+
         company_id = passenger_info_response["pnr_header"].company_id
 
         seg_refs = []
@@ -147,8 +150,15 @@ def test():
         price_request = PriceRequest(pax_refs, seg_refs)
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
         session_info, res_price = (res_price.session_info, res_price.payload)
+        log.info(res_price)
 
-        log.info("End of Callinf of Price PNR *******************************************************")
+        if session_info.session_ended:
+
+            log.error("Session is ended after price pnr")
+
+            return
+
+        log.info("End of Calling of Price PNR *******************************************************")
 
         log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
 
@@ -163,8 +173,9 @@ def test():
         message_id = session_info.message_id
         res_store_price = client.ticket_create_tst_from_price(message_id, tst)
         session_info, res_store_price = (res_store_price.session_info, res_store_price.payload)
-
         tst_refs = [tst.tst_reference for tst in res_store_price]
+        log.info(res_store_price)
+
         if session_info.session_ended is True:
             log.error("The session is ended when storing TST")
             return
@@ -177,19 +188,20 @@ def test():
         # fop = CheckPayment("CHEQUE", "MOO")
         fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
         res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
-        log.info(type(res_fop))
+        log.info(res_fop)
 
-        if session_info.session_ended is True:
-            log.error("The session is ended when adding Form")
-            return
+        # if res_fop.session_info.session_ended is True:
+        #     log.error("The session is ended when adding Form")
+        #     return
 
         log.info("End of Add Form of Payment ********************************************************")
 
         log.info("Begin Save ************************************************************************")
         res_save = client.pnr_add_multi_element(message_id, 11, "AIR")
         session_info, res_save = (res_save.session_info, res_save.payload)
-        log.debug(session_info)
-        log.debug(res_save)
+        log.info(res_save)
+        pnr = res_save["pnr_header"].controle_number
+
         if session_info.session_ended is True:
             log.error("The session is ended when saving PNR")
             return
@@ -200,15 +212,28 @@ def test():
         message_id = session_info.message_id
         res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
         session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
-        log.info(session_info)
         log.info(res_ticket)
+
         if session_info.session_ended is True:
             log.error("The session is ended when ticketing")
             return
 
         log.info("End of ticketing **********************************************************************")
 
-        log.info("Begin Place PNR in the Queue ***************************************************************************")
+        log.info("Begin Placing PNR in the Queue ********************************************************")
+
+        global queue_number
+        queues = list()
+        queues.append(queue_number)
+        result_queue = client.queue_place_pnr(message_id, pnr, queues)
+        session_info, res_queue = (result_queue.session_info, result_queue.payload)
+        log.info(session_info)
+        log.info(res_queue)
+        if session_info.session_ended is True:
+            log.error("The session is ended when place pnr in the queue")
+            return
+
+        client.end_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

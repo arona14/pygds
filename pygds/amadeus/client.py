@@ -9,7 +9,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -275,7 +275,8 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.queue_place_pnr(message_id, session_id, sequence_number, security_token, pnr,
                                                         queues)
         response_data = self.__request_wrapper("queue_place_pnr", request_data, 'http://webservices.amadeus.com/QUQPCQ_03_1_1A')
-        return response_data
+
+        return QueueExtractor(response_data).extract()
         # return GetPnrResponseExtractor(response_data).extract()
 
     def issue_combined(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):

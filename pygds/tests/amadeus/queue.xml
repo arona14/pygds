@@ -1,0 +1,28 @@
+b'<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3" 
+    xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <soapenv:Header>
+        <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:From>
+            <wsa:Address>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</wsa:Address>
+        </wsa:From>
+        <wsa:Action>http://webservices.amadeus.com/QUQPCQ_03_1_1A</wsa:Action>
+        <wsa:MessageID>urn:uuid:34406251-f155-9c24-6181-ca5206ab79d7</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">6cc29bdc-b43e-4911-a380-d289d6fcf09b</wsa:RelatesTo>
+        <awsse:Session TransactionStatusCode="InSeries">
+            <awsse:SessionId>00P8ZULZGN</awsse:SessionId>
+            <awsse:SequenceNumber>10</awsse:SequenceNumber>
+            <awsse:SecurityToken>3ULK1SBCO89G92P7EZ4QMPSZ07</awsse:SecurityToken>
+        </awsse:Session>
+    </soapenv:Header>
+    <soapenv:Body>
+        <Queue_PlacePNRReply xmlns="http://xml.amadeus.com/QUQPCR_03_1_1A">
+            <recordLocator>
+                <reservation>
+                    <controlNumber>MBJGP5</controlNumber>
+                </reservation>
+            </recordLocator>
+        </Queue_PlacePNRReply>
+    </soapenv:Body>
+</soapenv:Envelope>'

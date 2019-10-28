@@ -500,3 +500,13 @@ def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAm
     fare_amount.amount = from_json_safe(amount_info, amount_key)
     fare_amount.currency = from_json_safe(amount_info, currency_key)
     return fare_amount
+
+
+class QueueExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Queue_PlacePNRReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Queue_PlacePNRReply")
+        pnr = from_json_safe(payload, "recordLocator", "reservation", "controlNumber")
+        return pnr
