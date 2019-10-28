@@ -669,7 +669,7 @@ class AmadeusXMLBuilder:
 
     def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code,
                                       segment_name):
-        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        # security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         # <nameInformation>
         #     <qualifier>RF</qualifier>
         #     <name>KOKOU</name>
@@ -813,6 +813,11 @@ class AmadeusXMLBuilder:
             <soapenv:Body>
                 <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_14_1_1A" >
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
+                    <stockProviderDetails>
+                       <officeSettingsDetails>
+                          <stockProviderCode>6X</stockProviderCode>
+                       </officeSettingsDetails>
+                    </stockProviderDetails>
                 </Ticket_CancelDocument>
             </soapenv:Body>
         </soapenv:Envelope>
