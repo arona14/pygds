@@ -169,7 +169,7 @@ class Itinerary(BasicDataObject):
 
     def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
 
-        self.segments: List[FlightSegment] = []
+        self.segments = []
         self.itinerary_type = itinerary_type
         self.elapsed_time = elapsed_time
 

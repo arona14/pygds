@@ -3,7 +3,7 @@
 """
 
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
-from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary
+from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, Itinerary, FlightSegment
 from pygds import log_handler
 from pygds.env_settings import get_setting
 
@@ -74,7 +74,6 @@ def test():
         if session_info.session_ended:
             log.error("Session is ended after search")
             return
-
         log.info("End of Low Fare Search ********************************************************************************")
 
         log.info("Begin call of sell from recommandation *************************************************************")
@@ -83,11 +82,13 @@ def test():
 
         list_segments = []
 
+        itinerary = Itinerary()
+
         for flight_segment in itineraries:
 
             segment = flight_segment[0]
 
-            segment = SellItinerary(
+            _segment = SellItinerary(
                 segment["board_airport"],
                 segment["off_airport"],
                 segment["departure_date"],
@@ -96,8 +97,29 @@ def test():
                 segment["book_class"],
                 2
             )
+            list_segments.append(_segment)
 
-            list_segments.append(segment)
+            itinerary.addSegment(FlightSegment(departure_date_time=segment["departure_date"],
+                                               arrival_date_time=segment["arrival_date"],
+                                               airline=None,
+                                               arrival_airpot=segment["board_airport"],
+                                               departure_airport=segment["off_airport"],
+                                               flight_number=segment["flight_number"],
+                                               marketing=segment["marketing_company"],
+                                               class_of_service=segment["book_class"]
+                                               ))
+
+        log.info("Begin fare informative pricing without pnr")
+
+        itineraries = [
+            itinerary
+        ]
+
+        result_informative_pricing = client.fare_informative_price_without_pnr(TravellerNumbering(1), itineraries)
+
+        log.info(result_informative_pricing)
+
+        log.info("End of informative pricing without pnr")
 
         result_sell = client.sell_from_recommandation(
             list_segments

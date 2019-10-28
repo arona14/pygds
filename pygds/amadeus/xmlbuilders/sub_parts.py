@@ -344,21 +344,20 @@ def _fare_informative_price_segment(segment: FlightSegment, itinerary_no: int, s
     return f"""
     <segmentInformation>
        <flightDate>
-            <departureDate>{segment.departure.date}</departureDate>
-            <departureTime>{segment.departure.time}</departureTime>
+            <departureDate>{segment.departure_date_time}</departureDate>
         </flightDate>
         <boardPointDetails>
-            <trueLocationId>{segment.departure.airport}</trueLocationId>
+            <trueLocationId>{segment.departure_airport}</trueLocationId>
         </boardPointDetails>
         <offpointDetails>
-            <trueLocationId>{segment.arrival.airport}</trueLocationId>
+            <trueLocationId>{segment.arrival_airpot}</trueLocationId>
         </offpointDetails>
         <companyDetails>
-            <marketingCompany>{segment.airline}</marketingCompany>
+            <marketingCompany>{segment.marketing}</marketingCompany>
         </companyDetails>
         <flightIdentification>
-            <flightNumber>{segment.flightNumber}</flightNumber>
-            <bookingClass>{segment.classOfService}</bookingClass>
+            <flightNumber>{segment.flight_number}</flightNumber>
+            <bookingClass>{segment.class_of_service}</bookingClass>
         </flightIdentification>
         <flightTypeDetails>
             <flightIndicator>{itinerary_no}</flightIndicator>
@@ -689,4 +688,3 @@ def fop_sequence_number(sequence_number: str):
         </sequenceDetails>
     </fopSequenceNumber>
     """
-

@@ -510,3 +510,54 @@ class QueueExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Queue_PlacePNRReply")
         pnr = from_json_safe(payload, "recordLocator", "reservation", "controlNumber")
         return pnr
+
+
+class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Fare_InformativePricingWithoutPNRReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_InformativePricingWithoutPNRReply"
+        )
+        conversion_rate_details = from_json_safe(
+            payload, "mainGroup", "convertionRate", "conversionRateDetails"
+        )
+        indicators = from_json_safe(
+            payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
+        )
+
+        number_of_pax = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "numberOfPax"
+        )
+
+        pricing_indicators = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "pricingIndicators"
+        )
+
+        fare_amount = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareAmount"
+        )
+
+        segment_information = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "segmentLevelGroup", "segmentInformation"
+        )
+
+        segment_information = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareComponentDetailsGroup"
+        )
+
+        data = {
+            "conversion_rate_details": conversion_rate_details,
+            "indicators": indicators,
+            "number_of_pax": number_of_pax,
+            "pricing_indicators": pricing_indicators,
+            "fare_amount": fare_amount,
+            "segment_information": segment_information,
+            "number_of_pax": number_of_pax,
+            "pricing_indicators": pricing_indicators,
+            "fare_amount": fare_amount,
+            "segment_information": segment_information
+        }
+
+        return data

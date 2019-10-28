@@ -9,7 +9,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -168,8 +168,8 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.fare_informative_price_without_pnr(numbering, itineraries)
         response_data = self.__request_wrapper("fare_informative_price_without_pnr", request_data,
                                                'http://webservices.amadeus.com/TIPNRQ_18_1_1A')
-        extractor = PriceSearchExtractor(response_data)
-        return extractor.extract()
+
+        return InformativePricingWithoutPnrExtractor(response_data).extract()
 
     def fare_check_rules(self, message_id, line_number):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)

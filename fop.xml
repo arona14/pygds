@@ -8,12 +8,12 @@ b'<?xml version="1.0" encoding="UTF-8"?>
             <wsa:Address>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</wsa:Address>
         </wsa:From>
         <wsa:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</wsa:Action>
-        <wsa:MessageID>urn:uuid:c775b6ea-6af2-9754-c50a-0324451d2557</wsa:MessageID>
-        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">3c394dc9-dc3a-4b96-8547-b0fbefa674ab</wsa:RelatesTo>
+        <wsa:MessageID>urn:uuid:144ec883-36aa-ab04-3109-8ece320552b8</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">45234ddc-bee9-4cc6-b1dd-84bc341be5ae</wsa:RelatesTo>
         <awsse:Session TransactionStatusCode="InSeries">
-            <awsse:SessionId>00P8I3BXVY</awsse:SessionId>
-            <awsse:SequenceNumber>7</awsse:SequenceNumber>
-            <awsse:SecurityToken>1Y6PLA1RNSBQ239XJF10CSQ7I4</awsse:SecurityToken>
+            <awsse:SessionId>01G48BPWL6</awsse:SessionId>
+            <awsse:SequenceNumber>3</awsse:SequenceNumber>
+            <awsse:SecurityToken>BJU04HV0E8VRIMMHAH5RA7OE</awsse:SecurityToken>
         </awsse:Session>
     </soapenv:Header>
     <soapenv:Body>
@@ -56,7 +56,7 @@ b'<?xml version="1.0" encoding="UTF-8"?>
                 <fpElementError>
                     <errorOrWarningCodeDetails>
                         <errorDetails>
-                            <errorCode>3671</errorCode>
+                            <errorCode>3323</errorCode>
                         </errorDetails>
                     </errorOrWarningCodeDetails>
                     <errorWarningDescription>
@@ -65,7 +65,7 @@ b'<?xml version="1.0" encoding="UTF-8"?>
                             <source>M</source>
                             <encoding>1</encoding>
                         </freeTextDetails>
-                        <freeText>FARE ELEMENT ALREADY EXISTS FOR PASSENGER/SEGMENT</freeText>
+                        <freeText>NEED TST FOR SPECIFIED SEGMENTS</freeText>
                     </errorWarningDescription>
                 </fpElementError>
                 <mopDescription>
