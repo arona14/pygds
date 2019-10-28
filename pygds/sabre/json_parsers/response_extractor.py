@@ -1,6 +1,7 @@
 import json
 import logging
 
+import fnc
 from pygds.core.sessions import SessionInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
@@ -84,11 +85,11 @@ class CreatePnrExtractor(BaseResponseRestExtractor):
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
         payload = from_json(self.json_content, "CreatePassengerNameRecordRS")
 
-        status = from_json(payload, "ApplicationResults", "status")
-        itinerary_ref = from_json(payload, "ItineraryRef", "ID")
-        air_book = from_json(payload, "AirBook")
-        air_price = from_json(payload, "AirPrice")
-        travel_itinerary_read = from_json(payload, "TravelItineraryRead")
+        status = fnc.get('ApplicationResults.status', payload, default="")
+        air_book = fnc.get('AirBook', payload, default={})
+        air_price = fnc.get('AirPrice', payload, default={})
+        travel_itinerary_read = fnc.get('TravelItineraryRead', payload, default={})
+        itinerary_ref = fnc.get('ItineraryRef.ID', payload, default={})
 
         create_pnr_info.status = status
         create_pnr_info.itinerary_ref = itinerary_ref
