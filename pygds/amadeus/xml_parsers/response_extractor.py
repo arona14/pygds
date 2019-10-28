@@ -10,6 +10,7 @@ import logging
 
 from pygds.core.ticket import TicketReply
 from pygds.core.types import CancelPnrReply
+from pygds.core.form_of_payment import FormOfPayment
 
 
 class BaseResponseExtractor(object):
@@ -500,3 +501,14 @@ def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAm
     fare_amount.amount = from_json_safe(amount_info, amount_key)
     fare_amount.currency = from_json_safe(amount_info, currency_key)
     return fare_amount
+
+
+class FoPExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "FOP_CreateFormOfPaymentReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "FOP_CreateFormOfPaymentReply")
+        fop_reference = from_json_safe(payload, "fopDescription", "fopReference")
+        mop_description = from_json_safe(payload, "fopDescription", "mopDescription")
+        return FormOfPayment(fop_reference, mop_description)

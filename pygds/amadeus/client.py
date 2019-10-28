@@ -9,7 +9,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor, FoPExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -109,10 +109,9 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         request_data = self.xml_builder.add_form_of_payment_builder(
             message_id, session_id, sequence_number, security_token, fop, segment_refs, pax_refs, inf_refs, fop_sequence_number)
-        print(request_data)
         response_data = self.__request_wrapper("add_form_of_payment", request_data,
                                                'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
-        return response_data
+        return FoPExtractor(response_data).extract()
 
     def pnr_add_multi_element(self, message_id, option_code, segment_name):
         """

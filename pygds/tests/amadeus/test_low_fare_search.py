@@ -39,7 +39,7 @@ def test():
     try:
 
         log.info("Begin call of Low Fare Search *************************************")
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "071119")
+        origine, destination, date_dep, date_arr = ("DSS", "CDG", "051119", "071119")
 
         segments = [
             RequestedSegment(
@@ -49,44 +49,21 @@ def test():
                 arrival_date=date_arr)
         ]
 
-        low_fare_search = LowFareSearchRequest(
-            segments,
-            "Y",
-            "",
-            TravellerNumbering(1),
-            "",
-            "",
-            ["DL",
-             "AF"],
-            "",
-            "",
-            1)
-
+        low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(1), "", "", ["DL", "AF"], "", "", 1)
         log.info(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-
         currency_code, c_qualifier = ("EUR", "RC")
-        search_results = client.fare_master_pricer_travel_board_search(
-            low_fare_search, currency_code, c_qualifier
-        )
-
-        log.info("End of Low Fare Search ********************************************************************************")
-
+        search_results = client.fare_master_pricer_travel_board_search(low_fare_search, currency_code, c_qualifier)
+        log.info(
+            "End of Low Fare Search ********************************************************************************")
         ressults, session_info = (search_results.payload, search_results.session_info)
-
         if session_info.session_ended:
             log.error("Session is ended after search")
             return
-
         log.info("Begin call of sell from recommandation *************************************************************")
-
         itineraries = ressults[0]['itineraries']
-
         list_segments = []
-
         for flight_segment in itineraries:
-
             segment = flight_segment[0]
-
             segment = SellItinerary(
                 segment["board_airport"],
                 segment["off_airport"],
@@ -98,26 +75,15 @@ def test():
             )
 
             list_segments.append(segment)
-
-        result_sell = client.sell_from_recommandation(
-            list_segments
-        )
-
+        result_sell = client.sell_from_recommandation(list_segments)
         result_sell, session_info = (result_sell.payload, result_sell.session_info)
-
         if session_info.session_ended:
-
             log.error("Session is ended after sell from recommendation")
-
             return
-
         log.info("End of Sell From Recommandation ******************************************************")
-
         log.info("Begin Call of Add Passenger Info ****************************************************")
-
         message_id = session_info.message_id  # is the message_id to use for the all others actions
-
-        traveller_infos = [TravellerInfo(1, "Mouhamad", "Dianko", "Thiam", "03121990", "ADT"),
+        traveller_infos = [TravellerInfo(1, "Samba", "Dianko", "Thiam", "03121990", "ADT"),
                            TravellerInfo(2, "Saliou", "Serigne", "Ndiouck", "03121990", "ADT")]
 
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
@@ -127,7 +93,6 @@ def test():
         passenger_info_response, session_info = (passenger_info_response.payload, passenger_info_response.session_info)
 
         if session_info.session_ended:
-
             log.error("Session is ended after creat pnr")
 
             return
@@ -152,8 +117,8 @@ def test():
 
         log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
 
-        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
-        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
+        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIOP-BALLA/P1", message_id)
+        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIOP-BALLA/P2", message_id)
 
         log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
 
@@ -208,7 +173,8 @@ def test():
 
         log.info("End of ticketing **********************************************************************")
 
-        log.info("Begin Place PNR in the Queue ***************************************************************************")
+        log.info(
+            "Begin Place PNR in the Queue ***************************************************************************")
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")
