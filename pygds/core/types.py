@@ -1082,11 +1082,27 @@ class FlightSeatMap:
 
 
 class CancelPnrReply(BasicDataObject):
-    def __init__(self, pnr: str):
+    def __init__(self, pnr: str, company_id: str = None):
         self.pnr = pnr
+        self.company_id = company_id
 
     def to_data(self):
         return {
             "pnr": self.pnr,
-            "cancelled": self.pnr is not None
+            "cancelled": self.pnr is not None,
+            "company_id": self.company_id
+        }
+
+
+class VoidTicket(BasicDataObject):
+    def __init__(self, response_type: str, status_code: str = None, ticket_number: str = None):
+        self.response_type = response_type
+        self.status_code = status_code
+        self.ticket_number = ticket_number
+
+    def to_data(self):
+        return {
+            "response_type": self.response_type,
+            "status_code": self.status_code,
+            "ticket_number": self.ticket_number
         }

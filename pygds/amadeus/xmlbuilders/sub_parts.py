@@ -629,8 +629,7 @@ def tcd_ticket_number(ticket_number: str):
         <documentDetails>
             <number>{ticket_number}</number>
         </documentDetails>
-    </documentNumberDetails>
-    """
+    </documentNumberDetails> """
 
 
 def fop_credit_card(credit_card: CreditCard):
@@ -689,4 +688,3 @@ def fop_sequence_number(sequence_number: str):
         </sequenceDetails>
     </fopSequenceNumber>
     """
-

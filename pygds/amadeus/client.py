@@ -9,7 +9,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor, VoidTicketExtractor
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -128,6 +128,20 @@ class AmadeusClient(BaseClient):
         response = GetPnrResponseExtractor(response_data).extract()
         self.add_session(response.session_info)
         return response
+
+    def pnr_add_multi_for_pax_info_element(self, message_id, option_code, segment_name, family_name, quantity,
+                                           f_name, pax_type, inf_number, d_of_birth):
+        """
+            This method modifies the elements of a PNR (passengers, etc.)
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
+                                                                                   message_id, option_code, segment_name, family_name, quantity, f_name, pax_type, inf_number, d_of_birth)
+        print(request_data)
+        response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        # print(response_data)
+        return GetPnrResponseExtractor(response_data).extract()
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
@@ -276,7 +290,7 @@ class AmadeusClient(BaseClient):
                                                         queues)
         response_data = self.__request_wrapper("queue_place_pnr", request_data, 'http://webservices.amadeus.com/QUQPCQ_03_1_1A')
         return response_data
-        # return GetPnrResponseExtractor(response_data).extract()
+        return GetPnrResponseExtractor(response_data).extract()
 
     def issue_combined(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):
         """
@@ -312,9 +326,12 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
         request_data = self.xml_builder.void_tickets(session_info, ticket_numbers)
+        print(request_data)
         response_data = self.__request_wrapper("void_tickets", request_data,
-                                               'http://webservices.amadeus.com/TRCANQ_14_1_1A')
-        return response_data
+                                               'http://webservices.amadeus.com/TRCANQ_11_1_1A')
+        # return response_data
+        print("Testing void Ticket")
+        return VoidTicketExtractor(response_data).extract()
 
     def cancel_pnr(self, message_id: str, close_session: bool = False):
         """
@@ -328,5 +345,5 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.cancel_pnr(session_info, close_session)
         response_data = self.__request_wrapper("cancel_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRXCL_17_1_1A')
+        print(response_data)
         return CancelPnrExtractor(response_data).extract()
-        # return GetPnrResponseExtractor(response_data).extract()

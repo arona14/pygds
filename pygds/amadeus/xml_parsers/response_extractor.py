@@ -9,7 +9,7 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
-from pygds.core.types import CancelPnrReply
+from pygds.core.types import CancelPnrReply, VoidTicket
 
 
 class BaseResponseExtractor(object):
@@ -449,7 +449,7 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
         pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
         tst_datas = from_json_safe(payload, "tstList")
         tst_info = []
-        for tst_data in tst_datas:
+        for tst_data in ensure_list(tst_datas):
             tst_ref_data = from_json_safe(tst_data, "tstReference")
             tst_ref = None
             if from_json_safe(tst_ref_data, "referenceType") == "TST":
@@ -483,14 +483,28 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         return TicketReply(status, error_code, qualifier, source, encoding, description)
 
 
+class VoidTicketExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CancelDocumentReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CancelDocumentReply")
+        response_type = from_json_safe(payload, "transactionResults", "responseDetails", "responseType")
+        status_code = from_json_safe(payload, "transactionResults", "responseDetails", "statusCode")
+        ticket_number = from_json_safe(payload, "transactionResults", "ticketNumbers", "documentDetails", "number")
+        return VoidTicket(response_type, status_code, ticket_number)
+
+
 class CancelPnrExtractor(BaseResponseExtractor):
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        print(payload)
         pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
-        return CancelPnrReply(pnr)
+        company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
+        return CancelPnrReply(pnr, company_id)
 
 
 def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",

@@ -6,11 +6,11 @@ from pygds.core.request import RequestedSegment, LowFareSearchRequest
 from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary
 from pygds import log_handler
 from pygds.env_settings import get_setting
-# from pygds.core.helpers import reformat_date
+# from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import CreditCard
+from pygds.core.payment import CheckPayment, CreditCard
 from pygds.core.price import PriceRequest, Fare
 # from pygds.core.types import SellItinerary
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering
@@ -30,7 +30,7 @@ def test():
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "071119")
+        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "081119")
         segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
         low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(1), "", "", ["DL", "AF"], "", "", 1)
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
@@ -64,15 +64,12 @@ def test():
         if session_info.session_ended:
             log.error("Session is ended after creat pnr")
             return
-        log.debug("Result add passengers")
         log.debug(ressults_add_passengers)
         log.debug("Create pnr")
         response_data = client.create_pnr(message_id)
-
         client.end_session(message_id)
         log.debug(response_data.payload)
         pnr = response_data.payload["pnr_header"].controle_number
-        company_id = response_data.payload["pnr_header"].company_id
         log.debug("display pnr " + pnr if pnr is not None else "")
         res_reservation = client.get_reservation(pnr, None, False)
         res_reservation, message_id = res_reservation.payload, res_reservation.session_info.message_id
@@ -85,11 +82,11 @@ def test():
         for pax in res_reservation["passengers"]:
             pax_refs.append(pax.name_id)
         log.info("price pnr")
-
-        print("Add form of payment")
+        print("Testing FOP ***********")
         log.info("4. Add form of payment")
-        message_id = session_info.message_id
+        # message_id = session_info.message_id
         # fop = CheckPayment("CHEQUE", "MOO")
+        company_id = res_reservation["pnr_header"].company_id
         fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
         res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
         # session_info, res_fop = (res_fop.session_info, res_fop.payload)
@@ -107,24 +104,16 @@ def test():
         if session_info.session_ended is True:
             log.error("The session is ended when saving PNR")
             return
-
         price_request = PriceRequest(pax_refs, seg_refs)
         log.debug("result of price_request")
         log.debug(price_request)
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
-        client.end_session(message_id)
-        # mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
-        # mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
-        # r_date = reformat_date("10JUN78", "%d%m%y%H%M", "")
-
-        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 0, "S1", "Ndiaye", 2, "Ibrahima", "ADT", 1, "10JUN78")
-        # log.debug(mise_a_j)
-        log.debug("update passenger")
-        log.debug(res_updat_pas.payload)
         # client.end_session(message_id)
-
+        mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
+        mise_a_j = client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
+        log.debug(mise_a_j)
         log.debug(res_price.payload)
-        # log.debug("End ")
+        log.debug("End ")
         log.debug("End result price")
         chosen_price: Fare = res_price.payload[0]
         log.info(f"Chosen price: {chosen_price}")
@@ -132,23 +121,23 @@ def test():
         log.debug("result TST")
         session_info, res_tst = (res_tst.session_info, res_tst.payload)
         log.debug(res_tst)
-        # log.debug("Test queue_place_pnr ")
-        # rest_q_place = client.queue_place_pnr(message_id, pnr, [68, 25, 46])
-        # log.debug(rest_q_place)
+        log.debug("Test queue_place_pnr ")
 
-        # log.debug("Test issue_combined")
-        # res_issue_combined = client.issue_combined(message_id, pax_refs, seg_refs, False)
-        # log.debug(res_issue_combined)
-        # log.info(f"session from tst: {session_info}")
-        # log.info(f"response from tst: {res_tst}")
-        # log.debug(res_tst)
-        # rf = client.send_command("RFSaliou", message_id)
-        # log.debug(rf)
-        # res_issue = client.ticketing_pnr(message_id, "PAX", pax_refs[1])
+        log.info(f"session from tst: {session_info}")
+        log.info(f"response from tst: {res_tst}")
+        log.debug(res_tst)
+        rf = client.send_command("RFSaliou", message_id)
+        log.debug(rf)
+
+        log.debug("***** Testing ticket ******")
+        res_issue = client.ticketing_pnr(message_id, "ADT", pax_refs)
         # res_issue = client.issue_ticket_with_retrieve(message_id, [1])
-        # log.debug(res_issue)
-        # res_cancel = client.void_tickets(message_id, [1])
-        # log.debug(res_cancel)
+
+        session_info = res_issue.session_info
+        if session_info.session_ended is False:
+            client.end_session(message_id)
+        log.debug(res_issue)
+        # log.debug("")
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

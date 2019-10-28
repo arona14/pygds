@@ -24,11 +24,11 @@ def test():
     dir_path = os.path.join(dir_path, "..", "..", "..")
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
-    log = log_handler.get_logger("test_cancel")
-    pnr = "L6LMQP"  # "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
+    log = log_handler.get_logger("test_all")
+    pnr = "LCD4TN"  # "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
     # m_id = None
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
         message_id = None
