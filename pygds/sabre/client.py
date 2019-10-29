@@ -39,7 +39,6 @@ class SabreClient(BaseClient):
             'Authorization': "Bearer",
             'Content-Type': 'application/json; charset=utf-8'
         }
-        self.pcc = pcc
 
     def _rest_request_wrapper(self, request_data, url_path, token):
         """
@@ -125,6 +124,7 @@ class SabreClient(BaseClient):
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         gds_response.session_info = session_info
         if need_close:
+            message_id = gds_response.session_info.message_id
             self.close_session(message_id)
         return gds_response
 
@@ -484,7 +484,7 @@ class SabreClient(BaseClient):
             [GdsResponse] -- [revalidate itinerary response]
         """
 
-        revalidate_request = self.json_builder.revalidate_build(self.pcc, itineraries, passengers, fare_type)
+        revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
