@@ -22,37 +22,36 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
-    pnr = "LC87DQ"
+    pnr = "LTGPDG"
     try:
 
         message_id = None
-        res_reservation = client.get_reservation(pnr, None, False)
-        res_reservation, message_id = res_reservation.payload, res_reservation.session_info.message_id
-        log.debug(" result reservation ")
-        log.info(res_reservation)
-        traveller_infos = [TravellerInfo(1, "Aliou", "Dianko", "Thiam", "03121990", "ADT"),
-                           TravellerInfo(2, "Malick", "Serigne", "Ndiouck", "03121990", "ADT")]
+        log.info("1. Retrieve PNR")
+        res_reservation = client.get_reservation(pnr, message_id, False)
+        res_reservation, session_info = res_reservation.payload, res_reservation.session_info
+        # log.info(res_reservation)
+        # log.info(session_info)
+        if session_info.session_ended is True:
+            log.debug("Session is ended after retrieve PNR")
+            return
+        message_id = session_info.message_id
 
-        reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
+        log.info("2. Update passenger")
+        passengers = [p.name_id for p in res_reservation["passengers"]]
+        for pr in passengers:
+            log.info(f"begin  of Calling update Passenger Information for passenger {pr} **")
+            res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, pr, f"Diop {pr}", 1, f"MOUHAMAD {pr}", "ADT", 1, "10JUN78")
+            res_updat_pas, session_info = res_updat_pas.payload, res_updat_pas.session_info
+            # log.debug(res_updat_pas)
+            # log.debug(session_info)
+            if session_info.session_ended is True:
+                log.debug(f"Session closed after update passenger {pr}")
+                return
+            message_id = session_info.message_id
 
-        passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info)
-        passenger_info_response, session_info = (passenger_info_response.payload, passenger_info_response.session_info)
-        # if session_info.session_ended:
-
-        #     log.error("Session is ended after creat pnr")
-
-        #     return
-
-        log.info("End of Calling Add Passenger Information ****************************************")
-
-        log.info("begin  of Calling update Passenger Information ****************************************")
-        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 2, "Diop", 2, "MOUHAMAD", "ADT", 1, "10JUN78")
-        log.debug("update passenger")
-        log.debug(res_updat_pas.payload)
-
-        res_updat_pas1 = client.pnr_add_multi_for_pax_info_element(message_id, 1, "Ndiaye", 2, "Ibrahima", "ADT", 1, "10JUN78")
-        log.debug("update passenger")
-        log.debug(res_updat_pas1.payload)
+        if session_info.session_ended is False:
+            log.info("3. Close session")
+            client.end_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")
