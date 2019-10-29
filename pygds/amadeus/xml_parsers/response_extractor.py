@@ -9,7 +9,7 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
-from pygds.core.types import CancelPnrReply, VoidTicket
+from pygds.core.types import CancelPnrReply, VoidTicket, UpdatePassenger
 
 
 class BaseResponseExtractor(object):
@@ -505,6 +505,25 @@ class CancelPnrExtractor(BaseResponseExtractor):
         pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
         company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
         return CancelPnrReply(pnr, company_id)
+
+
+class UpdatePassengers(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "PNR_Reply")
+
+    def _extract(self):
+        info_passengers = []
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        for travel in ensure_list(from_json_safe(payload, "travellerInfo")):
+            status = from_json_safe(travel, "elementManagementPassenger", "status")
+            surname = from_json_safe(travel, "passengerData", "travellerInformation", "traveller", "surname")
+            first_name = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "firstName")
+            pax_type = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "type")
+            qualifier = from_json_safe(travel, "elementManagementPassenger", "reference", "qualifier")
+            number = from_json_safe(travel, "elementManagementPassenger", "reference", "number")
+            data = UpdatePassenger(surname, first_name, pax_type, status, qualifier, number)
+            info_passengers.append(data)
+        return info_passengers
 
 
 def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",

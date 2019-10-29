@@ -1113,3 +1113,24 @@ class VoidTicket(BasicDataObject):
             "status_code": self.status_code,
             "ticket_number": self.ticket_number
         }
+
+
+class UpdatePassenger(BasicDataObject):
+
+    def __init__(self, surname: str, first_name: str, pax_type: str, status: str, qualifier: str, number: int):
+        self.surname = surname
+        self.first_name = first_name
+        self.pax_type = pax_type
+        self.status = status
+        self.qualifier = qualifier
+        self.number = number
+
+    def to_data(self):
+        return {
+            "surname": self.surname,
+            "first_name": self.first_name,
+            "pax_type": self.pax_type,
+            "status": self.status,
+            "qualifier": self.qualifier,
+            "number": self.number
+        }

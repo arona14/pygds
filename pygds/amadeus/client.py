@@ -10,7 +10,7 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor, VoidTicketExtractor
+    IssueTicketResponseExtractor, CancelPnrExtractor, VoidTicketExtractor, UpdatePassengers
 from pygds.core.payment import FormOfPayment
 from .errors import ClientError, ServerError
 from .xmlbuilders.builder import AmadeusXMLBuilder
@@ -141,11 +141,10 @@ class AmadeusClient(BaseClient):
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
                                                                                    message_id, ref_number, surname, quantity, first_name, pax_type, inf_number, date_of_birth)
-        print(request_data)
         response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         # print(response_data)
-        return GetPnrResponseExtractor(response_data).extract()
+        return UpdatePassengers(response_data).extract()
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
@@ -330,11 +329,8 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
         request_data = self.xml_builder.void_tickets(session_info, ticket_numbers)
-        print(request_data)
         response_data = self.__request_wrapper("void_tickets", request_data,
                                                'http://webservices.amadeus.com/TRCANQ_11_1_1A')
-        # return response_data
-        print("Testing void Ticket")
         return VoidTicketExtractor(response_data).extract()
 
     def cancel_pnr(self, message_id: str, close_session: bool = False):

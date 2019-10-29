@@ -117,8 +117,8 @@ def test():
 
         message_id = session_info.message_id  # is the message_id to use for the all others actions
 
-        traveller_infos = [TravellerInfo(1, "Mouhamad", "Dianko", "Thiam", "03121990", "ADT"),
-                           TravellerInfo(2, "Saliou", "Serigne", "Ndiouck", "03121990", "ADT")]
+        traveller_infos = [TravellerInfo(4, "Mouhamad", "Dianko", "Thiam", "03121990", "ADT"),
+                           TravellerInfo(5, "Saliou", "Serigne", "Ndiouck", "03121990", "ADT")]
 
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
 
@@ -130,30 +130,33 @@ def test():
 
             return
 
-        log.info("End of Calling of Add Passenger Information ****************************************")
+        # log.info("End of Calling of Add Passenger Information ****************************************")
 
-        log.info("begin  of Calling of update Passenger Information ****************************************")
+        # log.info("begin  of Calling of update Passenger Information ****************************************")
 
-        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 2, "Diop", 2, "MOUHAMAD", "ADT", 1, "10JUN78")
-        log.debug("update passenger")
-        log.debug(res_updat_pas.payload)
+        # res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, 2, "Diop", 2, "MOUHAMAD", "ADT", 1, "10JUN78")
+        # log.debug("update passenger")
+        # log.debug(res_updat_pas.payload)
 
-        # log.info("Begin Call of Pricing Segment for some passenger ***********************************")
-        # company_id = passenger_info_response["pnr_header"].company_id
+        log.info("Begin Call of Pricing Segment for some passenger ***********************************")
+        company_id = passenger_info_response["pnr_header"].company_id
 
-        # seg_refs = []
-        # pax_refs = []
-        # for seg in passenger_info_response["itineraries"]:
-        #     seg_refs.append(seg.sequence)
-        # for pax in passenger_info_response["passengers"]:
-        #     pax_refs.append(pax.name_id)
+        seg_refs = []
+        pax_refs = []
+        for seg in passenger_info_response["itineraries"]:
+            seg_refs.append(seg.sequence)
+        for pax in passenger_info_response["passengers"]:
+            pax_refs.append(pax.name_id)
 
-        # price_request = PriceRequest(pax_refs, seg_refs)
-        # res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
-        # session_info, res_price = (res_price.session_info, res_price.payload)
+        price_request = PriceRequest(pax_refs, seg_refs)
+        res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
+        session_info, res_price = (res_price.session_info, res_price.payload)
 
-        # log.info("End of Callinf of Price PNR *******************************************************")
+        log.info("End of Callinf of Price PNR *******************************************************")
 
+        log.info("Begin create pnr")
+        pnr = client.create_pnr(message_id)
+        log.info(pnr.payload)
         # log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
 
         # client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
