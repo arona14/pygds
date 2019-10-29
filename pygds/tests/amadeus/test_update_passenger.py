@@ -37,11 +37,10 @@ def test():
 
         passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info)
         passenger_info_response, session_info = (passenger_info_response.payload, passenger_info_response.session_info)
-        # if session_info.session_ended:
+        if session_info.session_ended:
+            log.error("Session is ended after creat pnr")
 
-        #     log.error("Session is ended after creat pnr")
-
-        #     return
+            return
 
         log.info("End of Calling Add Passenger Information ****************************************")
 
