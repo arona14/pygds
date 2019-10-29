@@ -488,11 +488,11 @@ class SabreClient(BaseClient):
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
-            token = self.new_rest_token()
+            token = self.new_rest_token().security_token
         session_info = SessionInfo(token, None, None, message_id, False)
         self.add_session(session_info)
 
-        revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token.security_token)
+        revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
         gds_response.session_info = session_info
         return gds_response
