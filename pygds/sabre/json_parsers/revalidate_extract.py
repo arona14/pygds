@@ -1,15 +1,13 @@
 import json
 import logging
 
-import fnc
 from pygds.core.sessions import SessionInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe
-from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
 
 
-class BaseResponseRestExtractor(object):
+class BaseResponseRevalidateExtractor(object):
     """
         This is a base class for all response extractor. A helpful class to extract useful info from an Json.
     """
@@ -40,7 +38,7 @@ class BaseResponseRestExtractor(object):
         :return: GdsResponse
         """
         if self.parse_app_error and self.app_error is None:
-            self.app_error = AppErrorRestExtractor(self.json_content, self.main_tag).extract().application_error
+            self.app_error = AppErrorRevalidateExtractor(self.json_content, self.main_tag).extract().application_error
         return GdsResponse(None, self.default_value() if self.app_error else self._extract(), self.app_error)
 
     def _extract(self):
@@ -50,7 +48,7 @@ class BaseResponseRestExtractor(object):
         raise NotImplementedError("Sub class must implement '_extract' method")
 
 
-class AppErrorRestExtractor(BaseResponseRestExtractor):
+class AppErrorRevalidateExtractor(BaseResponseRevalidateExtractor):
     """
     Extract application error from response
     """
@@ -65,36 +63,58 @@ class AppErrorRestExtractor(BaseResponseRestExtractor):
 
     def _extract(self):
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
-        payload = from_json(self.json_content, self.main_tag)
-        app_error_data = from_json_safe(payload, "ApplicationResults", "Error")
+        payload = from_json(self.json_content)
+        app_error_data = from_json_safe(payload, "errorCode")
         if not app_error_data:
             return None
 
-        # description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
-        return ApplicationError(None, None, None, app_error_data)
+        message_error = from_json_safe(payload, "message")
+        return ApplicationError(None, None, None, message_error)
 
 
-class CreatePnrExtractor(BaseResponseRestExtractor):
+class RevalidateItinerarieInfoBasic:
+    def __str__(self):
+        return str(self.to_dict())
 
+    def to_dict(self):
+        raise NotImplementedError("Not implemented")
+
+    def __repr__(self):
+        return str(self.to_dict())
+
+
+class RevalidateItinerarieInfo(RevalidateItinerarieInfoBasic):
+
+    def __init__(self):
+        self.status: str = None  # status response
+        self.brand_feature: dict = None  # brand_feature response
+        self.priced_itinerarie: dict = None  # priced_itinerarie response
+        self.tpa_extension: dict = None  # tpa_extension response
+
+    def to_dict(self):
+        return {
+            "Status": self.status,
+            "BrandFeatures": self.brand_feature,
+            "PricedItineraries": self.priced_itinerarie,
+            "TPA_Extensions": self.tpa_extension
+        }
+
+
+class RevalidateItineraryExtractor(BaseResponseRevalidateExtractor):
+    """
+    This class retrieves information for revalidate itinerary
+    """
     def __init__(self, json_content):
-        super().__init__(json_content, main_tag="CreatePassengerNameRecordRS")
+        super().__init__(json_content, main_tag="OTA_AirLowFareSearchRS")
 
     def _extract(self):
-
-        create_pnr_info = CreatePnrInfo()
+        revalidate_itinerarie = RevalidateItinerarieInfo()
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
-        payload = from_json(self.json_content, "CreatePassengerNameRecordRS")
+        payload = from_json_safe(self.json_content, "OTA_AirLowFareSearchRS")
 
-        status = fnc.get('ApplicationResults.status', payload, default="")
-        air_book = fnc.get('AirBook', payload, default={})
-        air_price = fnc.get('AirPrice', payload, default={})
-        travel_itinerary_read = fnc.get('TravelItineraryRead', payload, default={})
-        itinerary_ref = fnc.get('ItineraryRef.ID', payload, default={})
+        revalidate_itinerarie.status = from_json_safe(payload, "Success")
+        revalidate_itinerarie.brand_feature = from_json_safe(payload, "BrandFeatures")
+        revalidate_itinerarie.priced_itinerarie = from_json_safe(payload, "PricedItineraries")
+        revalidate_itinerarie.tpa_extension = from_json_safe(payload, "TPA_Extensions")
 
-        create_pnr_info.status = status
-        create_pnr_info.itinerary_ref = itinerary_ref
-        create_pnr_info.air_book = air_book
-        create_pnr_info.air_price = air_price
-        create_pnr_info.travel_itinerary_read = travel_itinerary_read
-
-        return create_pnr_info
+        return revalidate_itinerarie
