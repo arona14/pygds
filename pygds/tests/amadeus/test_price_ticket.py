@@ -5,13 +5,10 @@
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-# from pygds.core.payment import FormOfPayment, CreditCard
-from pygds.core.payment import CheckPayment, CreditCard
-from pygds.core.price import PriceRequest  # , Fare
-# from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
+from pygds.core.payment import CreditCard
+from pygds.core.price import PriceRequest
 from pygds.env_settings import get_setting
 from pygds import log_handler
-from pygds.core.types import TravellerInfo, ReservationInfo
 
 
 def test():

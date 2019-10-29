@@ -10,7 +10,7 @@ from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import CheckPayment, CreditCard
+from pygds.core.payment import CreditCard
 from pygds.core.price import PriceRequest, Fare
 # from pygds.core.types import SellItinerary
 # from pygds.core.types import SellItinerary, TravellerInfo, TravellerNumbering

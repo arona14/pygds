@@ -727,8 +727,8 @@ class AmadeusXMLBuilder:
        </soapenv:Body>
     </soapenv:Envelope> """
 
-    def pnr_add_multi_element_for_pax_info_builder(self, session_id, sequence_number, security_token, message_id, option_code,
-                                                   segment_name, family_name, quantity, f_name, pax_type, inf_number, d_of_birth):
+    def pnr_add_multi_element_for_pax_info_builder(self, session_id, sequence_number, security_token, message_id, ref_number,
+                                                   surname, quantity, first_name, pax_type, inf_number, date_of_birth):
 
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -741,30 +741,35 @@ class AmadeusXMLBuilder:
                 {self.generate_header("PNRADD_17_1_1A", message_id, session_id, sequence_number, security_token)}
                 <soapenv:Body>
                     <PNR_AddMultiElements>
-                    <pnrActions>
-                        <optionCode>{option_code}</optionCode>
-                    </pnrActions>
-                    <travellerInfo>
-                        <elementManagementPassenger>
-                            <reference>
-                                <qualifier>PR</qualifier>
-                                <number>1</number>
-                            </reference>
-                            <segmentName>{segment_name}</segmentName>
-                        </elementManagementPassenger>
-                        <passengerData>
-                            <travellerInformation>
-                                <traveller>
-                                    <surname>{family_name}</surname>
-                                    <quantity>{quantity}</quantity>
-                                </traveller>
-                                <passenger>
-                                    <firstName>{f_name}</firstName>
-                                    <type>{pax_type}</type>
-                                    <infantIndicator>{inf_number}</infantIndicator>
-                                </passenger>
-                            </travellerInformation>
-                        </passengerData>
+                        <pnrActions>
+                            <optionCode>0</optionCode>
+                        </pnrActions>
+                        <travellerInfo>
+                            <elementManagementPassenger>
+                                <reference>
+                                    <qualifier>PT</qualifier>
+                                    <number>{ref_number}</number>
+                                </reference>
+                                <segmentName>NM</segmentName>
+                            </elementManagementPassenger>
+                            <passengerData>
+                                <travellerInformation>
+                                    <traveller>
+                                        <surname>{surname}</surname>
+                                        <quantity>{quantity}</quantity>
+                                    </traveller>
+                                    <passenger>
+                                        <firstName>{first_name}</firstName>
+                                        <type>{pax_type}</type>
+                                        <infantIndicator>{inf_number}</infantIndicator>
+                                    </passenger>
+                                </travellerInformation>
+                                <dateOfBirth>
+                                    <dateAndTimeDetails>
+                                        <date>{date_of_birth}</date>
+                                    </dateAndTimeDetails>
+                                </dateOfBirth>
+                            </passengerData>
                         </travellerInfo>
                     </PNR_AddMultiElements>
                 </soapenv:Body>
