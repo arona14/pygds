@@ -288,7 +288,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         display_pnr = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "stl18:GetReservationRS")
         display_pnr = str(display_pnr).replace("@", "")
         display_pnr = eval(display_pnr.replace("u'", "'"))
-        passengers_reservation = from_json(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
+        passengers_reservation = from_json_safe(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
         return {
             'passengers': self._passengers(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'itineraries': self._itineraries(from_json_safe(passengers_reservation, "stl18:Segments")),
@@ -296,7 +296,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'remarks': self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark")),
-            'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber")
+            'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
+            'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
         }
 
     def fare_type_price_quote(self, passenger_type):
@@ -370,7 +371,6 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 segment = FlightSegment(index, res_book_desig_code, departure_date_time, departure_airport, arrival_date_time, arrival_airport, airline_ref_id, marketing, operating, disclosure_carrier, mariage_grp, seats, action_code, segment_special_requests, schedule_change_indicator, segment_booked_date, air_miles_flown, funnel_flight, change_of_gauge, flight_number, class_of_service, elapsed_time, equipment_type, eticket, number_in_party, code)
                 if in_bound_connection == "false":  # begining of an itinerary
                     current_itinerary = Itinerary()
-                    index = 0
                 current_itinerary.addSegment(segment)
                 if out_bound_connection == "false":  # end of an itinerary
                     list_itineraries.append(current_itinerary)
@@ -388,15 +388,15 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 base_fare_value = from_json_safe(price, "FareInfo", "EquivalentFare", "#text")
                 base_fare_cc = from_json_safe(price, "FareInfo", "EquivalentFare", "currencyCode")
             else:
-                base_fare_value = from_json_safe(price, "FareInfo", "BaseFare", "#text")
+                base_fare_value = float(from_json_safe(price, "FareInfo", "BaseFare", "#text"))
                 base_fare_cc = from_json_safe(price, "FareInfo", "BaseFare", "currencyCode")
             base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
 
-            total_fare_value = from_json_safe(price, "FareInfo", "TotalFare", "#text")
+            total_fare_value = float(from_json_safe(price, "FareInfo", "TotalFare", "#text"))
             total_fare_cc = from_json_safe(price, "FareInfo", "TotalFare", "currencyCode")
             total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
 
-            tax_fare_value = from_json_safe(price, "FareInfo", "TotalTax", "#text")
+            tax_fare_value = float(from_json_safe(price, "FareInfo", "TotalTax", "#text"))
             tax_fare_cc = from_json_safe(price, "FareInfo", "TotalTax", "currencyCode")
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
             validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
@@ -408,7 +408,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
                     list_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(pq_number, status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers)
+            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers)
             list_price_quote.append(price_quote_data)
 
         return list_price_quote
