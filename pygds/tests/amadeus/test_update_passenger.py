@@ -22,7 +22,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
-    pnr = "LTGPDG"
+    pnr = "MHYHWH"  # "LTGPDG"
     try:
 
         message_id = None
@@ -40,7 +40,7 @@ def test():
         passengers = [p.name_id for p in res_reservation["passengers"]]
         for pr in passengers:
             log.info(f"begin  of Calling update Passenger Information for passenger {pr} **")
-            res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, pr, f"Diop {pr}", 1, f"MOUHAMAD {pr}", "ADT", 1, "10JUN78")
+            res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, pr, f"Diop {pr}", 1, f"MOUHAMAD {pr}", "ADT", 1, "03121990")
             res_updat_pas, session_info = res_updat_pas.payload, res_updat_pas.session_info
             log.debug(res_updat_pas)
             # log.debug(session_info)

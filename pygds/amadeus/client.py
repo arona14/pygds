@@ -139,6 +139,8 @@ class AmadeusClient(BaseClient):
             This method modifies the elements of a PNR (passengers, etc.)
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
                                                                                    message_id, ref_number, surname, quantity, first_name, pax_type, inf_number, date_of_birth)
         response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
@@ -151,10 +153,13 @@ class AmadeusClient(BaseClient):
             PNR ticketing process.
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
         request_data = self.xml_builder.ticket_pnr_builder(message_id, session_id, sequence_number, security_token,
                                                            passenger_reference_type, passenger_reference_value)
         response_data = self.__request_wrapper("ticketing_pnr", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
+        print(response_data)
         final_result = IssueTicketResponseExtractor(response_data).extract()
         self.add_session(final_result.session_info)
         return final_result
