@@ -677,9 +677,8 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
     """
 
-    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code,
-                                      segment_name):
-        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code, segment_name):
+        # security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         # <nameInformation>
         #     <qualifier>RF</qualifier>
         #     <name>KOKOU</name>

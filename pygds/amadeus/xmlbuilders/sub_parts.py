@@ -74,7 +74,6 @@ def mptbs_currency_conversion(currency: str):
 
 
 def mptbs_pricing_types_com(types: str = None, identify: str = ""):
-
     return f"""
     <corporate>
         <corporateId>
@@ -404,7 +403,7 @@ def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type)
 
 
 def ppwbc_passenger_segment_selection(price_request: PriceRequest):
-    if not price_request or not(price_request.segments or price_request.passengers):
+    if not price_request or not (price_request.segments or price_request.passengers):
         return ""
     pax_refs = []
     seg_refs = []

@@ -10,7 +10,7 @@ from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import CreditCard, ChashPayment
+from pygds.core.payment import ChashPayment
 from pygds.core.price import PriceRequest
 
 queue_number = "1"
@@ -39,7 +39,7 @@ def test():
     try:
 
         log.info("Begin call of Low Fare Search *************************************")
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "071119")
+        origine, destination, date_dep, date_arr = ("DSS", "CDG", "051119", "071119")
 
         segments = [
             RequestedSegment(
@@ -63,7 +63,6 @@ def test():
             1)
 
         log.info(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-
         currency_code, c_qualifier = ("EUR", "RC")
         search_results = client.fare_master_pricer_travel_board_search(
             low_fare_search, currency_code, c_qualifier
@@ -88,7 +87,6 @@ def test():
         itinerary = Itinerary()
 
         for flight_segment in itineraries:
-
             segment = flight_segment[0]
 
             _segment = SellItinerary(
@@ -132,13 +130,9 @@ def test():
         log.info(result_sell)
 
         if session_info.session_ended:
-
             log.error("Session is ended after sell from recommendation")
-
             return
-
         log.info("End of Sell From Recommandation ******************************************************")
-
         log.info("Begin Call of Add Passenger Info ****************************************************")
 
         # message_id = session_info.message_id  # is the message_id to use for the all others actions
@@ -154,7 +148,6 @@ def test():
         log.info(passenger_info_response)
 
         if session_info.session_ended:
-
             log.error("Session is ended after creat pnr")
 
             return
