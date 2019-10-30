@@ -425,28 +425,23 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 list_remarks.append(remark_objet)
         return list_remarks
 
-    def _forms_of_payment(self, forms_payment, remark):
-        list_forms_payment = []
+    def list_fop(self, remark):
         fop_remark = self.get_fop_remarks(remark)
-        if forms_payment is None:
-            return []
+        fop_list = []
+        if len(fop_remark) > 0:
+            for rm in fop_remark:
+                sort_tex = rm.remark_text
+                card_type = sort_tex[1:3]
+                extract_number_card = re.compile('card_type([0-9]+)')
+                extract_expirate_date = re.compile('card_type([0-9/]+)')
+                card_number = extract_number_card.findall(sort_tex)
+                expirate_date = extract_expirate_date.findall(sort_tex)
+                fop_list.append(card_type, card_number, expirate_date)
+            return fop_list
 
-        for i in ensure_list(forms_payment):
-            if len(fop_remark) > 0:
-                for rm in fop_remark:
-                    sort_tex = rm.remark_text
-                    extract_card_type = re.compile
-                    card_type =
-                    extract_number_card = re.compile('AX([0-9]+)')
-                    extract_expirate_date = re.compile('¥([0-9/]+)')
-                    card_number = extract_number_card.findall(sort_tex)
-                    expirate_date = extract_expirate_date.findall(sort_tex)
-
-            if 'stl18:CreditCardPayment' in i and 'ShortText' in i["stl18:CreditCardPayment"]:
-                form_of_payment = FormOfPayment("", from_json_safe(i, "stl18:CreditCardPayment", "ShortText"), "", "", "")
-                if form_of_payment:
-                    list_forms_payment.append(form_of_payment)
-        return list_forms_payment
+    def _forms_of_payment(self, remark):
+        fop_result = self.list_fop(remark)
+        return fop_result
 
     def _ticketing(self, passengers):
         list_ticket = []
