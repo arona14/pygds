@@ -58,7 +58,6 @@ def test():
         if len(res_price) == 0:
             log.error("No price found")
             return
-
     log.info("3. Creating TST")
     tst = res_price[0].fare_reference
     message_id = session_info.message_id

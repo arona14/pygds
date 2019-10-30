@@ -1,4 +1,7 @@
 # coding: utf-8
+from .xmlbuilders.builder import AmadeusXMLBuilder
+from .errors import ClientError, ServerError
+from pygds.core.payment import FormOfPayment, CreditCard, CheckPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
@@ -10,12 +13,8 @@ from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
-    IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor
-from pygds.core.payment import FormOfPayment, CreditCard, CheckPayment
-    IssueTicketResponseExtractor, CancelPnrExtractor, VoidTicketExtractor, UpdatePassengers
-from pygds.core.payment import FormOfPayment
-from .errors import ClientError, ServerError
-from .xmlbuilders.builder import AmadeusXMLBuilder
+    IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
+    VoidTicketExtractor, UpdatePassengers
 
 
 class AmadeusClient(BaseClient):
