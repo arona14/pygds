@@ -2,6 +2,7 @@ class FormOfPayment:
     """
     A polymorphic class to hold a form of payment
     """
+
     def __init__(self, p_code, p_type, company_code):
         self.p_code = p_code
         self.p_type = p_type
@@ -15,6 +16,7 @@ class CreditCard(FormOfPayment):
     """
     A credit card as form of payment
     """
+
     def __init__(self, company_code, vendor_code, card_number, security_id, approval_code, expiry_date):
         super().__init__("CCVI", "CC", company_code)
         self.vendor_code = vendor_code
@@ -39,4 +41,4 @@ class CqCheckPayment(FormOfPayment):
 
 class ChashPayment(FormOfPayment):
     def __init__(self, p_code: str = None, company_code: str = None):
-        FormOfPayment.__init__(self, p_code, "CA", company_code)
+        super().__init__(p_code, "CA", company_code)

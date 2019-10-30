@@ -10,7 +10,7 @@ from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import CreditCard
+from pygds.core.payment import CreditCard, ChashPayment
 from pygds.core.price import PriceRequest
 
 queue_number = "1"
@@ -33,7 +33,7 @@ def test():
     log = log_handler.get_logger("test_all")
 
     log.info("Begin calling Client API *********************************************")
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
     log.info("End of call Client API ***********************************************")
 
     try:
@@ -53,7 +53,7 @@ def test():
             segments,
             "Y",
             "",
-            TravellerNumbering(1),
+            TravellerNumbering(2),
             "",
             "",
             ["DL",
@@ -74,6 +74,9 @@ def test():
         if session_info.session_ended:
             log.error("Session is ended after search")
             return
+
+        message_id = session_info.message_id
+
         log.info("End of Low Fare Search ********************************************************************************")
 
         log.info("Begin call of sell from recommandation *************************************************************")
@@ -115,14 +118,14 @@ def test():
             itinerary
         ]
 
-        result_informative_pricing = client.fare_informative_price_without_pnr(TravellerNumbering(1), itineraries)
+        result_informative_pricing = client.fare_informative_price_without_pnr(message_id, TravellerNumbering(2), itineraries)
 
         log.info(result_informative_pricing)
 
         log.info("End of informative pricing without pnr")
 
         result_sell = client.sell_from_recommandation(
-            list_segments
+            message_id, list_segments
         )
 
         result_sell, session_info = (result_sell.payload, result_sell.session_info)
@@ -138,10 +141,10 @@ def test():
 
         log.info("Begin Call of Add Passenger Info ****************************************************")
 
-        message_id = session_info.message_id  # is the message_id to use for the all others actions
+        # message_id = session_info.message_id  # is the message_id to use for the all others actions
 
-        traveller_infos = [TravellerInfo(1, "Mouhamad", "Dianko", "Thiam", "03121990", "ADT"),
-                           TravellerInfo(2, "Saliou", "Serigne", "Ndiouck", "03121990", "ADT")]
+        traveller_infos = [TravellerInfo(1, "Amadou", "Diallo", "Diallo", "03121983", "ADT"),
+                           TravellerInfo(2, "Khouna", "Khouna", "Fall", "03121976", "ADT")]
 
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
 
@@ -157,6 +160,13 @@ def test():
             return
 
         log.info("End of Calling of Add Passenger Information ****************************************")
+
+        log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
+
+        # client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
+        # client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
+
+        log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
 
         log.info("Begin Call of Pricing Segment for some passenger ***********************************")
 
@@ -182,13 +192,6 @@ def test():
 
         log.info("End of Calling of Price PNR *******************************************************")
 
-        log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
-
-        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
-        client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
-
-        log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
-
         log.info("Begin Creating TST ********************************************************************")
 
         tst = res_price[0].fare_reference
@@ -208,7 +211,8 @@ def test():
 
         message_id = session_info.message_id
         # fop = CheckPayment("CHEQUE", "MOO")
-        fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
+        # fop = CreditCard(company_id, "VI", "4400009999990004", "999", "", "0838")
+        fop = ChashPayment(p_code="CCVI", company_code=company_id)
         res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
         log.info(res_fop)
 

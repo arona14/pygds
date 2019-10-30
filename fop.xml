@@ -8,33 +8,23 @@ b'<?xml version="1.0" encoding="UTF-8"?>
             <wsa:Address>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</wsa:Address>
         </wsa:From>
         <wsa:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</wsa:Action>
-        <wsa:MessageID>urn:uuid:144ec883-36aa-ab04-3109-8ece320552b8</wsa:MessageID>
-        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">45234ddc-bee9-4cc6-b1dd-84bc341be5ae</wsa:RelatesTo>
+        <wsa:MessageID>urn:uuid:a36c06c8-901e-1034-2d85-ce0942885eec</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">965a5593-da0f-4e5b-a2a2-38e6f239e1c3</wsa:RelatesTo>
         <awsse:Session TransactionStatusCode="InSeries">
-            <awsse:SessionId>01G48BPWL6</awsse:SessionId>
-            <awsse:SequenceNumber>3</awsse:SequenceNumber>
-            <awsse:SecurityToken>BJU04HV0E8VRIMMHAH5RA7OE</awsse:SecurityToken>
+            <awsse:SessionId>01H29LWZEP</awsse:SessionId>
+            <awsse:SequenceNumber>7</awsse:SequenceNumber>
+            <awsse:SecurityToken>3F9RTKNPGJMAV3J8CYX191LMP0</awsse:SecurityToken>
         </awsse:Session>
     </soapenv:Header>
     <soapenv:Body>
         <FOP_CreateFormOfPaymentReply xmlns="http://xml.amadeus.com/TFOPCR_15_4_1A">
-            <transmissionError>
-                <errorOrWarningCodeDetails>
-                    <errorDetails>
-                        <errorCode>25779</errorCode>
-                    </errorDetails>
-                </errorOrWarningCodeDetails>
-                <errorWarningDescription>
-                    <freeTextDetails>
-                        <textSubjectQualifier>3</textSubjectQualifier>
-                        <source>M</source>
-                        <encoding>1</encoding>
-                    </freeTextDetails>
-                    <freeText>ERROR(S) DETECTED AT CREATION TIME</freeText>
-                </errorWarningDescription>
-            </transmissionError>
             <fopDescription>
-                <fopReference></fopReference>
+                <fopReference>
+                    <reference>
+                        <qualifier>FPT</qualifier>
+                        <number>13</number>
+                    </reference>
+                </fopReference>
                 <passengerAssociation>
                     <passengerReference>
                         <type>PAX</type>
@@ -53,21 +43,12 @@ b'<?xml version="1.0" encoding="UTF-8"?>
                         <value>1</value>
                     </referenceDetails>
                 </pnrElementAssociation>
-                <fpElementError>
-                    <errorOrWarningCodeDetails>
-                        <errorDetails>
-                            <errorCode>3323</errorCode>
-                        </errorDetails>
-                    </errorOrWarningCodeDetails>
-                    <errorWarningDescription>
-                        <freeTextDetails>
-                            <textSubjectQualifier>3</textSubjectQualifier>
-                            <source>M</source>
-                            <encoding>1</encoding>
-                        </freeTextDetails>
-                        <freeText>NEED TST FOR SPECIFIED SEGMENTS</freeText>
-                    </errorWarningDescription>
-                </fpElementError>
+                <pnrElementAssociation>
+                    <referenceDetails>
+                        <type>TST</type>
+                        <value>1</value>
+                    </referenceDetails>
+                </pnrElementAssociation>
                 <mopDescription>
                     <fopSequenceNumber>
                         <sequenceDetails>
@@ -105,6 +86,35 @@ b'<?xml version="1.0" encoding="UTF-8"?>
                                 </criteriaDetails>
                             </dataAndSwitchMap>
                         </pnrSupplementaryData>
+                        <pnrSupplementaryData>
+                            <dataAndSwitchMap>
+                                <criteriaSetType>D</criteriaSetType>
+                                <criteriaDetails>
+                                    <attributeType>CCNUM</attributeType>
+                                    <attributeDescription>XXXXXXXXXXXX0004</attributeDescription>
+                                </criteriaDetails>
+                                <criteriaDetails>
+                                    <attributeType>CUR</attributeType>
+                                    <attributeDescription>USD</attributeDescription>
+                                </criteriaDetails>
+                                <criteriaDetails>
+                                    <attributeType>_cvvKey</attributeType>
+                                    <attributeDescription>*CV</attributeDescription>
+                                </criteriaDetails>
+                                <criteriaDetails>
+                                    <attributeType>CCDTE1</attributeType>
+                                    <attributeDescription>0838</attributeDescription>
+                                </criteriaDetails>
+                                <criteriaDetails>
+                                    <attributeType>FOPCODE</attributeType>
+                                    <attributeDescription>CCVI</attributeDescription>
+                                </criteriaDetails>
+                                <criteriaDetails>
+                                    <attributeType>VENDORCODE</attributeType>
+                                    <attributeDescription>VI</attributeDescription>
+                                </criteriaDetails>
+                            </dataAndSwitchMap>
+                        </pnrSupplementaryData>
                     </mopDetails>
                     <paymentModule>
                         <groupUsage>
@@ -132,6 +142,12 @@ b'<?xml version="1.0" encoding="UTF-8"?>
                                         <expiryDate>0838</expiryDate>
                                     </ccInfo>
                                 </creditCardDetails>
+                                <fortknoxIds>
+                                    <referenceDetails>
+                                        <type>NOX</type>
+                                        <value>101652382191764</value>
+                                    </referenceDetails>
+                                </fortknoxIds>
                             </creditCardData>
                         </mopInformation>
                         <dummy></dummy>
