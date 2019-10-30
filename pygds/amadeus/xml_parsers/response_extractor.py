@@ -9,8 +9,12 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
+<<<<<<< HEAD
 from pygds.core.types import CancelPnrReply
 from pygds.core.form_of_payment import FormOfPayment
+=======
+from pygds.core.types import CancelPnrReply, VoidTicket, UpdatePassenger
+>>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
 
 
 class BaseResponseExtractor(object):
@@ -484,14 +488,47 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         return TicketReply(status, error_code, qualifier, source, encoding, description)
 
 
+class VoidTicketExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CancelDocumentReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CancelDocumentReply")
+        response_type = from_json_safe(payload, "transactionResults", "responseDetails", "responseType")
+        status_code = from_json_safe(payload, "transactionResults", "responseDetails", "statusCode")
+        ticket_number = from_json_safe(payload, "transactionResults", "ticketNumbers", "documentDetails", "number")
+        return VoidTicket(response_type, status_code, ticket_number)
+
+
 class CancelPnrExtractor(BaseResponseExtractor):
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        print(payload)
         pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
-        return CancelPnrReply(pnr)
+        company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
+        return CancelPnrReply(pnr, company_id)
+
+
+class UpdatePassengers(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "PNR_Reply")
+
+    def _extract(self):
+        info_passengers = []
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        for travel in ensure_list(from_json_safe(payload, "travellerInfo")):
+            status = from_json_safe(travel, "elementManagementPassenger", "status")
+            surname = from_json_safe(travel, "passengerData", "travellerInformation", "traveller", "surname")
+            first_name = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "firstName")
+            pax_type = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "type")
+            qualifier = from_json_safe(travel, "elementManagementPassenger", "reference", "qualifier")
+            number = from_json_safe(travel, "elementManagementPassenger", "reference", "number")
+            data = UpdatePassenger(surname, first_name, pax_type, status, qualifier, number)
+            info_passengers.append(data)
+        return info_passengers
 
 
 def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",

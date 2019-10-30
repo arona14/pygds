@@ -4,16 +4,11 @@
 
 import os
 from pygds.amadeus.client import AmadeusClient
-# from pygds.amadeus.errors import ClientError, ServerError
-# from pygds.core.payment import FormOfPayment, CreditCard
+from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.payment import CreditCard
-from pygds.core.price import PriceRequest  # , Fare
-# from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
+from pygds.core.price import PriceRequest
 from pygds.env_settings import get_setting
 from pygds import log_handler
-
-
-# from pygds.core.types import TravellerInfo, ReservationInfo
 
 
 def test():
@@ -33,33 +28,36 @@ def test():
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
     # import web_pdb; web_pdb.set_trace()
-    # try:
-    message_id = None
-    log.info("1. Getting Reservation")
-    res_reservation = client.get_reservation(pnr, message_id, False)
-    session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-    log.info(session_info)
-    log.info(res_reservation)
-    if session_info.session_ended is True:
-        log.error("The session is ended when retrieving PNR")
-        return
+    try:
+        message_id = None
+        log.info("1. Getting Reservation****************************")
+        res_reservation = client.get_reservation(pnr, message_id, False)
+        session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        log.info(session_info)
+        log.info(res_reservation)
+        if session_info.session_ended is True:
+            log.error("The session is ended when retrieving PNR*********************")
+            return
 
-    company_id = res_reservation["pnr_header"].company_id
-    log.info("2. Pricing PNR")
-    message_id = session_info.message_id
-    passengers = [p.name_id for p in res_reservation["passengers"]]
-    segments = [s.segment_reference for s in res_reservation["itineraries"]]
-    price_request = PriceRequest(passengers, segments, "PUB")
-    res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
-    session_info, res_price = (res_price.session_info, res_price.payload)
-    log.info(session_info)
-    log.info(res_price)
-    if session_info.session_ended is True:
-        log.error("The session is ended when pricing PNR")
-        return
-    if len(res_price) == 0:
-        log.error("No price found")
-        return
+        company_id = res_reservation["pnr_header"].company_id
+        log.info("2. Pricing PNR ***********************************")
+        message_id = session_info.message_id
+        passengers = [p.name_id for p in res_reservation["passengers"]]
+        print(passengers)
+        segments = [s.segment_reference for s in res_reservation["itineraries"]]
+        print("****** Values passengers and segments")
+        print(passengers, segments)
+        price_request = PriceRequest(passengers, segments, "PUB")
+        res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
+        session_info, res_price = (res_price.session_info, res_price.payload)
+        log.info(session_info)
+        log.info(res_price)
+        if session_info.session_ended is True:
+            log.error("The session is ended when pricing PNR")
+            return
+        if len(res_price) == 0:
+            log.error("No price found")
+            return
 
     log.info("3. Creating TST")
     tst = res_price[0].fare_reference

@@ -675,9 +675,6 @@ class SellItinerary(BasicDataObject):
 
 
 class TravellerInfo(BasicDataObject):
-    def to_data(self):
-        pass
-
     def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
         self.ref_number = ref_number
         self.first_name = first_name
@@ -685,6 +682,16 @@ class TravellerInfo(BasicDataObject):
         self.last_name = last_name
         self.date_of_birth = date_of_birth
         self.pax_type = pax_type
+
+        def to_data(self):
+            return {
+                "ref_number": self.ref_number,
+                "first_name": self.first_name,
+                "surname": self.surname,
+                "last_name": self.last_name,
+                "date_of_birth": self.date_of_birth,
+                "pax_type": self.pax_type
+            }
 
 
 class TravellerNumbering(BasicDataObject):
@@ -1095,11 +1102,48 @@ class FlightSeatMap:
 
 
 class CancelPnrReply(BasicDataObject):
-    def __init__(self, pnr: str):
+    def __init__(self, pnr: str, company_id: str = None):
         self.pnr = pnr
+        self.company_id = company_id
 
     def to_data(self):
         return {
             "pnr": self.pnr,
-            "cancelled": self.pnr is not None
+            "cancelled": self.pnr is not None,
+            "company_id": self.company_id
+        }
+
+
+class VoidTicket(BasicDataObject):
+    def __init__(self, response_type: str, status_code: str = None, ticket_number: str = None):
+        self.response_type = response_type
+        self.status_code = status_code
+        self.ticket_number = ticket_number
+
+    def to_data(self):
+        return {
+            "response_type": self.response_type,
+            "status_code": self.status_code,
+            "ticket_number": self.ticket_number
+        }
+
+
+class UpdatePassenger(BasicDataObject):
+
+    def __init__(self, surname: str, first_name: str, pax_type: str, status: str, qualifier: str, number: int):
+        self.surname = surname
+        self.first_name = first_name
+        self.pax_type = pax_type
+        self.status = status
+        self.qualifier = qualifier
+        self.number = number
+
+    def to_data(self):
+        return {
+            "surname": self.surname,
+            "first_name": self.first_name,
+            "pax_type": self.pax_type,
+            "status": self.status,
+            "qualifier": self.qualifier,
+            "number": self.number
         }
