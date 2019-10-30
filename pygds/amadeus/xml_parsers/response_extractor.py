@@ -9,12 +9,9 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
-<<<<<<< HEAD
 from pygds.core.types import CancelPnrReply
 from pygds.core.form_of_payment import FormOfPayment
-=======
 from pygds.core.types import CancelPnrReply, VoidTicket, UpdatePassenger
->>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
 
 
 class BaseResponseExtractor(object):

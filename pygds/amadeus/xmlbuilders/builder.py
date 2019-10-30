@@ -5,11 +5,7 @@ from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary
 from pygds.core.request import LowFareSearchRequest
-<<<<<<< HEAD
-from pygds.core.payment import FormOfPayment, CreditCard, ChashPayment
-=======
 from pygds.core.payment import CreditCard
->>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -566,7 +562,6 @@ class AmadeusXMLBuilder:
         form_of_payment_code = fop.p_code
         company_code = fop.company_code
         form_of_payment_type = fop.p_type
-<<<<<<< HEAD
         group_usage_attribute_type = "FP"  # "PAY"
         form_of_payment = "FP"  # "DEF
         pax_refs = pax_refs or []
@@ -650,95 +645,16 @@ class AmadeusXMLBuilder:
                             <elementManagementData>
                                 <segmentName>FP</segmentName>
                             </elementManagementData>
-=======
-        vendor_code = fop.vendor_code
-        carte_number = fop.card_number
-        security_id = fop.security_id
-        expiry_date = fop.expiry_date
-        return f"""
-           <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3" xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
-       <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-       <add:MessageID>{message_id}</add:MessageID>
-       <add:Action>http://webservices.amadeus.com/TFOPCQ_15_4_1A</add:Action>
-       <add:To>{self.endpoint}/{self.wsap}</add:To>
-       {security_part}
-       </soapenv:Header>
-       <soapenv:Body>
-          <FOP_CreateFormOfPayment>
-             <transactionContext>
-                <transactionDetails>
-                <code>{form_of_payment}</code>
-                </transactionDetails>
-             </transactionContext>
-             <fopGroup>
-                <fopReference></fopReference>
-                <passengerAssociation>
-                   <passengerReference>
-                      <type>{passenger_reference_type}</type>
-                      <value>{passenger_reference_value}</value>
-                   </passengerReference>
-                </passengerAssociation>
-                <mopDescription>
-                   <fopSequenceNumber>
-                      <sequenceDetails>
-                         <number>{form_of_payment_sequence_number}</number>
-                      </sequenceDetails>
-                   </fopSequenceNumber>
-                   <mopDetails>
-                      <fopPNRDetails>
-                         <fopDetails>
-                            <fopCode>{form_of_payment_code}</fopCode>
-                         </fopDetails>
-                      </fopPNRDetails>
-                   </mopDetails>
-                   <paymentModule>
-                      <groupUsage>
-                         <attributeDetails>
-                            <attributeType>{group_usage_attribute_type}</attributeType>
-                         </attributeDetails>
-                      </groupUsage>
-                      <paymentData>
-                         <merchantInformation>
-                            <companyCode>{company_code}</companyCode>
-                         </merchantInformation>
-                      </paymentData>
-                      <mopInformation>
-                         <fopInformation>
->>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
                             <formOfPayment>
                                 <fop>
                                     <identification>{form_of_payment_type}</identification>
                                 </fop>
                             </formOfPayment>
-<<<<<<< HEAD
                         </dataElementsIndiv>
                     </dataElementsMaster>
                 </PNR_AddMultiElements>
                 </soapenv:Body>
                 </soapenv:Envelope>"""
-=======
-                         </fopInformation>
-                         <dummy/>
-                         <creditCardData>
-                            <creditCardDetails>
-                               <ccInfo>
-                                  <vendorCode>{vendor_code}</vendorCode>
-                                  <cardNumber>{carte_number}</cardNumber>
-                                  <securityId>{security_id}</securityId>
-                                  <expiryDate>{expiry_date}</expiryDate>
-                               </ccInfo>
-                            </creditCardDetails>
-                         </creditCardData>
-                      </mopInformation>
-                      <dummy/>
-                   </paymentModule>
-                </mopDescription>
-             </fopGroup>
-          </FOP_CreateFormOfPayment>
-       </soapenv:Body>
-       </soapenv:Envelope>
-    """
->>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
 
     def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type,
                            passenger_reference_value):
@@ -764,19 +680,12 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
     """
 
-<<<<<<< HEAD
     def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code, segment_name):
         # security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         # <nameInformation>
         #     <qualifier>RF</qualifier>
         #     <name>KOKOU</name>
         # </nameInformation>
-=======
-    def pnr_add_multi_element_builder(self, session_id, sequence_number, security_token, message_id, option_code,
-                                      segment_name, identification, credit_card_code, account_number, expiry_date,
-                                      currency_code):
-        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
->>>>>>> 03ae67bb20447cd73e03eec553f9d9cb4c44a07a
         return f"""
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
     <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
