@@ -184,7 +184,7 @@ def store_plus_up(passenger_type_data, pcc):
 def _add_flight_segment_to_air_book(segment):
 
     return f"""<FlightSegment DepartureDateTime="{segment.departure_date_time}"  ArrivalDateTime="{segment.arrival_date_time}" FlightNumber="{segment.flight_number}" NumberInParty="{segment.number_in_party}" ResBookDesigCode="{segment.res_book_desig_code}" Status="{segment.status}" InstantPurchase="false">
-            <DestinationLocation LocationCode="{segment.arrival_airpot.airport}"/>
+            <DestinationLocation LocationCode="{segment.arrival_airport.airport}"/>
             <MarketingAirline Code="{segment.marketing}" FlightNumber="{segment.flight_number}"/>
             <OperatingAirline Code="{segment.operating}"/>
             <OriginLocation LocationCode="{segment.departure_airport.airport}"/>
@@ -196,7 +196,7 @@ def add_flight_segments_to_air_book(segment_list):
     for flight_segment in segment_list:
         arrival_airport = FlightPointDetails(airport=flight_segment['destination'])
         departure_airport = FlightPointDetails(airport=flight_segment['origin'])
-        segment = FlightSegment(res_book_desig_code=flight_segment['res_book_desig_code'], departure_date_time=flight_segment['departure_date_time'], arrival_date_time=flight_segment['arrival_date_time'], flight_number=flight_segment['flight_number'], status=flight_segment['status'], arrival_airpot=arrival_airport, departure_airport=departure_airport, marketing=flight_segment['marketing_code'], operating=flight_segment['operating_code'], number_in_party=flight_segment['number_in_party'])
+        segment = FlightSegment(res_book_desig_code=flight_segment['res_book_desig_code'], departure_date_time=flight_segment['departure_date_time'], arrival_date_time=flight_segment['arrival_date_time'], flight_number=flight_segment['flight_number'], status=flight_segment['status'], arrival_airport=arrival_airport, departure_airport=departure_airport, marketing=flight_segment['marketing_code'], operating=flight_segment['operating_code'], number_in_party=flight_segment['number_in_party'])
         segments = segments + _add_flight_segment_to_air_book(segment)
     return segments
 

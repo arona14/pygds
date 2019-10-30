@@ -4,10 +4,15 @@
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
+import os
 
 
 def test():
-    # This is not a test file. It is just used to locally test a flow
+    """ A suite of tests """
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.join(dir_path, "..", "..", "..")
+    os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
 
     username = get_setting("SABRE_USERNAME")
     pcc = get_setting("SABRE_PCC")
