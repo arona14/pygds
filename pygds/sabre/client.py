@@ -2,19 +2,21 @@
 # This file is for Sabre reservation classes and functions
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
+import json
+import requests
+
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
 from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
+from pygds.sabre.json_parsers.revalidate_extract import RevalidateItineraryExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
-import json
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
-import requests
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
@@ -122,6 +124,7 @@ class SabreClient(BaseClient):
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         gds_response.session_info = session_info
         if need_close:
+            message_id = gds_response.session_info.message_id
             self.close_session(message_id)
         return gds_response
 
@@ -149,7 +152,7 @@ class SabreClient(BaseClient):
         response.session_info = session_info
         return response
 
-    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = "", brand_id: str = None):
+    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
         :param message_id: the message id
@@ -166,7 +169,7 @@ class SabreClient(BaseClient):
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
             raise NoSessionError(message_id)
-        store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name, brand_id=brand_id)
+        store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passengers, baggage=baggage, region_name=region_name, brand_id=brand_id)
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
@@ -420,10 +423,11 @@ class SabreClient(BaseClient):
         if not token:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             token = self.new_rest_token()
-            session_info = SessionInfo(token, None, None, message_id, False)
-            self.add_session(session_info)
-
-        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token.security_token)
+            message_id = token.message_id
+            token = token.security_token
+        session_info = SessionInfo(token, None, None, message_id, False)
+        self.add_session(session_info)
+        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
         gds_response = CreatePnrExtractor(response.content).extract()
         gds_response.session_info = session_info
         return gds_response
@@ -436,14 +440,13 @@ class SabreClient(BaseClient):
             flight_request {[FlightSeatMap]} -- [this will handler the flight request]
         """
         _, sequence, token_session = self.get_or_create_session_details(message_id)
-        print(token_session)
         if token_session is None:
             raise NoSessionError(message_id)
         seat_map_request = self.xml_builder.seap_map_rq(token_session, flight_request)
-        search_price_response = self._soap_request_wrapper(seat_map_request)
+        seat_map_response = self.__request_wrapper("seat_map", seat_map_request, self.endpoint)
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
-        gds_response = SeatMapResponseExtractor(search_price_response.content).extract()
+        gds_response = SeatMapResponseExtractor(seat_map_response).extract()
         gds_response.session_info = session_info
         return gds_response
 
@@ -463,5 +466,33 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
         self.add_session(session_info)
         gds_response = UpdatePassengerExtractor(update_passenhger_response.content).extract()
+        gds_response.session_info = session_info
+        return gds_response
+
+    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
+        """
+        The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
+        specific itinerary option without booking the itinerary.
+        The solution re-validates if the itinerary option is valid for purchase.
+        Arguments:
+            message_id{str} : the message identifier
+            itineraries{list}: list itineraries
+            passengers{list}: list passengers
+            fare_type{str}: fare type(Net or Pub)
+
+        Returns:
+            [GdsResponse] -- [revalidate itinerary response]
+        """
+
+        revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
+        _, _, token = self.get_or_create_session_details(message_id)
+        if not token:
+            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
+            token = self.new_rest_token().security_token
+        session_info = SessionInfo(token, None, None, message_id, False)
+        self.add_session(session_info)
+
+        revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
+        gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
         gds_response.session_info = session_info
         return gds_response

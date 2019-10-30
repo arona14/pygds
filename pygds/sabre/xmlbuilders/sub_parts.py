@@ -30,7 +30,7 @@ def get_passenger_type(passenger_type, fare_type):
             pax_type = __get_pax_type_with_pub(pax, pax_type, child_list)
         elif fare_type == "Net":
             pax_type = __get_pax_type_with_net(pax, pax_type, child_list)
-        for j in pax['nameSelect']:
+        for j in pax['name_select']:
             name_select = name_select + "<NameSelect NameNumber='" + str(j) + "'/>"
     return pax_type, name_select
 
@@ -98,23 +98,23 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
     TWOPLACES = Decimal(10) ** -2
     hemisphere_code = _get_hemisphere_code(region_name)
     commission = ""
-    if from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') == "":
-        commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
+    if from_json_safe(passenger_type_data, 'commission_percent') > 0 and from_json_safe(passenger_type_data, 'tour_code') == "":
+        commission_percentage = Decimal(passenger_type_data['commission_percent']).quantize(TWOPLACES)
         commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
         if pcc == "3GAH":
             commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
                                             <JourneyCode>'2'</JourneyCode>"""
         commission = commission + "</MiscQualifiers>"
 
-    elif from_json_safe(passenger_type_data, 'commissionPercentage') != "0" and from_json_safe(passenger_type_data, 'tourCode') != "":
-        commission_percentage = Decimal(passenger_type_data['commissionPercentage']).quantize(TWOPLACES)
+    elif from_json_safe(passenger_type_data, 'commission_percent') > 0 and from_json_safe(passenger_type_data, 'tour_code') != "":
+        commission_percentage = Decimal(passenger_type_data['commission_percent']).quantize(TWOPLACES)
         commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
         if pcc == "3GAH":
             commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>"
                                             "<JourneyCode>'2'</JourneyCode>"""
         commission = commission + f"""<TourCode>
                 <SuppressIT Ind='true'/>
-                <Text>{passenger_type_data['tourCode']}</Text>
+                <Text>{passenger_type_data['tour_code']}</Text>
             </TourCode>
             </MiscQualifiers>"""
     return commission
@@ -130,6 +130,7 @@ def __store_commission_with_net(passenger_type_data, region_name, pcc):
         if pcc == "3GAH":
             commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
                                         <JourneyCode>'2'</JourneyCode>"""
+        commission = commission + "</MiscQualifiers>"
     return commission
 
 
@@ -148,42 +149,29 @@ def store_commission(fare_type, passenger_type_data, region_name, pcc):
 def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     ticket_designator = ""
     segment_number = ""
-    if from_json_safe(passenger_type_data, 'ticketDesignator') != "":
+
+    if segment_select != []:
+        segment_number = segment_number + "<ItineraryOptions>"
+        for s in segment_select:
+            segment_number = segment_number + f"""<SegmentSelect Number="{s}" RPH="1"/>"""
+        segment_number = segment_number + "</ItineraryOptions>"
+
+    if from_json_safe(passenger_type_data, 'ticket_designator') != "":
         ticket_designator = ticket_designator + f"""<CommandPricing RPH="1">
-                                                        <Discount Percent='0' AuthCode='{passenger_type_data['ticketDesignator']}'/>
+                                                        <Discount Percent='0' AuthCode='{passenger_type_data['ticket_designator']}'/>
                                                     </CommandPricing>"""
-
-        if segment_select != []:
-            segment_number = segment_number + "<ItineraryOptions>"
-            for s in segment_select:
-                segment_number = segment_number + f"""<SegmentSelect Number="{s}" RPH="1"/>"""
-            segment_number = segment_number + "</ItineraryOptions>"
-
     elif brand_id is not None and brand_id != "":
         ticket_designator = f"""<Brand RPH="1">{brand_id}</Brand>"""
-
-        if segment_select != []:
-            segment_number = segment_number + "<ItineraryOptions>"
-            for s in segment_select:
-                segment_number = segment_number + f"""<SegmentSelect Number="{s}" RPH="1"/>"""
-            segment_number = segment_number + "</ItineraryOptions>"
-
-    else:
-        if segment_select != []:
-            segment_number = segment_number + "<ItineraryOptions>"
-            for s in segment_select:
-                segment_number = segment_number + f"""<SegmentSelect Number="{s}"/>"""
-            segment_number = segment_number + "</ItineraryOptions>"
 
     return ticket_designator, segment_number
 
 
 def store_pax_type(passenger_type_data):
-    return f"""<PassengerType Code='{passenger_type_data['code']}' Quantity='{str(passenger_type_data["quantity"])}'/>"""
+    return f"""<PassengerType Code='{passenger_type_data['code']}' Quantity='1'/>"""
 
 
 def store_name_select(passenger_type_data):
-    return f"""<NameSelect NameNumber='{passenger_type_data['nameSelect']}'/>"""
+    return f"""<NameSelect NameNumber='{passenger_type_data['name_select']}'/>"""
 
 
 def store_plus_up(passenger_type_data, pcc):
@@ -196,7 +184,7 @@ def store_plus_up(passenger_type_data, pcc):
 def _add_flight_segment_to_air_book(segment):
 
     return f"""<FlightSegment DepartureDateTime="{segment.departure_date_time}"  ArrivalDateTime="{segment.arrival_date_time}" FlightNumber="{segment.flight_number}" NumberInParty="{segment.number_in_party}" ResBookDesigCode="{segment.res_book_desig_code}" Status="{segment.status}" InstantPurchase="false">
-            <DestinationLocation LocationCode="{segment.arrival_airpot.airport}"/>
+            <DestinationLocation LocationCode="{segment.arrival_airport.airport}"/>
             <MarketingAirline Code="{segment.marketing}" FlightNumber="{segment.flight_number}"/>
             <OperatingAirline Code="{segment.operating}"/>
             <OriginLocation LocationCode="{segment.departure_airport.airport}"/>
@@ -208,7 +196,7 @@ def add_flight_segments_to_air_book(segment_list):
     for flight_segment in segment_list:
         arrival_airport = FlightPointDetails(airport=flight_segment['destination'])
         departure_airport = FlightPointDetails(airport=flight_segment['origin'])
-        segment = FlightSegment(res_book_desig_code=flight_segment['res_book_desig_code'], departure_date_time=flight_segment['departure_date_time'], arrival_date_time=flight_segment['arrival_date_time'], flight_number=flight_segment['flight_number'], status=flight_segment['status'], arrival_airpot=arrival_airport, departure_airport=departure_airport, marketing=flight_segment['marketing_code'], operating=flight_segment['operating_code'], number_in_party=flight_segment['number_in_party'])
+        segment = FlightSegment(res_book_desig_code=flight_segment['res_book_desig_code'], departure_date_time=flight_segment['departure_date_time'], arrival_date_time=flight_segment['arrival_date_time'], flight_number=flight_segment['flight_number'], status=flight_segment['status'], arrival_airport=arrival_airport, departure_airport=departure_airport, marketing=flight_segment['marketing_code'], operating=flight_segment['operating_code'], number_in_party=flight_segment['number_in_party'])
         segments = segments + _add_flight_segment_to_air_book(segment)
     return segments
 

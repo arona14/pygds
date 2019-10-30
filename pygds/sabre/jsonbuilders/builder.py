@@ -1,8 +1,11 @@
 import json
+from .create_pnr import CreatePnrRequest
+
 from pygds.sabre.jsonbuilders.search_builder import BFMBuilder
 from pygds.core.request import LowFareSearchRequest
-from .create_pnr import CreatePnrRequest
+
 from pygds.sabre.jsonbuilders.create_pnr_builder import CreatePnrBuilder
+from pygds.sabre.jsonbuilders.revalidate_builder import RevalidateBuilder
 
 
 class SabreJSONBuilder:
@@ -30,3 +33,18 @@ class SabreJSONBuilder:
 
         create_builder = CreatePnrBuilder(create_pnr_request)
         return json.dumps(create_builder.to_dict(), sort_keys=False, indent=4)
+
+    def revalidate_build(self, pcc, itineraries: list = [], passengers: list = [], fare_type: str = "Pub"):
+        revalidate_builder = RevalidateBuilder(pcc, itineraries, passengers, fare_type, self.target)
+        to_return = {
+            "OTA_AirLowFareSearchRQ": {
+                "POS": revalidate_builder.pos(),
+                "OriginDestinationInformation": revalidate_builder.origin_destination_information(),
+                "TravelPreferences": revalidate_builder.travel_preference(),
+                "TravelerInfoSummary": revalidate_builder.traveler_info_summary(),
+                "Target": self.target,
+                "Version": "4.3.0",
+                "AvailableFlightsOnly": True
+            }
+        }
+        return json.dumps(to_return, sort_keys=False, indent=4)

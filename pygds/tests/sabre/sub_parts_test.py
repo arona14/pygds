@@ -4,28 +4,28 @@ from pygds.sabre.xmlbuilders.sub_parts import get_commision, get_fare_type, get_
 passenger_type = [
     {
         "code": "JCB",
-        "nameSelect": [
+        "name_select": [
             "01.01"
         ],
         "quantity": 1
     },
     {
         "code": "JCB",
-        "nameSelect": [
+        "name_select": [
             "02.01"
         ],
         "quantity": 1
     },
     {
         "code": "J11",
-        "nameSelect": [
+        "name_select": [
             "03.01"
         ],
         "quantity": 1
     },
     {
         "code": "JNF",
-        "nameSelect": [
+        "name_select": [
             "04.01"
         ],
         "quantity": 1
