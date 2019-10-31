@@ -7,7 +7,7 @@ from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
-from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
@@ -191,7 +191,7 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         response_data = PriceSearchExtractor(response_data).extract()
-        self.add_session(response_data.session_info)
+        # self.add_session(response_data.session_info)
         return response_data
 
     def fare_informative_price_without_pnr(self, message_id: str, numbering: TravellerNumbering, itineraries: List[Itinerary]):
@@ -208,6 +208,16 @@ class AmadeusClient(BaseClient):
 
         response_data = InformativePricingWithoutPnrExtractor(response_data).extract()
         self.add_session(response_data.session_info)
+
+        return response_data
+
+    def fare_informative_best_pricing_without_pnr(self, recommandation: Recommandation):
+
+        request_data = self.xml_builder.fare_informative_best_price_without_pnr(recommandation)
+        response_data = self.__request_wrapper("fare_informative_best_price_without_pnr", request_data,
+                                               'http://webservices.amadeus.com/TIBNRQ_19_1_1A')
+
+        response_data = InformativePricingWithoutPnrExtractor(response_data).extract()
 
         return response_data
 

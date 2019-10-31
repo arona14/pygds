@@ -7,6 +7,111 @@ from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
 
 
+def fare_informative_best_price_passengers(traveller_numbering):
+
+    ptc_adt = ""
+    quantity = 1
+    if traveller_numbering.adults:
+        id_ptc = ""
+        for i in range(traveller_numbering.adults):
+            id_ptc = id_ptc + "<travellerDetails><measurementValue>" + str(i + 1) + "</measurementValue></travellerDetails>"
+        ptc_adt = f"""
+            <passengersGroup>
+                <segmentRepetitionControl>
+                    <segmentControlDetails>
+                        <quantity>{quantity}</quantity>
+                        <numberOfUnits>{traveller_numbering.adults}</numberOfUnits>
+                    </segmentControlDetails>
+                </segmentRepetitionControl>
+                <travellersID>
+                    {id_ptc}
+                </travellersID>
+                <discountPtc>
+                    <valueQualifier>ADT</valueQualifier>
+                </discountPtc>
+            </passengersGroup>"""
+        quantity += 1
+
+    ptc_children = ""
+    id_children = ""
+    if traveller_numbering.children:
+        for i in range(traveller_numbering.children):
+            id_children = id_children + "<travellerDetails><measurementValue>" + str(i + 1) + "</measurementValue></travellerDetails>"
+        ptc_children = f"""
+            <passengersGroup>
+                <segmentRepetitionControl>
+                    <segmentControlDetails>
+                        <quantity>{quantity}</quantity>
+                        <numberOfUnits>{traveller_numbering.children}</numberOfUnits>
+                    </segmentControlDetails>
+                </segmentRepetitionControl>
+                <travellersID>
+                    {id_children}
+                </travellersID>
+                <discountPtc>
+                    <valueQualifier>ADT</valueQualifier>
+                </discountPtc>
+            </passengersGroup>"""
+        quantity += 1
+
+    ptc_infant = ""
+    id_infants = ""
+    if traveller_numbering.infants:
+        for i in range(traveller_numbering.infants):
+            id_infants = id_infants + "<travellerDetails><measurementValue>" + str(i + 1) + "1</measurementValue></travellerDetails>"
+        ptc_infant = f"""
+            <passengersGroup>
+                <segmentRepetitionControl>
+                    <segmentControlDetails>
+                        <quantity>{quantity}</quantity>
+                        <numberOfUnits>{traveller_numbering.infants}</numberOfUnits>
+                    </segmentControlDetails>
+                </segmentRepetitionControl>
+                <travellersID>
+                    {id_infants}
+                </travellersID>
+                <discountPtc>
+                    <valueQualifier>ADT</valueQualifier>
+                    <fareDetails>
+                        <qualifier>766</qualifier>
+                    </fareDetails>
+                </discountPtc>
+            </passengersGroup>"""
+
+    return ptc_adt + ptc_children + ptc_infant
+
+
+def fare_informative_best_price_segment(segments):
+    content = ""
+    for index, segment in enumerate(segments):
+        content = content + f"""<segmentGroup>
+                            <segmentInformation>
+                                <flightDate>
+                                    <departureDate>{segment.departure_date}</departureDate>
+                                </flightDate>
+                                <boardPointDetails>
+                                    <trueLocationId>{segment.origin}</trueLocationId>
+                                </boardPointDetails>
+                                <offpointDetails>
+                                    <trueLocationId>{segment.destination}</trueLocationId>
+                                </offpointDetails>
+                                <companyDetails>
+                                    <marketingCompany>{segment.company}</marketingCompany>
+                                </companyDetails>
+                                <flightIdentification>
+                                    <flightNumber>{segment.flight_number}</flightNumber>
+                                    <bookingClass>{segment.booking_class}</bookingClass>
+                                </flightIdentification>
+                                <flightTypeDetails>
+                                    <flightIndicator>{segment.flight_indicator+1}</flightIndicator>
+                                </flightTypeDetails>
+                                <itemNumber>{index+1}</itemNumber>
+                            </segmentInformation>
+                        </segmentGroup>"""
+
+    return content
+
+
 def mptbs_itinerary(segment: RequestedSegment):
     # origin = segment.departure.airport if segment.departure.airport is not None else segment.departure.city
     # destination = segment.arrival.airport if segment.arrival.airport is not None else segment.arrival.city

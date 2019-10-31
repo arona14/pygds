@@ -3,7 +3,7 @@ from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
-from pygds.core.types import TravellerNumbering, Itinerary
+from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import CreditCard
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
@@ -201,7 +201,7 @@ class AmadeusXMLBuilder:
         """
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
-                                                   created_date_time)
+                                                   created_date_time, True)
         # currency_conversion: str = None
         stop_option = ""
         if not with_stops:
@@ -269,6 +269,42 @@ class AmadeusXMLBuilder:
               </Fare_InformativePricingWithoutPNR>
             </soapenv:Body>
         </soapenv:Envelope>
+        """
+
+    def fare_informative_best_price_without_pnr(self, recommandation: Recommandation):
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                                   created_date_time, True)
+        header = f"""<soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/TIBNRQ_19_1_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>"""
+
+        passengers_info = sub_parts.fare_informative_best_price_passengers(recommandation.traveller_numbering)
+        segments = sub_parts.fare_informative_best_price_segment(recommandation.segments)
+
+        return f"""
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                    {header}
+                    <soapenv:Body>
+                        <Fare_InformativeBestPricingWithoutPNR>
+                            {passengers_info}
+                            {segments}
+                            <pricingOptionGroup>
+                                <pricingOptionKey>
+                                    <pricingOptionKey>RP</pricingOptionKey>
+                                </pricingOptionKey>
+                            </pricingOptionGroup>
+                            <pricingOptionGroup>
+                                <pricingOptionKey>
+                                    <pricingOptionKey>RU</pricingOptionKey>
+                                </pricingOptionKey>
+                            </pricingOptionGroup>
+                        </Fare_InformativeBestPricingWithoutPNR>
+                    </soapenv:Body>
+                </soapenv:Envelope>   
         """
 
     def fare_check_rules(self, message_id, session_id, sequence_number,

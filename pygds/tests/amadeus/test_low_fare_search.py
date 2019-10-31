@@ -3,7 +3,7 @@
 """
 
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
-from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, Itinerary, FlightSegment
+from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, Itinerary, FlightSegment, Recommandation
 from pygds import log_handler
 from pygds.env_settings import get_setting
 
@@ -70,10 +70,6 @@ def test():
         results, session_info = (search_results.payload, search_results.session_info)
         log.info(results)
 
-        if session_info.session_ended:
-            log.error("Session is ended after search")
-            return
-
         message_id = session_info.message_id
 
         log.info("End of Low Fare Search ********************************************************************************")
@@ -84,41 +80,49 @@ def test():
 
         list_segments = []
 
-        itinerary = Itinerary()
+        # itinerary = Itinerary()
 
-        for flight_segment in itineraries:
+        for index, flight_segment in enumerate(itineraries):
             segment = flight_segment[0]
 
+            quantities = 0
+            for ptc in segment["pax_ref"]:
+                quantities += len(ptc["traveller"])
+
             _segment = SellItinerary(
-                segment["board_airport"],
-                segment["off_airport"],
-                segment["departure_date"],
-                segment["marketing_company"],
-                segment["flight_number"],
-                segment["book_class"],
-                2
+                origin=segment["board_airport"],
+                destination=segment["off_airport"],
+                departure_date=segment["departure_date"],
+                company=segment["marketing_company"],
+                flight_number=segment["flight_number"],
+                booking_class=segment["book_class"],
+                quantity=quantities,
+                arrival_date=segment["arrival_date"],
+                flight_indicator=index
             )
             list_segments.append(_segment)
 
-            itinerary.addSegment(FlightSegment(departure_date_time=segment["departure_date"],
-                                               arrival_date_time=segment["arrival_date"],
-                                               airline=None,
-                                               arrival_airpot=segment["board_airport"],
-                                               departure_airport=segment["off_airport"],
-                                               flight_number=segment["flight_number"],
-                                               marketing=segment["marketing_company"],
-                                               class_of_service=segment["book_class"]
-                                               ))
+            # itinerary.addSegment(FlightSegment(departure_date_time=segment["departure_date"],
+            #                                    arrival_date_time=segment["arrival_date"],
+            #                                    airline=None,
+            #                                    arrival_airpot=segment["board_airport"],
+            #                                    departure_airport=segment["off_airport"],
+            #                                    flight_number=segment["flight_number"],
+            #                                    marketing=segment["marketing_company"],
+            #                                    class_of_service=segment["book_class"]
+            #                                    ))
 
         log.info("Begin fare informative pricing without pnr")
 
-        itineraries = [
-            itinerary
-        ]
+        recommandation = Recommandation(list_segments, TravellerNumbering(2))
 
-        result_informative_pricing = client.fare_informative_price_without_pnr(message_id, TravellerNumbering(2), itineraries)
+        # itineraries = [
+        #     itinerary
+        # ]
 
-        log.info(result_informative_pricing)
+        result_informative_best_pricing = client.fare_informative_best_pricing_without_pnr(recommandation=recommandation)
+
+        log.info(result_informative_best_pricing)
 
         log.info("End of informative pricing without pnr")
 
@@ -129,9 +133,6 @@ def test():
         result_sell, session_info = (result_sell.payload, result_sell.session_info)
         log.info(result_sell)
 
-        if session_info.session_ended:
-            log.error("Session is ended after sell from recommendation")
-            return
         log.info("End of Sell From Recommandation ******************************************************")
         log.info("Begin Call of Add Passenger Info ****************************************************")
 

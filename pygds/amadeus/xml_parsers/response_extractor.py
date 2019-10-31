@@ -183,11 +183,12 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         product_detail = ensure_list(fare_details[idx]["groupOfFares"])[leg]["productInformation"]
                         book_class = product_detail["cabinProduct"]["rbd"]
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
+                        pax_ref = ensure_list(ensure_list(rec["paxFareProduct"])[0]["paxReference"])
                         segment = {"fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
                                    "flight_number": flight_number, "departure_date": departure_date,
                                    "departure_time": departure_time, "arrival_date": arrival_date,
                                    "arrival_time": arrival_time, "marketing_company": market_company,
-                                   "operator_company": oper_company, "book_class": book_class
+                                   "operator_company": oper_company, "book_class": book_class, "pax_ref": pax_ref
                                    }
                         segments.append(segment)
                     itineraries.append(segments)

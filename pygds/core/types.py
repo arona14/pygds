@@ -664,14 +664,20 @@ class Reservation(BasicDataObject):
 
 class SellItinerary(BasicDataObject):
 
-    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity, airline=None, arrival_date=None, departure_time=None, arrival_time=None, flight_indicator=None):
+
         self.origin = origin
         self.destination = destination
         self.departure_date = departure_date
+        self.arrival_date = arrival_date
+        self.departure_time = departure_time
+        self.arrival_time = arrival_time
         self.company = company
         self.flight_number = flight_number
         self.booking_class = booking_class
         self.quantity = quantity
+        self.airline = airline
+        self.flight_indicator = flight_indicator
 
 
 class TravellerInfo(BasicDataObject):
@@ -716,6 +722,12 @@ class TravellerNumbering(BasicDataObject):
 
     def total_seats(self):
         return self.adults + self.children
+
+
+class Recommandation:
+    def __init__(self, segments: List[SellItinerary], traveller_numbering: TravellerNumbering):
+        self.segments = segments if segments else []
+        self.traveller_numbering = traveller_numbering
 
 
 class SendCommand(BasicDataObject):
