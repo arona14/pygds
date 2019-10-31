@@ -20,7 +20,8 @@ def test():
     url = "https://webservices3.sabre.com"
 
     client = SabreClient(url, "", username, password, pcc, False)
-    print(client)
+    retrieve_pnr = client.get_reservation("TGZKPI", None, True)
+    print(retrieve_pnr.payload)
 
 
 if __name__ == "__main__":

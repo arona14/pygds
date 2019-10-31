@@ -1,6 +1,6 @@
 import logging
 import re
-
+from typing import List
 from pygds.core.types import SeatInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
@@ -32,7 +32,7 @@ from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
                               FormatPassengersInPQ,
                               IgnoreTransaction, Itinerary,
                               OperatingMarketing, Passenger, PriceQuote_,
-                              QueuePlace, Remarks, RowInfo, SeatMap,
+                              QueuePlace, Remarks, RowInfo, SeatMap, InfoPayment,
                               SendCommand, ServiceCoupon, TicketDetails,
                               TicketingInfo_, TypeInfo)
 
@@ -289,13 +289,14 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         display_pnr = str(display_pnr).replace("@", "")
         display_pnr = eval(display_pnr.replace("u'", "'"))
         passengers_reservation = from_json_safe(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
+        remarks = self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark"))
         return {
             'passengers': self._passengers(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'itineraries': self._itineraries(from_json_safe(passengers_reservation, "stl18:Segments")),
-            'form_of_payments': self._forms_of_payment(from_json_safe(passengers_reservation, "stl18:FormsOfPayment")),
+            'form_of_payments': self.list_fop(remarks),
             'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
-            'remarks': self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark")),
+            'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
             'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
         }
@@ -413,42 +414,42 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
         return list_price_quote
 
-    def get_fop_remarks(self, remarks):
-        list_remarks = []
-        for remark in ensure_list(remarks):
-            remark_type = from_json_safe(remark, "type")
-            if remark_type == "FOP":
-                remark_index = from_json(remark, "index")
-                remark_id = from_json(remark, "elementId")
-                remark_text = from_json(remark, "stl18:RemarkLines", "stl18:RemarkLine", "stl18:Text")
-                remark_objet = Remarks(remark_index, remark_type, remark_id, remark_text)
-                list_remarks.append(remark_objet)
-        return list_remarks
+    # def get_fop_remarks(self, remarks):
+    #     list_remarks = []
+    #     for remark in ensure_list(remarks):
+    #         remark_type = from_json_safe(remark, "type")
+    #         if remark_type == "FOP":
+    #             remark_index = from_json(remark, "index")
+    #             remark_id = from_json(remark, "elementId")
+    #             remark_text = from_json(remark, "stl18:RemarkLines", "stl18:RemarkLine", "stl18:Text")
+    #             remark_objet = Remarks(remark_index, remark_type, remark_id, remark_text)
+    #             list_remarks.append(remark_objet)
+    #     return list_remarks
 
-    def list_fop(self, remark):
+    def list_fop(self, remarks: List[Remarks]):
         """
         This function return the list of card_type, card_number and expirate date in the text of remark_type FOP
         :param: remark
         :return: list of card_type, card_number and expirate date
 
         """
-        fop_remark = self.get_fop_remarks(remark)
-        fop_list = []
-        if len(fop_remark) > 0:
-            for rm in fop_remark:
-                sort_tex = rm.remark_text
-                card_type = sort_tex[1:3]
-                extract_number_card = re.compile('card_type([0-9]+)')
-                extract_expirate_date = re.compile('card_type([0-9/]+)')
-                card_number = extract_number_card.findall(sort_tex)
-                expirate_date = extract_expirate_date.findall(sort_tex)
-                fop_list.append(card_type, card_number, expirate_date)
-            return fop_list
+        remarks = remarks or []
+        objet_fop = []
+        list_info = []
+        for r in remarks:
+            if r.type_remark == "FOP":
+                objet_fop = r
+                sort_tex = objet_fop.text
+                expres = "([A-Z]{2})([0-9]+)¥([0-9]+)/([0-9]+)"
+                extract_value = re.compile(expres)
+                val_data = extract_value.findall(sort_tex)
+                print("********* Test Val_data*********")
+                print(val_data[0][0])
+                info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3])
+                list_info.append(info_payment)
 
-    def _forms_of_payment(self, remark):
-        fop_result = self.list_fop(remark)
-
-        return fop_result
+        print("********* Test Text*********")
+        print(list_info)
 
     def _ticketing(self, passengers):
         list_ticket = []
