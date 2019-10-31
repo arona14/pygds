@@ -29,7 +29,7 @@ from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
                               FlightAirlineDetails, FlightDisclosureCarrier,
                               FlightInfo, FlightMarriageGrp,
                               FlightPointDetails, FlightSegment, FormatAmount,
-                              FormatPassengersInPQ, FormOfPayment,
+                              FormatPassengersInPQ,
                               IgnoreTransaction, Itinerary,
                               OperatingMarketing, Passenger, PriceQuote_,
                               QueuePlace, Remarks, RowInfo, SeatMap,
@@ -416,7 +416,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
     def get_fop_remarks(self, remarks):
         list_remarks = []
         for remark in ensure_list(remarks):
-            remark_type = from_json(remark, "type")
+            remark_type = from_json_safe(remark, "type")
             if remark_type == "FOP":
                 remark_index = from_json(remark, "index")
                 remark_id = from_json(remark, "elementId")
@@ -426,6 +426,12 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         return list_remarks
 
     def list_fop(self, remark):
+        """
+        This function return the list of card_type, card_number and expirate date in the text of remark_type FOP
+        :param: remark
+        :return: list of card_type, card_number and expirate date
+
+        """
         fop_remark = self.get_fop_remarks(remark)
         fop_list = []
         if len(fop_remark) > 0:
@@ -441,6 +447,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def _forms_of_payment(self, remark):
         fop_result = self.list_fop(remark)
+
         return fop_result
 
     def _ticketing(self, passengers):
