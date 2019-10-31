@@ -292,6 +292,8 @@ class AirItineraryPricingInfo(PriceInfoBasic):
         self.ticket_designator: str = None    # Ticket Designator
         self.commission_percentage: str = None  # Commission Percentage
         self.fare_break_down: FareBreakdown     # FareBreakdown class
+        self.valiating_carrier: str = None     # passenger type
+        self.baggage_provisions: list = []
 
     def to_dict(self):
         return{
@@ -305,7 +307,9 @@ class AirItineraryPricingInfo(PriceInfoBasic):
             "tour_code": self.tour_code,
             "ticket_designator": self.ticket_designator,
             "commission_percentage": self.commission_percentage,
-            "fare_break_down": self.fare_break_down
+            "valiating_carrier": self.valiating_carrier,
+            "fare_break_down": self.fare_break_down,
+            "baggage_provisions": self.baggage_provisions
         }
 
 
@@ -323,6 +327,7 @@ class FareBreakdown(PriceInfoBasic):
         self.fare_passenger_type: str = None  # fare passenger type
         self.fare_type: str = None           # fare type
         self.filing_carrier: str = None      # Filing Carrier
+        self.free_baggage: str = None      # Filing Carrier
 
     def to_dict(self):
         return {
@@ -331,5 +336,6 @@ class FareBreakdown(PriceInfoBasic):
             "fare_amount": self.fare_amount,
             "fare_passenger_type": self.fare_passenger_type,
             "fare_type": self.fare_type,
-            "filing_carrier": self.filing_carrier
+            "filing_carrier": self.filing_carrier,
+            "free_baggage": self.free_baggage
         }
