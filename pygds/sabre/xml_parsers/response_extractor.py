@@ -444,12 +444,9 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 extract_value = re.compile(expres)
                 val_data = extract_value.findall(sort_tex)
                 print("********* Test Val_data*********")
-                print(val_data[0][0])
                 info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3])
                 list_info.append(info_payment)
-
-        print("********* Test Text*********")
-        print(list_info)
+        return list_info
 
     def _ticketing(self, passengers):
         list_ticket = []
