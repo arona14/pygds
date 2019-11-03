@@ -22,7 +22,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
-    pnr = "MHYHWH"  # "LTGPDG"
+    pnr = "LTGPDG"  # "LTGPDG"
     try:
 
         message_id = None

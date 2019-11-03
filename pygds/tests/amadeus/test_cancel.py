@@ -33,7 +33,6 @@ def test():
         log.info(session_info)
         log.info(res_reservation)
         message_id = session_info.message_id
-        # res_reservation = client.get_reservation(pnr, message_id, False)
         cancel_response = client.cancel_pnr(message_id, False)
         session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
         log.info(cancel_response)

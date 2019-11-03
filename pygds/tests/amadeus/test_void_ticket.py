@@ -3,6 +3,7 @@
 """
 
 import os
+import re
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.payment import FormOfPayment, CreditCard
@@ -25,19 +26,31 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "MMSIWM"  # MJNKN6, "LNB4CC", "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
+    pnr = "N9EO29"  # MMRECS, MSDH6E, MJNKN6, "LNB4CC", "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
     # m_id = None
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     # import web_pdb; web_pdb.set_trace()
     try:
         message_id = None
-        res_reservation = client.get_reservation(pnr, message_id, False)
+        res_reservation = client.get_reservation(pnr, message_id, True)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)
         message_id = session_info.message_id
-        void_response = client.void_tickets(message_id, [7421982205])
+        print(" ************* Message id ***************** ")
+        print(message_id)
+        ticket_number = [t.time for t in res_reservation["ticketing_info"]]
+        airline_code = res_reservation["itineraries"][0].marketing.airline_code
+        list_ticket_number = []
+        for ticket in ticket_number:
+            if len(ticket):
+                ticket_number = re.split("[, -/,////?//:; ]+", ticket)
+                t_number1 = ticket_number[1]
+                t_number2 = ticket_number[2]
+                list_ticket_number.append(t_number1 + t_number2)
+        void_response = client.void_tickets(message_id, [list_ticket_number], airline_code if len(airline_code) else None)
+        print(void_response)
         session_info, void_response = (void_response.session_info, void_response.payload)
         log.info(void_response)
         if session_info.session_ended is False:

@@ -322,7 +322,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
         return response_data
 
-    def void_tickets(self, message_id: str, ticket_numbers: List[str]):
+    def void_tickets(self, message_id: str, ticket_numbers: List[str], airline_code: str):
         """
         Cancel documents by ticket numbers
         :param message_id: str -> the message id
@@ -333,9 +333,10 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
-        request_data = self.xml_builder.void_tickets(session_info, ticket_numbers)
+        request_data = self.xml_builder.void_tickets(session_info, ticket_numbers, airline_code)
         response_data = self.__request_wrapper("void_tickets", request_data,
                                                'http://webservices.amadeus.com/TRCANQ_11_1_1A')
+        print(response_data)
         return VoidTicketExtractor(response_data).extract()
 
     def cancel_pnr(self, message_id: str, close_session: bool = False):

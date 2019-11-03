@@ -203,6 +203,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     qualifier, number = self._extract_qualifier_number(list_reference)
                 if segment_name == "FA":
                     long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
+                    print(long_free_text)
                     ticketing = TicketingInfo("", "", "", "", "", "", long_free_text, qualifier, number)
                     list_ticket.append(ticketing)
         return list_ticket
