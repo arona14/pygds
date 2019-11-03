@@ -414,18 +414,6 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
         return list_price_quote
 
-    # def get_fop_remarks(self, remarks):
-    #     list_remarks = []
-    #     for remark in ensure_list(remarks):
-    #         remark_type = from_json_safe(remark, "type")
-    #         if remark_type == "FOP":
-    #             remark_index = from_json(remark, "index")
-    #             remark_id = from_json(remark, "elementId")
-    #             remark_text = from_json(remark, "stl18:RemarkLines", "stl18:RemarkLine", "stl18:Text")
-    #             remark_objet = Remarks(remark_index, remark_type, remark_id, remark_text)
-    #             list_remarks.append(remark_objet)
-    #     return list_remarks
-
     def list_fop(self, remarks: List[Remarks]):
         """
         This function return the list of card_type, card_number and expirate date in the text of remark_type FOP
@@ -443,9 +431,9 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 expres = "([A-Z]{2})([0-9]+)¥([0-9]+)/([0-9]+)"
                 extract_value = re.compile(expres)
                 val_data = extract_value.findall(sort_tex)
-                print("********* Test Val_data*********")
-                info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3])
-                list_info.append(info_payment)
+                if len(val_data):
+                    info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3])
+                    list_info.append(info_payment)
         return list_info
 
     def _ticketing(self, passengers):
