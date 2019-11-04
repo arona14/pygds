@@ -1,6 +1,7 @@
 """
     This is for testing purposes like a suite.
 """
+import logging
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
@@ -21,7 +22,7 @@ def test():
     pnr = "GOQOBU"  # "TGZKPI"
     client = SabreClient(url, "", username, password, pcc, False)
     retrieve_pnr = client.get_reservation(pnr, None, True)
-    print(retrieve_pnr.payload)
+    logging.error(retrieve_pnr.payload)
 
 
 if __name__ == "__main__":
