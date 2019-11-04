@@ -21,7 +21,6 @@ def test():
     pnr = "GOQOBU"  # "TGZKPI"
     client = SabreClient(url, "", username, password, pcc, False)
     retrieve_pnr = client.get_reservation(pnr, None, True)
-    print(retrieve_pnr.payload)
 
 
 if __name__ == "__main__":
