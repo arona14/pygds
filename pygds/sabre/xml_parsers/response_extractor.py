@@ -440,7 +440,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 expres = "([A-Z]{2})([0-9]+)¥([0-9]+)/([0-9]+)"
                 extract_value = re.compile(expres)
                 val_data = extract_value.findall(sort_tex)
-                if len(val_data):
+                if len(val_data) > 0 and len(val_data[0]) > 3:
                     info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3], fop_type)
                     list_info.append(info_payment)
         return list_info
