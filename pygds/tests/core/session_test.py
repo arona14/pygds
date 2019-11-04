@@ -1,14 +1,14 @@
 from unittest import TestCase
-from pygds.core.sessions import SessionInfo, SessionHolder
+from pygds.core.sessions import SessionInfo, MemorySessionHolder
 
 
 class SessionHolderCan(TestCase):
 
     def setUp(self):
-        self.holder = SessionHolder()
+        self.holder = MemorySessionHolder()
 
     def test_init(self):
-        holder = SessionHolder()
+        holder = MemorySessionHolder()
         self.assertIsNotNone(holder, "The created holder is none")
 
     def test_add_session(self):

@@ -5,7 +5,7 @@ import requests
 from requests import Response
 
 from pygds.core.price import PriceRequest
-from pygds.core.sessions import SessionHolder, SessionInfo
+from pygds.core.sessions import MemorySessionHolder, SessionInfo
 
 
 class BaseClient:
@@ -25,7 +25,7 @@ class BaseClient:
         self.username = username
         self.password = password
         self.office_id = office_id
-        self.session_holder = SessionHolder()
+        self.session_holder = MemorySessionHolder()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
         self.is_debugging = debug
         self.log = logging.getLogger(str(self.__class__))

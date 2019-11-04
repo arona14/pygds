@@ -5,6 +5,7 @@ class SessionInfo:
     """
     This class is for containing information for a session
     """
+
     def __init__(self, security_token: str, sequence_number: int, session_id: str, message_id: str,
                  session_ended: bool = True):
         self.security_token = security_token
@@ -32,11 +33,29 @@ class SessionInfo:
 
 
 class SessionHolder(object):
+    def add_session(self, session_info: SessionInfo) -> None:
+        raise NotImplementedError
+
+    def get_session_info(self, message_id: str) -> SessionInfo:
+        raise NotImplementedError
+
+    def remove_session(self, message_id: str) -> None:
+        raise NotImplementedError
+
+    def update_session_sequence(self, message_id: str, sequence_number: int) -> None:
+        raise NotImplementedError
+
+    def contains_session(self, message_id: str) -> bool:
+        raise NotImplementedError
+
+
+class MemorySessionHolder(SessionHolder):
     """
         This class is for holding information for sessions.
         The real use case is that we don't really need to hold all the info, but just the message id.
 
     """
+
     def __init__(self):
         self.current_sessions = {}
 
@@ -76,3 +95,20 @@ class SessionHolder(object):
             Tells weather the holder contains a message id or not.
         """
         return self.current_sessions.__contains__(message_id)
+
+
+class FileSystemSessionHolder(SessionHolder):
+    def add_session(self, session_info: SessionInfo) -> None:
+        pass
+
+    def get_session_info(self, message_id: str) -> SessionInfo:
+        pass
+
+    def remove_session(self, message_id: str) -> None:
+        pass
+
+    def update_session_sequence(self, message_id: str, sequence_number: int) -> None:
+        pass
+
+    def contains_session(self, message_id: str) -> bool:
+        pass
