@@ -150,18 +150,27 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     ticket_designator = ""
     segment_number = ""
 
-    if segment_select != []:
+    if from_json_safe(passenger_type_data, 'ticket_designator') is not None and from_json_safe(passenger_type_data, 'ticket_designator') != "":
         segment_number = segment_number + "<ItineraryOptions>"
         for s in segment_select:
             segment_number = segment_number + f"""<SegmentSelect Number="{s}" RPH="1"/>"""
         segment_number = segment_number + "</ItineraryOptions>"
 
-    if from_json_safe(passenger_type_data, 'ticket_designator') != "":
         ticket_designator = ticket_designator + f"""<CommandPricing RPH="1">
                                                         <Discount Percent='0' AuthCode='{passenger_type_data['ticket_designator']}'/>
                                                     </CommandPricing>"""
     elif brand_id is not None and brand_id != "":
+        segment_number = segment_number + "<ItineraryOptions>"
+        for s in segment_select:
+            segment_number = segment_number + f"""<SegmentSelect Number="{s}" RPH="1"/>"""
+        segment_number = segment_number + "</ItineraryOptions>"
+
         ticket_designator = f"""<Brand RPH="1">{brand_id}</Brand>"""
+    else:
+        segment_number = segment_number + "<ItineraryOptions>"
+        for s in segment_select:
+            segment_number = segment_number + f"""<SegmentSelect Number="{s}"/>"""
+        segment_number = segment_number + "</ItineraryOptions>"
 
     return ticket_designator, segment_number
 
