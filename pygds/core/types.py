@@ -600,6 +600,24 @@ class Remarks(BasicDataObject):
         }
 
 
+class InfoPayment(BasicDataObject):
+    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int, fop_type: str):
+        self.card_type = card_type
+        self.card_number = card_number
+        self.expire_month = expire_month
+        self.expire_year = expire_year
+        self.fop_type = fop_type
+
+    def to_data(self):
+        return {
+            "card_type": self.card_type,
+            "card_number": self.card_number,
+            "expire_month": self.expire_month,
+            "expire_year": self.expire_year,
+            "fop_type": self.fop_type
+        }
+
+
 class FareElement(BasicDataObject):
 
     def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
