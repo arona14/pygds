@@ -39,7 +39,7 @@ def test():
     try:
 
         log.info("Begin call of Low Fare Search *************************************")
-        origine, destination, date_dep, date_arr = ("DSS", "CDG", "051119", "071119")
+        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "071119")
 
         segments = [
             RequestedSegment(
@@ -57,7 +57,7 @@ def test():
             "",
             "",
             ["DL",
-             "AF"],
+             "AF", ],
             "",
             "",
             1)
@@ -70,8 +70,6 @@ def test():
         results, session_info = (search_results.payload, search_results.session_info)
         log.info(results)
 
-        message_id = session_info.message_id
-
         log.info("End of Low Fare Search ********************************************************************************")
 
         log.info("Begin call of sell from recommandation *************************************************************")
@@ -79,8 +77,6 @@ def test():
         itineraries = results[0]['itineraries']
 
         list_segments = []
-
-        # itinerary = Itinerary()
 
         for index, flight_segment in enumerate(itineraries):
             segment = flight_segment[0]
@@ -102,16 +98,6 @@ def test():
             )
             list_segments.append(_segment)
 
-            # itinerary.addSegment(FlightSegment(departure_date_time=segment["departure_date"],
-            #                                    arrival_date_time=segment["arrival_date"],
-            #                                    airline=None,
-            #                                    arrival_airpot=segment["board_airport"],
-            #                                    departure_airport=segment["off_airport"],
-            #                                    flight_number=segment["flight_number"],
-            #                                    marketing=segment["marketing_company"],
-            #                                    class_of_service=segment["book_class"]
-            #                                    ))
-
         log.info("Begin fare informative pricing without pnr")
 
         recommandation = Recommandation(list_segments, TravellerNumbering(2))
@@ -126,12 +112,12 @@ def test():
 
         log.info("End of informative pricing without pnr")
 
-        result_sell = client.sell_from_recommandation(
-            message_id, list_segments
-        )
+        result_sell = client.sell_from_recommandation(list_segments)
 
         result_sell, session_info = (result_sell.payload, result_sell.session_info)
         log.info(result_sell)
+
+        message_id = session_info.message_id
 
         log.info("End of Sell From Recommandation ******************************************************")
         log.info("Begin Call of Add Passenger Info ****************************************************")
@@ -160,16 +146,7 @@ def test():
         # log.debug("update passenger")
         # log.debug(res_updat_pas.payload)
 
-        log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
-
-        # client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P1", message_id)
-        # client.send_command("SR*DOCSYYHK1-----23JUN88-M--DIA-BALLA/P2", message_id)
-
-        log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
-
-        log.info("Begin Call of Pricing Segment for some passenger ***********************************")
-
-        company_id = passenger_info_response["pnr_header"].company_id
+        company_id = _segment.company
 
         seg_refs = []
         pax_refs = []
@@ -177,6 +154,16 @@ def test():
             seg_refs.append(seg.sequence)
         for pax in passenger_info_response["passengers"]:
             pax_refs.append(pax.name_id)
+
+        log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
+
+        response_ssr = client.pnr_add_ssr(message_id, pax_refs, "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", company_id)
+        # response_ssr = client.pnr_add_ssr(message_id, pax_refs[1], "////23JUN88/M//DIA/BALLA", company_id)
+        log.info(response_ssr)
+
+        log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
+
+        log.info("Begin Call of Pricing Segment for some passenger ***********************************")
 
         price_request = PriceRequest(pax_refs, seg_refs)
         res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)

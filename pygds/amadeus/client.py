@@ -7,7 +7,7 @@ from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
-from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
+from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, SsrByPassenger
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
@@ -176,7 +176,7 @@ class AmadeusClient(BaseClient):
         if not session_id:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.issue_ticket_retrieve(message_id, security_token, sequence_number, session_id,
-                                                              tst_refs, pax_refs)
+                                                              tst_refs)
         response_data = self.__request_wrapper("issue_ticket_with_retrieve", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
         final_result = IssueTicketResponseExtractor(response_data).extract()
@@ -215,9 +215,9 @@ class AmadeusClient(BaseClient):
 
         request_data = self.xml_builder.fare_informative_best_price_without_pnr(recommandation)
         response_data = self.__request_wrapper("fare_informative_best_price_without_pnr", request_data,
-                                               'http://webservices.amadeus.com/TIBNRQ_19_1_1A')
+                                               'http://webservices.amadeus.com/TIBNRQ_18_1_1A')
 
-        response_data = InformativePricingWithoutPnrExtractor(response_data).extract()
+        response_data = SessionExtractor(response_data).extract()
 
         return response_data
 
@@ -230,15 +230,8 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
         return response_data
 
-    def sell_from_recommandation(self, message_id: str, itineraries):
-
-        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
-
-        if security_token is None:
-            raise NoSessionError(message_id)
-
-        request_data = self.xml_builder.sell_from_recomendation(message_id, session_id, sequence_number,
-                                                                security_token, itineraries)
+    def sell_from_recommandation(self, itineraries):
+        request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
                                                'http://webservices.amadeus.com/ITAREQ_05_2_IA')
 
@@ -323,6 +316,23 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
                                                            security_token, infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
+
+        response_data = GetPnrResponseExtractor(response_data).extract()
+        self.add_session(response_data.session_info)
+
+        return response_data
+
+    def pnr_add_ssr(self, message_id, ssr_passengers: List[SsrByPassenger]):
+        """
+            add passenger info and create the PNR
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.pnr_add_ssr(session_id, sequence_number,
+                                                    security_token, message_id, ssr_passengers)
+        response_data = self.__request_wrapper("add_ssr_in_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 
         response_data = GetPnrResponseExtractor(response_data).extract()
