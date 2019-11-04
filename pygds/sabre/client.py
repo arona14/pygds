@@ -18,7 +18,7 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
-from pygds.core.sessions import SessionInfo
+from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.core.types import PassengerUpdate, FlightSeatMap
@@ -95,16 +95,19 @@ class SabreClient(BaseClient):
         self.add_session(gds_response.session_info)
         return gds_response.session_info
 
-    def close_session(self, message_id):
+    def close_session(self, message_id, remove_session: bool = False):
         """
         A method to close a session
-        :param token_session: the token session
+        :param message_id: the message id associated to the token
         :return: True if session closed else None
         """
         _, _, token = self.get_or_create_session_details(message_id)
         if token:
             close_session_request = self.xml_builder.session_close_rq(token)
             close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
+            self.log.info(f"Close_session: Session associated to message id {message_id} is closed")
+            if remove_session:
+                self.session_holder.remove_session(message_id)
             return CloseSessionExtractor(close_session_response).extract().payload
 
     def get_reservation(self, pnr: str, message_id: str, need_close=True):
@@ -190,15 +193,15 @@ class SabreClient(BaseClient):
         This function is for searching flight
         :return : available flight for the specific request_search
         """
-        _, _, session_info = self.get_or_create_session_details(message_id)
-        search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
+        session_info = self.get_session_info(message_id)
         if not session_info:
             self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
             session_info = self.new_rest_token()
         else:
-            session_info = self.new_rest_token()
-            self.log.info("Waao you already have a token!")
+            self.log.info("you already have a token! No need to create a new one for search flights")
+        search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
         search_response = self._rest_request_wrapper(json.dumps(search_flight_request), "/v4.1.0/shop/flights?mode=live", session_info.security_token)
+        self.add_session(session_info)
         return search_response.content
 
     def new_rest_token(self):
@@ -210,7 +213,8 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
         token = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
-        session_info = SessionInfo(token, 1, message_id, token, False)
+        session_info = SessionInfo(token, 1, message_id, token, False, TokenType.REST_TOKEN)
+        self.add_session(session_info)
         return session_info
 
     def issue_ticket(self, message_id, price_quote, form_of_payment: FormOfPayment, fare_type=None, commission_percentage=None, markup=None, name_select=None):
@@ -237,10 +241,11 @@ class SabreClient(BaseClient):
         """
         _, sequence, token_session = self.get_or_create_session_details(message_id)
         if token_session is None:
+            self.log.error(f"end_transaction: No token associated to message id {message_id}")
             raise NoSessionError(message_id)
         request_data = self.xml_builder.end_transaction_rq(token_session)
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
-        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, False)
+        session_info = SessionInfo(token_session, sequence + 1, token_session, message_id, True)
         self.add_session(session_info)
         gds_response = EndTransactionExtractor(response_data).extract()
         gds_response.session_info = session_info
@@ -418,6 +423,11 @@ class SabreClient(BaseClient):
         Returns:
             [GdsResponse] -- [create pnr response ]
         """
+        session_info = self.get_session_info(message_id)
+        if not session_info:
+            self.log.info(f"Sorry but we didnt find a token with {message_id}. Creating a new one.")
+            session_info = self.new_rest_token()
+
         request_data = self.json_builder.create_pnr_builder(create_pnr_request)
         _, _, token = self.get_or_create_session_details(message_id)
         if not token:

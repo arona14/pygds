@@ -5,7 +5,7 @@ import requests
 from requests import Response
 
 from pygds.core.price import PriceRequest
-from pygds.core.sessions import MemorySessionHolder, SessionInfo
+from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType
 
 
 class BaseClient:
@@ -75,7 +75,21 @@ class BaseClient:
     def start_new_session(self):
         pass
 
-    def end_session(self, session_id):
+    def close_session(self, message_id, remove_session: bool = False):
+        """
+        Will close an session corresponding to the given message id
+        :param message_id: str -> The message id
+        :param remove_session: bool -> tell if we need to remove it from holder
+        :return:
+        """
+        pass
+
+    def end_transaction(self, message_id):
+        """
+        Commit actions done in the current transaction of the token
+        :param message_id: The message id associated to the token
+        :return:
+        """
         pass
 
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
@@ -86,6 +100,31 @@ class BaseClient:
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         pass
+
+    def new_rest_token(self):
+        pass
+
+    def close_rest_token(self, message_id):
+        pass
+
+    def close_expired_sessions(self, leeway: datetime):
+        """
+        This method will close all sessions not used since leeway
+        :param leeway: The date from which see not used tokens
+        :return:
+        """
+        for session in self.session_holder.get_expired_sessions(leeway):
+            message_id = session.message_id
+            if session.token_type == TokenType.SESSION_TOKEN:
+                self.close_session(message_id)
+            elif session.token_type == TokenType.REST_TOKEN:
+                self.close_rest_token(message_id)
+            else:
+                self.log.warning(f"Unknown token type with message id {message_id}. Will continue to hold "
+                                 f"this session.")
+                continue
+            self.session_holder.remove_session(message_id)
+            self.log.info(f"Token associated to message id {message_id} is closed")
 
 
 class ClientPool:
