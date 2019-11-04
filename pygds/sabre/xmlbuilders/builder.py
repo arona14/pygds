@@ -203,7 +203,7 @@ class SabreXMLBuilder:
                     <ns7:GetReservationRQ xmlns:ns7="http://webservices.sabre.com/pnrbuilder/v1_18" Version="1.18.0">
                         <ns7:Locator>{record_locator}</ns7:Locator>
                         <ns7:RequestType>Stateful</ns7:RequestType>
-                        <ns7:ReturnOptions>
+                        <ns7:ReturnOptions UnmaskCreditCard="true">
                             <ns7:SubjectAreas>
                                 <ns7:SubjectArea>AIR_CABIN</ns7:SubjectArea>
                                 <ns7:SubjectArea>ITINERARY</ns7:SubjectArea>
