@@ -33,23 +33,27 @@ def test():
     # import web_pdb; web_pdb.set_trace()
     try:
         message_id = None
-        res_reservation = client.get_reservation(pnr, message_id, True)
+        res_reservation = client.get_reservation(pnr, message_id, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)
+        if session_info.session_ended is True:
+            log.error(" Session is ended after retrieve PNR")
         message_id = session_info.message_id
-        print(" ************* Message id ***************** ")
-        print(message_id)
         ticket_number = [t.time for t in res_reservation["ticketing_info"]]
         airline_code = res_reservation["itineraries"][0].marketing.airline_code
         list_ticket_number = []
         for ticket in ticket_number:
             if len(ticket):
-                ticket_number = re.split("[, -/,////?//:; ]+", ticket)
+                ticket_number = re.split("[, -/. ]+", ticket)
                 t_number1 = ticket_number[1]
                 t_number2 = ticket_number[2]
                 list_ticket_number.append(t_number1 + t_number2)
-        void_response = client.void_tickets(message_id, [list_ticket_number], airline_code if len(airline_code) else None)
+        print("1. Testing ticket Number ******")
+        print(list_ticket_number)
+        print("2. Testing airline_code****** ")
+        print(airline_code)
+        void_response = client.void_tickets(message_id, [list_ticket_number[0]], airline_code if len(airline_code) else None)
         print(void_response)
         session_info, void_response = (void_response.session_info, void_response.payload)
         log.info(void_response)

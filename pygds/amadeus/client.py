@@ -334,6 +334,7 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
         request_data = self.xml_builder.void_tickets(session_info, ticket_numbers, airline_code)
+        print(request_data)
         response_data = self.__request_wrapper("void_tickets", request_data,
                                                'http://webservices.amadeus.com/TRCANQ_11_1_1A')
         print(response_data)

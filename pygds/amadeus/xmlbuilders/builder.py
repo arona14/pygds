@@ -881,11 +881,18 @@ class AmadeusXMLBuilder:
             <soapenv:Body>
                 <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_11_1_1A" >
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
+                    <voidOption>
+                        <statusInformation>
+                            <indicator>SRP</indicator>
+                        </statusInformation>
+                    </voidOption>
                     <stockProviderDetails>
                         <officeSettingsDetails>
+                            <marketIataCode>FR</marketIataCode>
                             <stockProviderCode>{airline_code}</stockProviderCode>
                         </officeSettingsDetails>
                     </stockProviderDetails>
+
                 </Ticket_CancelDocument>
             </soapenv:Body>
         </soapenv:Envelope>
