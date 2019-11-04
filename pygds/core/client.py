@@ -5,13 +5,16 @@ import requests
 from requests import Response
 
 from pygds.core.price import PriceRequest
-from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType
+from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType, SessionHolder
 
 
 class BaseClient:
     """
         This is the main class to make calls to API of GDS
     """
+
+    DEFAULT_SESSION_HOLDER_CLASS = MemorySessionHolder
+
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, debug: bool = False):
         """
         Init the GDS
@@ -25,10 +28,21 @@ class BaseClient:
         self.username = username
         self.password = password
         self.office_id = office_id
-        self.session_holder = MemorySessionHolder()
+        self.session_holder = self.get_default_session_holder_class()()
         self.header_template = {'Content-Type': 'text/xml;charset=UTF-8', 'Accept-Encoding': 'gzip,deflate'}
         self.is_debugging = debug
         self.log = logging.getLogger(str(self.__class__))
+
+    @classmethod
+    def get_default_session_holder_class(cls):
+        return cls.DEFAULT_SESSION_HOLDER_CLASS
+
+    @classmethod
+    def set_default_session_holder_class(cls, session_holder_class):
+        cls.DEFAULT_SESSION_HOLDER_CLASS = session_holder_class
+
+    def set_sesion_holder(self, session_holder: SessionHolder):
+        self.session_holder = session_holder
 
     def get_session_info(self, message_id) -> SessionInfo:
         """
@@ -61,7 +75,7 @@ class BaseClient:
             return False
         else:
             session_info.last_access = datetime.now()
-            self.session_holder.add_session(session_info)
+            self.session_holder.save_session(session_info)
             return True
 
     def _request_wrapper(self, request_data, soap_action) -> Response:

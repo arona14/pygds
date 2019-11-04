@@ -13,15 +13,15 @@ class SessionHolderCan(TestCase):
 
     def test_add_session(self):
         session_info = SessionInfo("tok9999", 1, "fake-session-id", "fake-message-id", True)
-        self.holder.add_session(session_info)
+        self.holder.save_session(session_info)
         self.assertTrue(self.holder.contains_session("fake-message-id"), "The holder didn't take the giving session")
 
     def test_add_empty_session(self):
-        self.assertRaises(ValueError, self.holder.add_session, None)  # "Adding empty session is not raising ValueError"
+        self.assertRaises(ValueError, self.holder.save_session, None)  # "Adding empty session is not raising ValueError"
 
     def test_get_session_info(self):
         session_info = SessionInfo("tok9999", 1, "fake-session-id-2", "fake-message-id-2", False)
-        self.holder.add_session(session_info)
+        self.holder.save_session(session_info)
         read_session = self.holder.get_session_info("fake-message-id-2")
         self.assertIsNotNone(read_session, "No session found in the holder")
         self.assertEqual("fake-session-id-2", read_session.session_id, "The token read doesn't match")
@@ -32,13 +32,13 @@ class SessionHolderCan(TestCase):
 
     def test_remove_session(self):
         session_info = SessionInfo("tok9999", 1, "fake-session-id-3", "fake-message-id-3", False)
-        self.holder.add_session(session_info)
+        self.holder.save_session(session_info)
         self.holder.remove_session("fake-message-id-3")
         self.assertFalse(self.holder.contains_session("fake-message-id-3"), "The session is not removed")
 
     def test_update_session_sequence(self):
         session_info = SessionInfo("tok9999", 1, "fake-session-id-4", "fake-message-id-4", False)
-        self.holder.add_session(session_info)
+        self.holder.save_session(session_info)
         self.holder.update_session_sequence("fake-message-id-4", 3)
         read_session = self.holder.get_session_info("fake-message-id-4")
         self.assertIsNotNone(read_session, "No session found in the holder")
@@ -46,7 +46,7 @@ class SessionHolderCan(TestCase):
 
     def test_tell_contains_session(self):
         session_info = SessionInfo("tok9999", 1, "fake-session-id-5", "fake-message-id-5", True)
-        self.holder.add_session(session_info)
+        self.holder.save_session(session_info)
         contains = self.holder.contains_session("fake-message-id-5")
         self.assertTrue(contains, "The holder doesn't contain the added session")
 

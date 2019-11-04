@@ -92,8 +92,10 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_create_rq(message_id)
         response = self.__request_wrapper("open_session", open_session_xml, "SessionCreateRQ")
         gds_response = SessionExtractor(response).extract()
-        self.add_session(gds_response.session_info)
-        return gds_response.session_info
+        session_info = gds_response.session_info
+        session_info.token_type = TokenType.SESSION_TOKEN
+        self.add_session(session_info)
+        return session_info
 
     def close_session(self, message_id, remove_session: bool = False):
         """
@@ -117,9 +119,11 @@ class SabreClient(BaseClient):
         :param need_close: close or not the session
         :return: a Reservation object
         """
-        _, _, token = self.get_or_create_session_details(message_id)
+        sess_id, seq, token = self.get_or_create_session_details(message_id)
         session_info = None
-        if not token:
+        if token:
+            session_info = SessionInfo(token, seq, sess_id, message_id, False, TokenType.SESSION_TOKEN)
+        else:
             session_info = self.open_session()
             token = session_info.security_token
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
