@@ -18,9 +18,9 @@ def test():
     pcc = get_setting("SABRE_PCC")
     password = decode_base64(get_setting("SABRE_PASSWORD"))
     url = "https://webservices3.sabre.com"
-
+    pnr = "GOQOBU"  # "TGZKPI"
     client = SabreClient(url, "", username, password, pcc, False)
-    retrieve_pnr = client.get_reservation("TGZKPI", None, True)
+    retrieve_pnr = client.get_reservation(pnr, None, True)
     print(retrieve_pnr.payload)
 
 
