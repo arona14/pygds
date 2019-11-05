@@ -45,7 +45,7 @@ class ClientCan(TestCase):
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "diallo@gmail.com")
         passenger_info_response = self.client.add_passenger_info(self.office_id, message_id, reservation_info)
         self.assertEqual(len(passenger_info_response.payload["passengers"]), 2)
-        self.client.end_session(message_id)
+        self.client.close_session(message_id)
 
     """ def test_price_ok(self):
 
@@ -74,14 +74,14 @@ class ClientCan(TestCase):
         session = res_command.session_info
         self.assertIsNotNone(session)
         self.assertFalse(session.session_ended)
-        res_end_session = self.client.end_session(session.message_id)
+        res_end_session = self.client.close_session(session.message_id)
         self.assertIsNotNone(res_end_session)
         session = res_end_session.session_info
         self.assertIsNotNone(session)
         self.assertTrue(session.session_ended)
 
     def test_end_session_not_exists(self):
-        self.assertRaises(NoSessionError, self.client.end_session, "fake-message-id")
+        self.assertRaises(NoSessionError, self.client.close_session, "fake-message-id")
 
     """
     def test_create_tst(self):
