@@ -87,7 +87,7 @@ class BaseClient:
         return requests.post(self.endpoint, data=request_data, headers=headers)
 
     def start_new_session(self):
-        pass
+        raise NotImplementedError
 
     def close_session(self, message_id, remove_session: bool = False):
         """
@@ -96,7 +96,7 @@ class BaseClient:
         :param remove_session: bool -> tell if we need to remove it from holder
         :return:
         """
-        pass
+        raise NotImplementedError
 
     def end_transaction(self, message_id):
         """
@@ -104,22 +104,22 @@ class BaseClient:
         :param message_id: The message id associated to the token
         :return:
         """
-        pass
+        raise NotImplementedError
 
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
-        pass
+        raise NotImplementedError
 
     def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest):
-        pass
+        raise NotImplementedError
 
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
-        pass
+        raise NotImplementedError
 
     def new_rest_token(self):
-        pass
+        raise NotImplementedError
 
     def close_rest_token(self, message_id):
-        pass
+        raise NotImplementedError
 
     def close_expired_sessions(self, leeway: datetime):
         """

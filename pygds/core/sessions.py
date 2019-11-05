@@ -126,13 +126,13 @@ class MemorySessionHolder(SessionHolder):
 
 class FileSystemSessionHolder(SessionHolder):
     def save_session(self, session_info: SessionInfo) -> None:
-        pass
+        raise NotImplementedError
 
     def get_session_info(self, message_id: str) -> SessionInfo:
-        pass
+        raise NotImplementedError
 
     def remove_session(self, message_id: str) -> None:
-        pass
+        raise NotImplementedError
 
     def contains_session(self, message_id: str) -> bool:
-        pass
+        raise NotImplementedError
