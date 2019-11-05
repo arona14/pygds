@@ -217,7 +217,7 @@ def test():
         if session_info.session_ended is True:
             log.error("The session is ended when saving PNR")
             return
-        log.info("End Sqve ****************************************************************************")
+        log.info("End Save ****************************************************************************")
 
         # log.info("Begin Ticket ************************************************************************")
 

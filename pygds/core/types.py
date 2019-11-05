@@ -2,6 +2,7 @@ import datetime
 import json
 from typing import List
 
+
 class BasicDataObject(object):
     """
         A basic class that contains data.
@@ -24,13 +25,6 @@ class BasicDataObject(object):
             method that redefined the string type
         """
         return self.to_json()
-
-
-class SsrByPassenger(BasicDataObject):
-    def __init(self, passenger_id: str, ssr_format: str, company_id: str):
-        self.passenger_id = passenger_id
-        self.ssr_format = ssr_format
-        self.company_id = company_id
 
 
 class FlightPointDetails(BasicDataObject):

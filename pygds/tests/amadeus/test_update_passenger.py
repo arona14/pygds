@@ -4,6 +4,7 @@
 from pygds import log_handler
 from pygds.env_settings import get_setting
 import os
+import fnc
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.types import TravellerInfo, ReservationInfo
@@ -22,7 +23,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
-    pnr = "MHYHWH"  # "LTGPDG"
+    pnr = 'NI8MVA'  # "LTGPDG"
     try:
 
         message_id = None
@@ -36,18 +37,25 @@ def test():
             return
         message_id = session_info.message_id
 
+        email_tato = ""
+        number_tato = ""
+        for ot in res_reservation["other_information"]:
+            if fnc.get("otherDataFreetext.freetextDetail.type", ot) == "6":
+                number_tato = ot["elementManagementData"]["reference"]["number"]
+            if fnc.get("otherDataFreetext.freetextDetail.type", ot) == "P02":
+                email_tato = ot["elementManagementData"]["reference"]["number"]
         log.info("2. Update passenger")
-        passengers = [p.name_id for p in res_reservation["passengers"]]
-        for pr in passengers:
-            log.info(f"begin  of Calling update Passenger Information for passenger {pr} **")
-            res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, pr, f"Diop {pr}", 1, f"MOUHAMAD {pr}", "ADT", 1, "03121990")
-            res_updat_pas, session_info = res_updat_pas.payload, res_updat_pas.session_info
-            log.debug(res_updat_pas)
-            # log.debug(session_info)
-            if session_info.session_ended is True:
-                log.debug(f"Session closed after update passenger {pr}")
-                return
-            message_id = session_info.message_id
+        # passengers = [p.name_id for p in res_reservation["passengers"]]
+        # for pr in passengers:
+        # log.info(f"begin  of Calling update Passenger Information for passenger {pr} **")
+        res_updat_pas = client.pnr_add_multi_for_pax_info_element(message_id, email_tato, "Amadou1994@gmail.com", number_tato, "773630684")
+        res_updat_pas, session_info = res_updat_pas.payload, res_updat_pas.session_info
+        # log.debug(res_updat_pas)
+        # # log.debug(session_info)
+        # if session_info.session_ended is True:
+        #     log.debug(f"Session closed after update passenger {pr}")
+        #     return
+        # message_id = session_info.message_id
 
         if session_info.session_ended is False:
             log.info("3. Close session")

@@ -29,8 +29,13 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'pnr_info': self._pnr_info(),
             'dk_number': self._dk_number(),
             'tst_data': self._tst_data(),
-            'pnr_header': self.pnr_header()
+            'pnr_header': self.pnr_header(),
+            'other_information': self.ot_info()
         }
+
+    def ot_info(self):
+        ot_informations = from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")
+        return ot_informations
 
     def pnr_header(self):
         pnr_header = from_json_safe(self.payload, "pnrHeader", "reservationInfo", "reservation")

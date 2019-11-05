@@ -7,6 +7,46 @@ from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
 
 
+def build_update_principal_passenger(email_tato=None, email_content=None, number_tato=None, number_content=None):
+    response = "<dataElementsMaster><marker1/>"
+    if email_content:
+        response += f"""<dataElementsIndiv>
+                    <elementManagementData>
+                        <reference>
+                            <qualifier>OT</qualifier>
+                            <number>{email_tato}</number>
+                        </reference>
+                        <segmentName>AP</segmentName>
+                    </elementManagementData>
+                    <freetextData>
+                        <freetextDetail>
+                            <subjectQualifier>3</subjectQualifier>
+                            <type>P02</type>
+                        </freetextDetail>
+                        <longFreetext>{email_content}</longFreetext>
+                    </freetextData>
+                </dataElementsIndiv>"""
+    if number_content:
+        response += f"""<dataElementsIndiv>
+                    <elementManagementData>
+                        <reference>
+                            <qualifier>OT</qualifier>
+                            <number>{number_tato}</number>
+                        </reference>
+                        <segmentName>AP</segmentName>
+                    </elementManagementData>
+                    <freetextData>
+                        <freetextDetail>
+                            <subjectQualifier>3</subjectQualifier>
+                            <type>6</type>
+                        </freetextDetail>
+                        <longFreetext>{number_content}</longFreetext>
+                    </freetextData>
+                </dataElementsIndiv>"""
+
+    return response + "</dataElementsMaster>"
+
+
 def fare_informative_best_price_passengers(traveller_numbering):
 
     ptc_adt = ""

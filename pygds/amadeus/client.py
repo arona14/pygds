@@ -7,7 +7,7 @@ from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
-from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, SsrByPassenger
+from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
@@ -140,8 +140,7 @@ class AmadeusClient(BaseClient):
         self.add_session(response.session_info)
         return response
 
-    def pnr_add_multi_for_pax_info_element(self, message_id, ref_number, surname, quantity,
-                                           first_name, pax_type, inf_number, date_of_birth):
+    def pnr_add_multi_for_pax_info_element(self, message_id, email_tato, email_content, number_tato, number_content):
         """
             This method modifies the elements of a PNR (passengers, etc.)
         """
@@ -149,7 +148,7 @@ class AmadeusClient(BaseClient):
         if not security_token:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
-                                                                                   message_id, ref_number, surname, quantity, first_name, pax_type, inf_number, date_of_birth)
+                                                                                   message_id, email_tato, email_content, number_tato, number_content)
         response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         # print(response_data)
@@ -323,7 +322,7 @@ class AmadeusClient(BaseClient):
 
         return response_data
 
-    def pnr_add_ssr(self, message_id, ssr_passengers: List[SsrByPassenger]):
+    def pnr_add_ssr(self, message_id, passenger_ids, content, company_id):
         """
             add passenger info and create the PNR
         """
@@ -331,7 +330,7 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.pnr_add_ssr(session_id, sequence_number,
-                                                    security_token, message_id, ssr_passengers)
+                                                    security_token, message_id, passenger_ids, content, company_id)
         response_data = self.__request_wrapper("add_ssr_in_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 
