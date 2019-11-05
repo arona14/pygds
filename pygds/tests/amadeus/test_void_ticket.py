@@ -10,6 +10,7 @@ from pygds.amadeus.errors import ClientError, ServerError
 # from pygds.core.price import PriceRequest  # , Fare
 # from pygds.core.types import SellItinerary, TravellerNumbering, TravellerInfo
 from pygds.env_settings import get_setting
+import logging
 from pygds import log_handler
 # from pygds.core.types import TravellerInfo, ReservationInfo
 
@@ -26,7 +27,7 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "N9EO29"  # MMRECS, MSDH6E, MJNKN6, "LNB4CC", "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
+    pnr = "NN3GFI"  # NMZPBS, N9EO29, MMRECS, MSDH6E, MJNKN6,  "LNB4CC", "L6LMQP", "KDN6HQ", "Q68EFX", "Q68EFX", "RI3B6D", "RT67BC", "RH3WOD", "WKHPRE", "TSYX56", "SNG6IR", "SY9LBS"
     # m_id = None
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
@@ -41,20 +42,25 @@ def test():
             log.error(" Session is ended after retrieve PNR")
         message_id = session_info.message_id
         ticket_number = [t.time for t in res_reservation["ticketing_info"]]
+
         airline_code = res_reservation["itineraries"][0].marketing.airline_code
         list_ticket_number = []
+        office = None
         for ticket in ticket_number:
             if len(ticket):
                 ticket_number = re.split("[, -/. ]+", ticket)
                 t_number1 = ticket_number[1]
                 t_number2 = ticket_number[2]
                 list_ticket_number.append(t_number1 + t_number2)
-        print("1. Testing ticket Number ******")
-        print(list_ticket_number)
-        print("2. Testing airline_code****** ")
-        print(airline_code)
-        void_response = client.void_tickets(message_id, [list_ticket_number[0]], airline_code if len(airline_code) else None)
-        print(void_response)
+                office = ticket_number[7]
+        print(" ***** Test Office******")
+        print(office)
+        logging.error("1. Testing ticket Number ******")
+        logging.error(list_ticket_number)
+        logging.error("2. Testing airline_code****** ")
+        logging.error(airline_code)
+        void_response = client.void_tickets(message_id, [list_ticket_number[0]], airline_code, office)
+        logging.error(void_response)
         session_info, void_response = (void_response.session_info, void_response.payload)
         log.info(void_response)
         if session_info.session_ended is False:

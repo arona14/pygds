@@ -864,7 +864,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str], airline_code: str):
+    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str], airline_code: str, office: str):
         message_id = session_info.message_id
         session_id = session_info.session_id
         sequence_number = session_info.sequence_number
@@ -880,18 +880,18 @@ class AmadeusXMLBuilder:
             {self.generate_header("TRCANQ_11_1_1A", message_id, session_id, sequence_number, security_token)}
             <soapenv:Body>
                 <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_11_1_1A" >
+
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
-                    <voidOption>
-                        <statusInformation>
-                            <indicator>SRP</indicator>
-                        </statusInformation>
-                    </voidOption>
                     <stockProviderDetails>
                         <officeSettingsDetails>
-                            <marketIataCode>FR</marketIataCode>
                             <stockProviderCode>{airline_code}</stockProviderCode>
                         </officeSettingsDetails>
                     </stockProviderDetails>
+                    <targetOfficeDetails>
+                        <originatorDetails>
+                            <inHouseIdentification2>{office}</inHouseIdentification2>
+                        </originatorDetails>
+                    </targetOfficeDetails>
 
                 </Ticket_CancelDocument>
             </soapenv:Body>
