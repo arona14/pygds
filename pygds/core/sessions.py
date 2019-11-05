@@ -47,7 +47,7 @@ class SessionInfo:
 
 class SessionHolder(object):
     """
-    This a virtual calss for holding session info
+    This an abstract class for holding session info
     """
 
     def save_session(self, session_info: SessionInfo) -> None:
