@@ -1,6 +1,6 @@
 import logging
 import re
-
+from typing import List
 from pygds.core.types import SeatInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
@@ -29,10 +29,10 @@ from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
                               FlightAirlineDetails, FlightDisclosureCarrier,
                               FlightInfo, FlightMarriageGrp,
                               FlightPointDetails, FlightSegment, FormatAmount,
-                              FormatPassengersInPQ, FormOfPayment,
+                              FormatPassengersInPQ,
                               IgnoreTransaction, Itinerary,
                               OperatingMarketing, Passenger, PriceQuote_,
-                              QueuePlace, Remarks, RowInfo, SeatMap,
+                              QueuePlace, Remarks, RowInfo, SeatMap, InfoPayment,
                               SendCommand, ServiceCoupon, TicketDetails,
                               TicketingInfo_, TypeInfo)
 
@@ -293,13 +293,14 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         display_pnr = str(display_pnr).replace("@", "")
         display_pnr = eval(display_pnr.replace("u'", "'"))
         passengers_reservation = from_json_safe(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
+        remarks = self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark"))
         return {
             'passengers': self._passengers(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'itineraries': self._itineraries(from_json_safe(passengers_reservation, "stl18:Segments")),
-            'form_of_payments': self._forms_of_payment(from_json_safe(passengers_reservation, "stl18:FormsOfPayment")),
+            'form_of_payments': self.list_fop(remarks),
             'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
-            'remarks': self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark")),
+            'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
             'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
         }
@@ -404,7 +405,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             tax_fare_cc = from_json_safe(price, "FareInfo", "TotalTax", "currencyCode")
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
             validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
-
+            commission_percentage = from_json_safe(price, "FareInfo", "Commission", "Percentage")
             for i in ensure_list(price_quote["Summary"]["NameAssociation"]):
                 if pq_number == from_json_safe(i, "PriceQuote", "number"):
                     name_number = from_json_safe(i, "nameNumber")
@@ -412,21 +413,37 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
                     list_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers)
+            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
             list_price_quote.append(price_quote_data)
 
         return list_price_quote
 
-    def _forms_of_payment(self, forms_payment):
-        list_forms_payment = []
-        if forms_payment is None:
-            return []
-        for i in ensure_list(forms_payment):
-            if 'stl18:CreditCardPayment' in i and 'ShortText' in i["stl18:CreditCardPayment"]:
-                form_of_payment = FormOfPayment("", from_json(i, "stl18:CreditCardPayment", "ShortText"), "", "", "")
-                if form_of_payment:
-                    list_forms_payment.append(form_of_payment)
-        return list_forms_payment
+    def list_fop(self, remarks: List[Remarks]):
+        """
+        This function return the list of card_type, card_number and expirate date in the text of remark_type FOP
+        :param: remark
+        :return: list of card_type, card_number and expirate date
+
+        """
+        remarks = remarks or []
+        objet_fop = []
+        list_info = []
+        for r in remarks:
+            if r.type_remark == "FOP" and r.text == "CHECK":
+                fop_type = "CK"
+                info_payment = InfoPayment("", "", "", "", fop_type)
+                list_info.append(info_payment)
+            elif r.type_remark == "FOP":
+                fop_type = "CC"
+                objet_fop = r
+                sort_tex = objet_fop.text
+                expres = "([A-Z]{2})([0-9]+)¥([0-9]+)/([0-9]+)"
+                extract_value = re.compile(expres)
+                val_data = extract_value.findall(sort_tex)
+                if len(val_data) > 0 and len(val_data[0]) > 3:
+                    info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3], fop_type)
+                    list_info.append(info_payment)
+        return list_info
 
     def _ticketing(self, passengers):
         list_ticket = []
