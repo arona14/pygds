@@ -38,6 +38,9 @@ class SessionInfo:
             "token_type": self.token_type
         }
 
+    def increment_sequence(self):
+        self.sequence_number = (self.sequence_number or 0) + 1
+
     def __str__(self):
         return str(self.to_data())
 
