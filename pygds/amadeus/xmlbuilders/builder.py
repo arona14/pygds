@@ -864,7 +864,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str], airline_code: str, office: str):
+    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str], airline_code: str):
         message_id = session_info.message_id
         session_id = session_info.session_id
         sequence_number = session_info.sequence_number
@@ -889,7 +889,7 @@ class AmadeusXMLBuilder:
                     </stockProviderDetails>
                     <targetOfficeDetails>
                         <originatorDetails>
-                            <inHouseIdentification2>{office}</inHouseIdentification2>
+                            <inHouseIdentification2>{self.office_id}</inHouseIdentification2>
                         </originatorDetails>
                     </targetOfficeDetails>
 
