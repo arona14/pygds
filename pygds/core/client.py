@@ -145,6 +145,7 @@ class ClientPool:
     """
         This class is for handling a pool of client
     """
+
     def __init__(self):
         self.clients = {}
 
@@ -163,7 +164,6 @@ class ClientPool:
 
 
 def session_wrapper(always_close_session: bool = True):
-
     def decorator(fnc):
         def function(token, close_session: bool = always_close_session, *args, **kwargs):
             if token is None:
@@ -173,13 +173,15 @@ def session_wrapper(always_close_session: bool = True):
             if close_session is True:
                 # 3 close session
                 pass
+
         return function
+
     return decorator
 
 
 def retrieve_pnr(token: str, close_session: bool, pnr: str):
     if token is None:
-        token = "" # open_session
+        token = ""  # open_session
     # Sabre retrieve pnr
     result = None
     if close_session:

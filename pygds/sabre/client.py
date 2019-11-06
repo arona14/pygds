@@ -13,9 +13,12 @@ from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
-from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, IssueTicketExtractor, EndTransactionExtractor, \
-    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
-    ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, SabreSoapErrorExtractor
+from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, \
+    IssueTicketExtractor, EndTransactionExtractor, \
+    SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \
+    IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
+    ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
+    SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.core.sessions import SessionInfo, TokenType
@@ -97,21 +100,16 @@ class SabreClient(BaseClient):
         self.add_session(session_info)
         return session_info
 
-    def close_session(self, message_id, remove_session: bool = True):
+    def close_session(self, token: str):
         """
         A method to close a session
-        :param message_id: the message id associated to the token
-        :param remove_session: bool -> Tell if we will remove the session from holder
+        :param token: the  token
         :return: True if session closed else None
         """
-        _, _, token = self.get_or_create_session_details(message_id)
-        if token:
-            close_session_request = self.xml_builder.session_close_rq(token)
-            close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
-            self.log.info(f"Close_session: Session associated to message id {message_id} is closed")
-            if remove_session:
-                self.session_holder.remove_session(message_id)
-            return CloseSessionExtractor(close_session_response).extract().payload
+        close_session_request = self.xml_builder.session_close_rq(token)
+        close_session_response = self.__request_wrapper("close_session", close_session_request, self.endpoint)
+        self.log.info(f"Close_session: Session associated to the token {token} is closed")
+        return CloseSessionExtractor(close_session_response).extract().payload
 
     def get_reservation(self, token: str, pnr: str):
         """retrieve PNR
@@ -124,10 +122,11 @@ class SabreClient(BaseClient):
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         return gds_response
 
-    def search_price_quote(self, message_id, retain: bool = False, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = ""):
+    def search_price_quote(self, token: str, retain: bool = False, fare_type: str = '', segment_select: list = [],
+                           passenger_type: list = [], baggage: int = 0, region_name: str = ""):
         """
         A method to search price
-        :param message_id: the message id
+        :param token: the token
         :param retain: the retain value
         :param fare_type: the fare type value value
         :param segment_select: the list of segment selected
@@ -136,22 +135,19 @@ class SabreClient(BaseClient):
         :param region_name: the region name
         :return:
         """
-        session_info = self.get_session_info(message_id)
-        if session_info is None:
-            raise NoSessionError(message_id)
-        token_session = session_info.security_token
-        search_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passenger_type, baggage=baggage, region_name=region_name)
+        search_price_request = self.xml_builder.price_quote_rq(token, retain=retain, fare_type=fare_type,
+                                                               segment_select=segment_select,
+                                                               passenger_type=passenger_type, baggage=baggage,
+                                                               region_name=region_name)
         search_price_response = self.__request_wrapper("search_price_quote", search_price_request, self.endpoint)
-        session_info.increment_sequence()
-        self.add_session(session_info)
         response = PriceSearchExtractor(search_price_response).extract()
-        response.session_info = session_info
         return response
 
-    def store_price_quote(self, message_id, retain: bool = True, fare_type: str = '', segment_select: list = [], passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
+    def store_price_quote(self, token: str, retain: bool = True, fare_type: str = '', segment_select: list = [],
+                          passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
-        :param message_id: the message id
+        :param token: the token
         :param retain: the retain value
         :param fare_type: the fare type value value
         :param segment_select: the list of segment selected
@@ -160,40 +156,31 @@ class SabreClient(BaseClient):
         :param brand_id
         :return:
         """
-        session_info = self.get_session_info(message_id)
-        if session_info is None:
-            raise NoSessionError(message_id)
-        token_session = session_info.security_token
-        store_price_request = self.xml_builder.price_quote_rq(token_session, retain=retain, fare_type=fare_type, segment_select=segment_select, passenger_type=passengers, baggage=baggage, region_name=region_name, brand_id=brand_id)
+        store_price_request = self.xml_builder.price_quote_rq(token, retain=retain, fare_type=fare_type,
+                                                              segment_select=segment_select, passenger_type=passengers,
+                                                              baggage=baggage, region_name=region_name,
+                                                              brand_id=brand_id)
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
-        session_info.increment_sequence()
-        self.add_session(session_info)
         response = PriceSearchExtractor(store_price_response).extract()
-        response.session_info = session_info
         return response
 
-    def cancel_list_segment(self, token_session, list_segment):
+    def cancel_list_segment(self, token: str, list_segment):
         """
         A method to cancel segment
-        :param token_session: the token session
+        :param token: the token session
         :param list_segment: the list of segment selected
         """
-        return self.xml_builder.cancel_segment_rq(token_session, list_segment)
+        return self.xml_builder.cancel_segment_rq(token, list_segment)
 
-    def search_flight(self, message_id, search_request: LowFareSearchRequest, available_only: bool, types: str):
+    def search_flight(self, token: str, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
         This function is for searching flight
+        :param token: the token session
         :return : available flight for the specific request_search
         """
-        session_info = self.get_session_info(message_id)
-        if not session_info:
-            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
-            session_info = self.new_rest_token()
-        else:
-            self.log.info("you already have a token! No need to create a new one for search flights")
         search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
-        search_response = self._rest_request_wrapper(json.dumps(search_flight_request), "/v4.1.0/shop/flights?mode=live", session_info.security_token)
-        self.add_session(session_info)
+        search_response = self._rest_request_wrapper(json.dumps(search_flight_request),
+                                                     "/v4.1.0/shop/flights?mode=live", token)
         return search_response.content
 
     def new_rest_token(self):
@@ -204,27 +191,23 @@ class SabreClient(BaseClient):
         message_id = generate_random_message_id()
         open_session_xml = self.xml_builder.session_token_rq()
         response = self._request_wrapper(open_session_xml, None)
-        token = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security", "wsse:BinarySecurityToken")["#text"]
+        token = get_data_from_xml(response.content, "soap-env:Envelope", "soap-env:Header", "wsse:Security",
+                                  "wsse:BinarySecurityToken")["#text"]
         session_info = SessionInfo(token, 1, message_id, token, False, TokenType.REST_TOKEN)
         self.add_session(session_info)
         return session_info
 
-    def issue_ticket(self, message_id, price_quote, form_of_payment: FormOfPayment, fare_type=None, commission_percentage=None, markup=None, name_select=None):
+    def issue_ticket(self, token: str, price_quote, form_of_payment: FormOfPayment, fare_type=None,
+                     commission_percentage=None, markup=None, name_select=None):
         """
         This function is make for the ticket process.
         she does not want to make the end transaction at the end to commit the change
         :return
         """
-        session_info = self.get_session_info(message_id)
-        if session_info is None:
-            raise NoSessionError(message_id)
-        token_session = session_info.security_token
-        air_ticket_request = self.xml_builder.air_ticket_rq(token_session, price_quote, form_of_payment, fare_type, commission_percentage, markup, name_select)
+        air_ticket_request = self.xml_builder.air_ticket_rq(token, price_quote, form_of_payment, fare_type,
+                                                            commission_percentage, markup, name_select)
         air_ticket_response = self.__request_wrapper("issue_ticket", air_ticket_request, self.endpoint)
-        session_info.increment_sequence()
-        self.add_session(session_info)
         gds_response = IssueTicketExtractor(air_ticket_response).extract()
-        gds_response.session_info = session_info
         return gds_response
 
     def end_transaction(self, message_id):
@@ -278,7 +261,8 @@ class SabreClient(BaseClient):
             raise NoSessionError(message_id)
         token_session = session_info.security_token
         re_book_air_segment_request = self.xml_builder.re_book_air_segment_rq(token_session, flight_segment, pnr)
-        re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request, self.endpoint)
+        re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request,
+                                                              self.endpoint)
         session_info.increment_sequence()
         self.add_session(session_info)
         response = RebookExtractor(re_book_air_segment_response).extract()
@@ -350,7 +334,8 @@ class SabreClient(BaseClient):
             raise NoSessionError(message_id)
         token_session = session_info.security_token
         electronic_document_request = self.xml_builder.electronic_document_rq(token_session, ticket_number)
-        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request, self.endpoint)
+        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request,
+                                                              self.endpoint)
         session_info.increment_sequence()
         self.add_session(session_info)
         gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
@@ -371,8 +356,10 @@ class SabreClient(BaseClient):
             self.log.warning(f"Exchange shopping with no session associated to message id {message_id}")
             raise NoSessionError(message_id)
         token_session = session_info.security_token
-        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token_session, pnr, passengers, origin_destination)
-        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request, self.endpoint)
+        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token_session, pnr, passengers,
+                                                                          origin_destination)
+        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request,
+                                                            self.endpoint)
         session_info.increment_sequence()
         self.add_session(session_info)
         gds_response = ExchangeShoppingExtractor(exchange_shopping_response).extract()
@@ -393,7 +380,8 @@ class SabreClient(BaseClient):
             self.log.warning(f"Exchange price with no session associated to message id {message_id}")
             raise NoSessionError(message_id)
         token_session = session_info.security_token
-        exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token_session, ticket_number, name_number, passenger_type)
+        exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token_session, ticket_number,
+                                                                               name_number, passenger_type)
         exchange_price_response = self.__request_wrapper("exchange_price", exchange_price_request, self.endpoint)
         session_info.increment_sequence()
         self.add_session(session_info)
@@ -417,7 +405,9 @@ class SabreClient(BaseClient):
             self.log.warning(f"Exchange commit with no session associated to message id {message_id}")
             raise NoSessionError(message_id)
         token_session = session_info.security_token
-        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token_session, price_quote, form_of_payment, fare_type, percent, amount)
+        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token_session, price_quote,
+                                                                                  form_of_payment, fare_type, percent,
+                                                                                  amount)
         exchange_commit_response = self.__request_wrapper("exchange_commit", exchange_commit_request, self.endpoint)
         session_info.increment_sequence()
         self.add_session(session_info)
@@ -486,7 +476,8 @@ class SabreClient(BaseClient):
         gds_response.session_info = session_info
         return gds_response
 
-    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
+    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
         specific itinerary option without booking the itinerary.
