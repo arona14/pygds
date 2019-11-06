@@ -172,16 +172,26 @@ class SabreClient(BaseClient):
         """
         return self.xml_builder.cancel_segment_rq(token, list_segment)
 
-    @session_wrapper
-    def search_flight(self, token: str, search_request: LowFareSearchRequest, available_only: bool, types: str):
+    def search_flight(self, message_id, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
         This function is for searching flight
-        :param token: the token session
+        :param message_id:
+        :param search_request:
+        :param available_only:
+        :param types:
+        :return:
         :return : available flight for the specific request_search
         """
+        session_info = self.get_session_info(message_id)
+        if not session_info:
+            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
+            session_info = self.new_rest_token()
+        else:
+            self.log.info("you already have a token! No need to create a new one for search flights")
         search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
         search_response = self._rest_request_wrapper(json.dumps(search_flight_request),
-                                                     "/v4.1.0/shop/flights?mode=live", token)
+                                                     "/v4.1.0/shop/flights?mode=live", session_info.security_token)
+        self.add_session(session_info)
         return search_response.content
 
     def new_rest_token(self):
@@ -345,21 +355,25 @@ class SabreClient(BaseClient):
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
         return gds_response
 
-    @session_wrapper
-    def create_pnr_rq(self, token: str, create_pnr_request):
+    def create_pnr_rq(self, message_id, create_pnr_request):
         """
         the create pnr request builder
         Arguments:
-            token : the security token
+            message_id : the messgae id
             create_pnr_request {[CreatPnrRequest]} -- [the pnr request]
-
         Returns:
             [GdsResponse] -- [create pnr response ]
         """
-
+        session_info = self.get_session_info(message_id)
+        if not session_info:
+            self.log.info(f"Sorry but we didnt find a token with {message_id}. Creating a new one.")
+            session_info = self.new_rest_token()
+        token = session_info.security_token
         request_data = self.json_builder.create_pnr_builder(create_pnr_request)
+        self.add_session(session_info)
         response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
         gds_response = CreatePnrExtractor(response.content).extract()
+        gds_response.session_info = session_info
         return gds_response
 
     @session_wrapper
@@ -388,22 +402,30 @@ class SabreClient(BaseClient):
         gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
         return gds_response
 
-    @session_wrapper
-    def revalidate_itinerary(self, token: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
+    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
         specific itinerary option without booking the itinerary.
         The solution re-validates if the itinerary option is valid for purchase.
         Arguments:
-            token{str} : the security token
+            message_id{str} : the message identifier
             itineraries{list}: list itineraries
             passengers{list}: list passengers
             fare_type{str}: fare type(Net or Pub)
-
         Returns:
             [GdsResponse] -- [revalidate itinerary response]
         """
+        session_info = self.get_session_info(message_id)
+        if not session_info:
+            self.log.info(f"Sorry but we didnt find a token with {message_id}. Creating a new one.")
+            session_info = self.new_rest_token()
+        token = session_info.security_token
+
         revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
+        session_info.increment_sequence()
+        self.add_session(session_info)
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
+        gds_response.session_info = session_info
         return gds_response
