@@ -4,9 +4,10 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='pygds',
-    version='0.0.8',
-    description='A python package to make it easy interacting with gds ',
+    name='pygds-sessionless',
+    version='0.0.9',
+    description="A python package to make it easy interacting with gds."
+                "In this version the system won't hold any session",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/cosmopolitan-travel-serivce/pygds',
