@@ -19,7 +19,6 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
     SabreSoapErrorExtractor
-from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient, session_wrapper
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
@@ -195,6 +194,7 @@ class SabreClient(BaseClient):
         self.add_session(session_info)
         return session_info
 
+    @session_wrapper
     def issue_ticket(self, token: str, price_quote, form_of_payment: FormOfPayment, fare_type=None,
                      commission_percentage=None, markup=None, name_select=None):
         """
@@ -208,6 +208,7 @@ class SabreClient(BaseClient):
         gds_response = IssueTicketExtractor(air_ticket_response).extract()
         return gds_response
 
+    @session_wrapper
     def end_transaction(self, token: str):
         """
         This function is for end transaction
@@ -217,6 +218,7 @@ class SabreClient(BaseClient):
         gds_response = EndTransactionExtractor(response_data).extract()
         return gds_response
 
+    @session_wrapper
     def send_remark(self, token: str, text):
         """this will send a remark for a pnr
         :param token: the security token
@@ -229,6 +231,7 @@ class SabreClient(BaseClient):
         response = SendRemarkExtractor(send_remark_response).extract()
         return response
 
+    @session_wrapper
     def re_book_air_segment(self, token: str, flight_segment, pnr):
         """
         A method to rebook air segment
@@ -242,6 +245,7 @@ class SabreClient(BaseClient):
         response = RebookExtractor(re_book_air_segment_response).extract()
         return response
 
+    @session_wrapper
     def send_command(self, token: str, command: str):
         """send command
         :param token: the security token
@@ -253,6 +257,7 @@ class SabreClient(BaseClient):
         gds_response = SendCommandExtractor(command_response).extract()
         return gds_response
 
+    @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
         """This function is for queue place
         """
@@ -261,6 +266,7 @@ class SabreClient(BaseClient):
         gds_response = SabreQueuePlaceExtractor(response_data).extract()
         return gds_response
 
+    @session_wrapper
     def ignore_transaction(self, token: str):
         """
         This function is for ignore transaction
@@ -270,6 +276,7 @@ class SabreClient(BaseClient):
         gds_response = SabreIgnoreTransactionExtractor(response_data).extract()
         return gds_response
 
+    @session_wrapper
     def is_ticket_exchangeable(self, token: str, ticket_number):
         """
         A method to check if the ticket number is exchangeable
@@ -282,6 +289,7 @@ class SabreClient(BaseClient):
         gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
         return gds_response
 
+    @session_wrapper
     def exchange_shopping(self, token: str, pnr, passengers: list = [], origin_destination: list = []):
         """
         A method to search for applicable itinerary reissue options for an existing ticket
@@ -296,6 +304,7 @@ class SabreClient(BaseClient):
         gds_response = ExchangeShoppingExtractor(exchange_shopping_response).extract()
         return gds_response
 
+    @session_wrapper
     def exchange_price(self, token: str, ticket_number, name_number, passenger_type):
         """
         A method to price an air ticket exchange
@@ -310,6 +319,7 @@ class SabreClient(BaseClient):
         gds_response = ExchangePriceExtractor(exchange_price_response).extract()
         return gds_response
 
+    @session_wrapper
     def exchange_commit(self, token: str, price_quote, form_of_payment, fare_type, percent, amount):
         """
         A method to price an air ticket exchange
@@ -326,6 +336,7 @@ class SabreClient(BaseClient):
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
         return gds_response
 
+    @session_wrapper
     def create_pnr_rq(self, token: str, create_pnr_request):
         """
         the create pnr request builder
@@ -342,6 +353,7 @@ class SabreClient(BaseClient):
         gds_response = CreatePnrExtractor(response.content).extract()
         return gds_response
 
+    @session_wrapper
     def seat_map(self, token: str, flight_request: FlightSeatMap):
         """[This function will return the result for the seat map request]
 
@@ -354,6 +366,7 @@ class SabreClient(BaseClient):
         gds_response = SeatMapResponseExtractor(seat_map_response).extract()
         return gds_response
 
+    @session_wrapper
     def update_passenger(self, token: str, pnr: str, passenger_update: PassengerUpdate):
         """
         Arguments:
@@ -366,6 +379,7 @@ class SabreClient(BaseClient):
         gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
         return gds_response
 
+    @session_wrapper
     def revalidate_itinerary(self, token: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a

@@ -1,7 +1,6 @@
 """
     This is for testing purposes like a suite.
 """
-import logging
 
 from pygds import log_handler
 from pygds.core.security_utils import decode_base64
@@ -47,5 +46,3 @@ def test():
 
 if __name__ == "__main__":
     test()
-"Shared/IDL:IceSess\\\\/SessMgr:1\\\\.0.IDL/Common/!ICESMS\\\\/RESB!ICESMSLB\\\\/RES.LB!-2955511136615197053!533177!0"
-"Shared/IDL:IceSess\\\\/SessMgr:1\\\\.0.IDL/Common/!ICESMS\\\\/RESB!ICESMSLB\\\\/RES.LB!-2955511136615197053!533177!0"

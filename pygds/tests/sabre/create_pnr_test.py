@@ -69,7 +69,7 @@ class ClientCan(unittest.TestCase):
         # print(create_pnr_object.to_dict())
         # create_pnr_builder = CreatePnrBuilder(create_pnr_object)
         # print(create_pnr_builder.to_dict())
-        response = self.client.create_pnr_rq(None, create_pnr_object)
+        response = self.client.create_pnr_rq(None, True, create_pnr_object)
         self.assertIsNotNone(response)
         """
         self.assertIsInstance(response, GdsResponse)

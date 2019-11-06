@@ -17,7 +17,7 @@ class RebookingTest(unittest.TestCase):
         self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
 
     def test_rebooking(self):
-        self.client.get_reservation(None, "SMZEKA")
+        self.client.get_reservation(None, False, "SMZEKA")
         flight_segment = [
             {"origin": "DTW", "destination": "EWR", "departure_date_time": "2019-09-26T08:40:00", "arrival_date_time": "2019-09-26T10:29:00",
                 "flight_number": "3526", "number_in_party": 2, "res_book_desig_code": "N", "operating_code": "UA",
@@ -29,7 +29,7 @@ class RebookingTest(unittest.TestCase):
 
         ]
         pnr = 'SMZEKA'
-        rebooking = self.client.re_book_air_segment(None, flight_segment, pnr)
+        rebooking = self.client.re_book_air_segment(None, True, flight_segment, pnr)
         self.assertIsNotNone(rebooking)
         self.assertIsInstance(rebooking, GdsResponse)
         self.assertIsInstance(rebooking.payload, RebookInfo)
