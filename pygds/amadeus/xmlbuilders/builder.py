@@ -864,7 +864,7 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str], airline_code: str):
+    def void_tickets(self, session_info: SessionInfo, ticket_numbers: List[str]):
         message_id = session_info.message_id
         session_id = session_info.session_id
         sequence_number = session_info.sequence_number
@@ -884,7 +884,7 @@ class AmadeusXMLBuilder:
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
                     <stockProviderDetails>
                         <officeSettingsDetails>
-                            <stockProviderCode>{airline_code}</stockProviderCode>
+                            <marketIataCode>US</marketIataCode>
                         </officeSettingsDetails>
                     </stockProviderDetails>
                     <targetOfficeDetails>

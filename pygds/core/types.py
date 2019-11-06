@@ -1128,6 +1128,7 @@ class VoidTicket(BasicDataObject):
         return {
             "response_type": self.response_type,
             "status_code": self.status_code,
+            "voited": self.status_code == "O",
             "ticket_number": self.ticket_number
         }
 
