@@ -113,27 +113,15 @@ class SabreClient(BaseClient):
                 self.session_holder.remove_session(message_id)
             return CloseSessionExtractor(close_session_response).extract().payload
 
-    def get_reservation(self, pnr: str, message_id: str, need_close=True):
+    def get_reservation(self, token: str, pnr: str):
         """retrieve PNR
         :param pnr: the record locator
-        :param message_id: the message identifier
-        :param need_close: close or not the session
+        :param token: the message identifier
         :return: a Reservation object
         """
-        session_info = self.get_session_info(message_id)
-        if not session_info:
-            session_info = self.open_session()
-        token = session_info.security_token
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
         display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
-        gds_response.session_info = session_info
-        if need_close:
-            message_id = gds_response.session_info.message_id
-            self.close_session(message_id)
-        else:
-            session_info.increment_sequence()
-            self.add_session(session_info)
         return gds_response
 
     def search_price_quote(self, message_id, retain: bool = False, fare_type: str = '', segment_select: list = [], passenger_type: list = [], baggage: int = 0, region_name: str = ""):

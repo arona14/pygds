@@ -160,3 +160,30 @@ class ClientPool:
             return self.clients[office_id]
         except KeyError:
             return None
+
+
+def session_wrapper(always_close_session: bool = True):
+
+    def decorator(fnc):
+        def function(token, close_session: bool = always_close_session, *args, **kwargs):
+            if token is None:
+                # open session
+                pass
+            fnc(token, args, kwargs)
+            if close_session is True:
+                # 3 close session
+                pass
+        return function
+    return decorator
+
+
+def retrieve_pnr(token: str, close_session: bool, pnr: str):
+    if token is None:
+        token = "" # open_session
+    # Sabre retrieve pnr
+    result = None
+    if close_session:
+        # close_session
+        pass
+    result.session_info.token = token
+    return result
