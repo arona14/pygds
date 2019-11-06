@@ -97,6 +97,7 @@ class SabreClient(BaseClient):
         gds_response = SessionExtractor(response).extract()
         return gds_response.session_info.security_token
 
+
     def close_session(self, token: str):
         """
         A method to close a session
@@ -120,6 +121,7 @@ class SabreClient(BaseClient):
         gds_response = DisplayPnrExtractor(display_pnr_response).extract()
         return gds_response
 
+    @session_wrapper
     def search_price_quote(self, token: str, retain: bool = False, fare_type: str = '', segment_select: list = [],
                            passenger_type: list = [], baggage: int = 0, region_name: str = ""):
         """
@@ -141,6 +143,7 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(search_price_response).extract()
         return response
 
+    @session_wrapper
     def store_price_quote(self, token: str, retain: bool = True, fare_type: str = '', segment_select: list = [],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
@@ -162,6 +165,7 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(store_price_response).extract()
         return response
 
+    @session_wrapper
     def cancel_list_segment(self, token: str, list_segment):
         """
         A method to cancel segment
@@ -170,6 +174,7 @@ class SabreClient(BaseClient):
         """
         return self.xml_builder.cancel_segment_rq(token, list_segment)
 
+    @session_wrapper
     def search_flight(self, token: str, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
         This function is for searching flight
