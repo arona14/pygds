@@ -184,3 +184,15 @@ def session_wrapper(fnc):
         result.session_info = session_info
         return result
     return function
+
+
+class RestToken:
+    """
+    This class holds information about REST token
+    """
+    def __init__(self, token: str, expiration_date: datetime):
+        self.token: str = token
+        self.expiration_date: datetime = expiration_date
+
+    def is_expired(self):
+        return self.expiration_date < datetime.now()

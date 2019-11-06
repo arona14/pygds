@@ -24,3 +24,4 @@ jsonpath==0.82
 lxml==4.3.4
 PyYAML==5.1.1
 fnc==0.4.0
+deprecation==2.0.7

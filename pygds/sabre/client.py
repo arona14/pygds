@@ -4,9 +4,11 @@
 # Note that there is an explicit exemption for
 import json
 import requests
+import deprecation
 
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
+from pygds.sabre.json_parsers.new_rest_token_extractor import extract_sabre_rest_token
 from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
 from pygds.sabre.json_parsers.revalidate_extract import RevalidateItineraryExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
@@ -19,11 +21,13 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
     SabreSoapErrorExtractor
-from pygds.core.client import BaseClient, session_wrapper
+from pygds.core.client import BaseClient, session_wrapper, RestToken
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.core.types import PassengerUpdate, FlightSeatMap
+from pygds.sabre.jsonbuilders.rest_token_builder import build_sabre_new_rest_token_header
+
 
 
 class SabreClient(BaseClient):
@@ -41,6 +45,7 @@ class SabreClient(BaseClient):
             'Authorization': "Bearer",
             'Content-Type': 'application/json; charset=utf-8'
         }
+        self._current_rest_token: RestToken = None
 
     def _rest_request_wrapper(self, request_data, url_path, token):
         """
@@ -172,28 +177,22 @@ class SabreClient(BaseClient):
         """
         return self.xml_builder.cancel_segment_rq(token, list_segment)
 
-    def search_flight(self, message_id, search_request: LowFareSearchRequest, available_only: bool, types: str):
+    def search_flight(self, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
         This function is for searching flight
-        :param message_id:
         :param search_request:
         :param available_only:
         :param types:
         :return:
         :return : available flight for the specific request_search
         """
-        session_info = self.get_session_info(message_id)
-        if not session_info:
-            self.log.info(f"Sorry but we didn't find a token with {message_id}. Creating a new one.")
-            session_info = self.new_rest_token()
-        else:
-            self.log.info("you already have a token! No need to create a new one for search flights")
+        token = self.get_rest_token()
         search_flight_request = self.json_builder.search_flight_builder(search_request, available_only, types)
         search_response = self._rest_request_wrapper(json.dumps(search_flight_request),
-                                                     "/v4.1.0/shop/flights?mode=live", session_info.security_token)
-        self.add_session(session_info)
+                                                     "/v4.1.0/shop/flights?mode=live", token)
         return search_response.content
 
+    @deprecation.deprecated(deprecated_in="0.0.9", details="Use the get_rest_token function instead")
     def new_rest_token(self):
         """
         This will open a new session
@@ -207,6 +206,29 @@ class SabreClient(BaseClient):
         session_info = SessionInfo(token, 1, message_id, token, False, TokenType.REST_TOKEN)
         self.add_session(session_info)
         return session_info
+
+    def get_rest_token(self) -> str:
+        """
+        This method will get a rest Token, by calling Sabre if necessary
+        :return:
+        """
+        token_object = self._current_rest_token
+        if not token_object or token_object.is_expired():
+            self.log.debug(f"PCC {self.office_id}: No REST token or expired")
+            token_object = self._generate_new_rest_token()
+            self._current_rest_token = token_object
+        return token_object.token
+
+    def _generate_new_rest_token(self) -> RestToken:
+        self.log.debug(f"calling Sabre to get new REST token for PCC {self.office_id}")
+        headers = {
+            'Authorization': f"Basic {build_sabre_new_rest_token_header(self.office_id, self.username, self.password)}",
+            'Accept': '*/*'
+        }
+        request_data = {"grant_type": "client_credentials"}
+        response = requests.post(f"{self.rest_url}/v2/auth/token", headers=headers, data=request_data)
+        if response.status_code == requests.codes.ok:
+            return extract_sabre_rest_token(response.text)
 
     @session_wrapper
     def issue_ticket(self, token: str, price_quote, form_of_payment: FormOfPayment, fare_type=None,
@@ -355,25 +377,18 @@ class SabreClient(BaseClient):
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
         return gds_response
 
-    def create_pnr_rq(self, message_id, create_pnr_request):
+    def create_pnr_rq(self, create_pnr_request):
         """
         the create pnr request builder
         Arguments:
-            message_id : the messgae id
             create_pnr_request {[CreatPnrRequest]} -- [the pnr request]
         Returns:
             [GdsResponse] -- [create pnr response ]
         """
-        session_info = self.get_session_info(message_id)
-        if not session_info:
-            self.log.info(f"Sorry but we didnt find a token with {message_id}. Creating a new one.")
-            session_info = self.new_rest_token()
-        token = session_info.security_token
+        token = self.get_rest_token()
         request_data = self.json_builder.create_pnr_builder(create_pnr_request)
-        self.add_session(session_info)
         response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
         gds_response = CreatePnrExtractor(response.content).extract()
-        gds_response.session_info = session_info
         return gds_response
 
     @session_wrapper
@@ -402,7 +417,7 @@ class SabreClient(BaseClient):
         gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
         return gds_response
 
-    def revalidate_itinerary(self, message_id: str = None, itineraries: list = [], passengers: list = [],
+    def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
                              fare_type: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
@@ -416,16 +431,8 @@ class SabreClient(BaseClient):
         Returns:
             [GdsResponse] -- [revalidate itinerary response]
         """
-        session_info = self.get_session_info(message_id)
-        if not session_info:
-            self.log.info(f"Sorry but we didnt find a token with {message_id}. Creating a new one.")
-            session_info = self.new_rest_token()
-        token = session_info.security_token
-
+        token = self.get_rest_token()
         revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
-        session_info.increment_sequence()
-        self.add_session(session_info)
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
-        gds_response.session_info = session_info
         return gds_response

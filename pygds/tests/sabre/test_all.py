@@ -20,10 +20,21 @@ def test():
     username = get_setting("SABRE_USERNAME")
     pcc = get_setting("SABRE_PCC")
     password = decode_base64(get_setting("SABRE_PASSWORD"))
-    url = "https://webservices3.sabre.com"
+    soap_url = "https://webservices3.sabre.com"
+    rest_url = "https://api.havail.sabre.com"
+    client = SabreClient(soap_url, rest_url, username, password, pcc, False)
+
+    token = client.new_rest_token()
+    log.debug(f"deprecated REST token is {token}")
+
+    token = client.get_rest_token()
+    log.debug(f"new REST token is {token}")
+
+    token = client.get_rest_token()
+    log.debug(f"another new REST token is {token}")
+
     pnr = "GOQOBU"  # "TGZKPI"
     second_pnr = "TGZKPI"
-    client = SabreClient(url, "", username, password, pcc, False)
     token = None
 
     log.info(f"------------------ Retrieve PNR {pnr}--------------")
