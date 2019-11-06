@@ -95,10 +95,7 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_create_rq(message_id)
         response = self.__request_wrapper("open_session", open_session_xml, "SessionCreateRQ")
         gds_response = SessionExtractor(response).extract()
-        session_info = gds_response.session_info
-        session_info.token_type = TokenType.SESSION_TOKEN
-        self.add_session(session_info)
-        return session_info
+        return gds_response.session_info.token
 
     def close_session(self, token: str):
         """
