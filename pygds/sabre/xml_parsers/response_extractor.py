@@ -119,7 +119,13 @@ class AppErrorExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", self.main_tag)
         app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
         if not app_error_data:
-            return None
+            app_error_data = from_json_safe(payload, "stl18:Errors", "stl18:Error")
+            if not app_error_data:
+                return None
+            error_code = from_json_safe(app_error_data, "stl18:Code")
+            error_message = from_json_safe(app_error_data, "stl18:Message")
+            error_category = from_json_safe(app_error_data, "stl18:Severity")
+            return ApplicationError(error_code, error_category, None, error_message)
 
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
