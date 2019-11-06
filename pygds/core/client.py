@@ -179,7 +179,7 @@ def session_wrapper(always_close_session: bool = True):
 
 def retrieve_pnr(token: str, close_session: bool, pnr: str):
     if token is None:
-        token = "" # open_session
+        token = ""  # open_session
     # Sabre retrieve pnr
     result = None
     if close_session:
