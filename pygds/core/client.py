@@ -1,4 +1,5 @@
 import logging
+import functools
 from datetime import datetime
 
 import requests
@@ -165,12 +166,21 @@ class ClientPool:
 
 
 def session_wrapper(fnc):
+    """
+    This decorator, if applied to a function will handle presence of token before calling the
+    function. And it will handle token closing after the function call
+    :param fnc:
+    :return:
+    """
+    @functools.wraps(fnc)
     def function(self, token: str, close_session: bool = True, *args, **kwargs):
         if token is None:
             token = self.open_session()
         result: GdsResponse = fnc(self, token, *args, **kwargs)
         if close_session:
             self.close_session(token)
-        result.session_info = SessionInfo(token, 1, None, None, close_session, TokenType.SESSION_TOKEN)
+        session_info = SessionInfo(token, 1, None, None, close_session, TokenType.SESSION_TOKEN)
+        session_info.last_access = datetime.now()
+        result.session_info = session_info
         return result
     return function
