@@ -19,7 +19,6 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
     SabreSoapErrorExtractor
-from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient, session_wrapper
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
@@ -96,7 +95,6 @@ class SabreClient(BaseClient):
         response = self.__request_wrapper("open_session", open_session_xml, "SessionCreateRQ")
         gds_response = SessionExtractor(response).extract()
         return gds_response.session_info.security_token
-
 
     def close_session(self, token: str):
         """
@@ -200,6 +198,7 @@ class SabreClient(BaseClient):
         self.add_session(session_info)
         return session_info
 
+    @session_wrapper
     def issue_ticket(self, token: str, price_quote, form_of_payment: FormOfPayment, fare_type=None,
                      commission_percentage=None, markup=None, name_select=None):
         """
@@ -213,6 +212,7 @@ class SabreClient(BaseClient):
         gds_response = IssueTicketExtractor(air_ticket_response).extract()
         return gds_response
 
+    @session_wrapper
     def end_transaction(self, token: str):
         """
         This function is for end transaction
@@ -222,6 +222,7 @@ class SabreClient(BaseClient):
         gds_response = EndTransactionExtractor(response_data).extract()
         return gds_response
 
+    @session_wrapper
     def send_remark(self, token: str, text):
         """this will send a remark for a pnr
         :param token: the security token
@@ -234,6 +235,7 @@ class SabreClient(BaseClient):
         response = SendRemarkExtractor(send_remark_response).extract()
         return response
 
+    @session_wrapper
     def re_book_air_segment(self, token: str, flight_segment, pnr):
         """
         A method to rebook air segment
@@ -243,7 +245,8 @@ class SabreClient(BaseClient):
         :return:
         """
         re_book_air_segment_request = self.xml_builder.re_book_air_segment_rq(token, flight_segment, pnr)
-        re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request, self.endpoint)
+        re_book_air_segment_response = self.__request_wrapper("re_book_air_segment", re_book_air_segment_request,
+                                                              self.endpoint)
         response = RebookExtractor(re_book_air_segment_response).extract()
         return response
 
@@ -283,7 +286,8 @@ class SabreClient(BaseClient):
         :return:
         """
         electronic_document_request = self.xml_builder.electronic_document_rq(token, ticket_number)
-        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request, self.endpoint)
+        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request,
+                                                              self.endpoint)
         gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
         return gds_response
 
@@ -297,7 +301,8 @@ class SabreClient(BaseClient):
         :return:
         """
         exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token, pnr, passengers, origin_destination)
-        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request, self.endpoint)
+        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request,
+                                                            self.endpoint)
         gds_response = ExchangeShoppingExtractor(exchange_shopping_response).extract()
         return gds_response
 
@@ -310,7 +315,8 @@ class SabreClient(BaseClient):
         :param passenger_type: the passenger type
         :return:
         """
-        exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token, ticket_number, name_number, passenger_type)
+        exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token, ticket_number, name_number,
+                                                                               passenger_type)
         exchange_price_response = self.__request_wrapper("exchange_price", exchange_price_request, self.endpoint)
         gds_response = ExchangePriceExtractor(exchange_price_response).extract()
         return gds_response
@@ -326,11 +332,13 @@ class SabreClient(BaseClient):
         :param amount: the value of amount
         :return:
         """
-        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token, price_quote, form_of_payment, fare_type, percent, amount)
+        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token, price_quote, form_of_payment,
+                                                                                  fare_type, percent, amount)
         exchange_commit_response = self.__request_wrapper("exchange_commit", exchange_commit_request, self.endpoint)
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
         return gds_response
 
+    @session_wrapper
     def create_pnr_rq(self, token: str, create_pnr_request):
         """
         the create pnr request builder
@@ -371,7 +379,8 @@ class SabreClient(BaseClient):
         gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
         return gds_response
 
-    def revalidate_itinerary(self, token: str = None, itineraries: list = [], passengers: list = [], fare_type: str = None):
+    def revalidate_itinerary(self, token: str = None, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
         specific itinerary option without booking the itinerary.
