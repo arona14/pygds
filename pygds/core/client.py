@@ -4,6 +4,7 @@ from datetime import datetime
 import requests
 from requests import Response
 
+from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType, SessionHolder
 
@@ -163,29 +164,13 @@ class ClientPool:
             return None
 
 
-def session_wrapper(always_close_session: bool = True):
-    def decorator(fnc):
-        def function(token, close_session: bool = always_close_session, *args, **kwargs):
-            if token is None:
-                # open session
-                pass
-            fnc(token, args, kwargs)
-            if close_session is True:
-                # 3 close session
-                pass
-
-        return function
-
-    return decorator
-
-
-def retrieve_pnr(token: str, close_session: bool, pnr: str):
-    if token is None:
-        token = ""  # open_session
-    # Sabre retrieve pnr
-    result = None
-    if close_session:
-        # close_session
-        pass
-    result.session_info.token = token
-    return result
+def session_wrapper(fnc):
+    def function(self, token: str, close_session: bool = True, *args, **kwargs):
+        if token is None:
+            token = self.open_session()
+        result: GdsResponse = fnc(self, token, *args, **kwargs)
+        if close_session:
+            self.close_session(token)
+        result.session_info = SessionInfo(token, 1, None, None, close_session, TokenType.SESSION_TOKEN)
+        return result
+    return function

@@ -20,7 +20,7 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
     SabreSoapErrorExtractor
 from pygds.errors.gdserrors import NoSessionError
-from pygds.core.client import BaseClient
+from pygds.core.client import BaseClient, session_wrapper
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
@@ -95,7 +95,7 @@ class SabreClient(BaseClient):
         open_session_xml = self.xml_builder.session_create_rq(message_id)
         response = self.__request_wrapper("open_session", open_session_xml, "SessionCreateRQ")
         gds_response = SessionExtractor(response).extract()
-        return gds_response.session_info.token
+        return gds_response.session_info.security_token
 
     def close_session(self, token: str):
         """
@@ -108,6 +108,7 @@ class SabreClient(BaseClient):
         self.log.info(f"Close_session: Session associated to the token {token} is closed")
         return CloseSessionExtractor(close_session_response).extract().payload
 
+    @session_wrapper
     def get_reservation(self, token: str, pnr: str):
         """retrieve PNR
         :param pnr: the record locator
