@@ -19,6 +19,7 @@ class ClientCan(unittest.TestCase):
         self.password = decode_base64(get_setting("SABRE_PASSWORD"))
         self.rest_url = "https://api.havail.sabre.com"
         self.client = SabreClient("https://webservices3.sabre.com", self.rest_url, self.username, self.password, self.pcc, False)
+        self.token = None
         base_path = os.path.dirname(os.path.abspath(__file__))
         create_pnr_request = os.path.join(base_path, "resources/createpnr/create_pnr_request_com.json")
         create_pnr_request_response = os.path.join(base_path, "resources/createpnr/request_net_res.json")
@@ -69,7 +70,7 @@ class ClientCan(unittest.TestCase):
         # print(create_pnr_object.to_dict())
         # create_pnr_builder = CreatePnrBuilder(create_pnr_object)
         # print(create_pnr_builder.to_dict())
-        response = self.client.create_pnr_rq(None, True, create_pnr_object)
+        response = self.client.create_pnr_rq(self.token, True, create_pnr_object)
         self.assertIsNotNone(response)
         """
         self.assertIsInstance(response, GdsResponse)

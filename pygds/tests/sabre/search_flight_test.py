@@ -3,7 +3,6 @@ from pygds.sabre.client import SabreClient
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
 from pygds.core.request import RequestedSegment, TravellerNumbering
-from pygds.core.sessions import SessionInfo
 
 
 class ClientCan(unittest.TestCase):
@@ -35,12 +34,10 @@ class ClientCan(unittest.TestCase):
     def test_session_token(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, "The result of open session token is None")
-        self.assertIsNotNone(session.security_token, "You don't got a token")
-        self.assertIsInstance(session.session_ended, bool)
-        self.assertIsInstance(session, SessionInfo)
+        self.assertIsInstance(session, str)
 
     def test_open_session(self):
         session = self.client.open_session()
         self.assertIsNotNone(session, " the result of open session is None")
-        self.assertIsInstance(session, SessionInfo)
-        self.assertIn("Shared", session.security_token)
+        self.assertIsInstance(session, str)
+        self.assertIn("Shared", session)
