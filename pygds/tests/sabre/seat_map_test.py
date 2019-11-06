@@ -15,7 +15,6 @@ class SeatMapTest(unittest.TestCase):
         rest_url = "https://api.havail.sabre.com"
         soap_url = "https://webservices3.sabre.com"
         client = SabreClient(soap_url, rest_url, username, password, pcc, False)
-        session_info = client.open_session()
 
         flight_info = FlightSeatMap()
         flight_info.origin = "DTW"
@@ -27,7 +26,7 @@ class SeatMapTest(unittest.TestCase):
         flight_info.depart_date = "10/10/2019"
         flight_info.arrival_date = "20/10/2019"
 
-        seat_map_xml = client.xml_builder.seap_map_rq(session_info.security_token, flight_info)
+        seat_map_xml = client.xml_builder.seap_map_rq(None, flight_info)
         print(seat_map_xml)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)

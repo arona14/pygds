@@ -17,13 +17,7 @@ class RebookingTest(unittest.TestCase):
         self.client = SabreClient(self.soap_url, self.rest_url, self.username, self.password, self.pcc, False)
 
     def test_rebooking(self):
-        display_pnr = self.client.get_reservation("SMZEKA", None, False)
-        session_info = display_pnr.session_info
-        if not session_info:
-            print("No session info")
-            return session_info
-        message_id = session_info.message_id
-        self.assertIsNotNone(message_id)
+        self.client.get_reservation(None, "SMZEKA")
         flight_segment = [
             {"origin": "DTW", "destination": "EWR", "departure_date_time": "2019-09-26T08:40:00", "arrival_date_time": "2019-09-26T10:29:00",
                 "flight_number": "3526", "number_in_party": 2, "res_book_desig_code": "N", "operating_code": "UA",
@@ -35,14 +29,13 @@ class RebookingTest(unittest.TestCase):
 
         ]
         pnr = 'SMZEKA'
-        rebooking = self.client.re_book_air_segment(message_id, flight_segment, pnr)
+        rebooking = self.client.re_book_air_segment(None, flight_segment, pnr)
         self.assertIsNotNone(rebooking)
         self.assertIsInstance(rebooking, GdsResponse)
         self.assertIsInstance(rebooking.payload, RebookInfo)
         # self.assertEqual(rebooking.payload.status, 'Complete')
         self.assertIsInstance(rebooking.payload.air_book_rs, dict)
         self.assertIsInstance(rebooking.payload.travel_itinerary_read_rs, dict)
-        self.client.close_session(message_id)
 
 
 if __name__ == "__main__":

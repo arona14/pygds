@@ -21,7 +21,7 @@ def test():
     url = "https://webservices3.sabre.com"
     pnr = "GOQOBU"  # "TGZKPI"
     client = SabreClient(url, "", username, password, pcc, False)
-    retrieve_pnr = client.get_reservation(pnr, None, True)
+    retrieve_pnr = client.get_reservation(None, pnr)
     logging.error(retrieve_pnr.payload)
 
 

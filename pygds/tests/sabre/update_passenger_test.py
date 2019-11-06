@@ -15,14 +15,13 @@ class UpdatePassengerTest(unittest.TestCase):
         rest_url = "https://api.havail.sabre.com"
         soap_url = "https://webservices3.sabre.com"
         client = SabreClient(soap_url, rest_url, username, password, pcc, False)
-        session_info = client.open_session()
         pnr = "XGRJDK"
 
         passenger_ssr_code = PassengerUpdate()
         passenger_ssr_code.name_number = "1.1"
         passenger_ssr_code.segment_number = "2"
         passenger_ssr_code.ssr_code = "MLO"
-        seat_map_xml = client.xml_builder.update_passenger_rq(session_info.security_token, pnr, passenger_ssr_code)
+        seat_map_xml = client.xml_builder.update_passenger_rq(None, pnr, passenger_ssr_code)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("XGRJDK", seat_map_xml)
@@ -31,7 +30,7 @@ class UpdatePassengerTest(unittest.TestCase):
 
         passenger_dk = PassengerUpdate()
         passenger_dk.dk_number = "DK567826787"
-        seat_map_xml = client.xml_builder.update_passenger_rq(session_info.security_token, pnr, passenger_dk)
+        seat_map_xml = client.xml_builder.update_passenger_rq(None, pnr, passenger_dk)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("XGRJDK", seat_map_xml)
@@ -41,7 +40,7 @@ class UpdatePassengerTest(unittest.TestCase):
         passenger_seat.name_number = "1.1"
         passenger_seat.seat_number = "1A"
         passenger_seat.segment_number = "3"
-        seat_map_xml = client.xml_builder.update_passenger_rq(session_info.security_token, pnr, passenger_seat)
+        seat_map_xml = client.xml_builder.update_passenger_rq(None, pnr, passenger_seat)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("XGRJDK", seat_map_xml)
@@ -53,7 +52,7 @@ class UpdatePassengerTest(unittest.TestCase):
         passenger_info.name_number = "3"
         passenger_info.first_name = "Binete"
         passenger_info.last_name = "Thiam"
-        seat_map_xml = client.xml_builder.update_passenger_rq(session_info.security_token, pnr, passenger_info)
+        seat_map_xml = client.xml_builder.update_passenger_rq(None, pnr, passenger_info)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("XGRJDK", seat_map_xml)
