@@ -1,6 +1,6 @@
 import logging
 import re
-
+from typing import List
 from pygds.core.types import SeatInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
@@ -29,10 +29,10 @@ from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
                               FlightAirlineDetails, FlightDisclosureCarrier,
                               FlightInfo, FlightMarriageGrp,
                               FlightPointDetails, FlightSegment, FormatAmount,
-                              FormatPassengersInPQ, FormOfPayment,
+                              FormatPassengersInPQ,
                               IgnoreTransaction, Itinerary,
                               OperatingMarketing, Passenger, PriceQuote_,
-                              QueuePlace, Remarks, RowInfo, SeatMap,
+                              QueuePlace, Remarks, RowInfo, SeatMap, InfoPayment,
                               SendCommand, ServiceCoupon, TicketDetails,
                               TicketingInfo_, TypeInfo)
 
@@ -119,7 +119,13 @@ class AppErrorExtractor(BaseResponseExtractor):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", self.main_tag)
         app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
         if not app_error_data:
-            return None
+            app_error_data = from_json_safe(payload, "stl18:Errors", "stl18:Error")
+            if not app_error_data:
+                return None
+            error_code = from_json_safe(app_error_data, "stl18:Code")
+            error_message = from_json_safe(app_error_data, "stl18:Message")
+            error_category = from_json_safe(app_error_data, "stl18:Severity")
+            return ApplicationError(error_code, error_category, None, error_message)
 
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
@@ -139,17 +145,18 @@ class PriceSearchExtractor(BaseResponseExtractor):
                            "OTA_AirPriceRS")
         status = from_json_safe(payload, "stl:ApplicationResults", "@status")
         air_itinerary_pricing = from_json_safe(payload, "PriceQuote", "PricedItinerary", "AirItineraryPricingInfo")
+        validating_carrier = from_json_safe(payload, "PriceQuote", "MiscInformation", "HeaderInformation", "ValidatingCarrier", "@Code")
         air_itinerary_pricing = ensure_list(air_itinerary_pricing)
         air_itinerary_pricing_list = []
         for air_itinerary_pricing_inf in air_itinerary_pricing:
-            passengers = self._get_passengers(air_itinerary_pricing_inf)
+            passengers = self._get_passengers(air_itinerary_pricing_inf, validating_carrier)
             air_itinerary_pricing_list.append(passengers)
         search_price_infos = SearchPriceInfos()
         search_price_infos.status = status
         search_price_infos.air_itinerary_pricing_info = air_itinerary_pricing_list
         return search_price_infos
 
-    def _get_passengers(self, air_itinerary_pricing):
+    def _get_passengers(self, air_itinerary_pricing, validating_carrier):
 
         for i in ensure_list(from_json(air_itinerary_pricing, "PassengerTypeQuantity")):
 
@@ -166,6 +173,8 @@ class PriceSearchExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.ticket_designator = self._get_tour_code_or_ticket_designator(air_itinerary_pricing, 'TD')
             air_itinerary_pricing_info.commission_percentage = self._get_commission_percent(air_itinerary_pricing)
             air_itinerary_pricing_info.fare_break_down = self._get_fare_break_down(air_itinerary_pricing)
+            air_itinerary_pricing_info.valiating_carrier = validating_carrier
+            air_itinerary_pricing_info.baggage_provisions = from_json(air_itinerary_pricing, "BaggageProvisions")
 
             return air_itinerary_pricing_info
 
@@ -201,6 +210,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
             fare_breakdown.fare_passenger_type = from_json(fare_break, "FareBasis", "@FarePassengerType") if "@FarePassengerType" in from_json(fare_break, "FareBasis") else None
             fare_breakdown.fare_type = from_json(fare_break, "FareBasis", "@FareType") if "@FareType" in from_json(fare_break, "FareBasis") else None
             fare_breakdown.filing_carrier = from_json(fare_break, "FareBasis", "@FilingCarrier") if "@FilingCarrier" in from_json(fare_break, "FareBasis") else None
+            fare_breakdown.free_baggage = from_json(fare_break, "FreeBaggageAllowance") if "FreeBaggageAllowance" in from_json(fare_break) else None
 
             fare_breakdown_list.append(fare_breakdown)
 
@@ -289,13 +299,14 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         display_pnr = str(display_pnr).replace("@", "")
         display_pnr = eval(display_pnr.replace("u'", "'"))
         passengers_reservation = from_json_safe(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
+        remarks = self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark"))
         return {
             'passengers': self._passengers(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'itineraries': self._itineraries(from_json_safe(passengers_reservation, "stl18:Segments")),
-            'form_of_payments': self._forms_of_payment(from_json_safe(passengers_reservation, "stl18:FormsOfPayment")),
+            'form_of_payments': self.list_fop(remarks),
             'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
-            'remarks': self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark")),
+            'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
             'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
         }
@@ -400,7 +411,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             tax_fare_cc = from_json_safe(price, "FareInfo", "TotalTax", "currencyCode")
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
             validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
-
+            commission_percentage = from_json_safe(price, "FareInfo", "Commission", "Percentage")
             for i in ensure_list(price_quote["Summary"]["NameAssociation"]):
                 if pq_number == from_json_safe(i, "PriceQuote", "number"):
                     name_number = from_json_safe(i, "nameNumber")
@@ -408,21 +419,37 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
                     list_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers)
+            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
             list_price_quote.append(price_quote_data)
 
         return list_price_quote
 
-    def _forms_of_payment(self, forms_payment):
-        list_forms_payment = []
-        if forms_payment is None:
-            return []
-        for i in ensure_list(forms_payment):
-            if 'stl18:CreditCardPayment' in i and 'ShortText' in i["stl18:CreditCardPayment"]:
-                form_of_payment = FormOfPayment("", from_json(i, "stl18:CreditCardPayment", "ShortText"), "", "", "")
-                if form_of_payment:
-                    list_forms_payment.append(form_of_payment)
-        return list_forms_payment
+    def list_fop(self, remarks: List[Remarks]):
+        """
+        This function return the list of card_type, card_number and expirate date in the text of remark_type FOP
+        :param: remark
+        :return: list of card_type, card_number and expirate date
+
+        """
+        remarks = remarks or []
+        objet_fop = []
+        list_info = []
+        for r in remarks:
+            if r.type_remark == "FOP" and r.text == "CHECK":
+                fop_type = "CK"
+                info_payment = InfoPayment("", "", "", "", fop_type)
+                list_info.append(info_payment)
+            elif r.type_remark == "FOP":
+                fop_type = "CC"
+                objet_fop = r
+                sort_tex = objet_fop.text
+                expres = "([A-Z]{2})([0-9]+)¥([0-9]+)/([0-9]+)"
+                extract_value = re.compile(expres)
+                val_data = extract_value.findall(sort_tex)
+                if len(val_data) > 0 and len(val_data[0]) > 3:
+                    info_payment = InfoPayment(val_data[0][0], val_data[0][1], val_data[0][2], val_data[0][3], fop_type)
+                    list_info.append(info_payment)
+        return list_info
 
     def _ticketing(self, passengers):
         list_ticket = []
