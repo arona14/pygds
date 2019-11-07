@@ -403,6 +403,7 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.void_tickets(session_info, ticket_numbers)
         response_data = self.__request_wrapper("void_tickets", request_data,
                                                'http://webservices.amadeus.com/TRCANQ_11_1_1A')
+
         return VoidTicketExtractor(response_data).extract()
 
     def cancel_pnr(self, message_id: str, close_session: bool = False):

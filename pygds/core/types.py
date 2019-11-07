@@ -601,20 +601,19 @@ class Remarks(BasicDataObject):
 
 
 class InfoPayment(BasicDataObject):
-    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int, fop_type: str):
+    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int):
         self.card_type = card_type
         self.card_number = card_number
         self.expire_month = expire_month
         self.expire_year = expire_year
-        self.fop_type = fop_type
+        # self.fop_type = fop_type
 
     def to_data(self):
         return {
             "card_type": self.card_type,
             "card_number": self.card_number,
             "expire_month": self.expire_month,
-            "expire_year": self.expire_year,
-            "fop_type": self.fop_type
+            "expire_year": self.expire_year
         }
 
 
@@ -1158,6 +1157,7 @@ class VoidTicket(BasicDataObject):
         return {
             "response_type": self.response_type,
             "status_code": self.status_code,
+            "voited": self.status_code == "O",
             "ticket_number": self.ticket_number
         }
 

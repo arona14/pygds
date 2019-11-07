@@ -962,12 +962,19 @@ class AmadeusXMLBuilder:
             {self.generate_header("TRCANQ_11_1_1A", message_id, session_id, sequence_number, security_token)}
             <soapenv:Body>
                 <Ticket_CancelDocument xmlns="http://xml.amadeus.com/TRCANQ_11_1_1A" >
+
                     {"".join([sub_parts.tcd_ticket_number(t) for t in ticket_numbers])}
                     <stockProviderDetails>
                         <officeSettingsDetails>
-                            <stockProviderCode>6X</stockProviderCode>
+                            <marketIataCode>US</marketIataCode>
                         </officeSettingsDetails>
                     </stockProviderDetails>
+                    <targetOfficeDetails>
+                        <originatorDetails>
+                            <inHouseIdentification2>{self.office_id}</inHouseIdentification2>
+                        </originatorDetails>
+                    </targetOfficeDetails>
+
                 </Ticket_CancelDocument>
             </soapenv:Body>
         </soapenv:Envelope>
