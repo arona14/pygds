@@ -979,10 +979,10 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             restricted_recline_ind = from_json_safe(seat, "@restrictedReclineInd")
             no_infant_ind = from_json_safe(seat, "@noInfantInd")
             number = from_json_safe(seat, "Number")
-            occupation = [type_info for type_info in self.__get_occupation_info(ensure_list(from_json_safe(seat, "Occupation")))]
-            location = [type_info for type_info in self.__get_location_info(ensure_list(from_json_safe(seat, "Location")))]
-            facilities = [type_info for type_info in self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))]
-            limitations = [type_info for type_info in self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))]
+            occupation = self.__get_occupation_info(ensure_list(from_json_safe(seat, "Occupation")))
+            location = self.__get_location_info(ensure_list(from_json_safe(seat, "Location")))
+            facilities = self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))
+            limitations = self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))
             seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations))
         return seats
 
