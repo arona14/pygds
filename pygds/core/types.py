@@ -681,13 +681,14 @@ class SellItinerary(BasicDataObject):
 
 
 class TravellerInfo(BasicDataObject):
-    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type, ssr_content):
         self.ref_number = ref_number
         self.first_name = first_name
         self.surname = surname
         self.last_name = last_name
         self.date_of_birth = date_of_birth
         self.pax_type = pax_type
+        self.ssr_content = ssr_content
 
         def to_data(self):
             return {
@@ -696,7 +697,8 @@ class TravellerInfo(BasicDataObject):
                 "surname": self.surname,
                 "last_name": self.last_name,
                 "date_of_birth": self.date_of_birth,
-                "pax_type": self.pax_type
+                "pax_type": self.pax_type,
+                "ssr_content": self.ssr_content
             }
 
 

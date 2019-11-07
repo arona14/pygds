@@ -169,6 +169,28 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
+    def cancel_information_passenger(self, session_id, sequence_number, security_token,
+                                     message_id, reference):
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+             {self.generate_header("PNRXCL_14_2_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <PNR_Cancel>
+                    <pnrActions>
+                        <optionCode>11</optionCode>
+                    </pnrActions>
+                    <cancelElements>
+                        <entryType>E</entryType>
+                        <element>
+                        <identifier>OT</identifier>
+                        <number>{reference}</number>
+                        </element>
+                    </cancelElements>
+                </PNR_Cancel>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
     def get_reservation_builder(self, pnr_number: str, message_id: str = None, session_id: str = None,
                                 sequence_number: str = None, security_token: str = None, close_trx: bool = False):
         """
@@ -477,13 +499,15 @@ class AmadeusXMLBuilder:
         </itineraryDetails>
         """
 
-    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos, company_id):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
+        ssr_content = ""
         for i in infos.traveller_info:
             passenger_infos.append(
                 sub_parts.add_multi_elements_traveller_info(i.ref_number, i.first_name, i.surname, i.last_name,
                                                             i.date_of_birth, i.pax_type))
+            ssr_content += sub_parts.add_multi_element_ssr(i, company_id)
         # type = 6 Travel agent telephone number
         # type = PO2 E-mail address
         # type = 7 Mobile Phone Number
@@ -517,6 +541,7 @@ class AmadeusXMLBuilder:
                         {sub_parts.add_multi_element_contact_element("7", infos.number_tel) if infos.number_tel else ""}
                         {sub_parts.add_multi_element_contact_element("6", infos.number_tel_agent) if infos.number_tel else ""}
                         {sub_parts.add_multi_element_contact_element("P02", infos.email) if infos.number_tel else ""}
+                        {ssr_content}
                         <dataElementsIndiv>
                             <elementManagementData>
                                 <segmentName>TK</segmentName>
@@ -765,8 +790,8 @@ class AmadeusXMLBuilder:
        </soapenv:Body>
     </soapenv:Envelope> """
 
-    def pnr_add_multi_element_for_pax_info_builder(self, session_id, sequence_number, security_token, message_id, email_tato, email_content, number_tato, number_content):
-        passenger_informations = sub_parts.build_update_principal_passenger(email_tato, email_content, number_tato, number_content)
+    def pnr_add_multi_element_for_pax_info_builder(self, session_id, sequence_number, security_token, message_id, email_content, passenger_id, office_id):
+        passenger_informations = sub_parts.build_update_principal_passenger(email_content, passenger_id, office_id)
         return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
                 xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"

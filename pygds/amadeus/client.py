@@ -140,7 +140,7 @@ class AmadeusClient(BaseClient):
         self.add_session(response.session_info)
         return response
 
-    def pnr_add_multi_for_pax_info_element(self, message_id, email_tato, email_content, number_tato, number_content):
+    def pnr_add_multi_for_pax_info_element(self, message_id, email_content, passenger_id, office_id):
         """
             This method modifies the elements of a PNR (passengers, etc.)
         """
@@ -148,11 +148,25 @@ class AmadeusClient(BaseClient):
         if not security_token:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.pnr_add_multi_element_for_pax_info_builder(session_id, sequence_number, security_token,
-                                                                                   message_id, email_tato, email_content, number_tato, number_content)
+                                                                                   message_id, email_content, passenger_id, office_id)
         response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         # print(response_data)
         return UpdatePassengers(response_data).extract()
+
+    def cancel_information_passenger(self, reference, message_id):
+        """
+            This method modifies the elements of a PNR (passengers, etc.)
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if not security_token:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.cancel_information_passenger(session_id, sequence_number, security_token,
+                                                                     message_id, reference)
+        response_data = self.__request_wrapper("cancel information passenger", request_data,
+                                               'http://webservices.amadeus.com/PNRXCL_14_2_1A')
+        # print(response_data)
+        return SessionExtractor(response_data).extract()
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
         """
@@ -305,7 +319,7 @@ class AmadeusClient(BaseClient):
         self.add_session(res.session_info)
         return res
 
-    def add_passenger_info(self, office_id, message_id, infos):
+    def add_passenger_info(self, office_id, message_id, infos, company_id):
         """
             add passenger info and create the PNR
         """
@@ -313,7 +327,7 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
-                                                           security_token, infos)
+                                                           security_token, infos, company_id)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 

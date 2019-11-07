@@ -39,7 +39,7 @@ def test():
     try:
 
         log.info("Begin call of Low Fare Search *************************************")
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "051119", "071119")
+        origine, destination, date_dep, date_arr = ("CDG", "DTW", "121119", "171119")
 
         segments = [
             RequestedSegment(
@@ -124,12 +124,12 @@ def test():
 
         # message_id = session_info.message_id  # is the message_id to use for the all others actions
 
-        traveller_infos = [TravellerInfo(1, "Amadou", "Diallo", "Diallo", "03121983", "ADT"),
-                           TravellerInfo(2, "Khouna", "Khouna", "Fall", "03121976", "ADT")]
+        traveller_infos = [TravellerInfo(2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH"),
+                           TravellerInfo(3, "Khouna", "Khouna", "Fall", "03121976", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH")]
 
         reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
 
-        passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info)
+        passenger_info_response = client.add_passenger_info(office_id, message_id, reservation_info, _segment.company)
         passenger_info_response, session_info = (passenger_info_response.payload, passenger_info_response.session_info)
         log.info(passenger_info_response)
 
@@ -155,13 +155,13 @@ def test():
         for pax in passenger_info_response["passengers"]:
             pax_refs.append(pax.name_id)
 
-        log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
+        #log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
 
-        response_ssr = client.pnr_add_ssr(message_id, pax_refs, "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", company_id)
+        # response_ssr = client.pnr_add_ssr(message_id, pax_refs, "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", company_id)
         # response_ssr = client.pnr_add_ssr(message_id, pax_refs[1], "////23JUN88/M//DIA/BALLA", company_id)
-        log.info(response_ssr)
+        # log.info(response_ssr)
 
-        log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
+        #log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
 
         log.info("Begin Call of Pricing Segment for some passenger ***********************************")
 

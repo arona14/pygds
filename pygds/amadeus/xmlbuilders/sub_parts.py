@@ -7,15 +7,24 @@ from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
 
 
-def build_update_principal_passenger(email_tato=None, email_content=None, number_tato=None, number_content=None):
+def build_update_principal_passenger(email_content, passenger_id, office_id):
     response = "<dataElementsMaster><marker1/>"
     if email_content:
-        response += f"""<dataElementsIndiv>
+        response += f"""
+                    <dataElementsIndiv>
+                        <elementManagementData>
+                            <segmentName>RF</segmentName>
+                        </elementManagementData>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>3</subjectQualifier>
+                                <type>P22</type>
+                            </freetextDetail>
+                            <longFreetext>{office_id}</longFreetext>
+                        </freetextData>
+                    </dataElementsIndiv>
+                    <dataElementsIndiv>
                     <elementManagementData>
-                        <reference>
-                            <qualifier>OT</qualifier>
-                            <number>{email_tato}</number>
-                        </reference>
                         <segmentName>AP</segmentName>
                     </elementManagementData>
                     <freetextData>
@@ -25,25 +34,13 @@ def build_update_principal_passenger(email_tato=None, email_content=None, number
                         </freetextDetail>
                         <longFreetext>{email_content}</longFreetext>
                     </freetextData>
+                    <referenceForDataElement>
+                    <reference>
+                        <qualifier>PT</qualifier>
+                        <number>{passenger_id}</number>
+                    </reference>
+                </referenceForDataElement>
                 </dataElementsIndiv>"""
-    if number_content:
-        response += f"""<dataElementsIndiv>
-                    <elementManagementData>
-                        <reference>
-                            <qualifier>OT</qualifier>
-                            <number>{number_tato}</number>
-                        </reference>
-                        <segmentName>AP</segmentName>
-                    </elementManagementData>
-                    <freetextData>
-                        <freetextDetail>
-                            <subjectQualifier>3</subjectQualifier>
-                            <type>6</type>
-                        </freetextDetail>
-                        <longFreetext>{number_content}</longFreetext>
-                    </freetextData>
-                </dataElementsIndiv>"""
-
     return response + "</dataElementsMaster>"
 
 
@@ -307,6 +304,30 @@ def sell_from_recommendation_segment(origin, destination, departure_date, compan
         </relatedproductInformation>
     </segmentInformation>
     """
+
+
+def add_multi_element_ssr(travel_info, company_id):
+
+    return f"""<dataElementsIndiv>
+                <elementManagementData>
+                    <segmentName>SSR</segmentName>
+                </elementManagementData>
+                <serviceRequest>
+                    <ssr>
+                        <type>DOCS</type>
+                        <status>HK</status>
+                        <quantity>1</quantity>
+                        <companyId>{company_id}</companyId>
+                        <freetext>{travel_info.ssr_content}</freetext>
+                    </ssr>
+                </serviceRequest>
+                <referenceForDataElement>
+                    <reference>
+                        <qualifier>PT</qualifier>
+                        <number>{travel_info.ref_number}</number>
+                    </reference>
+                </referenceForDataElement>
+        </dataElementsIndiv>"""
 
 
 def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name, date_of_birth, pax_type,
