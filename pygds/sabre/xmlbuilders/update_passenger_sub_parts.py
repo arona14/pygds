@@ -16,9 +16,9 @@ def customer_id(dk_number):
 
 
 def service_ssr_code(segment_number, ssr_code, name_number):
-    return f"""<Service SegmentNumber="{segment_number}" SSR_Code="{ssr_code}">
+    return "\n".join([f"""<Service SegmentNumber="{segment_number}" SSR_Code="{ssr_cod}">
                  <PersonName NameNumber="{name_number}"/>
-            </Service>"""
+            </Service>""" for ssr_cod in ssr_code])
 
 
 def seat_request(name_number, seat_number, segment_number):

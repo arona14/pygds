@@ -231,6 +231,7 @@ class SabreClient(BaseClient):
         response = requests.post(f"{self.rest_url}/v2/auth/token", headers=headers, data=request_data)
         if response.status_code == requests.codes.ok:
             return extract_sabre_rest_token(response.text)
+        return RestToken(None, None)
 
     @session_wrapper
     def issue_ticket(self, token: str, price_quote, form_of_payment: FormOfPayment, fare_type=None,
@@ -246,14 +247,15 @@ class SabreClient(BaseClient):
         gds_response = IssueTicketExtractor(air_ticket_response).extract()
         return gds_response
 
-    @session_wrapper
-    def end_transaction(self, token: str):
+    def end_transaction(self, token: str, close_session: bool = True):
         """
         This function is for end transaction
         """
         request_data = self.xml_builder.end_transaction_rq(token)
         response_data = self.__request_wrapper("end_transaction", request_data, self.endpoint)
         gds_response = EndTransactionExtractor(response_data).extract()
+        if close_session is True:
+            self.close_session(token)
         return gds_response
 
     @session_wrapper
@@ -415,8 +417,8 @@ class SabreClient(BaseClient):
             passenger_update {[PassengerUpdate]} -- [the element to update]
         """
         update_passenger_request = self.xml_builder.update_passenger_rq(token, pnr, passenger_update)
-        update_passenger_response = self._soap_request_wrapper(update_passenger_request)
-        gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
+        update_passenger_response = self.__request_wrapper("update_passenger", update_passenger_request, self.endpoint)
+        gds_response = UpdatePassengerExtractor(update_passenger_response).extract()
         return gds_response
 
     def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],

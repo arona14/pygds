@@ -915,12 +915,13 @@ class CabinClass(BasicDataObject):
     """This class is for holding information about the cabin class
     """
 
-    def __init__(self, class_of_service: str = None, marketing_description: str = None):
+    def __init__(self, class_of_service: str = None, cabin_type: str = None, marketing_description: str = None):
         self.class_of_service = class_of_service
         self.marketing_description = marketing_description
+        self.cabin_type = cabin_type
 
     def to_data(self):
-        return {"RBD": self.class_of_service, "MarketingDescription": self.marketing_description}
+        return {"RBD": self.class_of_service, "CabinType": self.cabin_type, "MarketingDescription": self.marketing_description}
 
 
 class TotalAmount(BasicDataObject):
@@ -999,7 +1000,7 @@ class SeatInfo(BasicDataObject):
     """This class is for holding information about the flight
     """
 
-    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: List[TypeInfo] = None, location: List[TypeInfo] = None, facilities: TypeInfo = None):
+    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: List[TypeInfo] = None, location: List[TypeInfo] = None, facilities: TypeInfo = None, limitations: List[TypeInfo] = None):
         self.occupied_ind = occupied_ind
         self.inoperative_ind = inoperative_ind
         self.premiun_ind = premiun_ind
@@ -1011,6 +1012,7 @@ class SeatInfo(BasicDataObject):
         self.occupation = occupation
         self.location = location
         self.facilities = facilities
+        self.limitations = limitations
 
     def to_data(self):
         return {
@@ -1024,7 +1026,8 @@ class SeatInfo(BasicDataObject):
             "Number": self.number,
             "Occupation": [occupation.to_data() for occupation in self.occupation],
             "Location": [location.to_data() for location in self.location],
-            "Facilities": self.facilities.to_data() if self.facilities else None
+            "Facilities": [facilitie.to_data() for facilitie in self.facilities],
+            "Limitations": [limitation.to_data() for limitation in self.limitations]
         }
 
 
@@ -1057,13 +1060,14 @@ class CabinInfo(BasicDataObject):
     """This class is for holding information about the Cabin Info
     """
 
-    def __init__(self, first_row: str = None, last_row: str = None, seat_occupation_default: str = None, cabin_class: CabinClass = None, row: RowInfo = None, column: ColumnInfo = None):
+    def __init__(self, first_row: str = None, last_row: str = None, seat_occupation_default: str = None, cabin_class: CabinClass = None, row: RowInfo = None, column: ColumnInfo = None, class_location: str = None):
         self.first_row = first_row
         self.last_row = last_row
         self.seat_occupation_default = seat_occupation_default
         self.cabin_class = cabin_class
         self.row = row
         self.column = column
+        self.class_location = class_location
 
     def to_data(self):
         return {
@@ -1072,7 +1076,8 @@ class CabinInfo(BasicDataObject):
             "CabinClass": self.cabin_class.to_data() if self.cabin_class else None,
             "seatOccupationDefault": self.seat_occupation_default,
             "Row": [row.to_data() for row in self.row if self.row],
-            "Column": [column.to_data() for column in self.column if self.column]
+            "Column": [column.to_data() for column in self.column if self.column],
+            "ClassLocation": self.class_location
         }
 
 
@@ -1105,7 +1110,7 @@ class PassengerUpdate:
         self.first_name: str = None
         self.last_name: str = None
         self.segment_number: str = None
-        self.ssr_code: str = None
+        self.ssr_code: List[str] = None
         self.seat_number: str = None
 
 

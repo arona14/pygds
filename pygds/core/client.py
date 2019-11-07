@@ -195,4 +195,4 @@ class RestToken:
         self.expiration_date: datetime = expiration_date
 
     def is_expired(self):
-        return self.expiration_date < datetime.now()
+        return self.expiration_date is None or self.expiration_date < datetime.now()

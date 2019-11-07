@@ -46,3 +46,13 @@
     
  - Sabre:
     - Revisit session in all methods [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+    
+# 0.0.9 (2019-11-06)
+- Core:
+    - Decorator to handle open and close session [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+- Sabre
+    - Remove message ids [mbayane1990](mbaye@ctsfares.com), [Mamedemba](demba@ctsfares.com)
+    - Handle expiration date for Rest Tokens [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+
+# 0.0.10 (2019-11-07)
+- Fix on Sabre seat map extractor [mbayane1990](mbaye@ctsfares.com)
