@@ -412,8 +412,6 @@ class SabreClient(BaseClient):
             passenger_update {[PassengerUpdate]} -- [the element to update]
         """
         update_passenger_request = self.xml_builder.update_passenger_rq(token, pnr, passenger_update)
-        print("-------update_passenger_request-------")
-        print(update_passenger_request)
         update_passenger_response = self.__request_wrapper("update_passenger", update_passenger_request, self.endpoint)
         gds_response = UpdatePassengerExtractor(update_passenger_response).extract()
         return gds_response
