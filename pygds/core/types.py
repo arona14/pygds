@@ -452,7 +452,7 @@ class PriceQuote_(BasicDataObject):
         This is to represent a price quote object
     """
 
-    def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, validating_carrier=None, passengers=None):
+    def __init__(self, pq_number: int = None, status: str = None, fare_type: str = None, base_fare=None, total_fare=None, total_tax=None, validating_carrier=None, passengers=None, commission_percentage=None):
         self.price_quote_number = pq_number
         self.status = status
         self.fare_type = fare_type
@@ -461,6 +461,7 @@ class PriceQuote_(BasicDataObject):
         self.total_tax = total_tax
         self.validating_carrier = validating_carrier
         self.passengers = passengers
+        self.commission_percentage = commission_percentage
 
     def to_data(self):
         return{
@@ -472,6 +473,7 @@ class PriceQuote_(BasicDataObject):
             "total_tax": self.total_tax,
             "validating_carrier": self.validating_carrier,
             "passengers": self.passengers,
+            "commission_percentage": self.commission_percentage,
 
         }
 
@@ -595,6 +597,24 @@ class Remarks(BasicDataObject):
             "type_remark": self.type_remark,
             "element_id": self.element_id,
             "text": self.text
+        }
+
+
+class InfoPayment(BasicDataObject):
+    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int, fop_type: str):
+        self.card_type = card_type
+        self.card_number = card_number
+        self.expire_month = expire_month
+        self.expire_year = expire_year
+        self.fop_type = fop_type
+
+    def to_data(self):
+        return {
+            "card_type": self.card_type,
+            "card_number": self.card_number,
+            "expire_month": self.expire_month,
+            "expire_year": self.expire_year,
+            "fop_type": self.fop_type
         }
 
 

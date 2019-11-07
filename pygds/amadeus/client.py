@@ -74,7 +74,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
         return SessionExtractor(response_data).extract()
 
-    def end_session(self, message_id):
+    def close_session(self, message_id):
         """
         This is for ending a current session
         :param message_id: the message id associated to that session

@@ -35,3 +35,14 @@
   - create TST [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
   - price segments and passengers [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
   - get reservation [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+  
+ # 0.0.7 (2019-11-05)
+ - Sabre:
+    - fix on retrieval of form of payment in get reservation [salioucts](saliou@ctsfares.com)
+ 
+ # 0.0.8 (2019-11-05)
+ - Core:
+    - abstract class for session handler [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+    
+ - Sabre:
+    - Revisit session in all methods [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
