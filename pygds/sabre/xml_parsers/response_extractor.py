@@ -933,7 +933,8 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
 
         destination = from_json_safe(flight, "@destination")
         origin = from_json_safe(flight, "@origin")
-        departure_date = from_json_safe(flight, "DepartureDate", "#text")
+        departure_date = from_json_safe(flight, "DepartureDate")
+        departure_date = from_json_safe(flight, "DepartureDate", "#text") if "#text" in departure_date else departure_date
         carrier = from_json_safe(flight, "Marketing", "@carrier")
         code = from_json_safe(flight, "Marketing", "#text")
         operating = OperatingMarketing(carrier=carrier, code=code)
@@ -943,16 +944,17 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
     def _get_cabin_info(self, cabin):
         first_row = from_json_safe(cabin, "@firstRow")
         last_row = from_json_safe(cabin, "@lastRow")
-        seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault")
+        seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault") if "@seatOccupationDefault" in cabin else ''
         cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
         row = self.__get_row_info(from_json_safe(cabin, "Row"))
         column = self.__get_column_info(from_json_safe(cabin, "Column"))
         return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column)
 
     def __get_cabin_class(self, cabin_class):
-        cabin_type = from_json_safe(cabin_class, "CabinType")
+        cabin_type = from_json_safe(cabin_class, "CabinType") if "CabinType" in cabin_class else ''
         class_of_service = from_json_safe(cabin_class, "RBD")
-        return CabinClass(class_of_service=class_of_service, marketing_description=cabin_type)
+        marketing_description = from_json_safe(cabin_class, "MarketingDescription") if "MarketingDescription" in cabin_class else ''
+        return CabinClass(class_of_service=class_of_service, cabin_type=cabin_type, marketing_description=marketing_description)
 
     def __get_row_info(self, rows):
         row_info = []
@@ -964,7 +966,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         return row_info
 
     def __get_type_info(self, type_info):
-        return [TypeInfo(extension=from_json_safe(seat_type, "@extension"), code=from_json_safe(seat_type, "#text")) for seat_type in ensure_list(type_info)]
+        return [TypeInfo(extension=from_json_safe(seat_type, "@extension") if "@extension" in seat_type else seat_type, code=from_json_safe(seat_type, "#text") if "#text" in seat_type else '') for seat_type in ensure_list(type_info)]
 
     def __get_seat_info(self, seat_info):
         seats = []
@@ -977,18 +979,47 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             restricted_recline_ind = from_json_safe(seat, "@restrictedReclineInd")
             no_infant_ind = from_json_safe(seat, "@noInfantInd")
             number = from_json_safe(seat, "Number")
-            occupation = [TypeInfo(extension=from_json_safe(occupation, "Detail", "@extension"), code=from_json_safe(occupation, "Detail", "#text")) for occupation in ensure_list(from_json_safe(seat, "Occupation"))]
-            location = [type_info for type_info in self.__get_location_info(from_json_safe(seat, "Location"))]
-            detail_facilities = from_json_safe(seat, "Facilities", "Detail")
-            facilities = TypeInfo(extension=from_json_safe(detail_facilities, "@extension"), code=from_json_safe(detail_facilities, "#text"))
-            seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities))
+            occupation = self.__get_occupation_info(ensure_list(from_json_safe(seat, "Occupation")))
+            location = self.__get_location_info(ensure_list(from_json_safe(seat, "Location")))
+            facilities = self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))
+            limitations = self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))
+            seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations))
         return seats
+
+    def __get_occupation_info(self, occupation_info):
+        occupations = []
+        for occupation in occupation_info:
+            detail = from_json_safe(occupation, "Detail")
+            extension = from_json_safe(detail, "@extension") if "@extension" in detail else detail
+            code = from_json_safe(detail, "#text") if "#text" in detail else ''
+            occupations.append(TypeInfo(extension=extension, code=code))
+        return occupations
+
+    def __get_facilities_info(self, facilities_info):
+        facilities = []
+        for facilitie in facilities_info:
+            detail = from_json_safe(facilitie, "Detail")
+            extension = from_json_safe(detail, "@extension") if "@extension" in detail else detail
+            code = from_json_safe(detail, "#text") if "#text" in detail else ''
+            facilities.append(TypeInfo(extension=extension, code=code))
+        return facilities
+
+    def __get_limitations_info(self, limitations_info):
+        limitations = []
+        for limitation in limitations_info:
+            detail = from_json_safe(limitation, "Detail")
+            extension = from_json_safe(detail, "@extension") if "@extension" in detail else detail
+            code = from_json_safe(detail, "#text") if "#text" in detail else ''
+            limitations.append(TypeInfo(extension=extension, code=code))
+        return limitations
 
     def __get_location_info(self, location_info):
         locations = []
         for location in location_info:
             detail = from_json_safe(location, "Detail")
-            locations.append(TypeInfo(extension=from_json_safe(detail, "@extension"), code=from_json_safe(detail, "#text")))
+            extension = from_json_safe(detail, "@extension") if "@extension" in detail else detail
+            code = from_json_safe(detail, "#text") if "#text" in detail else ''
+            locations.append(TypeInfo(extension=extension, code=code))
         return locations
 
     def __get_column_info(self, column_info):
@@ -1006,7 +1037,7 @@ class UpdatePassengerExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body", "PassengerDetailsRS")
-        status = from_json(payload, "ApplicationResults", "status")
+        status = from_json(payload, "ApplicationResults", "@status")
         return {'status': status}
 
 

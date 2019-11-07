@@ -20,7 +20,8 @@ setuptools.setup(
         'jxmlease',
         'xmltodict',
         'lxml',
-        'requests'
+        'requests',
+        'deprecation'
     ],
     test_suite='nose.collector',
     tests_require=['nose'],
