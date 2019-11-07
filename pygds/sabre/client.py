@@ -29,7 +29,6 @@ from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.sabre.jsonbuilders.rest_token_builder import build_sabre_new_rest_token_header
 
 
-
 class SabreClient(BaseClient):
     """
     A class to interact with Sabre GDS
@@ -413,8 +412,10 @@ class SabreClient(BaseClient):
             passenger_update {[PassengerUpdate]} -- [the element to update]
         """
         update_passenger_request = self.xml_builder.update_passenger_rq(token, pnr, passenger_update)
-        update_passenger_response = self._soap_request_wrapper(update_passenger_request)
-        gds_response = UpdatePassengerExtractor(update_passenger_response.content).extract()
+        print("-------update_passenger_request-------")
+        print(update_passenger_request)
+        update_passenger_response = self.__request_wrapper("update_passenger", update_passenger_request, self.endpoint)
+        gds_response = UpdatePassengerExtractor(update_passenger_response).extract()
         return gds_response
 
     def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
