@@ -389,6 +389,28 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
         return response_data
 
+    def create_tsm(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):
+        """
+        This service is used to issue miscellaneous documents (MCO, TASF, XSB and/or EMD) and tickets SIMULTANEOUSLY.
+        The ISSUANCE TRANSACTION is the process whereby the reservation and the pricing information are converted into
+        contracts.
+        CONTRACTS are issued for customers buying travel products; those contracts tie the customer to the travel
+        provider (e.g. validating carrier of an airline product).
+        :param message_id: str -> the message id
+        :param passengers: List[str] -> List of passenger tattoos
+        :param segments: List[str] -> List of segment tattoos
+        :param retrieve_pnr: to tell if we will retrieve PNR again
+        :return:
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
+        request_data = self.xml_builder.issue_combined(session_info, passengers, segments, retrieve_pnr)
+        response_data = self.__request_wrapper("issue_combined", request_data,
+                                               'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
+        return response_data
+
     def void_tickets(self, message_id: str, ticket_numbers: List[str]):
         """
         Cancel documents by ticket numbers

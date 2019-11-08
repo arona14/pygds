@@ -222,8 +222,9 @@ def test():
         # log.info("Begin Ticket ************************************************************************")
 
         message_id = session_info.message_id
-        res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
-        session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
+        # res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
+        res_ticket = client.issue_combined(message_id, passengers=pax_refs, segments=[], retrieve_pnr=False)
+        # session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
         log.info(res_ticket)
 
         if session_info.session_ended is True:
@@ -245,7 +246,7 @@ def test():
             log.error("The session is ended when place pnr in the queue")
             return
 
-        client.end_session(message_id)
+        # client.end_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")
