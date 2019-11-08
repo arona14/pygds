@@ -1083,10 +1083,7 @@ class CancelSegmentExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
         status = from_json_safe(payload, "OTA_CancelRS", "stl:ApplicationResults", "@status")
-        if status is not None and status == 'Complete':
-            return True
-        else:
-            return False
+        return status is not None and status == 'Complete'
 
 
 class SingleVoidExtractor(BaseResponseExtractor):
@@ -1101,5 +1098,4 @@ class SingleVoidExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
         status = from_json_safe(payload, "VoidTicketRS", "stl:ApplicationResults", "@status")
-        if status is not None and status == 'Complete':
-            return True
+        return status is not None and status == 'Complete'
