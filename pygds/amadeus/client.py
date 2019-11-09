@@ -336,6 +336,23 @@ class AmadeusClient(BaseClient):
 
         return response_data
 
+    def add_office_id(self, office_id, message_id):
+        """
+            add passenger info and create the PNR
+        """
+        session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.add_office_id(office_id, message_id, session_id, sequence_number,
+                                                      security_token)
+        response_data = self.__request_wrapper("add_office_id", request_data,
+                                               'http://webservices.amadeus.com/PNRADD_17_1_1A')
+
+        response_data = GetPnrResponseExtractor(response_data).extract()
+        self.add_session(response_data.session_info)
+
+        return response_data
+
     def pnr_add_ssr(self, message_id, passenger_ids, content, company_id):
         """
             add passenger info and create the PNR
@@ -389,7 +406,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
         return response_data
 
-    def create_tsm(self, message_id: str, passengers: List[str], segments: List[str], retrieve_pnr: bool):
+    def create_tsm(self, message_id: str, passenger_id: str, tsm_type: str):
         """
         This service is used to issue miscellaneous documents (MCO, TASF, XSB and/or EMD) and tickets SIMULTANEOUSLY.
         The ISSUANCE TRANSACTION is the process whereby the reservation and the pricing information are converted into
@@ -406,9 +423,9 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
-        request_data = self.xml_builder.issue_combined(session_info, passengers, segments, retrieve_pnr)
-        response_data = self.__request_wrapper("issue_combined", request_data,
-                                               'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
+        request_data = self.xml_builder.create_tsm(session_info, passenger_id, tsm_type)
+        response_data = self.__request_wrapper("create tsm", request_data,
+                                               'http://webservices.amadeus.com/TMCOCQ_07_3_1A')
         return response_data
 
     def void_tickets(self, message_id: str, ticket_numbers: List[str]):

@@ -23,7 +23,7 @@ def test():
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
-    pnr = 'NZSAZ8'  # "LTGPDG"
+    pnr = 'O95J97'  # "LTGPDG"
     try:
 
         message_id = None
@@ -62,7 +62,7 @@ def test():
 
         if session_info.session_ended is False:
             log.info("3. Close session")
-            client.end_session(message_id)
+        client.close_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

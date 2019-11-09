@@ -572,6 +572,30 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
+    def add_office_id(self, office_id, message_id, session_id, sequence_number, security_token):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                <add:MessageID>{message_id}</add:MessageID>
+                <add:Action>http://webservices.amadeus.com/PNRADD_17_1_1A</add:Action>
+                <add:To>{self.endpoint}/{self.wsap}</add:To>
+                {security_part}
+            </soapenv:Header>
+            <soapenv:Body>
+                <PNR_AddMultiElements>
+                    <pnrActions>
+                        <optionCode>0</optionCode>
+                    </pnrActions>
+                    <dataElementsMaster>
+                        <marker1/>
+                        {sub_parts.add_multi_element_data_element("RF", 3, "P22", office_id)}
+                    </dataElementsMaster>
+                </PNR_AddMultiElements>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
     def traveller_info(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
         return f"""
         <travellerInfo>
@@ -942,6 +966,68 @@ class AmadeusXMLBuilder:
                     {sub_parts.itc_option_group("TKT")}
                     {sub_parts.itc_option_group("RT") if retrieve_pnr else ""}
                 </DocIssuance_IssueCombined>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def create_tsm(self, session_info, passenger_id, tsm_type):
+        message_id = session_info.message_id
+        session_id = session_info.session_id
+        sequence_number = session_info.sequence_number
+        security_token = session_info.security_token
+
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {self.generate_header("TMCOCQ_07_3_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <PNR_CreateTSM>
+                        <msg>
+                            <messageFunctionDetails>
+                                <businessFunction>47</businessFunction>
+                            </messageFunctionDetails>
+                        </msg>
+                        <mcoData>
+                            <paxTattoo>
+                                <otherPaxDetails>
+                                    <type>A</type>
+                                    <uniqueCustomerIdentifier>{passenger_id}</uniqueCustomerIdentifier>
+                                </otherPaxDetails>
+                            </paxTattoo>
+                            <totalFare>
+                            <monetaryDetails>
+                                <typeQualifier>B</typeQualifier>
+                                <amount>10.00</amount>
+                                <currency>USD</currency>
+                            </monetaryDetails>
+                            </totalFare>
+                            <genInfo>
+                                <productDateTimeDetails>
+                                    <departureDate>09AUG</departureDate>
+                                </productDateTimeDetails>
+                            </genInfo>
+                            <freeTextInfo>
+                                <freeTextQualification>
+                                    <textSubjectQualifier>4</textSubjectQualifier>
+                                    <informationType>47</informationType>
+                                </freeTextQualification>
+                                <freeText>NOCODE</freeText>
+                                <freeText>RFI DESCRIPTION</freeText>
+                            </freeTextInfo>
+                            <mcoDocData>
+                                <tktNumber>
+                                    <documentDetails>
+                                        <type>{tsm_type}</type>
+                                    </documentDetails>
+                                </tktNumber>
+                            </mcoDocData>
+                        </mcoData>
+                    </PNR_CreateTSM>
             </soapenv:Body>
         </soapenv:Envelope>
         """

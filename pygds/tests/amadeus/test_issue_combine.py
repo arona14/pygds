@@ -155,13 +155,13 @@ def test():
         for pax in passenger_info_response["passengers"]:
             pax_refs.append(pax.name_id)
 
-        #log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
+        # log.info("Begin SSR DOCS element to the flight segment for ADT Passenger**********************")
 
         # response_ssr = client.pnr_add_ssr(message_id, pax_refs, "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", company_id)
         # response_ssr = client.pnr_add_ssr(message_id, pax_refs[1], "////23JUN88/M//DIA/BALLA", company_id)
         # log.info(response_ssr)
 
-        #log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
+        # log.info("End of SSR DOCS element associated to the flight segment for ADT Passenger")
 
         log.info("Begin Call of Pricing Segment for some passenger ***********************************")
 
@@ -202,6 +202,8 @@ def test():
         res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
         log.info(res_fop)
 
+        log.info(client.create_tsm(message_id, pax_refs[0], "f"))
+        log.info(client.create_tsm(message_id, pax_refs[1], "f"))
         # if res_fop.session_info.session_ended is True:
         #     log.error("The session is ended when adding Form")
         #     return
