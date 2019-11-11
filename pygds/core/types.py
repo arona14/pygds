@@ -1181,3 +1181,65 @@ class UpdatePassenger(BasicDataObject):
             "qualifier": self.qualifier,
             "number": self.number
         }
+
+
+class FareOptions(BasicDataObject):
+    """List of fare type
+    
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+    def __init_(self, price_type_et=True,
+                price_type_rp=True,
+                priceType_ru=True,
+                price_type_tac=True,
+                priceType_cuc=True,
+                currency_eur=True,
+                currency_usd=False):
+        # currency_eur and currency_usd should not have the same value. if they have the same value,
+        # it will be managed by the following follow
+        self.price_type_et = None
+        self.price_type_rp = None
+        self.priceType_ru = None
+        self.price_type_tac = None
+        self.priceType_cuc = None
+        self.currency_eur = None
+        self.currency_usd = None               
+
+
+class TravelFlightInfo(BasicDataObject):
+    """Detail or information of flight
+        Cabin
+        # C Business
+        # F First, supersonic
+        # M Economic Standard
+        # W Economic Premium
+        # Y Economic
+
+        Rules on cabin
+        # C Connecting service
+        # D Direct service
+        # MC Major cabin
+        # MD Mandatory cabin for all segments
+        # N Non - stop service
+        # OV Overnight not allowed
+        # RC Recommended cabin to be used at least one segment
+
+        # Rules on airline
+        # F Preferred
+        # M Mandatory
+        # N Night class
+        # O Force Full airline recommendation
+        # P Polled
+        # R Fare Family Repartition
+
+    """
+    def __init__(self, cabin: str = "Y",
+                                    rules_cabin: str = "RC",
+                                    airlines: List[str] = ["DL", "AF"],
+                                    rules_airline: str = "F"):
+
+        self.rules_cabin = rules_cabin
+        self.cabin = cabin
+        self.rules_airline = rules_airline
+        self.airlines = airlines

@@ -196,15 +196,16 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
-    def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest, currency_conversion=None, c_qualifier="RC"):
+    def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest):
         """
             A method for searching prices of an itinerary.
         """
-        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search, currency_conversion, c_qualifier)
+        request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search)
+
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
         response_data = PriceSearchExtractor(response_data).extract()
-        # self.add_session(response_data.session_info)
+
         return response_data
 
     def fare_informative_price_without_pnr(self, message_id: str, numbering: TravellerNumbering, itineraries: List[Itinerary]):

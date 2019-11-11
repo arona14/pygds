@@ -1,6 +1,7 @@
 from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
+from pygds.amadeus.xmlbuilders import low_fare_search_helper
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
@@ -217,65 +218,30 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def fare_master_pricer_travel_board_search(self, office_id, low_fare_search: LowFareSearchRequest, currency_conversion=None, c_qualifier="RC", with_stops=True, result_count=50):
+    def fare_master_pricer_travel_board_search(self, office_id, low_fare_search: LowFareSearchRequest):
         """
             Search prices for origin/destination and departure/arrival dates
         """
+
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time, True)
-        # currency_conversion: str = None
-        stop_option = ""
-        if not with_stops:
-            stop_option = """
-            <travelFlightInfo>
-                <flightDetail>
-                    <flightType>N</flightType>
-                </flightDetail>
-            </travelFlightInfo>
-            """
-        pricing_options = ["ET", "RP", "RU", "TAC"]
-        # carrierid_options = ["DL", "AF"]
-        # type_com: str = None
-        # if type_com:
-        #     pricing_options.append("RW")
-        # identify = "012345"
-        if currency_conversion:
-            pricing_options.append("CUC")
         return f"""
-        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-            <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
-                <add:MessageID>{message_id}</add:MessageID>
-                <add:Action>http://webservices.amadeus.com/FMPTBQ_18_1_1A</add:Action>
-                <add:To>{self.endpoint}/{self.wsap}</add:To>
-                {security_part}
-            </soapenv:Header>
-            <soapenv:Body>
-                <Fare_MasterPricerTravelBoardSearch>
-                    <numberOfUnit>
-                        <unitNumberDetail>
-                            <numberOfUnits>{low_fare_search.travelingNumber.total_seats()}</numberOfUnits>
-                            <typeOfUnit>PX</typeOfUnit>
-                        </unitNumberDetail>
-                        <unitNumberDetail>
-                            <numberOfUnits>{result_count}</numberOfUnits>
-                            <typeOfUnit>RC</typeOfUnit>
-                        </unitNumberDetail>
-                    </numberOfUnit>
-                    {sub_parts.generate_seat_traveller_numbering(low_fare_search.travelingNumber)}
-                    <fareOptions>
-                        <pricingTickInfo>
-                            {sub_parts.mptbs_pricing_types(pricing_options)}
-                        </pricingTickInfo>
-                        {sub_parts.mptbs_currency_conversion(currency_conversion)}
-                    </fareOptions>
-                    {sub_parts.travel_flight_info(low_fare_search, c_qualifier)}
-                    {stop_option}
-                    {''.join([sub_parts.mptbs_itinerary(segment) for segment in low_fare_search.itineraries])}
-            </Fare_MasterPricerTravelBoardSearch>
-            </soapenv:Body>
-            </soapenv:Envelope>
-        """
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/FMPTBQ_18_1_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>
+                    <soapenv:Body>
+                        <Fare_MasterPricerTravelBoardSearch>
+                            {low_fare_search_helper.generate_number_of_unit(low_fare_search.travelingNumber, low_fare_search.number_of_unit_rc)}
+                            {low_fare_search_helper.generate_pax_reference(low_fare_search.travelingNumber)}
+                        </Fare_MasterPricerTravelBoardSearch>
+                    </soapenv:Body>
+                </soapenv:Envelope>
+                """
 
     def fare_informative_price_without_pnr(self, message_id, session_id, sequence_number,
                                            security_token, numbering: TravellerNumbering, itineraries: List[Itinerary]):
