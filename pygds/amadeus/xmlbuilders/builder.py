@@ -238,7 +238,9 @@ class AmadeusXMLBuilder:
                         <Fare_MasterPricerTravelBoardSearch>
                             {low_fare_search_helper.generate_number_of_unit(low_fare_search.travelingNumber, low_fare_search.number_of_unit_rc)}
                             {low_fare_search_helper.generate_pax_reference(low_fare_search.travelingNumber)}
-                            {low_fare_search_helper.generate_itinerary(low_fare_search.itinerary)}
+                            {low_fare_search_helper.generate_fare_options(low_fare_search.fare_options)}
+                            {low_fare_search_helper.generate_travel_flight_info(low_fare_search.travel_flight_info)}
+                            {low_fare_search_helper.generate_itinerary(low_fare_search.itineraries)}
                         </Fare_MasterPricerTravelBoardSearch>
                     </soapenv:Body>
                 </soapenv:Envelope>

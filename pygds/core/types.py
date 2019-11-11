@@ -1185,10 +1185,11 @@ class UpdatePassenger(BasicDataObject):
 
 class FareOptions(BasicDataObject):
     """List of fare type
-    
+
     Arguments:
         BasicDataObject {[type]} -- [description]
     """
+
     def __init_(self, price_type_et=True,
                 price_type_rp=True,
                 priceType_ru=True,
@@ -1204,7 +1205,7 @@ class FareOptions(BasicDataObject):
         self.price_type_tac = None
         self.priceType_cuc = None
         self.currency_eur = None
-        self.currency_usd = None               
+        self.currency_usd = None
 
 
 class TravelFlightInfo(BasicDataObject):
@@ -1234,6 +1235,7 @@ class TravelFlightInfo(BasicDataObject):
         # R Fare Family Repartition
 
     """
+
     def __init__(self, cabin: str = "Y",
                                     rules_cabin: str = "RC",
                                     airlines: List[str] = ["DL", "AF"],

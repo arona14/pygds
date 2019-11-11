@@ -1,4 +1,6 @@
 from pygds.core.types import FareOptions, TravelFlightInfo
+from pygds.core.request import RequestedSegment
+from typing import List
 
 
 def generate_number_of_unit(self, traveling_number, number_of_unit_rc):
@@ -93,3 +95,36 @@ def generate_travel_flight_info(travel_flight_info: TravelFlightInfo):
                     {"".join(["<carrierId>DL</carrierId>" for rules in travel_flight_info.rules_airline])}
                 </companyIdentity>
             </travelFlightInfo>"""
+
+
+def generate_itinerary(itineraries: List[RequestedSegment]):
+
+    content = ""
+    for itinerary in itineraries:
+        content += f"""<itinerary>
+                        <requestedSegmentRef>
+                            <segRef>{itinerary.sequence}</segRef>
+                        </requestedSegmentRef>
+                        <departureLocalization>
+                            <depMultiCity>
+                                <locationId>{itinerary.origin}</locationId>
+                                <airportCityQualifier>{itinerary.airport_city_qualifier}</airportCityQualifier>
+                            </depMultiCity>
+                        </departureLocalization>
+                        <arrivalLocalization>
+                            <arrivalMultiCity>
+                                <locationId>{itinerary.destination}</locationId>
+                                <airportCityQualifier>{itinerary.airport_city_qualifier}</airportCityQualifier>
+                            </arrivalMultiCity>
+                        </arrivalLocalization>
+                        <timeDetails>
+                            <firstDateTimeDetail>
+                                <date>{itinerary.departure_date}</date>
+                            </firstDateTimeDetail>
+                            <rangeOfDate>
+                                <rangeQualifier>M</rangeQualifier>
+                                <dayInterval>2</dayInterval>
+                            </rangeOfDate>
+                        </timeDetails>
+                    </itinerary>"""
+    return content
