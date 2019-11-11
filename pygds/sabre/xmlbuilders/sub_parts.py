@@ -282,5 +282,5 @@ def segments_to_cancel(segment_list):
     """
     if len(segment_list) > 0:
         return "".join([f"""<Segment Number="{seg}"/>""" for seg in segment_list])
-    elif len(segment_list) == 0 or segment_list is None:
+    elif len(segment_list) == 0:
         return """<Segment Type="air"/>"""

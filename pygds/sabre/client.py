@@ -443,10 +443,14 @@ class SabreClient(BaseClient):
 
     @session_wrapper
     def void_ticket(self, token: str, rph):
-        """
-        A method to cancel segment
-        :param token: the token session
-        :param list_segment: the list of segment selected
+        """[A method to void a ticket number]
+
+        Arguments:
+            token {str} -- [the security token]]
+            rph {[type]} -- [the ticket number identifier]
+
+        Returns:
+            [GdsResponse] -- [Single Void Response]
         """
         void_ticket_request = self.xml_builder.void_ticket_rq(token, rph)
         void_ticket_response = self.__request_wrapper("void_ticket", void_ticket_request, self.endpoint)
