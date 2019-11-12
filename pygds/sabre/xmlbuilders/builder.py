@@ -4,7 +4,7 @@ from pygds.core.security_utils import generate_random_message_id, generate_creat
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, store_pax_type, store_plus_up, \
-    store_ticket_designator, add_flight_segment
+    store_ticket_designator, add_flight_segment, segments_to_cancel
 from decimal import Decimal
 
 
@@ -298,12 +298,13 @@ class SabreXMLBuilder:
 
         """
         header = self.generate_header("OTA_CancelLLSRQ", "OTA_CancelLLSRQ", token)
+        segments_list = segments_to_cancel(segment)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                {header}
                 <soapenv:Body>
                     <OTA_CancelRQ xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" NumResponses="1" ReturnHostCommand="false" TimeStamp="2016-05-17T10:00:00-06:00" Version="2.0.2">
-                        {segment}
+                        {segments_list}
                     </OTA_CancelRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
