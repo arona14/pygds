@@ -933,7 +933,7 @@ class TotalAmount(BasicDataObject):
         self.text = text
 
     def to_data(self):
-        return {"currencyCode": self.currency_code, "#text": self.text}
+        return {"CurrencyCode": self.currency_code, "Text": self.text}
 
 
 class Occupation(BasicDataObject):
@@ -958,29 +958,47 @@ class Facilities(BasicDataObject):
         return {"Detail": self.detail}
 
 
+class Taxes(BasicDataObject):
+    def __init__(self, tax: TotalAmount = None, tax_type_ref: str = None):
+        self.tax = tax
+        self.tax_type_ref = tax_type_ref
+
+    def to_data(self):
+        return {
+            "Tax": self.tax.to_data() if self.tax is not None else {},
+            "TaxTypeRef": self.tax_type_ref if self.tax_type_ref is not None else ''
+        }
+
+
 class BasePrice(BasicDataObject):
     """This class is for holding information about the base price
     """
 
-    def __init__(self, total_amount: TotalAmount = None):
+    def __init__(self, total_amount: TotalAmount = None, taxes: TotalAmount = None, price_type_ref: str = None):
         self.total_amount = total_amount
+        self.taxes = taxes
+        self.price_type_ref = price_type_ref
 
     def to_data(self):
-        return {"TotalAmount": self.total_amount.to_data() if self.total_amount is not None else {}}
+        return {
+            "TotalAmount": self.total_amount.to_data() if self.total_amount is not None else {},
+            "Taxes": self.taxes.to_data() if self.taxes is not None else {},
+            "PriceTypeRef": self.price_type_ref
+        }
 
 
 class Offer(BasicDataObject):
     """This class is for holding information about the Offer
     """
 
-    def __init__(self, entitle_ind: str = None, commercial_name: str = None, base_price: BasePrice = None):
-        self.entitle_ind = entitle_ind
+    def __init__(self, entitled_ind: str = None, commercial_name: str = None, base_price: BasePrice = None):
+        self.entitled_ind = entitled_ind
         self.commercial_name = commercial_name
         self.base_price = base_price
 
     def to_data(self):
         return {
-            "EntitledInd": self.entitle_ind,
+            "EntitledInd": self.entitled_ind,
             "CommercialName": self.commercial_name,
             "BasePrice": self.base_price.to_data() if self.base_price is not None else {}
         }
@@ -1000,7 +1018,7 @@ class SeatInfo(BasicDataObject):
     """This class is for holding information about the flight
     """
 
-    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: List[TypeInfo] = None, location: List[TypeInfo] = None, facilities: TypeInfo = None, limitations: List[TypeInfo] = None):
+    def __init__(self, occupied_ind: str = None, inoperative_ind: str = None, premiun_ind: str = None, chargeable_ind: str = None, exit_row_ind: str = None, restricted_reclined_ind: str = None, no_infant_ind: str = None, number: str = None, occupation: List[TypeInfo] = None, location: List[TypeInfo] = None, facilities: TypeInfo = None, limitations: List[TypeInfo] = None, offer: Offer = None, bilateral: dict = None):
         self.occupied_ind = occupied_ind
         self.inoperative_ind = inoperative_ind
         self.premiun_ind = premiun_ind
@@ -1013,6 +1031,8 @@ class SeatInfo(BasicDataObject):
         self.location = location
         self.facilities = facilities
         self.limitations = limitations
+        self.offer = offer
+        self.bilateral = bilateral
 
     def to_data(self):
         return {
@@ -1027,7 +1047,33 @@ class SeatInfo(BasicDataObject):
             "Occupation": [occupation.to_data() for occupation in self.occupation],
             "Location": [location.to_data() for location in self.location],
             "Facilities": [facilitie.to_data() for facilitie in self.facilities],
-            "Limitations": [limitation.to_data() for limitation in self.limitations]
+            "Limitations": [limitation.to_data() for limitation in self.limitations],
+            "Offer": self.offer.to_data() if self.offer else {},
+            "Bilateral": self.bilateral
+        }
+
+
+class FaciltyInfo(BasicDataObject):
+    """This class is for holding information about the cabin class
+    """
+
+    def __init__(self, location: str = None, caracteristics: str = None):
+        self.location = location
+        self.caracteristics = caracteristics
+
+    def to_data(self):
+        return {"Characteristics": self.caracteristics, "Location": self.location}
+
+
+class RowFacilityInfo(BasicDataObject):
+    def __init__(self, location: str = None, facility: List[FaciltyInfo] = None):
+        self.location = location
+        self.facility = facility
+
+    def to_data(self):
+        return {
+            "Location": self.location,
+            "Facility": [facility.to_data() for facility in self.facility if self.facility]
         }
 
 
@@ -1035,13 +1081,14 @@ class RowInfo(BasicDataObject):
     """This class is for holding information about the cabin class
     """
 
-    def __init__(self, row_number: str = None, type_info: List[TypeInfo] = None, seat_info: List[SeatInfo] = None):
+    def __init__(self, row_number: str = None, type_info: List[TypeInfo] = None, seat_info: List[SeatInfo] = None, row_facility: List[RowFacilityInfo] = None):
         self.row_number = row_number
         self.type_info = type_info
         self.seat_info = seat_info
+        self.row_facility = row_facility
 
     def to_data(self):
-        return {"RowNumber": self.row_number, "Type": [type_seat.to_data() for type_seat in self.type_info], "Seat": [seat.to_data() for seat in self.seat_info]}
+        return {"RowNumber": self.row_number, "Type": [type_seat.to_data() for type_seat in self.type_info], "Seat": [seat.to_data() for seat in self.seat_info], "RowFacility": [row_facility.to_data() for row_facility in self.row_facility]}
 
 
 class ColumnInfo(BasicDataObject):
@@ -1071,10 +1118,10 @@ class CabinInfo(BasicDataObject):
 
     def to_data(self):
         return {
-            "firstRow": self.first_row,
-            "lastRow": self.last_row,
+            "FirstRow": self.first_row,
+            "LastRow": self.last_row,
             "CabinClass": self.cabin_class.to_data() if self.cabin_class else None,
-            "seatOccupationDefault": self.seat_occupation_default,
+            "SeatOccupationDefault": self.seat_occupation_default,
             "Row": [row.to_data() for row in self.row if self.row],
             "Column": [column.to_data() for column in self.column if self.column],
             "ClassLocation": self.class_location
@@ -1086,16 +1133,16 @@ class SeatMap(BasicDataObject):
     """This class is for holding information about seat map
     """
 
-    def __init__(self, change_of_gauge_ind: str = None, equipement: str = None, flights: FlightInfo = None, cabin: CabinInfo = None):
+    def __init__(self, change_of_gauge_ind: str = None, equipment: str = None, flights: FlightInfo = None, cabin: CabinInfo = None):
         self.change_of_gauge_ind = change_of_gauge_ind
-        self.equipement = equipement
+        self.equipment = equipment
         self.flights = flights
         self.cabin = cabin
 
     def to_data(self):
         return {
             "changeOfGaugeInd": self.change_of_gauge_ind,
-            "Equipement": self.equipement,
+            "Equipment": self.equipment,
             "Flight": self.flights.to_data() if self.flights is not None else None,
             "Cabin": self.cabin.to_data() if self.cabin is not None else None
         }
