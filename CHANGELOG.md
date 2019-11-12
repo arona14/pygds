@@ -56,3 +56,6 @@
 
 # 0.0.10 (2019-11-07)
 - Fix on Sabre seat map extractor [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.11 (2019-11-07)
+- Add some methods on Sabre seat map extractor [mbayane1990](mbaye@ctsfares.com)

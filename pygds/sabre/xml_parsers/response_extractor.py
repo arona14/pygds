@@ -1,7 +1,7 @@
 import logging
 import re
 from typing import List
-from pygds.core.types import SeatInfo
+
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
 from pygds.core.app_error import ApplicationError
@@ -25,16 +25,16 @@ from pygds.core.rebook import RebookInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.ticket import TicketReply
 from pygds.core.types import (Agent, CabinClass, CabinInfo, ColumnInfo,
-                              ElectronicDocument, EndTransaction,
+                              ElectronicDocument, EndTransaction, FaciltyInfo,
                               FlightAirlineDetails, FlightDisclosureCarrier,
                               FlightInfo, FlightMarriageGrp,
                               FlightPointDetails, FlightSegment, FormatAmount,
-                              FormatPassengersInPQ,
-                              IgnoreTransaction, Itinerary,
-                              OperatingMarketing, Passenger, PriceQuote_,
-                              QueuePlace, Remarks, RowInfo, SeatMap, InfoPayment,
+                              FormatPassengersInPQ, IgnoreTransaction,
+                              InfoPayment, Itinerary, OperatingMarketing,
+                              Passenger, PriceQuote_, QueuePlace, Remarks,
+                              RowFacilityInfo, RowInfo, SeatInfo, SeatMap,
                               SendCommand, ServiceCoupon, TicketDetails,
-                              TicketingInfo_, TypeInfo)
+                              TicketingInfo_, TypeInfo, Offer, BasePrice, TotalAmount, Taxes)
 
 
 class BaseResponseExtractor(object):
@@ -464,7 +464,11 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     transaction_indicator = from_json_safe(ticket, "stl18:TransactionIndicator")
                     agency_location = from_json_safe(ticket, "stl18:AgencyLocation")
                     time_stamp = from_json_safe(ticket, "stl18:Timestamp")
-                    ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp)
+                    index = from_json_safe(ticket, "index")
+                    original_ticket_detail = from_json_safe(ticket, "stl18:OriginalTicketDetails")
+                    agent_sine = from_json_safe(ticket, "stl18:AgentSine")
+                    full_name = self.passenger_full_name(passengers, name_id)
+                    ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
                     list_ticket.append(ticket_object)
 
         return list_ticket
@@ -511,6 +515,16 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type)
             passenger_list.append(p)
         return passenger_list
+
+    def passenger_full_name(self, all_passengers, name_number):
+
+        for pax in ensure_list(all_passengers):
+            name_id = from_json(pax, "nameId")
+            if name_number == name_id:
+                last_name = from_json(pax, "stl18:LastName")
+                first_name = from_json(pax, "stl18:FirstName")
+                full_name = f"{first_name} {last_name}"
+                return full_name
 
 
 class SendCommandExtractor(BaseResponseExtractor):
@@ -919,10 +933,10 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         seat_map = from_json_safe(payload, "EnhancedSeatMapRS", "SeatMap")
         if seat_map:
             change_of_gauge = seat_map["@changeOfGaugeInd"]
-            equipement = seat_map["Equipment"]
+            equipment = seat_map["Equipment"]
             flight = self._get_flight_info(seat_map["Flight"])
             cabin = self._get_cabin_info(seat_map["Cabin"])
-            seat = SeatMap(change_of_gauge, equipement, flight, cabin)
+            seat = SeatMap(change_of_gauge, equipment, flight, cabin)
         else:
             seat = SeatMap(None, None, None, None)
         return seat
@@ -949,7 +963,8 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
         row = self.__get_row_info(from_json_safe(cabin, "Row"))
         column = self.__get_column_info(from_json_safe(cabin, "Column"))
-        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column)
+        class_location = from_json_safe(cabin, "@classLocation") if "@classLocation" in cabin else ''
+        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column, class_location=class_location)
 
     def __get_cabin_class(self, cabin_class):
         cabin_type = from_json_safe(cabin_class, "CabinType") if "CabinType" in cabin_class else ''
@@ -961,13 +976,25 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         row_info = []
         for row in rows:
             row_number = from_json_safe(row, "RowNumber")
+            row_facility = self.__get_row_facility_info(ensure_list(from_json_safe(row, "RowFacility"))) if "RowFacility" in row else []
             type_info = self.__get_type_info(from_json_safe(row, "Type"))
             seat = self.__get_seat_info(from_json_safe(row, "Seat")) if from_json_safe(row, "Seat") else []
-            row_info.append(RowInfo(row_number=row_number, type_info=type_info, seat_info=seat))
+            row_info.append(RowInfo(row_number=row_number, type_info=type_info, seat_info=seat, row_facility=row_facility))
         return row_info
 
     def __get_type_info(self, type_info):
         return [TypeInfo(extension=from_json_safe(seat_type, "@extension") if "@extension" in seat_type else seat_type, code=from_json_safe(seat_type, "#text") if "#text" in seat_type else '') for seat_type in ensure_list(type_info)]
+
+    def __get_facility(self, facility_info):
+        return [FaciltyInfo(location=from_json_safe(facility, "Location") if "Location" in facility else '', caracteristics=from_json_safe(facility, "Characteristics") if "Characteristics" in facility else '') for facility in facility_info]
+
+    def __get_row_facility_info(self, row_facilty_info):
+        row_facilitiies = []
+        for row_facility in row_facilty_info:
+            location = from_json_safe(row_facility, "Location") if "Location" in row_facility else ''
+            facility = self.__get_facility(ensure_list(from_json_safe(row_facility, "Facility"))) if "Facility" in row_facility else []
+            row_facilitiies.append(RowFacilityInfo(location=location, facility=facility))
+        return row_facilitiies
 
     def __get_seat_info(self, seat_info):
         seats = []
@@ -983,8 +1010,10 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             occupation = self.__get_occupation_info(ensure_list(from_json_safe(seat, "Occupation")))
             location = self.__get_location_info(ensure_list(from_json_safe(seat, "Location")))
             facilities = self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))
+            offer = self.__get_offer_info(from_json_safe(seat, "Offer")) if from_json_safe(seat, "Offer") else {}
             limitations = self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))
-            seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations))
+            bilateral = {"Characteristic": from_json_safe(seat, "Bilateral", "Characteristic") if "Bilateral" in seat else ''}
+            seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations, offer=offer, bilateral=bilateral))
         return seats
 
     def __get_occupation_info(self, occupation_info):
@@ -1004,6 +1033,28 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             code = from_json_safe(detail, "#text") if "#text" in detail else ''
             facilities.append(TypeInfo(extension=extension, code=code))
         return facilities
+
+    def __get_total_amount(self, total_amount):
+        return TotalAmount(currency_code=from_json_safe(total_amount, "@currencyCode") if "@currencyCode" in total_amount else 'USD', text=float(from_json_safe(total_amount, "#text")) if "#text" in total_amount else 0.0)
+
+    def __get_taxe(self, taxe):
+        return TotalAmount(currency_code=from_json_safe(taxe, "@currencyCode") if "@currencyCode" in taxe else 'USD', text=float(from_json_safe(taxe, "#text")) if "#text" in taxe else 0.0)
+
+    def __get_taxes(self, taxes):
+        taxe = self.__get_taxe(from_json_safe(taxes, "Tax") if "Tax" in taxes else {})
+        tax_type_ref = from_json_safe(taxes, "TaxTypeRef") if "TaxTypeRef" in taxes else ''
+        return Taxes(tax=taxe, tax_type_ref=tax_type_ref)
+
+    def __get_base_price(self, base_price):
+        total_amount = self.__get_total_amount(from_json_safe(base_price, "TotalAmount") if "TotalAmount" in base_price else {})
+        taxes = self.__get_taxes(from_json_safe(base_price, "Taxes") if "Taxes" in base_price else {})
+        price_type_ref = from_json_safe(base_price, "PriceTypeRef") if "PriceTypeRef" in base_price else ''
+        return BasePrice(total_amount=total_amount, taxes=taxes, price_type_ref=price_type_ref)
+
+    def __get_offer_info(self, offer_info):
+        entitled_ind = from_json_safe(offer_info, "@entitledInd") if "@entitledInd" in offer_info else ''
+        base_price = self.__get_base_price(from_json_safe(offer_info, "BasePrice") if "BasePrice" in offer_info else '')
+        return Offer(entitled_ind=entitled_ind, base_price=base_price)
 
     def __get_limitations_info(self, limitations_info):
         limitations = []
@@ -1056,3 +1107,33 @@ class CloseSessionExtractor(BaseResponseExtractor):
         status = from_json(payload, "SessionCloseRS", "@status")
         if status == 'Approved':
             return True
+
+
+class CancelSegmentExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "OTA_CancelRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json_safe(payload, "OTA_CancelRS", "stl:ApplicationResults", "@status")
+        return status is not None and status == 'Complete'
+
+
+class SingleVoidExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "VoidTicketRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json_safe(payload, "VoidTicketRS", "stl:ApplicationResults", "@status")
+        return status is not None and status == 'Complete'

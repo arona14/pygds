@@ -272,3 +272,15 @@ def add_flight_segment(origin, destination, depart_date, operating_code, marketi
       <tag0:RBD>{class_of_service}</tag0:RBD>
     </tag0:CabinDefinition>
     <Currency>{currency_code}</Currency>"""
+
+
+def segments_to_cancel(segment_list):
+    """[this function allows you to specify which segments to cancel]
+
+    Arguments:
+        segment_list {[list]} -- [description]
+    """
+    if len(segment_list) > 0:
+        return "".join([f"""<Segment Number="{seg}"/>""" for seg in segment_list])
+    elif len(segment_list) == 0:
+        return """<Segment Type="air"/>"""
