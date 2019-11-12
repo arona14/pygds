@@ -925,7 +925,7 @@ class TotalAmount(BasicDataObject):
         self.text = text
 
     def to_data(self):
-        return {"currencyCode": self.currency_code, "text": self.text}
+        return {"CurrencyCode": self.currency_code, "Text": self.text}
 
 
 class Occupation(BasicDataObject):
