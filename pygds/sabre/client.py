@@ -3,6 +3,8 @@
 # TODO: Use "import" statements for packages and modules only, not for individual classes or functions.
 # Note that there is an explicit exemption for
 import json
+from typing import List
+
 import requests
 import deprecation
 
@@ -153,7 +155,7 @@ class SabreClient(BaseClient):
         return response
 
     @session_wrapper
-    def store_price_quote(self, token: str, fare_type: str, segment_select: StoreSegmentSelect,
+    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
@@ -165,7 +167,7 @@ class SabreClient(BaseClient):
         :param brand_id
         :return:
         """
-        corrected_segments: StoreSegmentSelect = []
+        corrected_segments: List[StoreSegmentSelect] = []
         for s in segment_select:
             if not isinstance(s, tuple):
                 s = (s, None)

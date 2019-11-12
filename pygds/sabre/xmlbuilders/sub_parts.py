@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import List, Tuple
+from typing import List
 
 from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list
 
@@ -178,7 +178,7 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     return ticket_designator, segment_number
 
 
-def _store_build_segment_selects(segment_select_with_brand_ids: StoreSegmentSelect, ticket_designator: str = None):
+def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None):
     brands = []
     segments = []
     next_rph = 0

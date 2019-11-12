@@ -1,3 +1,5 @@
+from typing import List
+
 from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.core.security_utils import generate_random_message_id, generate_created
@@ -265,8 +267,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-
-    def store_price_rq(self, token, fare_type: str, segment_select: StoreSegmentSelect, passenger_type: dict, baggage: int = 0, region_name: str = ""):
+    def store_price_rq(self, token, fare_type: str, segment_select: List[StoreSegmentSelect], passenger_type: dict, baggage: int = 0, region_name: str = ""):
         """
             Return the xml request to price air itineraries
         """

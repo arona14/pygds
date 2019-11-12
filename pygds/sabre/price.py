@@ -1,3 +1,3 @@
-from typing import List, Tuple
+from typing import Tuple
 
-StoreSegmentSelect = List[Tuple[int, str]]
+StoreSegmentSelect = Tuple[int, str]
