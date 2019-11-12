@@ -463,7 +463,11 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     transaction_indicator = from_json_safe(ticket, "stl18:TransactionIndicator")
                     agency_location = from_json_safe(ticket, "stl18:AgencyLocation")
                     time_stamp = from_json_safe(ticket, "stl18:Timestamp")
-                    ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp)
+                    index = from_json_safe(ticket, "index")
+                    original_ticket_detail = from_json_safe(ticket, "stl18:OriginalTicketDetails")
+                    agent_sine = from_json_safe(ticket, "stl18:AgentSine")
+                    full_name = self.passenger_full_name(passengers, name_id)
+                    ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
                     list_ticket.append(ticket_object)
 
         return list_ticket
@@ -510,6 +514,16 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type)
             passenger_list.append(p)
         return passenger_list
+
+    def passenger_full_name(self, all_passengers, name_number):
+
+        for pax in ensure_list(all_passengers):
+            name_id = from_json(pax, "nameId")
+            if name_number == name_id:
+                last_name = from_json(pax, "stl18:LastName")
+                first_name = from_json(pax, "stl18:FirstName")
+                full_name = f"{first_name} {last_name}"
+                return full_name
 
 
 class SendCommandExtractor(BaseResponseExtractor):
@@ -1055,3 +1069,33 @@ class CloseSessionExtractor(BaseResponseExtractor):
         status = from_json(payload, "SessionCloseRS", "@status")
         if status == 'Approved':
             return True
+
+
+class CancelSegmentExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "OTA_CancelRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json_safe(payload, "OTA_CancelRS", "stl:ApplicationResults", "@status")
+        return status is not None and status == 'Complete'
+
+
+class SingleVoidExtractor(BaseResponseExtractor):
+    """
+        Will extract response from close session
+    """
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "VoidTicketRS")
+        self.parsed = True
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
+        status = from_json_safe(payload, "VoidTicketRS", "stl:ApplicationResults", "@status")
+        return status is not None and status == 'Complete'

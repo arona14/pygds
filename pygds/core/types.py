@@ -522,20 +522,28 @@ class TicketingInfo_(BasicDataObject):
         Represents a ticketing information
     """
 
-    def __init__(self, ticket_number: str = None, transaction_indicator: str = None, passenger: str = None, pcc: str = None, date_time: str = None):
+    def __init__(self, ticket_number: str = None, transaction_indicator: str = None, passenger: str = None, pcc: str = None, date_time: str = None, index: str = None, original_ticket_detail: str = None, agent_sine: str = None, full_name: str = None):
         self.ticket_number = ticket_number
         self.transaction_indicator = transaction_indicator
         self.passenger = passenger
         self.pcc = pcc
         self.date_time = date_time
+        self.index = index
+        self.original_ticket_detail = original_ticket_detail
+        self.agent_sine = agent_sine
+        self.full_name = full_name
 
     def to_data(self):
         return{
             "ticket_number": self.ticket_number,
             "transaction_indicator": self.transaction_indicator,
-            "passenger_name": self.passenger,
-            "agency_location": self.pcc,
+            "passenger": self.full_name,
+            "passenger_name_number": self.passenger,
+            "pcc": self.pcc,
             "time_stamp": self.date_time,
+            "index": self.index,
+            "original_ticket_detail": self.original_ticket_detail,
+            "agent_sine": self.agent_sine,
         }
 
 
