@@ -23,7 +23,7 @@ from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, Dis
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \
     IsTicketExchangeableExtractor, ExchangeShoppingExtractor, \
     ExchangePriceExtractor, ExchangeCommitExtractor, UpdatePassengerExtractor, RebookExtractor, CloseSessionExtractor, \
-    SabreSoapErrorExtractor
+    SabreSoapErrorExtractor, CancelSegmentExtractor, SingleVoidExtractor
 from pygds.core.client import BaseClient, session_wrapper, RestToken
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
@@ -189,7 +189,10 @@ class SabreClient(BaseClient):
         :param token: the token session
         :param list_segment: the list of segment selected
         """
-        return self.xml_builder.cancel_segment_rq(token, list_segment)
+        cancel_segment_request = self.xml_builder.cancel_segment_rq(token, list_segment)
+        cancel_segment_response = self.__request_wrapper("cancel_list_segment", cancel_segment_request, self.endpoint)
+        response = CancelSegmentExtractor(cancel_segment_response).extract()
+        return response
 
     def search_flight(self, search_request: LowFareSearchRequest, available_only: bool, types: str):
         """
@@ -451,4 +454,20 @@ class SabreClient(BaseClient):
         revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
+        return gds_response
+
+    @session_wrapper
+    def void_ticket(self, token: str, rph):
+        """[A method to void a ticket number]
+
+        Arguments:
+            token {str} -- [the security token]]
+            rph {[type]} -- [the ticket number identifier]
+
+        Returns:
+            [GdsResponse] -- [Single Void Response]
+        """
+        void_ticket_request = self.xml_builder.void_ticket_rq(token, rph)
+        void_ticket_response = self.__request_wrapper("void_ticket", void_ticket_request, self.endpoint)
+        gds_response = SingleVoidExtractor(void_ticket_response).extract()
         return gds_response
