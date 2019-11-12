@@ -1110,10 +1110,10 @@ class CabinInfo(BasicDataObject):
 
     def to_data(self):
         return {
-            "firstRow": self.first_row,
-            "lastRow": self.last_row,
+            "FirstRow": self.first_row,
+            "LastRow": self.last_row,
             "CabinClass": self.cabin_class.to_data() if self.cabin_class else None,
-            "seatOccupationDefault": self.seat_occupation_default,
+            "SeatOccupationDefault": self.seat_occupation_default,
             "Row": [row.to_data() for row in self.row if self.row],
             "Column": [column.to_data() for column in self.column if self.column],
             "ClassLocation": self.class_location

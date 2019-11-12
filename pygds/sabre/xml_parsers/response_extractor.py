@@ -948,7 +948,8 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
         row = self.__get_row_info(from_json_safe(cabin, "Row"))
         column = self.__get_column_info(from_json_safe(cabin, "Column"))
-        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column)
+        class_location = from_json_safe(cabin, "@classLocation") if "@classLocation" in cabin else ''
+        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column, class_location=class_location)
 
     def __get_cabin_class(self, cabin_class):
         cabin_type = from_json_safe(cabin_class, "CabinType") if "CabinType" in cabin_class else ''
@@ -996,7 +997,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             facilities = self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))
             offer = self.__get_offer_info(from_json_safe(seat, "Offer")) if from_json_safe(seat, "Offer") else {}
             limitations = self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))
-            bilateral = {"Characteristic": from_json_safe(seat, "Bilateral", "Characteristic") if "Bilateral" in seat else {}}
+            bilateral = {"Characteristic": from_json_safe(seat, "Bilateral", "Characteristic") if "Bilateral" in seat else ''}
             seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations, offer=offer, bilateral=bilateral))
         return seats
 
