@@ -1040,7 +1040,7 @@ class SeatInfo(BasicDataObject):
             "Location": [location.to_data() for location in self.location],
             "Facilities": [facilitie.to_data() for facilitie in self.facilities],
             "Limitations": [limitation.to_data() for limitation in self.limitations],
-            "Offer": self.offer.to_data(),
+            "Offer": self.offer.to_data() if self.offer else {},
             "Bilateral": self.bilateral
         }
 
