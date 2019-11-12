@@ -19,7 +19,7 @@ def test():
     """ A suite of tests """
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    dir_path = os.path.join(dir_path, "..", "..", "..")
+    dir_path = os.path.join(dir_path, "..", "..", "..", "..")
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
@@ -176,7 +176,6 @@ def get_itineraries_pnr(itineraries: List[Itinerary]):
     itin_indexes = {}
 
     for itin_index, itin in enumerate(itineraries):
-        print(f"type of itin: {type(itin)}")
         list_segments = []
         seg_indexes = {}
         for seg_index, seg in enumerate(itin.segments):
@@ -203,7 +202,6 @@ def get_itineraries_pnr(itineraries: List[Itinerary]):
 
 
 def get_segment_id(segment_map, itin_index: int, segment_index: int):
-    print(f"segment_map: {segment_map}")
     itin = segment_map[itin_index]
     return itin[segment_index]
 

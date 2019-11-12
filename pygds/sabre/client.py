@@ -156,15 +156,15 @@ class SabreClient(BaseClient):
 
     @session_wrapper
     def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
-                          passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
+                          passengers: dict = {}, baggage: int = 0, region_name: str = ""):
         """
         A method to store price
         :param token: the token
         :param fare_type: the fare type value value
         :param segment_select: the list of segment selected
+        :param passengers: dict
         :param baggage: number of baggage
         :param region_name: the region name
-        :param brand_id
         :return:
         """
         corrected_segments: List[StoreSegmentSelect] = []
