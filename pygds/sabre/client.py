@@ -15,6 +15,7 @@ from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
+from pygds.sabre.price import StoreSegmentSelect
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, \
     IssueTicketExtractor, EndTransactionExtractor, \
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \
@@ -52,7 +53,14 @@ class SabreClient(BaseClient):
         """
         headers = self.rest_header
         headers["Authorization"] = "Bearer " + token
-        return requests.post(self.rest_url + url_path, data=request_data, headers=headers)
+        response = requests.post(self.rest_url + url_path, data=request_data, headers=headers)
+
+        # status = response.status_code
+        # if self.is_debugging:
+        #     self.log.debug(request_data)
+        #     self.log.debug(response.content)
+        #     self.log.debug(f"{url_path} status: {status}")
+        return response
 
     def _soap_request_wrapper(self, request_data):
         """
@@ -124,12 +132,11 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def search_price_quote(self, token: str, retain: bool = False, fare_type: str = '', segment_select: list = [],
+    def search_price_quote(self, token: str, fare_type: str = '', segment_select: list = [],
                            passenger_type: list = [], baggage: int = 0, region_name: str = ""):
         """
         A method to search price
         :param token: the token
-        :param retain: the retain value
         :param fare_type: the fare type value value
         :param segment_select: the list of segment selected
         :param  passenger_type: the list of passenger type selected
@@ -137,7 +144,7 @@ class SabreClient(BaseClient):
         :param region_name: the region name
         :return:
         """
-        search_price_request = self.xml_builder.price_quote_rq(token, retain=retain, fare_type=fare_type,
+        search_price_request = self.xml_builder.price_quote_rq(token, retain=False, fare_type=fare_type,
                                                                segment_select=segment_select,
                                                                passenger_type=passenger_type, baggage=baggage,
                                                                region_name=region_name)
@@ -146,12 +153,11 @@ class SabreClient(BaseClient):
         return response
 
     @session_wrapper
-    def store_price_quote(self, token: str, retain: bool = True, fare_type: str = '', segment_select: list = [],
+    def store_price_quote(self, token: str, fare_type: str, segment_select: StoreSegmentSelect,
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", brand_id: str = None):
         """
         A method to store price
         :param token: the token
-        :param retain: the retain value
         :param fare_type: the fare type value value
         :param segment_select: the list of segment selected
         :param baggage: number of baggage
@@ -159,11 +165,18 @@ class SabreClient(BaseClient):
         :param brand_id
         :return:
         """
-        store_price_request = self.xml_builder.price_quote_rq(token, retain=retain, fare_type=fare_type,
-                                                              segment_select=segment_select, passenger_type=passengers,
-                                                              baggage=baggage, region_name=region_name,
-                                                              brand_id=brand_id)
+        corrected_segments: StoreSegmentSelect = []
+        for s in segment_select:
+            if not isinstance(s, tuple):
+                s = (s, None)
+            corrected_segments.append(s)
+        store_price_request = self.xml_builder.store_price_rq(token, fare_type=fare_type,
+                                                              segment_select=corrected_segments,
+                                                              passenger_type=passengers, baggage=baggage,
+                                                              region_name=region_name)
+        self.log.debug(store_price_request)
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
+        self.log.debug(store_price_response)
         response = PriceSearchExtractor(store_price_response).extract()
         return response
 

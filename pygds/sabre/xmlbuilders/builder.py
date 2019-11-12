@@ -1,10 +1,14 @@
 from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.core.security_utils import generate_random_message_id, generate_created
+from pygds.sabre.price import StoreSegmentSelect
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
-from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, get_segments_exchange, get_passengers_exchange, \
-    get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, store_pax_type, store_plus_up, \
-    store_ticket_designator, add_flight_segment
+from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, \
+    get_segments_exchange, get_passengers_exchange, \
+    get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
+    store_pax_type, store_plus_up, \
+    store_ticket_designator, add_flight_segment, _store_single_name_select, _store_build_segment_selects, \
+    _store_single_pax_type
 from decimal import Decimal
 
 
@@ -251,6 +255,48 @@ class SabreXMLBuilder:
                                 {fare_type_value}
                                 {ticket_designator}
                                 {segment_number}
+                                {name_select}
+                                {pax_type}
+                                {plus_up}
+                            </PricingQualifiers>
+                        </OptionalQualifiers>
+                        </PriceRequestInformation>
+                    </OTA_AirPriceRQ>
+                </soapenv:Body>
+            </soapenv:Envelope>"""
+
+
+    def store_price_rq(self, token, fare_type: str, segment_select: StoreSegmentSelect, passenger_type: dict, baggage: int = 0, region_name: str = ""):
+        """
+            Return the xml request to price air itineraries
+        """
+        pax_type_code = passenger_type["code"]
+        name_select = passenger_type["name_select"]
+
+        name_select = _store_single_name_select(name_select)
+        name_select = name_select if name_select else ""
+        segment_numbers, brands, t_designator = _store_build_segment_selects(segment_select, passenger_type["ticket_designator"])
+        pax_type = _store_single_pax_type(pax_type_code)
+        pax_type = pax_type if pax_type else ""
+        commission = store_commission(fare_type, passenger_type, region_name, self.pcc)
+        # tour_code = store_tour_code(passenger_type)
+        plus_up = store_plus_up(passenger_type, self.pcc)
+        plus_up = plus_up if plus_up else ""
+        fare_type_value = ""
+        header = self.generate_header("Session", "OTA_AirPriceLLSRQ", token)
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                {header}
+                <soapenv:Body>
+                    <OTA_AirPriceRQ Version="2.17.0" xmlns="http://webservices.sabre.com/sabreXML/2011/10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <PriceRequestInformation Retain="true">
+                        <OptionalQualifiers>
+                            {commission}
+                            <PricingQualifiers>
+                                {fare_type_value}
+                                {brands}
+                                {segment_numbers}
+                                {t_designator}
                                 {name_select}
                                 {pax_type}
                                 {plus_up}

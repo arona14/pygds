@@ -1,4 +1,5 @@
 from pygds.core.sessions import SessionInfo
+from functools import wraps
 
 
 class GDSError(Exception):
