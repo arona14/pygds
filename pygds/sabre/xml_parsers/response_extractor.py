@@ -994,7 +994,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             occupation = self.__get_occupation_info(ensure_list(from_json_safe(seat, "Occupation")))
             location = self.__get_location_info(ensure_list(from_json_safe(seat, "Location")))
             facilities = self.__get_facilities_info(ensure_list(from_json_safe(seat, "Facilities")))
-            offer = self.__get_offer_info(from_json_safe(seat, "Offer") if from_json_safe(seat, "Offer") else {})
+            offer = self.__get_offer_info(from_json_safe(seat, "Offer")) if from_json_safe(seat, "Offer") else {}
             limitations = self.__get_limitations_info(ensure_list(from_json_safe(seat, "Limitations")))
             bilateral = {"Characteristic": from_json_safe(seat, "Bilateral", "Characteristic") if "Bilateral" in seat else {}}
             seats.append(SeatInfo(occupied_ind=occupied_ind, inoperative_ind=inoperative_ind, premiun_ind=premium_ind, chargeable_ind=chargeable_ind, exit_row_ind=exit_row_ind, restricted_reclined_ind=restricted_recline_ind, no_infant_ind=no_infant_ind, number=number, occupation=occupation, location=location, facilities=facilities, limitations=limitations, offer=offer, bilateral=bilateral))
