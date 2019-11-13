@@ -308,7 +308,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
-            'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
+            'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator"),
+            'booking_source': from_json_safe(display_pnr, "stl18:Reservation", "stl18:POS", "stl18:Source", "BookingSource")
         }
 
     def fare_type_price_quote(self, passenger_type):
