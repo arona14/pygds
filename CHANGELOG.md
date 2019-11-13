@@ -59,3 +59,7 @@
 
 # 0.0.11 (2019-11-07)
 - Add some methods on Sabre seat map extractor [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.12 (2019-11-13)
+- Sabre:
+    - Add brands per segment in store price [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
