@@ -154,7 +154,6 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(search_price_response).extract()
         return response
 
-    @session_wrapper
     def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = ""):
         """
