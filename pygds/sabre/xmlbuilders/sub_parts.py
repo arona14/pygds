@@ -1,7 +1,10 @@
 from decimal import Decimal
-from pygds.core.helpers import get_data_from_json_safe as from_json_safe
+from typing import List
+
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list
 
 from pygds.core.types import FlightSegment, FlightPointDetails
+from pygds.sabre.price import StoreSegmentSelect
 
 
 def get_segment_number(segment_select):
@@ -175,12 +178,61 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     return ticket_designator, segment_number
 
 
+def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None):
+    brands = []
+    segments = []
+    next_rph = 0
+    for segment, brand in segment_select_with_brand_ids:
+        with_brand = False
+        next_rph += 1
+        if brand is not None:
+            with_brand = True
+            brands.append(_single_brand(brand, next_rph))
+        segments.append(_single_segment_select(segment, next_rph if with_brand else None))
+    segments = f"""
+    <ItineraryOptions>
+        {"".join(segments)}
+    </ItineraryOptions>
+    """
+    if len(brands):
+        t_designator = ""
+        brands = "".join(brands)
+    else:
+        brands = ""
+        t_designator = _ticket_designator(ticket_designator, next_rph + 1) if ticket_designator else ""
+
+    return segments, brands, t_designator
+
+
+def _single_segment_select(segment: int, rph: int) -> str:
+    return f"""<SegmentSelect Number="{segment}"{(' RPH="' + str(rph) + '"') if rph else ''}/>"""
+
+
+def _single_brand(brand_id: str, rph: int) -> str:
+    return f"""<Brand RPH="{rph}">{brand_id}</Brand>"""
+
+
+def _ticket_designator(ticket_designator: str, rph: int) -> str:
+    return f"""
+    <CommandPricing RPH="{rph}">
+        <Discount Percent='0' AuthCode='{ticket_designator}'/>
+    </CommandPricing>"""
+
+
 def store_pax_type(passenger_type_data):
-    return f"""<PassengerType Code='{passenger_type_data['code']}' Quantity='1'/>"""
+    return _store_single_pax_type(passenger_type_data['code'])
+
+
+def _store_single_pax_type(ptc: str):
+    return f"""<PassengerType Code="{ptc}" Quantity="1"/>"""
 
 
 def store_name_select(passenger_type_data):
-    return f"""<NameSelect NameNumber='{passenger_type_data['name_select']}'/>"""
+    return "".join([_store_single_name_select(p['name_select']) for p in ensure_list(passenger_type_data)])
+
+
+def _store_single_name_select(name_id: str) -> str:
+    return f"""<NameSelect NameNumber='{name_id}'/>"""
 
 
 def store_plus_up(passenger_type_data, pcc):

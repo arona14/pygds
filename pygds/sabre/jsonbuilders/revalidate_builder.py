@@ -51,49 +51,31 @@ class RevalidateBuilder:
     def all_passengers(self):
         list_passengers = []
         for pax in self.passengers:
+            pax_code = ""
             if self.fare_type == "Pub":
                 if pax['code'] in self.list_adult:
-                    list_passengers.append({
-                        "Code": "ADT",
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "ADT"
 
                 elif pax['code'] in self.list_child:
-                    list_passengers.append({
-                        "Code": "C" + str(pax['code'][-2:]),
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "C" + str(pax['code'][-2:])
 
                 else:
-                    list_passengers.append({
-                        "Code": "INF",
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "INF"
 
             elif self.fare_type == "Net":
                 if pax['code'] in self.list_adult:
-                    list_passengers.append({
-                        "Code": "JCB",
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "JCB"
 
                 elif pax['code'] in self.list_child:
-                    list_passengers.append({
-                        "Code": "J" + str(pax['code'][-2:]),
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "J" + str(pax['code'][-2:])
 
                 else:
-                    list_passengers.append({
-                        "Code": "JNF",
-                        "Quantity": pax['quantity'],
-                        "TPA_Extensions": self.get_tpa_extension()
-                    })
+                    pax_code = "JNF"
+            list_passengers.append({
+                "Code": f"{pax_code}",
+                "Quantity": int(pax['quantity']),
+                "TPA_Extensions": self.get_tpa_extension()
+            })
 
         return list_passengers
 
