@@ -7,6 +7,7 @@ from typing import List
 
 import requests
 import deprecation
+from datetime import datetime
 
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
@@ -57,11 +58,11 @@ class SabreClient(BaseClient):
         headers["Authorization"] = "Bearer " + token
         response = requests.post(self.rest_url + url_path, data=request_data, headers=headers)
 
-        # status = response.status_code
-        # if self.is_debugging:
-        #     self.log.debug(request_data)
-        #     self.log.debug(response.content)
-        #     self.log.debug(f"{url_path} status: {status}")
+        if self.is_debugging:
+            status = response.status_code
+            self.log.debug(request_data)
+            self.log.debug(response.content)
+            self.log.debug(f"{url_path} status: {status}")
         return response
 
     def _soap_request_wrapper(self, request_data):
@@ -166,6 +167,8 @@ class SabreClient(BaseClient):
         :param region_name: the region name
         :return:
         """
+        # if segment select is not given as couple of (segment number, brand id) we will
+        # will rewrite it with null brand id to fit the request builder requirements
         corrected_segments: List[StoreSegmentSelect] = []
         for s in segment_select:
             if not isinstance(s, tuple):
@@ -173,12 +176,14 @@ class SabreClient(BaseClient):
             corrected_segments.append(s)
         store_price_request = self.xml_builder.store_price_rq(token, fare_type=fare_type,
                                                               segment_select=corrected_segments,
-                                                              passenger_type=passengers, baggage=baggage,
+                                                              passenger_type=passengers,
                                                               region_name=region_name)
-        self.log.debug(store_price_request)
+        self.log.debug(f"Baggage {baggage} is given but not used in construction of request.")
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
-        self.log.debug(store_price_response)
         response = PriceSearchExtractor(store_price_response).extract()
+        session_info = SessionInfo(token, 1, None, None, False, TokenType.SESSION_TOKEN)
+        session_info.last_access = datetime.now()
+        response.session_info = session_info
         return response
 
     @session_wrapper

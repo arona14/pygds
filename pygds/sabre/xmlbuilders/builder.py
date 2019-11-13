@@ -1,5 +1,6 @@
 from typing import List
 
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe
 from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.core.security_utils import generate_random_message_id, generate_created
@@ -267,16 +268,23 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def store_price_rq(self, token, fare_type: str, segment_select: List[StoreSegmentSelect], passenger_type: dict, baggage: int = 0, region_name: str = ""):
+    def store_price_rq(self, token, fare_type: str, segment_select: List[StoreSegmentSelect], passenger_type: dict,
+                       region_name: str = ""):
         """
             Return the xml request to price air itineraries
         """
+        # TODO for now baggage is not used. Will add this tags in the future
+        #             <BaggageAllowance Number="02" Weight="20">
+        #                 <Segment EndNumber="3" Number="1"/>
+        #             </BaggageAllowance>
+
         pax_type_code = passenger_type["code"]
         name_select = passenger_type["name_select"]
+        ticket_designator = from_json_safe(passenger_type, "ticket_designator")
 
         name_select = _store_single_name_select(name_select)
         name_select = name_select if name_select else ""
-        segment_numbers, brands, t_designator = _store_build_segment_selects(segment_select, passenger_type["ticket_designator"])
+        segment_numbers, brands, t_designator = _store_build_segment_selects(segment_select, ticket_designator)
         pax_type = _store_single_pax_type(pax_type_code)
         pax_type = pax_type if pax_type else ""
         commission = store_commission(fare_type, passenger_type, region_name, self.pcc)

@@ -20,17 +20,18 @@ def get_data_from_json(json_data, *paths):
     return value
 
 
-def get_data_from_json_safe(json_data, *paths):
+def get_data_from_json_safe(json_data, *paths, default=None):
     """
     Like `get_data_from_json` but without raising `KeyError`
     :param json_data: The json data
     :param paths: List of paths to search for
+    :param default: The default value to send if not found
     :return: The retrieved value or None if one path doesn't exist
     """
     try:
         return get_data_from_json(json_data, *paths)
     except KeyError:
-        return None
+        return default
 
 
 def get_data_from_xml(xml_data, *paths):
