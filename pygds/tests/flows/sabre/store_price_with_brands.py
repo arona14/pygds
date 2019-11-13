@@ -52,7 +52,7 @@ def test():
         fare_type = "Pub"
         passenger_types_search = [{"name_select": [p.name_id], "code": p.passenger_type, "quantity": p.number_in_party} for p in retrieve_pnr["passengers"]]
         passenger_types_store = [{"name_select": p.name_id, "code": p.passenger_type, "quantity": p.number_in_party,
-                                  "commission_percent": 10, "markup": 0, "tour_code": "FF", "ticket_designator": "ABC",
+                                  "commission_percent": 10, "markup": 0, "tour_code": "", "ticket_designator": "",
                                   "service_fee": 10} for p in retrieve_pnr["passengers"]]
         search_segment_ids = [s.sequence for it in retrieve_pnr["itineraries"] for s in it.segments]
         log.debug(f"Name ids: {passenger_types_search}")
@@ -122,7 +122,7 @@ def test():
         # store_segment_ids = [(i, "D2") for i in search_segment_ids]
         for p in passenger_types_store:
             log.info(f"Store for passenger {p['name_select']}")
-            store_result = client.store_price_quote(token, False, fare_type, store_segment_ids, p, 0, "", None)
+            store_result = client.store_price_quote(token, fare_type, store_segment_ids, p, 0, "")
 
             closed = store_result.session_info.session_ended
             if closed is True:
