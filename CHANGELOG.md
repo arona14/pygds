@@ -63,3 +63,7 @@
 # 0.0.12 (2019-11-13)
 - Sabre:
     - Add brands per segment in store price [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+
+# 0.0.13 (2019-11-13)
+- Sabre:
+    - change xml builder on  update passengers request [mbayane1990](mbaye@ctsfares.com)

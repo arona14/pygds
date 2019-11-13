@@ -421,7 +421,11 @@ class SabreXMLBuilder:
                                 <UniqueID id="{pnr}"/>
                             </PreProcessing>
                         <SpecialReqDetails>
-                            {seat_part}
+                            <AirSeatRQ>
+                                <Seats>
+                                    {seat_part}
+                                </Seats>
+                            </AirSeatRQ>
                             <SpecialServiceRQ>
                             <SpecialServiceInfo>
                                 {passenger_info_part}
