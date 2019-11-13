@@ -27,19 +27,19 @@ def build_update_principal_passenger(email_content, passenger_id, office_id):
                     <elementManagementData>
                         <segmentName>AP</segmentName>
                     </elementManagementData>
-                    <freetextData>
-                        <freetextDetail>
-                            <subjectQualifier>3</subjectQualifier>
-                            <type>P02</type>
-                        </freetextDetail>
-                        <longFreetext>{email_content}</longFreetext>
-                    </freetextData>
-                    <referenceForDataElement>
-                    <reference>
-                        <qualifier>PT</qualifier>
-                        <number>{passenger_id}</number>
-                    </reference>
-                </referenceForDataElement>
+                        <freetextData>
+                            <freetextDetail>
+                                <subjectQualifier>3</subjectQualifier>
+                                <type>P02</type>
+                            </freetextDetail>
+                            <longFreetext>{email_content}</longFreetext>
+                        </freetextData>
+                        <referenceForDataElement>
+                            <reference>
+                                <qualifier>PT</qualifier>
+                                <number>{passenger_id}</number>
+                            </reference>
+                        </referenceForDataElement>
                 </dataElementsIndiv>"""
     return response + "</dataElementsMaster>"
 
@@ -73,7 +73,7 @@ def fare_informative_best_price_passengers(traveller_numbering):
     id_children = ""
     if traveller_numbering.children:
         for i in range(traveller_numbering.children):
-            id_children = id_children + "<travellerDetails><measurementValue>" + str(i + 1) + "</measurementValue></travellerDetails>"
+            id_children = id_children + "<travellerDetails><measurementValue>" + str(traveller_numbering.adults + i + 1) + "</measurementValue></travellerDetails>"
         ptc_children = f"""
             <passengersGroup>
                 <segmentRepetitionControl>
@@ -86,7 +86,7 @@ def fare_informative_best_price_passengers(traveller_numbering):
                     {id_children}
                 </travellersID>
                 <discountPtc>
-                    <valueQualifier>ADT</valueQualifier>
+                    <valueQualifier>CH</valueQualifier>
                 </discountPtc>
             </passengersGroup>"""
         quantity += 1
@@ -95,7 +95,7 @@ def fare_informative_best_price_passengers(traveller_numbering):
     id_infants = ""
     if traveller_numbering.infants:
         for i in range(traveller_numbering.infants):
-            id_infants = id_infants + "<travellerDetails><measurementValue>" + str(i + 1) + "1</measurementValue></travellerDetails>"
+            id_infants = id_infants + "<travellerDetails><measurementValue>" + str(i + 1) + "</measurementValue></travellerDetails>"
         ptc_infant = f"""
             <passengersGroup>
                 <segmentRepetitionControl>
@@ -108,7 +108,7 @@ def fare_informative_best_price_passengers(traveller_numbering):
                     {id_infants}
                 </travellersID>
                 <discountPtc>
-                    <valueQualifier>ADT</valueQualifier>
+                    <valueQualifier>INF</valueQualifier>
                     <fareDetails>
                         <qualifier>766</qualifier>
                     </fareDetails>
@@ -306,7 +306,7 @@ def sell_from_recommendation_segment(origin, destination, departure_date, compan
     """
 
 
-def add_multi_element_ssr(travel_info, company_id):
+def add_multi_element_ssr(travel_info):
 
     return f"""<dataElementsIndiv>
                 <elementManagementData>
@@ -317,7 +317,6 @@ def add_multi_element_ssr(travel_info, company_id):
                         <type>DOCS</type>
                         <status>HK</status>
                         <quantity>1</quantity>
-                        <companyId>{company_id}</companyId>
                         <freetext>{travel_info.ssr_content}</freetext>
                     </ssr>
                 </serviceRequest>
@@ -331,19 +330,31 @@ def add_multi_element_ssr(travel_info, company_id):
 
 
 def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name, date_of_birth, pax_type,
-                                      infant_name=None):
+                                      infant=None):
     quantity = 1
     infant_part = ""
     infant_indicator = ""
-    if infant_name is not None:
+
+    if infant:
         quantity = 2
-        infant_part = f"""
-        <passenger>
-            <firstName>{infant_name}</firstName>
-            <type>INF</type>
-        </passenger>
-        """
-        infant_indicator = "<infantIndicator>2</infantIndicator>"
+        infant_part += f"""
+                    <passengerData>
+                        <travellerInformation>
+                            <traveller>
+                                <surname>{infant.name}</surname>
+                            </traveller>
+                            <passenger>
+                                <firstName>{infant.last_name}</firstName>
+                                <type>INF</type>
+                            </passenger>
+                        </travellerInformation>
+                        <dateOfBirth>
+                            <dateAndTimeDetails>
+                                <date>{infant.birthday}</date>
+                            </dateAndTimeDetails>
+                        </dateOfBirth>
+                    </passengerData>
+                    """
 
     return f"""
         <travellerInfo>
@@ -365,14 +376,15 @@ def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name
                         <type>{pax_type}</type>
                         {infant_indicator}
                     </passenger>
-                    {infant_part}
+                    
                 </travellerInformation>
-            <dateOfBirth>
-                <dateAndTimeDetails>
-                    <date>{date_of_birth}</date>
-                </dateAndTimeDetails>
-            </dateOfBirth>
+                <dateOfBirth>
+                    <dateAndTimeDetails>
+                        <date>{date_of_birth}</date>
+                    </dateAndTimeDetails>
+                </dateOfBirth>
             </passengerData>
+            {infant_part}
         </travellerInfo>
         """
 
@@ -439,9 +451,19 @@ def _tfi_company_identity(carrier_ids: List[str] = ""):
     """
 
 
-def add_multi_element_data_element(segment_name, qualifier, data_type, free_text):
+def add_multi_element_data_element(segment_name, qualifier, data_type, free_text, passenger_ref=None):
     if free_text is None:
         return ""
+
+    id_p = ""
+    if passenger_ref:
+        id_p = f"""<referenceForDataElement>
+                    <reference>
+                        <qualifier>PT</qualifier>
+                        <number>{passenger_ref}</number>
+                    </reference>
+                </referenceForDataElement>"""
+
     return f"""
         <dataElementsIndiv>
             <elementManagementData>
@@ -454,12 +476,13 @@ def add_multi_element_data_element(segment_name, qualifier, data_type, free_text
                 </freetextDetail>
                 <longFreetext>{free_text}</longFreetext>
             </freetextData>
+            {id_p}
         </dataElementsIndiv>
     """
 
 
-def add_multi_element_contact_element(contact_type, contact):
-    return add_multi_element_data_element("AP", "3", contact_type, contact)
+def add_multi_element_contact_element(contact_type, contact, passenger_ref=None):
+    return add_multi_element_data_element("AP", "3", contact_type, contact, passenger_ref)
 
 
 def fare_informative_price_passengers(travellers_info: TravellerNumbering):

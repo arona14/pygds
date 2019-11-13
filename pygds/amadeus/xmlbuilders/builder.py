@@ -273,26 +273,29 @@ class AmadeusXMLBuilder:
                         {security_part}
                     </soapenv:Header>"""
 
-        passengers_info = sub_parts.fare_informative_best_price_passengers(recommandation.traveller_numbering)
-        segments = sub_parts.fare_informative_best_price_segment(recommandation.segments)
+        pricing_options_group = ""
 
+        if recommandation.fare_options.price_type_rp:
+            pricing_options_group += f"""<pricingOptionGroup>
+                                            <pricingOptionKey>
+                                                <pricingOptionKey>RP</pricingOptionKey>
+                                            </pricingOptionKey>
+                                        </pricingOptionGroup>"""
+
+        if recommandation.fare_options.price_type_ru:
+            pricing_options_group += f"""<pricingOptionGroup>
+                                            <pricingOptionKey>
+                                                <pricingOptionKey>RU</pricingOptionKey>
+                                            </pricingOptionKey>
+                                        </pricingOptionGroup>"""
         return f"""
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
                     {header}
                     <soapenv:Body>
                         <Fare_InformativeBestPricingWithoutPNR>
-                            {passengers_info}
-                            {segments}
-                            <pricingOptionGroup>
-                                <pricingOptionKey>
-                                    <pricingOptionKey>RP</pricingOptionKey>
-                                </pricingOptionKey>
-                            </pricingOptionGroup>
-                            <pricingOptionGroup>
-                                <pricingOptionKey>
-                                    <pricingOptionKey>RU</pricingOptionKey>
-                                </pricingOptionKey>
-                            </pricingOptionGroup>
+                            {sub_parts.fare_informative_best_price_passengers(recommandation.traveller_numbering)}
+                            {sub_parts.fare_informative_best_price_segment(recommandation.segments)}
+                            {pricing_options_group}
                         </Fare_InformativeBestPricingWithoutPNR>
                     </soapenv:Body>
                 </soapenv:Envelope>   
@@ -397,11 +400,10 @@ class AmadeusXMLBuilder:
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time)
         itineraries_details = []
-        for it in itineraries:
+        for itinerary in itineraries:
             # itineraries_details.append(sub_parts.sell_from_recommendation_itinerary_details(it.origin, it.destination, it.segments))
             itineraries_details.append(
-                self.itenerary_details(it.origin, it.destination, it.departure_date, it.company, it.flight_number,
-                                       it.booking_class, it.quantity))
+                self.itenerary_details(itinerary.origin, itinerary.destination, itinerary))
         # The optimization algorithm. M1: cancel all if unsuccessful, M2: keep all confirmed if unsuccessful
         algo = 'M1'
 
@@ -429,7 +431,36 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def itenerary_details(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+    def itenerary_details(self, origin, destination, itinerary):
+
+        seg_infos = ""
+
+        for segment in itinerary.segments:
+            seg_infos += f"""
+                        <segmentInformation>
+                            <travelProductInformation>
+                                <flightDate>
+                                    <departureDate>{segment.departure_date}</departureDate>
+                                </flightDate>
+                                <boardPointDetails>
+                                    <trueLocationId>{segment.origin}</trueLocationId>
+                                </boardPointDetails>
+                                <offpointDetails>
+                                    <trueLocationId>{segment.destination}</trueLocationId>
+                                </offpointDetails>
+                                <companyDetails>
+                                    <marketingCompany>{segment.company}</marketingCompany>
+                                </companyDetails>
+                                <flightIdentification>
+                                    <flightNumber>{segment.flight_number}</flightNumber>
+                                    <bookingClass>{segment.booking_class}</bookingClass>
+                                </flightIdentification>
+                            </travelProductInformation>
+                            <relatedproductInformation>
+                                <quantity>{segment.quantity}</quantity>
+                                <statusCode>NN</statusCode>
+                            </relatedproductInformation>
+                        </segmentInformation>"""
         return f"""
         <itineraryDetails>
             <originDestinationDetails>
@@ -441,42 +472,32 @@ class AmadeusXMLBuilder:
                     <messageFunction>183</messageFunction>
                 </messageFunctionDetails>
             </message>
-            <segmentInformation>
-                <travelProductInformation>
-                    <flightDate>
-                        <departureDate>{departure_date}</departureDate>
-                    </flightDate>
-                    <boardPointDetails>
-                        <trueLocationId>{origin}</trueLocationId>
-                    </boardPointDetails>
-                    <offpointDetails>
-                        <trueLocationId>{destination}</trueLocationId>
-                    </offpointDetails>
-                    <companyDetails>
-                        <marketingCompany>{company}</marketingCompany>
-                    </companyDetails>
-                    <flightIdentification>
-                        <flightNumber>{flight_number}</flightNumber>
-                        <bookingClass>{booking_class}</bookingClass>
-                    </flightIdentification>
-                </travelProductInformation>
-                <relatedproductInformation>
-                    <quantity>{quantity}</quantity>
-                    <statusCode>NN</statusCode>
-                </relatedproductInformation>
-            </segmentInformation>
+            {seg_infos}
         </itineraryDetails>
         """
 
-    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos, company_id):
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
         ssr_content = ""
+        email_tel_passengers = ""
+
         for i in infos.traveller_info:
             passenger_infos.append(
-                sub_parts.add_multi_elements_traveller_info(i.ref_number, i.first_name, i.surname, i.last_name,
-                                                            i.date_of_birth, i.pax_type))
-            ssr_content += sub_parts.add_multi_element_ssr(i, company_id)
+                sub_parts.add_multi_elements_traveller_info(
+                    i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type, i.infant
+                )
+            )
+            if i.pax_type == "ADT":
+                ssr_content += sub_parts.add_multi_element_ssr(i)
+                email_tel_passengers += sub_parts.add_multi_element_contact_element(
+                    "7", i.tel, i.ref_number
+                ) if i.tel else ""
+
+                email_tel_passengers += sub_parts.add_multi_element_contact_element(
+                    "P02", i.email, i.ref_number
+                ) if i.email else ""
+
         # type = 6 Travel agent telephone number
         # type = PO2 E-mail address
         # type = 7 Mobile Phone Number
@@ -507,9 +528,8 @@ class AmadeusXMLBuilder:
                                 </optionDetail>
                             </optionElement>
                         </dataElementsIndiv>
-                        {sub_parts.add_multi_element_contact_element("7", infos.number_tel) if infos.number_tel else ""}
+                        {email_tel_passengers}
                         {sub_parts.add_multi_element_contact_element("6", infos.number_tel_agent) if infos.number_tel else ""}
-                        {sub_parts.add_multi_element_contact_element("P02", infos.email) if infos.number_tel else ""}
                         {ssr_content}
                         <dataElementsIndiv>
                             <elementManagementData>

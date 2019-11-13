@@ -3,11 +3,11 @@ from pygds.core.request import RequestedSegment
 from typing import List
 
 
-def generate_number_of_unit(self, traveling_number, number_of_unit_rc):
+def generate_number_of_unit(traveling_number, number_of_unit_rc):
 
     return f"""<numberOfUnit>
                 <unitNumberDetail>
-                    <numberOfUnits>{traveling_number.total_travellers()}</numberOfUnits>
+                    <numberOfUnits>{traveling_number.total_seats()}</numberOfUnits>
                     <typeOfUnit>PX</typeOfUnit>
                 </unitNumberDetail>
                 <unitNumberDetail>
@@ -32,16 +32,16 @@ def generate_pax_reference(traveling_number):
     if traveling_number.children:
         content += f"""
             <paxReference>
-                <ptc>ADT</ptc>
-                {"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(traveling_number.children)])}
+                <ptc>CH</ptc>
+                {"".join([f"<traveller><ref>{traveling_number.adults + index +1}</ref></traveller>" for index in range(traveling_number.children)])}
             </paxReference>
         """
 
     if traveling_number.infants:
         content += f"""
             <paxReference>
-                <ptc>ADT</ptc>
-                {"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(traveling_number.infants)])}
+                <ptc>INF</ptc>
+                {"".join([f"<traveller><ref>{index +1}</ref><infantIndicator>1</infantIndicator></traveller>" for index in range(traveling_number.infants)])}
             </paxReference>
         """
 
@@ -54,13 +54,13 @@ def generate_fare_options(fare_options: FareOptions):
 
     if fare_options.price_type_rp:
         pricing_tick_info += "<priceType>RP</priceType>"
-    if fare_options.priceType_ru:
+    if fare_options.price_type_ru:
         pricing_tick_info += "<priceType>RU</priceType>"
     if fare_options.price_type_et:
         pricing_tick_info += "<priceType>ET</priceType>"
     if fare_options.price_type_tac:
         pricing_tick_info += "<priceType>TAC</priceType>"
-    if fare_options.priceType_cuc:
+    if fare_options.price_type_cuc:
         pricing_tick_info += "<priceType>CUC</priceType>"
 
     conversion_rate = ""

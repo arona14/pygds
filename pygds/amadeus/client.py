@@ -7,14 +7,14 @@ from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
-from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
+from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
-    VoidTicketExtractor, UpdatePassengers
+    VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor
 
 
 class AmadeusClient(BaseClient):
@@ -231,7 +231,7 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("fare_informative_best_price_without_pnr", request_data,
                                                'http://webservices.amadeus.com/TIBNRQ_18_1_1A')
 
-        response_data = SessionExtractor(response_data).extract()
+        response_data = InformativeBestPricingWithoutPNRExtractor(response_data).extract()
 
         return response_data
 
@@ -244,12 +244,12 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
         return response_data
 
-    def sell_from_recommandation(self, itineraries):
+    def sell_from_recommandation(self, itineraries: List[Itinerary]):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
                                                'http://webservices.amadeus.com/ITAREQ_05_2_IA')
 
-        final_response = SessionExtractor(response_data).extract()
+        final_response = SellFromRecommendationReplyExtractor(response_data).extract()
 
         self.add_session(final_response.session_info)
         return final_response
@@ -320,15 +320,15 @@ class AmadeusClient(BaseClient):
         self.add_session(res.session_info)
         return res
 
-    def add_passenger_info(self, office_id, message_id, infos, company_id):
+    def add_passenger_info(self, message_id, reservation_infos: ReservationInfo):
         """
             add passenger info and create the PNR
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.add_passenger_info(office_id, message_id, session_id, sequence_number,
-                                                           security_token, infos, company_id)
+        request_data = self.xml_builder.add_passenger_info(self.office_id, message_id, session_id, sequence_number,
+                                                           security_token, reservation_infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 

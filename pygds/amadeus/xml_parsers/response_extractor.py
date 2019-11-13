@@ -69,6 +69,49 @@ class BaseResponseExtractor(object):
         raise NotImplementedError("Sub class must implement '_extract' method")
 
 
+class InformativeBestPricingWithoutPNRExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Fare_InformativeBestPricingWithoutPNRReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_InformativeBestPricingWithoutPNRReply"
+        )
+        conversion_rate_details = from_json_safe(
+            payload, "mainGroup", "convertionRate", "conversionRateDetails"
+        )
+        indicators = from_json_safe(
+            payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
+        )
+
+        pricing_group_level_group = ensure_list(from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup"
+        ))
+
+        data = {
+            "conversion_rate_details": conversion_rate_details,
+            "indicators": indicators,
+            "pricing_group_level_group": pricing_group_level_group
+        }
+
+        return data
+
+
+class SellFromRecommendationReplyExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Air_SellFromRecommendationReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Air_SellFromRecommendationReply"
+        )
+        data = ensure_list(from_json_safe(
+            payload, "itineraryDetails"
+        ))
+
+        return data
+
+
 class ErrorExtractor(BaseResponseExtractor):
     """
         Extractor for error
@@ -154,7 +197,12 @@ class PriceSearchExtractor(BaseResponseExtractor):
             segment_flights = from_json_safe(rec, "segmentFlightRef")
             segment_flights = ensure_list(segment_flights)
             for seg in segment_flights:
-                reco = {"price": price, "currency": currency}
+                reco = {
+                    "price": price,
+                    "currency": currency,
+                    "paxFareProduct": ensure_list(ensure_list(rec["paxFareProduct"])),
+                    "recPriceInfo": from_json_safe(rec, "recPriceInfo")
+                }
                 itineraries = []
                 flight_indexes = from_json_safe(seg, "referencingDetail")
                 flight_indexes = ensure_list(flight_indexes)
@@ -183,12 +231,11 @@ class PriceSearchExtractor(BaseResponseExtractor):
                         product_detail = ensure_list(fare_details[idx]["groupOfFares"])[leg]["productInformation"]
                         book_class = product_detail["cabinProduct"]["rbd"]
                         fare_basis = product_detail["fareProductDetail"]["fareBasis"]
-                        pax_ref = ensure_list(ensure_list(rec["paxFareProduct"])[0]["paxReference"])
                         segment = {"fare_basis": fare_basis, "board_airport": board_airport, "off_airport": off_airport,
                                    "flight_number": flight_number, "departure_date": departure_date,
                                    "departure_time": departure_time, "arrival_date": arrival_date,
                                    "arrival_time": arrival_time, "marketing_company": market_company,
-                                   "operator_company": oper_company, "book_class": book_class, "pax_ref": pax_ref
+                                   "operator_company": oper_company, "book_class": book_class
                                    }
                         segments.append(segment)
                     itineraries.append(segments)
