@@ -26,6 +26,6 @@ def seat_request(name_number, seat_number, segment_number):
                 <AirSeatRQ>
                     <Seats>
                         <Seat NameNumber="{name_number}" Number="{seat_number}" SegmentNumber="{segment_number}"/>
-                    <Seats>
-                <AirSeatRQ>
+                    </Seats>
+                </AirSeatRQ>
             """

@@ -75,3 +75,7 @@
 # 0.0.15 (2019-11-14)
 - Sabre:
     - fix retrieving tour code and ticket designator if not present
+
+# 0.0.16 (2019-11-14)
+- Sabre:
+    - fix builder seat_request (sabre seat map request) [mbayane1990](mbaye@ctsfares.com)
