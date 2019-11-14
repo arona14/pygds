@@ -67,3 +67,7 @@
 # 0.0.13 (2019-11-13)
 - Sabre:
     - change xml builder on  update passengers request [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.14 (2019-11-14)
+- Sabre:
+    - change xml builder on  update passengers request [mbayane1990](mbaye@ctsfares.com)
