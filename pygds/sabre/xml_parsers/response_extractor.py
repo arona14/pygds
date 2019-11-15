@@ -366,7 +366,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 in_bound_connection = from_json_safe(air_segment, "stl18:inboundConnection")
                 airline_ref_id = str(from_json_safe(air_segment, "stl18:AirlineRefId")).split('*')[1]
                 elapsed_time = from_json_safe(air_segment, "stl18:ElapsedTime") if "stl18:ElapsedTime" in air_segment else ""
-                seats = {"pre_reserved_seats": self.__seats(ensure_list(from_json_safe(air_segment, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")), map_segment_seat)} if from_json_safe(air_segment, "stl18:Seats") else None
+                seats = from_json_safe(air_segment, "stl18:Seats")
+                seats = {"pre_reserved_seats": self.__seats(ensure_list(from_json_safe(seats, "stl18:PreReservedSeats", "stl18:PreReservedSeat")), map_segment_seat)} if seats else None
                 segment_special_requests = from_json_safe(air_segment, "stl18:SegmentSpecialRequests")
                 schedule_change_indicator = from_json_safe(air_segment, "stl18:ScheduleChangeIndicator")
                 segment_booked_date = from_json_safe(air_segment, "stl18:SegmentBookedDate")
@@ -485,7 +486,11 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             list_remarks.append(remark_objet)
         return list_remarks
 
-    def map_segment_seat(self, passengers):
+    def map_segment_seat(self, passengers: list[Passenger]):
+        """ Map seat number and name id
+            param: passengers: list of passengers
+            return {"seat_number": "name_id","seat_number": "name_id"}
+        """
         seats = {}
         for passenger in passengers:
             if passenger.seats:
@@ -493,7 +498,19 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     seats[pre_reserved_seat['id']] = passenger.name_id
         return seats
 
-    def __seats(self, seat_info, map_segment_seat=None):
+    def __seats(self, seat_info: list, map_segment_seat: dict = None):
+        """
+            Get the info of seat map
+            :param seat_info: list of seats
+            :param map_segment_seat: the mapper seat number and name id
+            :return {"id" :"",
+                    "seat_number": "",
+                    "smoking_pref_offered_indicator" : "",
+                    "seat_type_code": "",
+                    "seat_status_code": "",
+                    "name_id": ""
+            }
+        """
         return [
             {
                 "id": from_json_safe(seat, "id"),
