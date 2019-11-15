@@ -486,7 +486,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             list_remarks.append(remark_objet)
         return list_remarks
 
-    def map_segment_seat(self, passengers: list[Passenger]):
+    def map_segment_seat(self, passengers: List[Passenger]):
         """ Map seat number and name id
             param: passengers: list of passengers
             return {"seat_number": "name_id","seat_number": "name_id"}
