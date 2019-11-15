@@ -364,7 +364,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 in_bound_connection = from_json_safe(air_segment, "stl18:inboundConnection")
                 airline_ref_id = str(from_json_safe(air_segment, "stl18:AirlineRefId")).split('*')[1]
                 elapsed_time = from_json_safe(air_segment, "stl18:ElapsedTime") if "stl18:ElapsedTime" in air_segment else ""
-                seats = from_json_safe(air_segment, "stl18:Seats")
+                seats = {"pre_reserved_seats": self.__seats(ensure_list(from_json_safe(air_segment, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")))} if from_json_safe(air_segment, "stl18:Seats") else None
                 segment_special_requests = from_json_safe(air_segment, "stl18:SegmentSpecialRequests")
                 schedule_change_indicator = from_json_safe(air_segment, "stl18:ScheduleChangeIndicator")
                 segment_booked_date = from_json_safe(air_segment, "stl18:SegmentBookedDate")
@@ -483,6 +483,17 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             list_remarks.append(remark_objet)
         return list_remarks
 
+    def __seats(self, seat_info):
+        return [
+            {
+                "id": from_json_safe(seat, "id"),
+                "seat_number": from_json_safe(seat, "stl18:SeatNumber"),
+                "smoking_pref_offered_indicator": from_json_safe(seat, "stl18:SmokingPrefOfferedIndicator"),
+                "seat_type_code": from_json_safe(seat, "stl18:SeatTypeCode"),
+                "seat_status_code": from_json_safe(seat, "stl18:SeatStatusCode")
+            } for seat in seat_info
+        ]
+
     def _passengers(self, passengers):
 
         passenger_list = []
@@ -493,6 +504,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             last_name = from_json(pax, "stl18:LastName")
             first_name = from_json(pax, "stl18:FirstName")
             full_name = f"{first_name} {last_name}"
+            seats = {"pre_reserved_seats": self.__seats(ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")))} if from_json_safe(pax, "stl18:Seats") else None
 
             if 'stl18:APISRequest' in from_json(pax, "stl18:SpecialRequests"):
                 if pax_type != "INF" or pax_type != "JNF":
@@ -511,7 +523,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                                 gender = from_json_safe(j, "stl18:DOCSEntry", "stl18:Gender")
                                 number_in_party = from_json_safe(j, "stl18:DOCSEntry", "stl18:NumberInParty")
 
-            p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type)
+            p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
             passenger_list.append(p)
         return passenger_list
 
