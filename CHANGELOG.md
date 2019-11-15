@@ -79,3 +79,7 @@
 # 0.0.16 (2019-11-14)
 - Sabre:
     - fix builder seat_request (sabre seat map request) [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.17 (2019-11-14)
+- Sabre:
+    - fest add seat info  to display pnr extractor (passengers & segments) [mbayane1990](mbaye@ctsfares.com)
