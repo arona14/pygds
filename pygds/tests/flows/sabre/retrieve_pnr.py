@@ -31,7 +31,7 @@ def test():
     rest_url = "https://api.havail.sabre.com"
     client = SabreClient(soap_url, rest_url, username, password, pcc, True)
 
-    pnr = "SCUCUT"  # "LAGNCH", "TGZKPI"
+    pnr = "LAGNCH"  # "SCUCUT", "LAGNCH", "TGZKPI"
     token = None
 
     try:
