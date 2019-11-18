@@ -522,9 +522,12 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             } for seat in seat_info
         ]
 
-    def _passengers(self, passengers):
+    @staticmethod
+    def _passengers(passengers):
 
         passenger_list = []
+        infant_info_map = {}  # infant info belongs to adult
+        inf_pax_types = ("INF", "JNF")
 
         for pax in ensure_list(passengers):
             name_id = from_json(pax, "nameId")
@@ -532,27 +535,28 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             last_name = from_json(pax, "stl18:LastName")
             first_name = from_json(pax, "stl18:FirstName")
             full_name = f"{first_name} {last_name}"
-            seats = {"pre_reserved_seats": self.__seats(ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")))} if from_json_safe(pax, "stl18:Seats") else None
+            date_of_birth, gender, number_in_party = None, None, None
+            seats = {"pre_reserved_seats": DisplayPnrExtractor.__seats(ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")))} if from_json_safe(pax, "stl18:Seats") else None
 
-            if 'stl18:APISRequest' in from_json(pax, "stl18:SpecialRequests"):
-                if pax_type != "INF" or pax_type != "JNF":
-                    for i in ensure_list(from_json(pax, "stl18:SpecialRequests", "stl18:APISRequest")):
-                        if full_name == f"""{from_json_safe(i, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(i, "stl18:DOCSEntry", "stl18:Surname")}""":
-                            date_of_birth = from_json_safe(i, "stl18:DOCSEntry", "stl18:DateOfBirth")
-                            gender = from_json_safe(i, "stl18:DOCSEntry", "stl18:Gender")
-                            number_in_party = from_json_safe(i, "stl18:DOCSEntry", "stl18:NumberInParty")
-
-            else:
-                for i in ensure_list(passengers):
-                    if from_json_safe(i, "withInfant") == "true" and "stl18:APISRequest" in from_json(i, "stl18:SpecialRequests"):
-                        for j in ensure_list(from_json(i, "stl18:SpecialRequests", "stl18:APISRequest")):
-                            if full_name == f"""{from_json_safe(j, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(j, "stl18:DOCSEntry", "stl18:Surname")}""":
-                                date_of_birth = from_json_safe(j, "stl18:DOCSEntry", "stl18:DateOfBirth")
-                                gender = from_json_safe(j, "stl18:DOCSEntry", "stl18:Gender")
-                                number_in_party = from_json_safe(j, "stl18:DOCSEntry", "stl18:NumberInParty")
-
+            for i in ensure_list(from_json_safe(pax, "stl18:SpecialRequests", "stl18:APISRequest", default=[])):
+                key = f"""{from_json_safe(i, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(i, "stl18:DOCSEntry", "stl18:Surname")}"""
+                _d_birth = from_json_safe(i, "stl18:DOCSEntry", "stl18:DateOfBirth")
+                _gender = from_json_safe(i, "stl18:DOCSEntry", "stl18:Gender")
+                _n_in_party = from_json_safe(i, "stl18:DOCSEntry", "stl18:NumberInParty")
+                if full_name == key and pax_type not in inf_pax_types:
+                    date_of_birth, gender, number_in_party = _d_birth, _gender, _n_in_party
+                elif from_json_safe(pax, "withInfant") == "true":
+                    infant_info_map[key] = (_d_birth, _gender, _n_in_party)
             p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
             passenger_list.append(p)
+        # fill infant info from previous map
+        for p in passenger_list:
+            if p.passenger_type in inf_pax_types:
+                try:
+                    infant_info = infant_info_map[f"{p.first_name} {p.last_name}"]
+                    p.date_of_birth, p.gender, p.number_in_party = infant_info
+                except KeyError:
+                    pass
         return passenger_list
 
     def passenger_full_name(self, all_passengers, name_number):
