@@ -875,3 +875,36 @@ def fop_sequence_number(sequence_number: str):
         </sequenceDetails>
     </fopSequenceNumber>
     """
+
+
+def fop_credit_card_and_check(form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, fop):
+
+    return f"""<mopDetails>
+                            <fopPNRDetails>
+                                <fopDetails>
+                                    <fopCode>{form_of_payment_code}</fopCode>
+                                </fopDetails>
+                            </fopPNRDetails>
+                        </mopDetails>
+                        <paymentModule>
+                            <groupUsage>
+                                <attributeDetails>
+                                    <attributeType>{group_usage_attribute_type}</attributeType>
+                                </attributeDetails>
+                            </groupUsage>
+                            <paymentData>
+                                <merchantInformation>
+                                    <companyCode>{company_code}</companyCode>
+                                </merchantInformation>
+                            </paymentData>
+                            <mopInformation>
+                                <fopInformation>
+                                    <formOfPayment>
+                                    <type>{form_of_payment_type}</type>
+                                    </formOfPayment>
+                                </fopInformation>
+                                <dummy/>
+                                {fop_form_of_payment(fop)}
+                            </mopInformation>
+                            <dummy/>
+                        </paymentModule>"""

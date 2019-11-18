@@ -653,6 +653,9 @@ class FoPExtractor(BaseResponseExtractor):
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "FOP_CreateFormOfPaymentReply")
-        fop_reference = from_json_safe(payload, "fopDescription", "fopReference")
-        mop_description = from_json_safe(payload, "fopDescription", "mopDescription")
-        return FormOfPayment(fop_reference, mop_description)
+        fop_list = ensure_list(from_json_safe(payload, "fopDescription"))
+
+        # mop_description = from_json_safe(payload, "fopDescription", "mopDescription")
+        # return FormOfPayment(fop_reference, mop_description)
+
+        return {"list_fop": fop_list}

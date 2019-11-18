@@ -6,7 +6,7 @@ from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
-from pygds.core.payment import CreditCard
+from pygds.core.payment import ChashPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 
 
@@ -640,107 +640,60 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def add_form_of_payment_builder(self, message_id, session_id, sequence_number, security_token,
-                                    passenger_reference_type, passenger_reference_value,
-                                    form_of_payment_sequence_number,
-                                    group_usage_attribute_type, fop: CreditCard):
+    def add_form_of_payment_builder(self, message_id, session_id, sequence_number,
+                                    security_token, fop, segment_refs, pax_refs, inf_refs, fop_sequence_number):
 
-        form_of_payment_code = ""
-        company_code = ""
-        form_of_payment_type = passenger_reference_type.p_type
-        group_usage_attribute_type = "FP"  # "PAY"
-        form_of_payment = "FP"  # "DEF
-        pax_refs = []
-        inf_refs = []
-        segment_refs = []
+        form_of_payment = "DEF"  # "DEF
+        pax_refs = pax_refs or []
+        inf_refs = inf_refs or []
+        segment_refs = segment_refs or []
+        content = ""
+        if not isinstance(fop, ChashPayment):
+            form_of_payment_code = fop.p_code
+            company_code = fop.company_code
+            form_of_payment_type = fop.p_type
+            group_usage_attribute_type = "FP"  # "PAY"
 
-        if isinstance(fop, CreditCard):
-            return f"""
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                    xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
-                    xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
-                    xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3"
-                    xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
-                {self.generate_header("TFOPCQ_15_4_1A", message_id, session_id, sequence_number, security_token, False)}
-                <soapenv:Body>
-                    <FOP_CreateFormOfPayment>
-                        <transactionContext>
-                            <transactionDetails>
-                                <code>{form_of_payment}</code>
-                            </transactionDetails>
-                        </transactionContext>
-                        <fopGroup>
-                            <fopReference></fopReference>
-                            {"".join([sub_parts.fop_passenger("PAX", ref) for ref in pax_refs])}
-                            {"".join([sub_parts.fop_passenger("INF", ref) for ref in inf_refs])}
-                            {"".join([sub_parts.fop_segment(ref) for ref in segment_refs])}
-                            <mopDescription>
-                            {sub_parts.fop_sequence_number(form_of_payment_sequence_number) if form_of_payment_sequence_number else ""}
-                            <mopDetails>
-                                <fopPNRDetails>
-                                    <fopDetails>
-                                        <fopCode>{form_of_payment_code}</fopCode>
-                                    </fopDetails>
-                                </fopPNRDetails>
-                            </mopDetails>
-                            <paymentModule>
-                                <groupUsage>
-                                    <attributeDetails>
-                                        <attributeType>{group_usage_attribute_type}</attributeType>
-                                    </attributeDetails>
-                                </groupUsage>
-                                <paymentData>
-                                    <merchantInformation>
-                                        <companyCode>{company_code}</companyCode>
-                                    </merchantInformation>
-                                </paymentData>
-                                <mopInformation>
-                                    <fopInformation>
-                                        <formOfPayment>
-                                        <type>{form_of_payment_type}</type>
-                                        </formOfPayment>
-                                    </fopInformation>
-                                    <dummy/>
-                                    {sub_parts.fop_form_of_payment(fop)}
-                                </mopInformation>
-                                <dummy/>
-                            </paymentModule>
-                            </mopDescription>
-                        </fopGroup>
-                    </FOP_CreateFormOfPayment>
-                </soapenv:Body>
-                </soapenv:Envelope>
-                """
+            content = sub_parts.fop_credit_card_and_check(
+                form_of_payment_code, group_usage_attribute_type, company_code, form_of_payment_type, fop
+            )
+
         else:
-
-            return f"""
+            content = f"""<mopDetails>
+                            <fopPNRDetails>
+                                <fopDetails>
+                                    <fopCode>CASH</fopCode>
+                                </fopDetails>
+                            </fopPNRDetails>
+                        </mopDetails>"""
+        return f"""
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                    xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
-                    xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
-                    xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3"
-                    xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
-                {self.generate_header("PNRADD_17_1_1A", message_id, session_id, sequence_number, security_token, False)}
-                <soapenv:Body>
-                <PNR_AddMultiElements>
-                    <pnrActions>
-                        <optionCode>0</optionCode>
-                    </pnrActions>
-                    <dataElementsMaster>
-                        <marker1/>
-                        <dataElementsIndiv>
-                            <elementManagementData>
-                                <segmentName>FP</segmentName>
-                            </elementManagementData>
-                            <formOfPayment>
-                                <fop>
-                                    <identification>{form_of_payment_type}</identification>
-                                </fop>
-                            </formOfPayment>
-                        </dataElementsIndiv>
-                    </dataElementsMaster>
-                </PNR_AddMultiElements>
-                </soapenv:Body>
-                </soapenv:Envelope>"""
+                xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+                xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+                xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3"
+                xmlns:tfop="http://xml.amadeus.com/TFOPCQ_15_4_1A">
+            {self.generate_header("TFOPCQ_15_4_1A", message_id, session_id, sequence_number, security_token, False)}
+            <soapenv:Body>
+                <FOP_CreateFormOfPayment>
+                    <transactionContext>
+                        <transactionDetails>
+                            <code>{form_of_payment}</code>
+                        </transactionDetails>
+                    </transactionContext>
+                    <fopGroup>
+                        <fopReference/>
+                        {"".join([sub_parts.fop_passenger("PAX", ref) for ref in pax_refs])}
+                        {"".join([sub_parts.fop_passenger("INF", ref) for ref in inf_refs])}
+                        {"".join([sub_parts.fop_segment(ref) for ref in segment_refs])}
+                        <mopDescription>
+                        {sub_parts.fop_sequence_number(fop_sequence_number) if fop_sequence_number else "1"}
+                        {content}
+                        </mopDescription>
+                    </fopGroup>
+                </FOP_CreateFormOfPayment>
+            </soapenv:Body>
+            </soapenv:Envelope>
+            """
 
     def ticket_pnr_builder(self, message_id, session_id, sequence_number, security_token, passenger_reference_type,
                            passenger_reference_value):

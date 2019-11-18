@@ -14,7 +14,8 @@ from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
-    VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor
+    VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
+    FoPExtractor
 
 
 class AmadeusClient(BaseClient):
@@ -118,9 +119,9 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("add_form_of_payment", request_data,
                                                'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
 
-        session_info = SessionExtractor(response_data).extract()
-        self.add_session(session_info.session_info)
-        return session_info
+        fop_response = FoPExtractor(response_data).extract()
+        self.add_session(fop_response.session_info)
+        return fop_response
 
     def pnr_add_multi_element(self, message_id, option_code, segment_name):
         """

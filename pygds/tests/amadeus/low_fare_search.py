@@ -123,6 +123,10 @@ try:
     res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
     log.info(res_fop)
 
+    res_save = client.pnr_add_multi_element(message_id, 11, "AIR").payload
+    log.info(res_save)
+
+    res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
 
 except ClientError as ce:
     log.error(f"client_error: {ce}")
