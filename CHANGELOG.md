@@ -84,7 +84,7 @@
 - Sabre:
     - fest add seat info  to display pnr extractor (passengers & segments) [mbayane1990](mbaye@ctsfares.com)
 
-# 0.0.18 (2019-11-16)
+# 0.0.18 (2019-11-18)
 - Sabre:
     - fix on getting infant gender and date of birth [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
-
+    - add application error to seat map extractor [mbayane1990](mbaye@ctsfares.com)

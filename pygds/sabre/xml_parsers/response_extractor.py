@@ -121,12 +121,17 @@ class AppErrorExtractor(BaseResponseExtractor):
         if not app_error_data:
             app_error_data = from_json_safe(payload, "stl18:Errors", "stl18:Error")
             if not app_error_data:
-                return None
-            error_code = from_json_safe(app_error_data, "stl18:Code")
-            error_message = from_json_safe(app_error_data, "stl18:Message")
-            error_category = from_json_safe(app_error_data, "stl18:Severity")
-            return ApplicationError(error_code, error_category, None, error_message)
-
+                app_error_data = from_json_safe(payload, "ns3:ApplicationResults", "ns3:Error")
+                if app_error_data:
+                    error_message = from_json_safe(app_error_data, "ns3:SystemSpecificResults", "ns3:Message")
+                    return ApplicationError(None, None, None, error_message)
+                else:
+                    return None
+            else:
+                error_code = from_json_safe(app_error_data, "stl18:Code")
+                error_message = from_json_safe(app_error_data, "stl18:Message")
+                error_category = from_json_safe(app_error_data, "stl18:Severity")
+                return ApplicationError(error_code, error_category, None, error_message)
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
 
@@ -978,7 +983,7 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
             change_of_gauge = seat_map["@changeOfGaugeInd"]
             equipment = seat_map["Equipment"]
             flight = self._get_flight_info(seat_map["Flight"])
-            cabin = self._get_cabin_info(seat_map["Cabin"])
+            cabin = cabin = self._get_cabin_info(ensure_list(seat_map["Cabin"]))
             seat = SeatMap(change_of_gauge, equipment, flight, cabin)
         else:
             seat = SeatMap(None, None, None, None)
@@ -999,15 +1004,18 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
         marketing = OperatingMarketing(carrier=carrier, code=code)
         return FlightInfo(destination=destination, origin=origin, departure_date=departure_date, operating=operating, marketing=marketing)
 
-    def _get_cabin_info(self, cabin):
-        first_row = from_json_safe(cabin, "@firstRow")
-        last_row = from_json_safe(cabin, "@lastRow")
-        seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault") if "@seatOccupationDefault" in cabin else ''
-        cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
-        row = self.__get_row_info(from_json_safe(cabin, "Row"))
-        column = self.__get_column_info(from_json_safe(cabin, "Column"))
-        class_location = from_json_safe(cabin, "@classLocation") if "@classLocation" in cabin else ''
-        return CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column, class_location=class_location)
+    def _get_cabin_info(self, cabin_info):
+        cabins = []
+        for cabin in cabin_info:
+            first_row = from_json_safe(cabin, "@firstRow")
+            last_row = from_json_safe(cabin, "@lastRow")
+            seat_occupation_default = from_json_safe(cabin, "@seatOccupationDefault") if "@seatOccupationDefault" in cabin else ''
+            cabin_class = self.__get_cabin_class(from_json_safe(cabin, "CabinClass"))
+            row = self.__get_row_info(from_json_safe(cabin, "Row"))
+            column = self.__get_column_info(from_json_safe(cabin, "Column"))
+            class_location = from_json_safe(cabin, "@classLocation") if "@classLocation" in cabin else ''
+            cabins.append(CabinInfo(first_row=first_row, last_row=last_row, seat_occupation_default=seat_occupation_default, cabin_class=cabin_class, row=row, column=column, class_location=class_location))
+        return cabins
 
     def __get_cabin_class(self, cabin_class):
         cabin_type = from_json_safe(cabin_class, "CabinType") if "CabinType" in cabin_class else ''

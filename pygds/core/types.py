@@ -1145,7 +1145,7 @@ class SeatMap(BasicDataObject):
             "changeOfGaugeInd": self.change_of_gauge_ind,
             "Equipment": self.equipment,
             "Flight": self.flights.to_data() if self.flights is not None else None,
-            "Cabin": self.cabin.to_data() if self.cabin is not None else None
+            "Cabin": [cabin.to_data() for cabin in self.cabin]
         }
 
 
