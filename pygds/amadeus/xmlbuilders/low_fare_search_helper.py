@@ -68,7 +68,7 @@ def generate_fare_options(fare_options: FareOptions):
     if fare_options.currency_usd:
         conversion_rate += "<currency>USD</currency>"
     else:
-        conversion_rate += "<currency>USD</currency>"
+        conversion_rate += "<currency>EUR</currency>"
 
     return f"""<fareOptions>
                         <pricingTickInfo>

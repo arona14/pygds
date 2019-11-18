@@ -273,7 +273,7 @@ class AmadeusClient(BaseClient):
         self.add_session(final_response.session_info)
         return final_response
 
-    def ticket_create_tst_from_price(self, message_id, tst_reference):
+    def ticket_create_tst_from_price(self, message_id, tst_references: List[str] = []):
         """
             Creates a TST from TST reference
         """
@@ -281,7 +281,7 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.ticket_create_tst_from_price(message_id, session_id, sequence_number,
-                                                                     security_token, tst_reference)
+                                                                     security_token, tst_references)
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
         final_response = CreateTstResponseExtractor(response_data).extract()

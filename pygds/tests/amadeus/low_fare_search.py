@@ -10,6 +10,7 @@ import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.price import PriceRequest
+from pygds.core.payment import ChashPayment
 
 endpoint = get_setting("AMADEUS_ENDPOINT_URL")
 username = get_setting("AMADEUS_USERNAME")
@@ -29,9 +30,7 @@ try:
 
     itineraries = [
         RequestedSegment(
-            sequence=1, origin="CDG", destination="DTW", departure_date="051219", arrival_date="081219", total_seats=None, airport_city_qualifier="C"),
-        RequestedSegment(
-            sequence=2, origin="DTW", destination="CDG", departure_date="201219", arrival_date="201219", total_seats=None, airport_city_qualifier="C")]
+            sequence=1, origin="CDG", destination="DTW", departure_date="221119", arrival_date="081219", total_seats=None, airport_city_qualifier="C")]
 
     traveller = TravellerNumbering(1, 1)
 
@@ -39,6 +38,7 @@ try:
                                           rules_cabin="RC",
                                           airlines=["DL", "AF"],
                                           rules_airline="F")
+
     fare_options = FareOptions(price_type_et=True,
                                price_type_rp=True,
                                price_type_ru=True,
@@ -94,7 +94,7 @@ try:
         2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684"
     ),
         TravellerInfo(
-        3, "Khouna", "Khouna", "Fall", "03122014", "CHD", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
+        3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
     )]
 
     reservation_info = ReservationInfo(traveller_infos, number_tel_agent="776656986")
@@ -111,9 +111,18 @@ try:
         pax_refs.append(pax.name_id)
 
     price_request = PriceRequest(pax_refs, seg_refs)
-    res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
-    session_info, res_price = (res_price.session_info, res_price.payload)
+    res_price = client.fare_price_pnr_with_booking_class(message_id, price_request).payload
     log.info(res_price)
+
+    tst_list = [price.fare_reference for price in res_price]
+    res_store_price = client.ticket_create_tst_from_price(message_id, tst_list).payload
+    tst_refs = [tst.tst_reference for tst in res_store_price]
+    log.info(res_store_price)
+
+    fop = ChashPayment(p_code="CCVI", company_code="")
+    res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
+    log.info(res_fop)
+
 
 except ClientError as ce:
     log.error(f"client_error: {ce}")
