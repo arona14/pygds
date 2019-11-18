@@ -74,7 +74,7 @@
     
 # 0.0.15 (2019-11-14)
 - Sabre:
-    - fix retrieving tour code and ticket designator if not present
+    - fix retrieving tour code and ticket designator if not present [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
 
 # 0.0.16 (2019-11-14)
 - Sabre:
@@ -86,4 +86,5 @@
 
 # 0.0.18 (2019-11-18)
 - Sabre:
+    - fix on getting infant gender and date of birth [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
     - add application error to seat map extractor [mbayane1990](mbaye@ctsfares.com)
