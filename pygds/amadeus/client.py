@@ -114,12 +114,9 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         request_data = self.xml_builder.add_form_of_payment_builder(
             message_id, session_id, sequence_number, security_token, fop, segment_refs, pax_refs, inf_refs, fop_sequence_number)
-        if isinstance(fop, (CreditCard, CheckPayment)):
-            response_data = self.__request_wrapper("add_form_of_payment", request_data,
-                                                   'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
-        else:
-            response_data = self.__request_wrapper("add_form_of_payment", request_data,
-                                                   'http://webservices.amadeus.com/PNRADD_17_1_1A')
+
+        response_data = self.__request_wrapper("add_form_of_payment", request_data,
+                                               'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
 
         session_info = SessionExtractor(response_data).extract()
         self.add_session(session_info.session_info)
