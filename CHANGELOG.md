@@ -83,3 +83,7 @@
 # 0.0.17 (2019-11-14)
 - Sabre:
     - fest add seat info  to display pnr extractor (passengers & segments) [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.18 (2019-11-18)
+- Sabre:
+    - add application error to seat map extractor [mbayane1990](mbaye@ctsfares.com)
