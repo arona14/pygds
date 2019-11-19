@@ -88,3 +88,7 @@
 - Sabre:
     - fix on getting infant gender and date of birth [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
     - add application error to seat map extractor [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.19 (2019-11-19)
+- Sabre:
+    - update seat info on retreive pnr [mbayane1990](mbaye@ctsfares.com)
