@@ -503,7 +503,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     seats[pre_reserved_seat['id']] = passenger.name_id
         return seats
 
-    def __seats(self, seat_info: list, map_segment_seat: dict = None):
+    @staticmethod
+    def __seats(seat_info: list, map_segment_seat: dict = None):
         """
             Get the info of seat map
             :param seat_info: list of seats
@@ -541,7 +542,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             first_name = from_json(pax, "stl18:FirstName")
             full_name = f"{first_name} {last_name}"
             date_of_birth, gender, number_in_party = None, None, None
-            seats = {"pre_reserved_seats": DisplayPnrExtractor.__seats(ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat")))} if from_json_safe(pax, "stl18:Seats") else None
+            seat_info = ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat"))
+            seats = {"pre_reserved_seats": DisplayPnrExtractor.__seats(seat_info)} if seat_info else None
 
             for i in ensure_list(from_json_safe(pax, "stl18:SpecialRequests", "stl18:APISRequest", default=[])):
                 key = f"""{from_json_safe(i, "stl18:DOCSEntry", "stl18:Forename")} {from_json_safe(i, "stl18:DOCSEntry", "stl18:Surname")}"""
