@@ -91,4 +91,4 @@
 
 # 0.0.19 (2019-11-19)
 - Sabre:
-    - update seat info on retreive pnr [mbayane1990](mbaye@ctsfares.com)
+    - fix seat info on retreive pnr [mbayane1990](mbaye@ctsfares.com)
