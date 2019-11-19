@@ -31,6 +31,7 @@ from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.sabre.jsonbuilders.rest_token_builder import build_sabre_new_rest_token_header
+from pygds.sabre.json_parsers.equipment import AircraftExtractor
 
 
 class SabreClient(BaseClient):
@@ -474,4 +475,16 @@ class SabreClient(BaseClient):
         void_ticket_request = self.xml_builder.void_ticket_rq(token, rph)
         void_ticket_response = self.__request_wrapper("void_ticket", void_ticket_request, self.endpoint)
         gds_response = SingleVoidExtractor(void_ticket_response).extract()
+        return gds_response
+
+    def aircraft(self):
+        """[The Aircraft Equipment Lookup API returns the aircraft name associated with a specified IATA aircraft equipment code.]
+        Returns:
+            [list] -- [list of aircraft types]
+        """
+        token = self.get_rest_token()
+        headers = self.rest_header
+        headers["Authorization"] = "Bearer " + token
+        response = requests.get(f"{self.rest_url}/v1/lists/utilities/aircraft/equipment", headers=headers)
+        gds_response = AircraftExtractor(response.content).extract()
         return gds_response
