@@ -149,7 +149,6 @@ class AmadeusClient(BaseClient):
                                                                                    message_id, email_content, passenger_id, office_id)
         response_data = self.__request_wrapper("pnr_add_multi_for_pax_info_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        # print(response_data)
         return UpdatePassengers(response_data).extract()
 
     def cancel_information_passenger(self, reference, message_id):
@@ -163,7 +162,6 @@ class AmadeusClient(BaseClient):
                                                                      message_id, reference)
         response_data = self.__request_wrapper("cancel information passenger", request_data,
                                                'http://webservices.amadeus.com/PNRXCL_14_2_1A')
-        # print(response_data)
         return SessionExtractor(response_data).extract()
 
     def ticketing_pnr(self, message_id, passenger_reference_type, passenger_reference_value):
@@ -177,7 +175,6 @@ class AmadeusClient(BaseClient):
                                                            passenger_reference_type, passenger_reference_value)
         response_data = self.__request_wrapper("ticketing_pnr", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
-        print(response_data)
         final_result = IssueTicketResponseExtractor(response_data).extract()
         self.add_session(final_result.session_info)
         return final_result
@@ -458,5 +455,4 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.cancel_pnr(session_info, close_session)
         response_data = self.__request_wrapper("cancel_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRXCL_17_1_1A')
-        print(response_data)
         return CancelPnrExtractor(response_data).extract()
