@@ -179,24 +179,23 @@ class PriceSearchExtractor(BaseResponseExtractor):
             return air_itinerary_pricing_info
 
     def _get_tour_code_or_ticket_designator(self, air_itinerary_pricing, code):
-        result = None
         if "Endorsements" in from_json(air_itinerary_pricing, "ItinTotalFare") and from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text"):
             text = from_json(air_itinerary_pricing, "ItinTotalFare", "Endorsements", "Text")
             if code in text:
-                text = re.findall(code + " ([0-9A-Z]+)", text)[0]
-                result = text
-        return result
+                text = re.findall(code + " ([0-9A-Z]+)", text)
+                if len(text) > 0:
+                    return text[0]
+        return None
 
     def _get_commission_percent(self, air_itinerary_pricing):
-        result = 0
-
         if "PTC_FareBreakdown" in air_itinerary_pricing and isinstance(from_json(air_itinerary_pricing, "PTC_FareBreakdown"), list) and len(from_json(air_itinerary_pricing, "PTC_FareBreakdown")) > 0:
             fare_breakdown = from_json(air_itinerary_pricing, "PTC_FareBreakdown")
             text = from_json(fare_breakdown[0], "FareBasis", "@Code")
             if 'CM' in text:
-                text = re.findall("CM([0-9]+)", text)[0]
-                result = text
-        return result
+                text = re.findall("CM([0-9]+)", text)
+                if len(text) > 0:
+                    return text[0]
+        return 0
 
     def _get_fare_break_down(self, air_itinerary_pricing):
 
@@ -308,7 +307,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
             'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
-            'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator")
+            'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator"),
+            'booking_source': from_json_safe(display_pnr, "stl18:Reservation", "stl18:POS", "stl18:Source", "BookingSource")
         }
 
     def fare_type_price_quote(self, passenger_type):
