@@ -10,8 +10,7 @@ import logging
 
 from pygds.core.ticket import TicketReply
 from pygds.core.types import CancelPnrReply
-from pygds.core.form_of_payment import FormOfPayment
-from pygds.core.types import CancelPnrReply, VoidTicket, UpdatePassenger
+from pygds.core.types import VoidTicket, UpdatePassenger
 
 
 class BaseResponseExtractor(object):
