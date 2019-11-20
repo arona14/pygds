@@ -56,7 +56,7 @@ def test():
         session_info, void_response = (void_response.session_info, void_response.payload)
         log.info(void_response)
         if session_info.session_ended is False:
-            client.end_session(message_id)
+            client.close_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")
@@ -65,5 +65,5 @@ def test():
         log.error(f"session: {se.session_info}")
 
 
-if __name__ == "__main__":
-    test()
+# if __name__ == "__main__":
+#     test()

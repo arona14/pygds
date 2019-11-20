@@ -46,5 +46,5 @@ def test():
         log.error(f"session: {se.session_info}")
 
 
-if __name__ == "__main__":
-    test()
+# if __name__ == "__main__":
+#     test()
