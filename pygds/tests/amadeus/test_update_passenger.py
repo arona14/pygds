@@ -38,10 +38,7 @@ def test():
         message_id = session_info.message_id
 
         email_tato = ""
-        number_tato = ""
         for ot in res_reservation["other_information"]:
-            if fnc.get("otherDataFreetext.freetextDetail.type", ot) == "6":
-                number_tato = ot["elementManagementData"]["reference"]["number"]
             if fnc.get("otherDataFreetext.freetextDetail.type", ot) == "P02":
                 email_tato = ot["elementManagementData"]["reference"]["number"]
         log.info("2. Update passenger")
@@ -56,7 +53,7 @@ def test():
         log.debug(res_updat_pas)
         # log.debug(session_info)
         if session_info.session_ended is True:
-            log.debug(f"Session closed after update passenger {pr}")
+            log.debug("Session closed after update passenger")
             return
         message_id = session_info.message_id
 

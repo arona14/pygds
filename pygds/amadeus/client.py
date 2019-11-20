@@ -1,7 +1,7 @@
 # coding: utf-8
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
-from pygds.core.payment import FormOfPayment, CreditCard, CheckPayment
+from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger

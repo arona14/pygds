@@ -4,8 +4,7 @@
 
 import os
 from pygds.amadeus.client import AmadeusClient
-from pygds.amadeus.errors import ClientError, ServerError
-from pygds.core.payment import CreditCard, ChashPayment
+from pygds.core.payment import ChashPayment
 from pygds.core.price import PriceRequest
 from pygds.env_settings import get_setting
 from pygds import log_handler

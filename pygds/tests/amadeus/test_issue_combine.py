@@ -3,7 +3,7 @@
 """
 
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
-from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, Itinerary, FlightSegment, Recommandation
+from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, Recommandation
 from pygds import log_handler
 from pygds.env_settings import get_setting
 
@@ -184,7 +184,7 @@ def test():
         message_id = session_info.message_id
         res_store_price = client.ticket_create_tst_from_price(message_id, tst)
         session_info, res_store_price = (res_store_price.session_info, res_store_price.payload)
-        tst_refs = [tst.tst_reference for tst in res_store_price]
+        # tst_refs = [tst.tst_reference for tst in res_store_price]
         log.info(res_store_price)
 
         if session_info.session_ended is True:

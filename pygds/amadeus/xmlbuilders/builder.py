@@ -298,7 +298,7 @@ class AmadeusXMLBuilder:
                             {pricing_options_group}
                         </Fare_InformativeBestPricingWithoutPNR>
                     </soapenv:Body>
-                </soapenv:Envelope>   
+                </soapenv:Envelope>
         """
 
     def fare_check_rules(self, message_id, session_id, sequence_number,
@@ -808,9 +808,8 @@ class AmadeusXMLBuilder:
                                         <number>{id}</number>
                                     </reference>
                                 </referenceForDataElement>
-					    </dataElementsIndiv>"""
-        return f"""
-            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+</dataElementsIndiv>"""
+        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
                 xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
                 xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
                 xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
@@ -819,17 +818,17 @@ class AmadeusXMLBuilder:
                 xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
                 {self.generate_header("PNRADD_17_1_1A", message_id, session_id, sequence_number, security_token)}
                 <soapenv:Body>
-                    <PNR_AddMultiElements>
-                        <pnrActions>
-                            <optionCode>11</optionCode>
-                        </pnrActions>
-                        <dataElementsMaster>
-							<marker1/>
-							{ssr_request}
-                        </dataElementsMaster>
-                    </PNR_AddMultiElements>
+                <PNR_AddMultiElements>
+                <pnrActions>
+                <optionCode>11</optionCode>
+                </pnrActions>
+                <dataElementsMaster>
+                <marker1/>
+                {ssr_request}
+                </dataElementsMaster>
+                </PNR_AddMultiElements>
                 </soapenv:Body>
-            </soapenv:Envelope> """
+                </soapenv:Envelope> """
 
     def issue_ticket_retrieve(self, message_id, security_token, sequence_number, session_id, tst_refs: List[str]):
         return f"""
