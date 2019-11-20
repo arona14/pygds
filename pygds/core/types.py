@@ -175,7 +175,7 @@ class Itinerary(BasicDataObject):
         self.origin = None
         self.destination = None
 
-    def addSegment(self, segment: FlightSegment):
+    def addSegment(self, segment):
         """
             Adds a new segment to an itinerary
         """

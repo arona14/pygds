@@ -1,6 +1,6 @@
-"""
-    This is for testing purposes like a suite.
-"""
+# """
+#     This is for testing purposes like a suite.
+# """
 
 import os
 from pygds.amadeus.client import AmadeusClient
