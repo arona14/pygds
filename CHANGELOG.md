@@ -92,3 +92,7 @@
 # 0.0.19 (2019-11-19)
 - Sabre:
     - fix seat info on retreive pnr [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.20 (2019-11-20)
+- Sabre:
+    - feat add passengers info to seat map request [mbayane1990](mbaye@ctsfares.com)

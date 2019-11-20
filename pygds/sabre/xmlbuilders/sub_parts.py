@@ -1,9 +1,10 @@
 from decimal import Decimal
 from typing import List
 
-from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list
-
-from pygds.core.types import FlightSegment, FlightPointDetails
+from pygds.core.type_helper import Passenger
+from pygds.core.helpers import ensure_list
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe
+from pygds.core.types import FlightPointDetails, FlightSegment
 from pygds.sabre.price import StoreSegmentSelect
 
 
@@ -324,6 +325,15 @@ def add_flight_segment(origin, destination, depart_date, operating_code, marketi
       <tag0:RBD>{class_of_service}</tag0:RBD>
     </tag0:CabinDefinition>
     <Currency>{currency_code}</Currency>"""
+
+
+def add_passenger_info(passengers: List[Passenger]):
+    return "".join([f"""<tag0:FareAvailQualifiers passengerType="{pax.passenger_type}" quantity="{pax.number_in_party}">
+                    <tag0:TravellerID>1</tag0:TravellerID>
+                    <tag0:GivenName>"{pax.first_name}"</tag0:GivenName>
+                    <tag0:Surname>"{pax.last_name}"</tag0:Surname>
+                </tag0:FareAvailQualifiers>
+            """ for pax in passengers])
 
 
 def segments_to_cancel(segment_list):

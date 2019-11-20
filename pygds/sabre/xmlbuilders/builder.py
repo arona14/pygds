@@ -2,7 +2,7 @@ from typing import List
 
 from pygds.core.helpers import get_data_from_json_safe as from_json_safe
 from pygds.core.payment import FormOfPayment, CreditCard
-from pygds.core.types import PassengerUpdate, FlightSeatMap
+from pygds.core.types import PassengerUpdate, FlightSeatMap, Passenger
 from pygds.core.security_utils import generate_random_message_id, generate_created
 from pygds.sabre.price import StoreSegmentSelect
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
@@ -11,7 +11,7 @@ from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
     store_pax_type, store_plus_up, \
     store_ticket_designator, add_flight_segment, _store_single_name_select, _store_build_segment_selects, \
-    _store_single_pax_type, segments_to_cancel
+    _store_single_pax_type, segments_to_cancel, add_passenger_info
 from decimal import Decimal
 
 
@@ -454,12 +454,13 @@ class SabreXMLBuilder:
                     <BasicFOP Type="{payment_type}"/>
                 </FOP_Qualifiers>"""
 
-    def seap_map_rq(self, token, flight_infos: FlightSeatMap):
+    def seap_map_rq(self, token, flight_infos: FlightSeatMap, passengers_info: List[Passenger]):
         """
             Return the xml request to search a seap map
         """
         header = self.generate_header("EnhancedSeatMapRQ", "EnhancedSeatMapRQ", token)
         flight_info = add_flight_segment(flight_infos.origin, flight_infos.destination, flight_infos.depart_date, flight_infos.operating_code, flight_infos.marketing_code, flight_infos.flight_number, flight_infos.arrival_date, flight_infos.class_of_service, flight_infos.currency_code)
+        pax_info = add_passenger_info(passengers_info)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                {header}
@@ -468,6 +469,7 @@ class SabreXMLBuilder:
                         <tag0:RequestType>Payload</tag0:RequestType>
                         <tag0:SeatMapQueryEnhanced correlationID="20190218103518">
                                 {flight_info}
+                                {pax_info}
                             <tag0:POS>
                             <tag0:PCC>{self.pcc}</tag0:PCC>
                             </tag0:POS>
