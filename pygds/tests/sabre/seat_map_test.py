@@ -30,6 +30,7 @@ class SeatMapTest(unittest.TestCase):
         passenger.number_in_party = '1'
         passenger.first_name = 'ADUN'
         passenger.last_name = 'LECOQ'
+        passenger.name_id = 1
         seat_map_xml = client.xml_builder.seap_map_rq(None, flight_info, [passenger])
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
