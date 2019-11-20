@@ -32,7 +32,7 @@ try:
         RequestedSegment(
             sequence=1, origin="CDG", destination="DTW", departure_date="221119", arrival_date="081219", total_seats=None, airport_city_qualifier="C")]
 
-    traveller = TravellerNumbering(1, 1)
+    traveller = TravellerNumbering(1, 1, 1)
 
     travel_flight_info = TravelFlightInfo(cabin="Y",
                                           rules_cabin="RC",
@@ -82,16 +82,20 @@ try:
     itinerary = Itinerary()
     for segment in list_segments:
         itinerary.addSegment(segment)
+
     itineraries = [itinerary]
     result_sell_from_rec = client.sell_from_recommandation(itineraries)
 
     result_sell_from_rec, session_info = result_sell_from_rec.payload, result_sell_from_rec.session_info
 
     message_id = session_info.message_id
+
     inf_am = Infant("Vince", "Faye", "10JAN19")
+
     inf_k = Infant("Seyni", "Diallo", "10JAN19")
+
     traveller_infos = [TravellerInfo(
-        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684"
+        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", inf_am
     ),
         TravellerInfo(
         3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
@@ -105,8 +109,10 @@ try:
 
     seg_refs = []
     pax_refs = []
+
     for seg in passenger_info_response["itineraries"]:
         seg_refs.append(seg.sequence)
+
     for pax in passenger_info_response["passengers"]:
         pax_refs.append(pax.name_id)
 
@@ -119,15 +125,30 @@ try:
     tst_refs = [tst.tst_reference for tst in res_store_price]
     log.info(res_store_price)
 
+    log.info(client.create_tsm(message_id, pax_refs[0], "F"))
+    log.info(client.create_tsm(message_id, pax_refs[1], "F"))
+
     fop = ChashPayment(p_code="CCVI", company_code="")
-    res_fop = client.add_form_of_payment(message_id, fop, seg_refs, pax_refs, None, "1")
+    res_fop = client.add_form_of_payment(message_id, fop, [], [], None, "1")
     log.info(res_fop)
 
     res_save = client.pnr_add_multi_element(message_id, 11, "AIR").payload
     log.info(res_save)
+    pnr = res_save["pnr_header"].controle_number
+    # res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
+    res_ticket = client.issue_combined(message_id, passengers=pax_refs, segments=[], retrieve_pnr=False)
+    # session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
+    log.info(res_ticket)
 
-    res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
+    queue_number = "1"
+    queues = list()
+    queues.append(queue_number)
+    result_queue = client.queue_place_pnr(message_id, pnr, queues)
+    session_info, res_queue = (result_queue.session_info, result_queue.payload)
+    log.info(session_info)
+    log.info(res_queue)
 
+    client.close_session(message_id)
 except ClientError as ce:
     log.error(f"client_error: {ce}")
     log.error(f"session: {ce.session_info}")

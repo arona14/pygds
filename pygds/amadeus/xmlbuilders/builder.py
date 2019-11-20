@@ -488,20 +488,23 @@ class AmadeusXMLBuilder:
         email_tel_passengers = ""
 
         for i in infos.traveller_info:
+
             passenger_infos.append(
                 sub_parts.add_multi_elements_traveller_info(
                     i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type, i.infant
                 )
             )
+
             if i.pax_type == "ADT":
                 ssr_content += sub_parts.add_multi_element_ssr(i)
-                email_tel_passengers += sub_parts.add_multi_element_contact_element(
-                    "7", i.tel, i.ref_number
-                ) if i.tel else ""
 
-                email_tel_passengers += sub_parts.add_multi_element_contact_element(
-                    "P02", i.email, i.ref_number
-                ) if i.email else ""
+            email_tel_passengers += sub_parts.add_multi_element_contact_element(
+                "7", i.tel, i.ref_number
+            ) if i.tel else ""
+
+            email_tel_passengers += sub_parts.add_multi_element_contact_element(
+                "P02", i.email, i.ref_number
+            ) if i.email else ""
 
         # type = 6 Travel agent telephone number
         # type = PO2 E-mail address
@@ -947,11 +950,11 @@ class AmadeusXMLBuilder:
                                 </otherPaxDetails>
                             </paxTattoo>
                             <totalFare>
-                            <monetaryDetails>
-                                <typeQualifier>B</typeQualifier>
-                                <amount>10.00</amount>
-                                <currency>USD</currency>
-                            </monetaryDetails>
+                                <monetaryDetails>
+                                    <typeQualifier>B</typeQualifier>
+                                        <amount>10.00</amount>
+                                    <currency>USD</currency>
+                                </monetaryDetails>
                             </totalFare>
                             <genInfo>
                                 <productDateTimeDetails>
@@ -974,7 +977,7 @@ class AmadeusXMLBuilder:
                                 </tktNumber>
                             </mcoDocData>
                         </mcoData>
-                    </PNR_CreateTSM>
+                </PNR_CreateTSM>
             </soapenv:Body>
         </soapenv:Envelope>
         """

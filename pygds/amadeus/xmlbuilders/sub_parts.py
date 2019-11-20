@@ -355,6 +355,7 @@ def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name
                         </dateOfBirth>
                     </passengerData>
                     """
+        infant_indicator = "<infantIndicator>3</infantIndicator>"
 
     return f"""
         <travellerInfo>
@@ -375,8 +376,7 @@ def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name
                         <firstName>{first_name}</firstName>
                         <type>{pax_type}</type>
                         {infant_indicator}
-                    </passenger>
-                    
+                    </passenger>  
                 </travellerInformation>
                 <dateOfBirth>
                     <dateAndTimeDetails>

@@ -419,8 +419,10 @@ class AmadeusClient(BaseClient):
         :return:
         """
         session_id, sequence_number, security_token = self.get_or_create_session_details(message_id)
+
         if security_token is None:
             raise NoSessionError(message_id)
+
         session_info = SessionInfo(security_token, sequence_number, session_id, message_id, False)
         request_data = self.xml_builder.create_tsm(session_info, passenger_id, tsm_type)
         response_data = self.__request_wrapper("create tsm", request_data,
