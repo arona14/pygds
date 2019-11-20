@@ -2,7 +2,7 @@ import unittest
 from pygds.sabre.client import SabreClient
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
-from pygds.core.types import FlightSeatMap
+from pygds.core.types import FlightSeatMap, Passenger
 
 
 class SeatMapTest(unittest.TestCase):
@@ -25,9 +25,12 @@ class SeatMapTest(unittest.TestCase):
         flight_info.currency_code = "USD"
         flight_info.depart_date = "10/10/2019"
         flight_info.arrival_date = "20/10/2019"
-
-        seat_map_xml = client.xml_builder.seap_map_rq(None, flight_info)
-        print(seat_map_xml)
+        passenger = Passenger()
+        passenger.passenger_type = 'ADT'
+        passenger.number_in_party = '1'
+        passenger.first_name = 'ADUN'
+        passenger.last_name = 'LECOQ'
+        seat_map_xml = client.xml_builder.seap_map_rq(None, flight_info, [passenger])
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("<tag0:RequestType>Payload</tag0:RequestType>", seat_map_xml)
