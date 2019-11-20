@@ -12,7 +12,7 @@ from datetime import datetime
 from pygds.amadeus.errors import ServerError, ClientError
 from pygds.core.payment import FormOfPayment
 from pygds.sabre.json_parsers.new_rest_token_extractor import extract_sabre_rest_token
-from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor
+from pygds.sabre.json_parsers.response_extractor import CreatePnrExtractor, AircraftExtractor
 from pygds.sabre.json_parsers.revalidate_extract import RevalidateItineraryExtractor
 from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
@@ -31,7 +31,6 @@ from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.core.types import PassengerUpdate, FlightSeatMap
 from pygds.sabre.jsonbuilders.rest_token_builder import build_sabre_new_rest_token_header
-from pygds.sabre.json_parsers.equipment import AircraftExtractor
 
 
 class SabreClient(BaseClient):
@@ -477,7 +476,7 @@ class SabreClient(BaseClient):
         gds_response = SingleVoidExtractor(void_ticket_response).extract()
         return gds_response
 
-    def aircraft(self):
+    def aircrafts(self):
         """[The Aircraft Equipment Lookup API returns the aircraft name associated with a specified IATA aircraft equipment code.]
         Returns:
             [list] -- [list of aircraft types]
