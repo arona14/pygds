@@ -281,6 +281,7 @@ class Passenger(BasicDataObject):
     def to_data(self):
         return {
             "name_id": self.name_id,
+            "name_assoc_id": self.name_assoc_id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "date_of_birth": self.date_of_birth,
