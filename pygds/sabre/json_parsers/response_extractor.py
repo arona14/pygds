@@ -7,6 +7,7 @@ from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
 from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe
 from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
+from pygds.core.types import BasicDataObject
 
 
 class BaseResponseRestExtractor(object):
@@ -65,12 +66,14 @@ class AppErrorRestExtractor(BaseResponseRestExtractor):
 
     def _extract(self):
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
-        payload = from_json(self.json_content, self.main_tag)
+        if self.main_tag is not None:
+            payload = from_json(self.json_content, self.main_tag)
+        else:
+            payload = from_json(self.json_content)
         app_error_data = from_json_safe(payload, "ApplicationResults", "Error")
         if not app_error_data:
             return None
 
-        # description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, app_error_data)
 
 
@@ -98,3 +101,26 @@ class CreatePnrExtractor(BaseResponseRestExtractor):
         create_pnr_info.travel_itinerary_read = travel_itinerary_read
 
         return create_pnr_info
+
+
+class AircraftInfo(BasicDataObject):
+
+    def __init__(self):
+        self.air_craft_info: list = []
+
+    def to_dict(self):
+        return {
+            "AircraftInfo": self.air_craft_info
+        }
+
+
+class AircraftExtractor(BaseResponseRestExtractor):
+
+    def __init__(self, json_content):
+        super().__init__(json_content, main_tag=None)
+
+    def _extract(self):
+
+        aircraft = AircraftInfo()
+        aircraft.air_craft_info = json.loads(self.json_content)["AircraftInfo"]
+        return aircraft.air_craft_info
