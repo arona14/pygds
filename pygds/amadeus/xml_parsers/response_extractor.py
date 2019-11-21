@@ -9,6 +9,8 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
+from pygds.core.types import CancelPnrReply
+from pygds.core.types import VoidTicket, UpdatePassenger
 
 
 class BaseResponseExtractor(object):
@@ -64,6 +66,49 @@ class BaseResponseExtractor(object):
             A private method that does the work of extracting useful data.
         """
         raise NotImplementedError("Sub class must implement '_extract' method")
+
+
+class InformativeBestPricingWithoutPNRExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Fare_InformativeBestPricingWithoutPNRReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_InformativeBestPricingWithoutPNRReply"
+        )
+        conversion_rate_details = from_json_safe(
+            payload, "mainGroup", "convertionRate", "conversionRateDetails"
+        )
+        indicators = from_json_safe(
+            payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
+        )
+
+        pricing_group_level_group = ensure_list(from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup"
+        ))
+
+        data = {
+            "conversion_rate_details": conversion_rate_details,
+            "indicators": indicators,
+            "pricing_group_level_group": pricing_group_level_group
+        }
+
+        return data
+
+
+class SellFromRecommendationReplyExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Air_SellFromRecommendationReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Air_SellFromRecommendationReply"
+        )
+        data = ensure_list(from_json_safe(
+            payload, "itineraryDetails"
+        ))
+
+        return data
 
 
 class ErrorExtractor(BaseResponseExtractor):
@@ -123,7 +168,7 @@ class SessionExtractor(BaseResponseExtractor):
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()",
             "//*[local-name()='Session']/@TransactionStatusCode")
-        return SessionInfo(tok, int(seq), ses, m_id, status != "InSeries")
+        return SessionInfo(tok, int(seq) if seq else 0, ses, m_id, status != "InSeries")
 
 
 class PriceSearchExtractor(BaseResponseExtractor):
@@ -151,7 +196,12 @@ class PriceSearchExtractor(BaseResponseExtractor):
             segment_flights = from_json_safe(rec, "segmentFlightRef")
             segment_flights = ensure_list(segment_flights)
             for seg in segment_flights:
-                reco = {"price": price, "currency": currency}
+                reco = {
+                    "price": price,
+                    "currency": currency,
+                    "paxFareProduct": ensure_list(ensure_list(rec["paxFareProduct"])),
+                    "recPriceInfo": from_json_safe(rec, "recPriceInfo")
+                }
                 itineraries = []
                 flight_indexes = from_json_safe(seg, "referencingDetail")
                 flight_indexes = ensure_list(flight_indexes)
@@ -446,16 +496,19 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CreateTSTFromPricingReply")
         pnr = from_json_safe(payload, "pnrLocatorData", "reservationInformation", "controlNumber")
-        tst_data = from_json_safe(payload, "tstList")
-        tst_ref_data = from_json_safe(tst_data, "tstReference")
-        tst_ref = None
-        if from_json_safe(tst_ref_data, "referenceType") == "TST":
-            tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
-        passengers_data = ensure_list(from_json_safe(tst_data, "paxInformation", "refDetails"))
-        pax_refs = []
-        for p in passengers_data:
-            pax_refs.append(from_json_safe(p, "refNumber"))
-        return TstInformation(pnr, tst_ref, pax_refs)
+        tst_datas = from_json_safe(payload, "tstList")
+        tst_info = []
+        for tst_data in ensure_list(tst_datas):
+            tst_ref_data = from_json_safe(tst_data, "tstReference")
+            tst_ref = None
+            if from_json_safe(tst_ref_data, "referenceType") == "TST":
+                tst_ref = from_json_safe(tst_ref_data, "uniqueReference")
+            passengers_data = ensure_list(from_json_safe(tst_data, "paxInformation", "refDetails"))
+            pax_refs = []
+            for p in passengers_data:
+                pax_refs.append(from_json_safe(p, "refNumber"))
+            tst_info.append(TstInformation(pnr, tst_ref, pax_refs))
+        return tst_info
 
 
 class IssueTicketResponseExtractor(BaseResponseExtractor):
@@ -479,6 +532,49 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
         return TicketReply(status, error_code, qualifier, source, encoding, description)
 
 
+class VoidTicketExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Ticket_CancelDocumentReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Ticket_CancelDocumentReply")
+        response_type = from_json_safe(payload, "transactionResults", "responseDetails", "responseType")
+        status_code = from_json_safe(payload, "transactionResults", "responseDetails", "statusCode")
+        ticket_number = from_json_safe(payload, "transactionResults", "ticketNumbers", "documentDetails", "number")
+        return VoidTicket(response_type, status_code, ticket_number)
+
+
+class CancelPnrExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "PNR_Reply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        print(payload)
+        pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
+        company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
+        return CancelPnrReply(pnr, company_id)
+
+
+class UpdatePassengers(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "PNR_Reply")
+
+    def _extract(self):
+        info_passengers = []
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        for travel in ensure_list(from_json_safe(payload, "travellerInfo")):
+            status = from_json_safe(travel, "elementManagementPassenger", "status")
+            surname = from_json_safe(travel, "passengerData", "travellerInformation", "traveller", "surname")
+            first_name = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "firstName")
+            pax_type = from_json_safe(travel, "passengerData", "travellerInformation", "passenger", "type")
+            qualifier = from_json_safe(travel, "elementManagementPassenger", "reference", "qualifier")
+            number = from_json_safe(travel, "elementManagementPassenger", "reference", "number")
+            data = UpdatePassenger(surname, first_name, pax_type, status, qualifier, number)
+            info_passengers.append(data)
+        return info_passengers
+
+
 def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAmount",
                    currency_key="fareCurrency") -> FareAmount:
     fare_amount = FareAmount()
@@ -486,3 +582,79 @@ def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAm
     fare_amount.amount = from_json_safe(amount_info, amount_key)
     fare_amount.currency = from_json_safe(amount_info, currency_key)
     return fare_amount
+
+
+class QueueExtractor(BaseResponseExtractor):
+
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Queue_PlacePNRReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "Queue_PlacePNRReply")
+        pnr = from_json_safe(payload, "recordLocator", "reservation", "controlNumber")
+        return pnr
+
+
+class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "Fare_InformativePricingWithoutPNRReply")
+
+    def _extract(self):
+        payload = from_xml(
+            self.xml_content, "soapenv:Envelope", "soapenv:Body", "Fare_InformativePricingWithoutPNRReply"
+        )
+        conversion_rate_details = from_json_safe(
+            payload, "mainGroup", "convertionRate", "conversionRateDetails"
+        )
+        indicators = from_json_safe(
+            payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
+        )
+
+        number_of_pax = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "numberOfPax"
+        )
+
+        pricing_indicators = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "pricingIndicators"
+        )
+
+        fare_amount = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareAmount"
+        )
+
+        segment_information = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "segmentLevelGroup", "segmentInformation"
+        )
+
+        segment_information = from_json_safe(
+            payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareComponentDetailsGroup"
+        )
+
+        data = {
+            "conversion_rate_details": conversion_rate_details,
+            "indicators": indicators,
+            "number_of_pax": number_of_pax,
+            "pricing_indicators": pricing_indicators,
+            "fare_amount": fare_amount,
+            "segment_information": segment_information,
+            "number_of_pax": number_of_pax,
+            "pricing_indicators": pricing_indicators,
+            "fare_amount": fare_amount,
+            "segment_information": segment_information
+        }
+
+        return data
+
+
+class FoPExtractor(BaseResponseExtractor):
+    def __init__(self, xml_content):
+        super().__init__(xml_content, True, True, "FOP_CreateFormOfPaymentReply")
+
+    def _extract(self):
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "FOP_CreateFormOfPaymentReply")
+        fop_list = ensure_list(from_json_safe(payload, "fopDescription"))
+
+        # mop_description = from_json_safe(payload, "fopDescription", "mopDescription")
+        # return FormOfPayment(fop_reference, mop_description)
+
+        return {"list_fop": fop_list}

@@ -190,6 +190,7 @@ class RestToken:
     """
     This class holds information about REST token
     """
+
     def __init__(self, token: str, expiration_date: datetime):
         self.token: str = token
         self.expiration_date: datetime = expiration_date
