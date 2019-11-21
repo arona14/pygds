@@ -537,6 +537,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
         for pax in ensure_list(passengers):
             name_id = from_json(pax, "nameId")
+            name_assoc_id = from_json(pax, "nameAssocId")
             pax_type = from_json(pax, "passengerType")
             last_name = from_json(pax, "stl18:LastName")
             first_name = from_json(pax, "stl18:FirstName")
@@ -554,7 +555,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     date_of_birth, gender, number_in_party = _d_birth, _gender, _n_in_party
                 elif from_json_safe(pax, "withInfant") == "true":
                     infant_info_map[key] = (_d_birth, _gender, _n_in_party)
-            p = Passenger(name_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
+            p = Passenger(name_id, name_assoc_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
             passenger_list.append(p)
         # fill infant info from previous map
         for p in passenger_list:

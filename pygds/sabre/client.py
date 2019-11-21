@@ -29,7 +29,7 @@ from pygds.core.client import BaseClient, session_wrapper, RestToken
 from pygds.core.sessions import SessionInfo, TokenType
 from pygds.sabre.xml_parsers.sessions import SessionExtractor
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
-from pygds.core.types import PassengerUpdate, FlightSeatMap
+from pygds.core.types import PassengerUpdate, FlightSeatMap, Passenger
 from pygds.sabre.jsonbuilders.rest_token_builder import build_sabre_new_rest_token_header
 
 
@@ -415,14 +415,15 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def seat_map(self, token: str, flight_request: FlightSeatMap):
+    def seat_map(self, token: str, flight_request: FlightSeatMap, passenger_request: List[Passenger]):
         """[This function will return the result for the seat map request]
 
         Arguments:
             token {[str]} -- [the security token]
             flight_request {[FlightSeatMap]} -- [this will handler the flight request]
+            passenger_request {[PassengerUpdate]} -- [this will handler the flight request]
         """
-        seat_map_request = self.xml_builder.seap_map_rq(token, flight_request)
+        seat_map_request = self.xml_builder.seap_map_rq(token, flight_request, passenger_request)
         seat_map_response = self.__request_wrapper("seat_map", seat_map_request, self.endpoint)
         gds_response = SeatMapResponseExtractor(seat_map_response).extract()
         return gds_response
