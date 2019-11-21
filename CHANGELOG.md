@@ -96,3 +96,4 @@
 # 0.0.20 (2019-11-20)
 - Sabre:
     - feat add passengers info to seat map request [mbayane1990](mbaye@ctsfares.com)
+    - feat add name assoc id (traveler id) to display pnr extractor [mbayane1990](mbaye@ctsfares.com)

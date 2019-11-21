@@ -329,7 +329,7 @@ def add_flight_segment(origin, destination, depart_date, operating_code, marketi
 
 def add_passenger_info(passengers: List[Passenger]):
     return "".join([f"""<tag0:FareAvailQualifiers passengerType="{pax.passenger_type}" quantity="{pax.number_in_party}">
-                    <tag0:TravellerID>{pax.name_id}</tag0:TravellerID>
+                    <tag0:TravellerID>{pax.name_assoc_id}</tag0:TravellerID>
                     <tag0:GivenName>"{pax.first_name}"</tag0:GivenName>
                     <tag0:Surname>"{pax.last_name}"</tag0:Surname>
                 </tag0:FareAvailQualifiers>
