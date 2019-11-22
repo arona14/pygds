@@ -10,7 +10,7 @@ from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
-from pygds.core.client import BaseClient
+from pygds.core.client import BaseClient, session_wrapper
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
@@ -191,6 +191,7 @@ class AmadeusClient(BaseClient):
         self.add_session(final_result.session_info)
         return final_result
 
+    # @session_wrapper
     def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest):
         """
             A method for searching prices of an itinerary.
