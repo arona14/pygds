@@ -138,7 +138,7 @@ class AmadeusXMLBuilder:
         """
 
     def end_session(self, message_id, session_id, sequence_number, security_token):
-        """
+        œ"""
 
         """
         header = self.generate_header("VLSSOQ_04_1_1A", message_id, session_id, sequence_number, security_token, True)
@@ -246,9 +246,18 @@ class AmadeusXMLBuilder:
                 </soapenv:Envelope>
                 """
 
-    def fare_informative_price_without_pnr(self, message_id, session_id, sequence_number,
-                                           security_token, numbering: TravellerNumbering, itineraries: List[Itinerary]):
-        header = self.generate_header("TIPNRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
+    def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
+
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                                   created_date_time, True)
+
+        header = f"""<soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/TIBNRQ_18_1_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>"""
 
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">

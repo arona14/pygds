@@ -179,6 +179,8 @@ def session_wrapper(fnc):
         result: GdsResponse = fnc(self, token, *args, **kwargs)
         if close_session:
             self.close_session(token)
+
+        # If validate, i have to change the signature of SessionInfo
         session_info = SessionInfo(token, 1, None, None, close_session, TokenType.SESSION_TOKEN)
         session_info.last_access = datetime.now()
         result.session_info = session_info

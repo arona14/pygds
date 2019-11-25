@@ -96,9 +96,9 @@ class MemorySessionHolder(SessionHolder):
         """
         if session_info is None:
             raise ValueError("The session info cannot be null")
-        self.current_sessions[session_info.message_id] = session_info
+        self.current_sessions[session_info.security_token] = session_info
 
-    def get_session_info(self, message_id: str) -> SessionInfo:
+    def get_session_info(self, token: str) -> SessionInfo:
         """
             Get the session object by giving the message id
         """
