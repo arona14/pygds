@@ -236,6 +236,16 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
         return response_data
 
+        def get_fare_rules(self, ticketing_date, rate_class, company_id, origin, destination):
+
+            request_data = self.xml_builder.get_fare_rules(ticketing_date, rate_class, company_id, origin, destination)
+            response_data = self.__request_wrapper("get fare rules", request_data,
+                                                   'http://webservices.amadeus.com/FARRNQ_10_1_1A')
+
+            response_data = SessionExtractor(response_data).extract()
+
+        return response_data
+
     def sell_from_recommandation(self, itineraries: List[Itinerary]):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
