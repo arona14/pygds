@@ -76,11 +76,7 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("start_new_session", request_data,
                                                'http://webservices.amadeus.com/VLSSLQ_06_1_1A')
 
-        session_info = SessionExtractor(response_data).extract().session_info
-        # Create the token by using jwt generator
-        # token = generate_token.encode(session_info)
-        # return token
-        return session_info
+        return SessionExtractor(response_data).extract()
 
     def close_session(self, token: str):
         """
@@ -94,9 +90,7 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.end_session(message_id, session_id, sequence_number, security_token)
         response_data = self.__request_wrapper("end_new_session", request_data,
                                                'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
-        response = SessionExtractor(response_data).extract()
-        self.session_holder.remove_session(message_id)
-        return response
+        return SessionExtractor(response_data).extract()
 
     def decode_token(self, token: str):
         payload = generate_token.decode_token(token)
@@ -117,8 +111,7 @@ class AmadeusClient(BaseClient):
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
-        response = GetPnrResponseExtractor(data).extract()
-        return response
+        return GetPnrResponseExtractor(data).extract()
 
     def add_form_of_payment(self, token: str, fop: FormOfPayment, segment_refs: List[str], pax_refs: List[str], inf_refs: List[str], fop_sequence_number: str):
         """
@@ -147,8 +140,7 @@ class AmadeusClient(BaseClient):
                                                                       message_id, option_code, segment_name)
         response_data = self.__request_wrapper("pnr_add_multi_element", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        response = GetPnrResponseExtractor(response_data).extract()
-        return response
+        return GetPnrResponseExtractor(response_data).extract()
 
     def pnr_add_multi_for_pax_info_element(self, token, email_content, passenger_id, office_id):
         """
@@ -187,8 +179,7 @@ class AmadeusClient(BaseClient):
                                                            passenger_reference_type, passenger_reference_value)
         response_data = self.__request_wrapper("ticketing_pnr", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
-        final_result = IssueTicketResponseExtractor(response_data).extract()
-        return final_result
+        return IssueTicketResponseExtractor(response_data).extract()
 
     def issue_ticket_with_retrieve(self, token, tst_refs: List[str], pax_refs: List[str]):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
@@ -198,8 +189,7 @@ class AmadeusClient(BaseClient):
                                                               tst_refs)
         response_data = self.__request_wrapper("issue_ticket_with_retrieve", request_data,
                                                'http://webservices.amadeus.com/TTKTIQ_15_1_1A')
-        final_result = IssueTicketResponseExtractor(response_data).extract()
-        return final_result
+        return IssueTicketResponseExtractor(response_data).extract()
 
     def fare_master_pricer_travel_board_search(self, low_fare_search: LowFareSearchRequest):
         """
@@ -234,17 +224,15 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.fare_check_rules(message_id, session_id, sequence_number, security_token, line_number)
         response_data = self.__request_wrapper("check fare rules", request_data,
                                                'http://webservices.amadeus.com/FARQNQ_07_1_1A')
-        return response_data
+        return SessionExtractor(response_data).extract()
 
-        def get_fare_rules(self, ticketing_date, rate_class, company_id, origin, destination):
+    def get_fare_rules(self, ticketing_date, rate_class, company_id, origin, destination):
 
-            request_data = self.xml_builder.get_fare_rules(ticketing_date, rate_class, company_id, origin, destination)
-            response_data = self.__request_wrapper("get fare rules", request_data,
-                                                   'http://webservices.amadeus.com/FARRNQ_10_1_1A')
+        request_data = self.xml_builder.get_fare_rules(ticketing_date, rate_class, company_id, origin, destination)
+        response_data = self.__request_wrapper("get fare rules", request_data,
+                                               'http://webservices.amadeus.com/FARRNQ_10_1_1A')
 
-            response_data = SessionExtractor(response_data).extract()
-
-        return response_data
+        return SessionExtractor(response_data).extract()
 
     def sell_from_recommandation(self, itineraries: List[Itinerary]):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
@@ -386,7 +374,7 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.issue_combined(session_info, passengers, segments, retrieve_pnr)
         response_data = self.__request_wrapper("issue_combined", request_data,
                                                'http://webservices.amadeus.com/TCTMIQ_15_1_1A')
-        return response_data
+        return SessionExtractor(response_data).extract()
 
     def create_tsm(self, token: str, passenger_id: str, tsm_type: str):
         """
@@ -410,7 +398,7 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.create_tsm(session_info, passenger_id, tsm_type)
         response_data = self.__request_wrapper("create tsm", request_data,
                                                'http://webservices.amadeus.com/TMCOCQ_07_3_1A')
-        return response_data
+        return SessionExtractor(response_data).extract()
 
     def void_tickets(self, token: str, ticket_numbers: List[str]):
         """

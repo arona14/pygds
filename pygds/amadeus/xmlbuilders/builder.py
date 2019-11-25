@@ -407,6 +407,55 @@ class AmadeusXMLBuilder:
                 </soapenv:Envelope>
                 """
 
+    def get_fare_rules(self, ticketing_date, rate_class, company_id, origin, destination):
+
+        message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
+        security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
+                                                   created_date_time, True)
+        header = f"""<soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/FARRNQ_10_1_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>"""
+
+        return f"""
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                    {header}
+                    <soapenv:Body>    
+                    <Fare_GetFareRules>
+                        <msgType>
+                            <messageFunctionDetails>
+                                <messageFunction>FRN</messageFunction>
+                            </messageFunctionDetails>
+                        </msgType>
+                        <pricingTickInfo>
+                            <productDateTimeDetails>
+                                <ticketingDate>{ticketing_date}</ticketingDate>
+                            </productDateTimeDetails>
+                        </pricingTickInfo>
+                        <flightQualification>
+                            <additionalFareDetails>
+                                <rateClass>{rate_class}</rateClass>
+                            </additionalFareDetails>
+                        </flightQualification>
+                        <transportInformation>
+                            <transportService>
+                                <companyIdentification>
+                                    <marketingCompany>{company_id}</marketingCompany>
+                                </companyIdentification>
+                            </transportService>
+                        </transportInformation>
+                        <tripDescription>
+                            <origDest>
+                                <origin>{origin}</origin>
+                                <destination>{destination}</destination>
+                            </origDest>
+                        </tripDescription>
+                    </Fare_GetFareRules>
+                </soapenv:Body>
+            </soapenv:Envelope> """
+
     def sell_from_recomendation(self, itineraries):
 
         message_id, nonce, created_date_time, digested_password = self.ensure_security_parameters(None, None, None)
