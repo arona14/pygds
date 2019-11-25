@@ -138,8 +138,7 @@ class AmadeusXMLBuilder:
         """
 
     def end_session(self, message_id, session_id, sequence_number, security_token):
-        œ"""
-
+        """
         """
         header = self.generate_header("VLSSOQ_04_1_1A", message_id, session_id, sequence_number, security_token, True)
         return f"""

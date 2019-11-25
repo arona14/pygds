@@ -5,6 +5,7 @@ from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
 from pygds.core.file_logger import FileLogger
+from pygds.core import generate_token
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
@@ -65,6 +66,7 @@ class AmadeusClient(BaseClient):
             raise ClientError(sess, status, "Client Error")
         return response.content
 
+    # @deprecation.deprecated(deprecated_in="0.0.9", details="The sesssion is create during executing the task")
     def open_session(self):
         """
             This method starts a new session to Amadeus.
@@ -97,12 +99,13 @@ class AmadeusClient(BaseClient):
         return response
 
     def decode_token(self, token: str):
-        pass
-        # payload = generate_token.decode_token(token)
-        # if not payload:
-        #     return None, None, None
-
-        # return payload["message_id"], payload["session_id"], payload["sequence_number"], payload["securite_token"]
+        payload = generate_token.decode_token(token)
+        if not payload:
+            return None, None, None, None
+        else:
+            values = payload["info_token"]
+            return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
+            # return payload["message_id"], payload["session_id"], payload["sequence_number"], payload["securite_token"]
 
     def get_reservation(self, record_locator: str, token: str = None, close_trx: bool = False):
         """
@@ -131,8 +134,7 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("add_form_of_payment", request_data,
                                                'http://webservices.amadeus.com/TFOPCQ_15_4_1A')
 
-        fop_response = FoPExtractor(response_data).extract()
-        return fop_response
+        return FoPExtractor(response_data).extract()
 
     def pnr_add_multi_element(self, token, option_code, segment_name):
         """
