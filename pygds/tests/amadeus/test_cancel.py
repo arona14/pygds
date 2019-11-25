@@ -21,22 +21,24 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "MMRECS"
+    pnr = "QIQ2JD"
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
-        message_id = None
-        res_reservation = client.get_reservation(pnr, message_id, False)
+        token = None
+        res_reservation = client.get_reservation(pnr, token, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)
         message_id = session_info.message_id
-        cancel_response = client.cancel_pnr(message_id, False)
-        session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
-        log.info(cancel_response)
-        if session_info.session_ended is False:
-            client.end_session(message_id)
+        print("** The message_id ***")
+        print(message_id)
+        # cancel_response = client.cancel_pnr(message_id, False)
+        # session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
+        # log.info(cancel_response)
+        # if session_info.session_ended is False:
+        #     client.end_session(message_id)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

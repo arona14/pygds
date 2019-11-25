@@ -192,14 +192,14 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def get_reservation_builder(self, pnr_number: str, message_id: str = None, session_id: str = None,
+    def get_reservation_builder(self, pnr_number: str, token: str = None, session_id: str = None,
                                 sequence_number: str = None, security_token: str = None, close_trx: bool = False):
         """
             Create XML request body for SOAP Operation getReservation. We use a given endpoint
         """
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
-             {self.generate_header("PNRRET_17_1_1A", message_id, session_id, sequence_number, security_token,
+             {self.generate_header("PNRRET_17_1_1A", token, session_id, sequence_number, security_token,
                                    close_trx)}
             <soapenv:Body>
                 <PNR_Retrieve>

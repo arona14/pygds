@@ -132,7 +132,7 @@ class AppErrorExtractor(BaseResponseExtractor):
                 error_message = from_json_safe(app_error_data, "stl18:Message")
                 error_category = from_json_safe(app_error_data, "stl18:Severity")
                 return ApplicationError(error_code, error_category, None, error_message)
-        description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
+                description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
 
 
