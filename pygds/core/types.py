@@ -180,8 +180,8 @@ class Itinerary(BasicDataObject):
             Adds a new segment to an itinerary
         """
         self.segments.append(segment)
-        # self.origin = self.segments[0].origin if len(self.segments) else None
-        # self.destination = self.segments[len(self.segments) - 1].destination if self.segments else None
+        self.origin = self.segments[0].origin if len(self.segments) else None
+        self.destination = self.segments[len(self.segments) - 1].destination if self.segments else None
         return self
 
     def to_data(self):

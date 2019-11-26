@@ -11,6 +11,7 @@ import logging
 from pygds.core.ticket import TicketReply
 from pygds.core.types import CancelPnrReply
 from pygds.core.types import VoidTicket, UpdatePassenger
+from pygds.core import generate_token
 
 
 class BaseResponseExtractor(object):
@@ -168,7 +169,9 @@ class SessionExtractor(BaseResponseExtractor):
             self.tree, "//*[local-name()='SequenceNumber']/text()", "//*[local-name()='SecurityToken']/text()",
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()",
             "//*[local-name()='Session']/@TransactionStatusCode")
-        return SessionInfo(tok, int(seq) if seq else 0, ses, m_id, status != "InSeries")
+        token = generate_token.generate_token(m_id, seq, ses, tok)
+        # return SessionInfo(token, int(seq) if seq else 0, None, None, status != "InSeries")
+        return SessionInfo(token, None, None, None, status != "InSeries")
 
 
 class PriceSearchExtractor(BaseResponseExtractor):

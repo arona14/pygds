@@ -26,8 +26,8 @@ def test():
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
 
     try:
-        message_id = None
-        res_reservation = client.get_reservation(pnr, message_id, False)
+        token = None
+        res_reservation = client.get_reservation(pnr, token, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         if session_info.session_ended is True:
             log.error(" Session is ended after retrieve PNR")

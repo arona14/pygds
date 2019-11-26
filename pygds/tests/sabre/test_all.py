@@ -1,7 +1,7 @@
 """
     This is for testing purposes like a suite.
 """
-import logging
+# import logging
 from pygds.core.security_utils import decode_base64
 from pygds.env_settings import get_setting
 from pygds.sabre.client import SabreClient
