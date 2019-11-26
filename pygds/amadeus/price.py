@@ -8,6 +8,13 @@ class OptionDetail():
         self.passengers = passengers
         self.segments = segments
 
+    def to_data(self):
+        return {
+            "attribute_type": self.attribute_type,
+            "passengers": self.passengers,
+            "segments": self.segments
+        }
+
 
 class TaxValueType(Enum):
     PERCENTAGE = "P"
@@ -33,3 +40,8 @@ class InformativeFareTax:
 class TaxInformation():
     def __init__(self, tax_infos: List[InformativeFareTax]):
         self.tax_infos = tax_infos
+
+    def to_data(self):
+        return {
+            "tax_info": self.tax_infos
+        }

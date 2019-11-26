@@ -28,9 +28,9 @@ class PriceTicket(unittest.TestCase):
         pnr = "Q698UG"
 
         client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
-        message_id = None
+        token = None
         log.info("1. Getting Reservation****************************")
-        res_reservation = client.get_reservation(pnr, message_id, False)
+        res_reservation = client.get_reservation(pnr, token, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         self.assertIsNotNone(res_reservation)
         self.assertIsNotNone(session_info)
@@ -41,12 +41,12 @@ class PriceTicket(unittest.TestCase):
         company_id = res_reservation["pnr_header"].company_id
         self.assertIsNotNone(company_id)
         log.info("2. Pricing PNR ***********************************")
-        message_id = session_info.message_id
+        token = session_info.security_token
         passengers = [p.name_id for p in res_reservation["passengers"]]
         self.assertNotIsInstance(passengers, tuple)
         segments = [s.segment_reference for s in res_reservation["itineraries"]]
         price_request = PriceRequest(passengers, segments, "PUB")
-        res_price = client.fare_price_pnr_with_booking_class(message_id, price_request)
+        res_price = client.fare_price_pnr_with_booking_class(token, price_request)
         session_info, res_price = (res_price.session_info, res_price.payload)
         log.info(session_info)
         log.info(" **** Priceinfo ******")

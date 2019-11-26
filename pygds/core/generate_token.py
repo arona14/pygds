@@ -25,6 +25,10 @@ def generate_token(message_id: str, sequence: int, session_id: str, security_tok
 
 
 def decode_token(token: str):
+    print("*** Test Token***")
+    print(type(token))
+    if token is None:
+        return None
     try:
         return jwt.decode(token, TOKEN_KEY, ALGORITHM_TYPE)
     except jwt.ExpiredSignatureError:

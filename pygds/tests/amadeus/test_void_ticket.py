@@ -31,7 +31,7 @@ def test():
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         if session_info.session_ended is True:
             log.error(" Session is ended after retrieve PNR")
-        message_id = session_info.message_id
+        token = session_info.security_token
         ticket_number = [t.time for t in res_reservation["ticketing_info"]]
         list_ticket_number = []
         list_ticket = []
@@ -44,10 +44,10 @@ def test():
                 t_number2 = ticket_number[2]
                 list_ticket_number.append(t_number1 + t_number2)
 
-        void_response = client.void_tickets(message_id, [list_ticket_number[0]] if len(list_ticket_number) else [])
+        void_response = client.void_tickets(token, [list_ticket_number[0]] if len(list_ticket_number) else [])
         session_info, void_response = (void_response.session_info, void_response.payload)
         if session_info.session_ended is False:
-            client.close_session(message_id)
+            client.close_session(token)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

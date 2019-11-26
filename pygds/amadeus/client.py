@@ -110,7 +110,7 @@ class AmadeusClient(BaseClient):
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         self.log.info(f"Retreive pnr '{record_locator}'.")
-        request_data = self.xml_builder.get_reservation_builder(record_locator, message_id, message_id, session_id, sequence_number, security_token, close_trx)
+        request_data = self.xml_builder.get_reservation_builder(record_locator, message_id, session_id, sequence_number, security_token, close_trx)
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
