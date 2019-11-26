@@ -442,7 +442,7 @@ class SabreClient(BaseClient):
         return gds_response
 
     def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
-                             fare_type: str = None):
+                             fare_type: str = None, pseudo_city_code: str = None):
         """
         The Revalidate Itinerary (revalidate_itinerary) is used to recheck the availability and price of a
         specific itinerary option without booking the itinerary.
@@ -456,7 +456,7 @@ class SabreClient(BaseClient):
             [GdsResponse] -- [revalidate itinerary response]
         """
         token = self.get_rest_token()
-        revalidate_request = self.json_builder.revalidate_build(self.office_id, itineraries, passengers, fare_type)
+        revalidate_request = self.json_builder.revalidate_build(pseudo_city_code, itineraries, passengers, fare_type)
         revalidate_response = self._rest_request_wrapper(revalidate_request, "/v4.3.0/shop/flights/revalidate", token)
         gds_response = RevalidateItineraryExtractor(revalidate_response.content).extract()
         return gds_response
