@@ -98,6 +98,11 @@ def generate_travel_flight_info(travel_flight_info: TravelFlightInfo):
 
 
 def generate_itinerary(itineraries: List[RequestedSegment]):
+    """
+    This method is to generate a list of itinerary
+    :param  itineraries: the  itineraries
+    :return list of itineraries
+    """
 
     content = ""
     for itinerary in itineraries:

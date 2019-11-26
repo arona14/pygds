@@ -170,7 +170,6 @@ class SessionExtractor(BaseResponseExtractor):
             "//*[local-name()='SessionId']/text()", "//*[local-name()='RelatesTo']/text()",
             "//*[local-name()='Session']/@TransactionStatusCode")
         token = generate_token.generate_token(m_id, seq, ses, tok)
-        # return SessionInfo(token, int(seq) if seq else 0, None, None, status != "InSeries")
         return SessionInfo(token, None, None, None, status != "InSeries")
 
 
@@ -650,14 +649,14 @@ class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
 
 
 class FoPExtractor(BaseResponseExtractor):
+    """
+    This class is to extract the form of payment
+
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "FOP_CreateFormOfPaymentReply")
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "FOP_CreateFormOfPaymentReply")
         fop_list = ensure_list(from_json_safe(payload, "fopDescription"))
-
-        # mop_description = from_json_safe(payload, "fopDescription", "mopDescription")
-        # return FormOfPayment(fop_reference, mop_description)
-
         return {"list_fop": fop_list}

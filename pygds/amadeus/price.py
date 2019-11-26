@@ -2,55 +2,11 @@ from enum import Enum
 from typing import List
 
 
-class PricingOption:
-    pass
-
-
-class OptionDetail(PricingOption):
+class OptionDetail():
     def __init__(self, attribute_type, passengers: List[str], segments: List[str]):
         self.attribute_type = attribute_type
         self.passengers = passengers
         self.segments = segments
-
-
-class CarrierInformation(PricingOption):
-    pass
-
-
-class Currency(PricingOption):
-    pass
-
-
-class MonetaryInformation(PricingOption):
-    pass
-
-
-class DateInformation(PricingOption):
-    pass
-
-
-class FrequentFlyerInformation(PricingOption):
-    pass
-
-
-class FormOfPaymentInformation(PricingOption):
-    pass
-
-
-class CouponInformation(PricingOption):
-    pass
-
-
-class LocationInformation(PricingOption):
-    pass
-
-
-class PenDisInformation(PricingOption):
-    pass
-
-
-class PaxSegTstReference(PricingOption):
-    pass
 
 
 class TaxValueType(Enum):
@@ -74,6 +30,6 @@ class InformativeFareTax:
         }
 
 
-class TaxInformation(PricingOption):
+class TaxInformation():
     def __init__(self, tax_infos: List[InformativeFareTax]):
         self.tax_infos = tax_infos
