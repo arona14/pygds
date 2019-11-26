@@ -22,13 +22,14 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "Q698UG"
+    pnr = "R6YYBM"
     client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
 
     try:
         token = None
         res_reservation = client.get_reservation(pnr, token, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        print(res_reservation)
         if session_info.session_ended is True:
             log.error(" Session is ended after retrieve PNR")
         token = session_info.security_token

@@ -2,9 +2,9 @@ import jwt
 import datetime
 from pygds.env_settings import get_setting
 
-TOKEN_KEY = get_setting("SECRET_KEY")
-ALGORITHM_TYPE = get_setting("ALGORYTHM_TOKEN")
-DURATION = get_setting("DURATION_TOKEN")
+TOKEN_KEY = get_setting("JWT_SECRET_KEY")
+ALGORITHM_TYPE = get_setting("JWT_ALGORYTHM_TOKEN")
+DURATION = get_setting("JWT_DURATION_TOKEN")
 
 
 def generate_token(message_id: str, sequence: int, session_id: str, security_token: str):
