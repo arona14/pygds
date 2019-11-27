@@ -580,7 +580,6 @@ class InfoPayment(BasicDataObject):
         self.card_number = card_number
         self.expire_month = expire_month
         self.expire_year = expire_year
-        # self.fop_type = fop_type
 
     def to_data(self):
         return {
@@ -588,6 +587,7 @@ class InfoPayment(BasicDataObject):
             "card_number": self.card_number,
             "expire_month": self.expire_month,
             "expire_year": self.expire_year
+
         }
 
 
