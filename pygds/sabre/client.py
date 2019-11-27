@@ -448,10 +448,10 @@ class SabreClient(BaseClient):
         specific itinerary option without booking the itinerary.
         The solution re-validates if the itinerary option is valid for purchase.
         Arguments:
-            message_id{str} : the message identifier
             itineraries{list}: list itineraries
             passengers{list}: list passengers
             fare_type{str}: fare type(Net or Pub)
+            pseudo_city_code{str} : The PCC
         Returns:
             [GdsResponse] -- [revalidate itinerary response]
         """
