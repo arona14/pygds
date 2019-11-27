@@ -169,11 +169,13 @@ class Itinerary(BasicDataObject):
 
     def __init__(self, itinerary_type: str = None, elapsed_time: str = None):
 
-        self.segments: List[FlightSegment] = []
+        self.segments = []
         self.itinerary_type = itinerary_type
         self.elapsed_time = elapsed_time
+        self.origin = None
+        self.destination = None
 
-    def addSegment(self, segment: FlightSegment):
+    def addSegment(self, segment):
         """
             Adds a new segment to an itinerary
         """
@@ -182,23 +184,6 @@ class Itinerary(BasicDataObject):
 
     def to_data(self):
         return {
-            # "code": self.code,
-            # "resBookDesigCode": self.res_book_desig_code,
-            # "departureAirport": self.departure_airport,
-            # "arrivalAirport": self.arrival_airport,
-            # "operatingAirlineCode": self.operating_airline_code,
-            # "marketingAirlineCode": self.marketing_airline_code,
-            # "equipmentType": self.equipment_type,
-            # "eticket": self.eticket,
-            # "departureDateTime": self.departure_date_time,
-            # "arrivalDateTime": self.arrival_date_time,
-            # "flightNumber": self.flight_number,
-            # "classOfService": self.class_of_service,
-            # "numberInParty": self.number_in_party,
-            # "onBoundConnection": self.out_bound_connection,
-            # "inBoundConnection": self.in_bound_connection,
-            # "airlineRefId": self.air_line_ref_id,
-            # "elapsedTime": self.elapsed_time,
             "segments": [s.to_data() for s in self.segments],
             "itineraryType": self.itinerary_type,
             "elapsed_time": self.elapsed_time
@@ -215,28 +200,6 @@ class PassengerPreferences(BasicDataObject):
 
     def to_data(self):
         return self.prefs
-
-
-class TravellerInfo(BasicDataObject):
-    def to_data(self):
-        pass
-
-    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
-        self.ref_number = ref_number
-        self.first_name = first_name
-        self.surname = surname
-        self.last_name = last_name
-        self.date_of_birth = date_of_birth
-        self.pax_type = pax_type
-
-
-class ReservationInfo(BasicDataObject):
-
-    def __init__(self, traveller_info: List[TravellerInfo] = None, number_tel: str = None, number_tel_agent: str = None, email: str = None):
-        self.traveller_info = traveller_info
-        self.number_tel = number_tel
-        self.number_tel_agent = number_tel_agent
-        self.email = email
 
 
 class Passenger(BasicDataObject):
@@ -612,20 +575,19 @@ class Remarks(BasicDataObject):
 
 
 class InfoPayment(BasicDataObject):
-    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int, fop_type: str):
+    def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int):
         self.card_type = card_type
         self.card_number = card_number
         self.expire_month = expire_month
         self.expire_year = expire_year
-        self.fop_type = fop_type
 
     def to_data(self):
         return {
             "card_type": self.card_type,
             "card_number": self.card_number,
             "expire_month": self.expire_month,
-            "expire_year": self.expire_year,
-            "fop_type": self.fop_type
+            "expire_year": self.expire_year
+
         }
 
 
@@ -695,27 +657,64 @@ class Reservation(BasicDataObject):
 
 class SellItinerary(BasicDataObject):
 
-    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
+    def __init__(self, origin, destination, departure_date, company, flight_number, booking_class, quantity, airline=None, arrival_date=None, departure_time=None, arrival_time=None, flight_indicator=None):
+
         self.origin = origin
         self.destination = destination
         self.departure_date = departure_date
+        self.arrival_date = arrival_date
+        self.departure_time = departure_time
+        self.arrival_time = arrival_time
         self.company = company
         self.flight_number = flight_number
         self.booking_class = booking_class
         self.quantity = quantity
+        self.airline = airline
+        self.flight_indicator = flight_indicator
+
+
+class Infant(BasicDataObject):
+
+    def __init__(self, name, last_name, birthday):
+        self.name = name
+        self.last_name = last_name
+        self.birthday = birthday
 
 
 class TravellerInfo(BasicDataObject):
-    def to_data(self):
-        pass
-
-    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+    def __init__(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type, ssr_content, email=None, tel=None, infant: Infant = None):
         self.ref_number = ref_number
         self.first_name = first_name
         self.surname = surname
         self.last_name = last_name
         self.date_of_birth = date_of_birth
         self.pax_type = pax_type
+        self.ssr_content = ssr_content
+        self.email = email
+        self.tel = tel
+        self.infant = infant
+
+        def to_data(self):
+            return {
+                "ref_number": self.ref_number,
+                "first_name": self.first_name,
+                "surname": self.surname,
+                "last_name": self.last_name,
+                "date_of_birth": self.date_of_birth,
+                "pax_type": self.pax_type,
+                "ssr_content": self.ssr_content,
+                "email": self.email,
+                "tel": self.tel
+            }
+
+
+class ReservationInfo(BasicDataObject):
+
+    def __init__(self, traveller_info: List[TravellerInfo] = None, number_tel: str = None, number_tel_agent: str = None, email: str = None):
+        self.traveller_info = traveller_info
+        self.number_tel = number_tel  # Check if sabre will use it
+        self.number_tel_agent = number_tel_agent
+        self.email = email
 
 
 class TravellerNumbering(BasicDataObject):
@@ -1175,3 +1174,117 @@ class FlightSeatMap:
         self.arrival_date: str = None
         self.class_of_service: str = None
         self.currency_code: str = None
+
+
+class CancelPnrReply(BasicDataObject):
+    def __init__(self, pnr: str, company_id: str = None):
+        self.pnr = pnr
+        self.company_id = company_id
+
+    def to_data(self):
+        return {
+            "pnr": self.pnr,
+            "cancelled": self.pnr is not None,
+            "company_id": self.company_id
+        }
+
+
+class VoidTicket(BasicDataObject):
+    def __init__(self, response_type: str, status_code: str = None, ticket_number: str = None):
+        self.response_type = response_type
+        self.status_code = status_code
+        self.ticket_number = ticket_number
+
+    def to_data(self):
+        return {
+            "response_type": self.response_type,
+            "status_code": self.status_code,
+            "voited": self.status_code == "O",
+            "ticket_number": self.ticket_number
+        }
+
+
+class UpdatePassenger(BasicDataObject):
+
+    def __init__(self, surname: str, first_name: str, pax_type: str, status: str, qualifier: str, number: int):
+        self.surname = surname
+        self.first_name = first_name
+        self.pax_type = pax_type
+        self.status = status
+        self.qualifier = qualifier
+        self.number = number
+
+    def to_data(self):
+        return {
+            "surname": self.surname,
+            "first_name": self.first_name,
+            "pax_type": self.pax_type,
+            "status": self.status,
+            "qualifier": self.qualifier,
+            "number": self.number
+        }
+
+
+class FareOptions(BasicDataObject):
+    """List of fare type
+
+    Arguments:
+        BasicDataObject {[type]} -- [description]
+    """
+
+    def __init__(self, price_type_et=True, price_type_rp=True, price_type_ru=True, price_type_tac=True, price_type_cuc=True, currency_eur=True, currency_usd=False):
+        # currency_eur and currency_usd should not have the same value. if they have the same value,
+        # it will be managed by the following follow
+        self.price_type_et = price_type_et
+        self.price_type_rp = price_type_rp
+        self.price_type_ru = price_type_ru
+        self.price_type_tac = price_type_tac
+        self.price_type_cuc = price_type_cuc
+        self.currency_eur = currency_eur
+        self.currency_usd = currency_usd
+
+
+class Recommandation:
+    def __init__(self, segments: List[SellItinerary], traveller_numbering: TravellerNumbering, fare_options: FareOptions):
+        self.segments = segments if segments else []
+        self.traveller_numbering = traveller_numbering
+        self.fare_options = fare_options
+
+
+class TravelFlightInfo(BasicDataObject):
+    """Detail or information of flight
+        Cabin
+        # C Business
+        # F First, supersonic
+        # M Economic Standard
+        # W Economic Premium
+        # Y Economic
+
+        Rules on cabin
+        # C Connecting service
+        # D Direct service
+        # MC Major cabin
+        # MD Mandatory cabin for all segments
+        # N Non - stop service
+        # OV Overnight not allowed
+        # RC Recommended cabin to be used at least one segment
+
+        # Rules on airline
+        # F Preferred
+        # M Mandatory
+        # N Night class
+        # O Force Full airline recommendation
+        # P Polled
+        # R Fare Family Repartition
+
+    """
+
+    def __init__(self, cabin: str = "Y",
+                                    rules_cabin: str = "RC",
+                                    airlines: List[str] = ["DL", "AF"],
+                                    rules_airline: str = "F"):
+
+        self.rules_cabin = rules_cabin
+        self.cabin = cabin
+        self.rules_airline = rules_airline
+        self.airlines = airlines

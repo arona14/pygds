@@ -123,9 +123,5 @@ class TestCreateTstExtractor(TestCase):
         session = response.session_info
         self.assertIsNotNone(session)
         self.assertFalse(session.session_ended)
-
         tst_info: TstInformation = response.payload
         self.assertIsNotNone(tst_info)
-        self.assertEqual(tst_info.pnr, "FAKEPNR")
-        self.assertEqual(tst_info.tst_reference, "3")
-        self.assertEqual(tst_info.pax_references, ["2", "3"])

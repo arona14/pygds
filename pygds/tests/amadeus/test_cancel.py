@@ -1,16 +1,16 @@
-"""
-    This is for testing purposes like a suite.
-"""
+# """
+#     This is for testing purposes like a suite.
+# """
 
-from pygds import log_handler
-from pygds.env_settings import get_setting
 import os
 from pygds.amadeus.client import AmadeusClient
 from pygds.amadeus.errors import ClientError, ServerError
+from pygds.env_settings import get_setting
+from pygds import log_handler
 
 
 def test():
-    # This is not a test file. It is just used to locally test a flow
+    """ A suite of tests """
     endpoint = get_setting("AMADEUS_ENDPOINT_URL")
     username = get_setting("AMADEUS_USERNAME")
     password = get_setting("AMADEUS_PASSWORD")
@@ -21,11 +21,22 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
+    pnr = "QIQ2JD"
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
+
     try:
-        message_id = None
-        client.get_or_create_session_details(message_id)
+        token = None
+        res_reservation = client.get_reservation(pnr, token, False)
+        session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
+        log.info(session_info)
+        log.info(res_reservation)
+        token = session_info.security_token
+        cancel_response = client.cancel_pnr(token, False)
+        session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
+        log.info(cancel_response)
+        if session_info.session_ended is False:
+            client.close_session(token)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

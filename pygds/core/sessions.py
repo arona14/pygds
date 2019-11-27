@@ -96,29 +96,29 @@ class MemorySessionHolder(SessionHolder):
         """
         if session_info is None:
             raise ValueError("The session info cannot be null")
-        self.current_sessions[session_info.message_id] = session_info
+        self.current_sessions[session_info.security_token] = session_info
 
-    def get_session_info(self, message_id: str) -> SessionInfo:
+    def get_session_info(self, token: str) -> SessionInfo:
         """
             Get the session object by giving the message id
         """
         try:
-            return self.current_sessions[message_id]
+            return self.current_sessions[token]
         except KeyError:
             return None
 
-    def remove_session(self, message_id: str) -> None:
+    def remove_session(self, token: str) -> None:
         """
             Remove a session by giving it's message id
         """
-        if self.contains_session(message_id):
-            del self.current_sessions[message_id]
+        if self.contains_session(token):
+            del self.current_sessions[token]
 
-    def contains_session(self, message_id: str) -> bool:
+    def contains_session(self, token: str) -> bool:
         """
             Tells weather the holder contains a message id or not.
         """
-        return self.current_sessions.__contains__(message_id)
+        return self.current_sessions.__contains__(token)
 
     def get_all_sessions(self) -> List[SessionInfo]:
         return list(self.current_sessions.values())
@@ -128,11 +128,11 @@ class FileSystemSessionHolder(SessionHolder):
     def save_session(self, session_info: SessionInfo) -> None:
         raise NotImplementedError
 
-    def get_session_info(self, message_id: str) -> SessionInfo:
+    def get_session_info(self, token: str) -> SessionInfo:
         raise NotImplementedError
 
-    def remove_session(self, message_id: str) -> None:
+    def remove_session(self, token: str) -> None:
         raise NotImplementedError
 
-    def contains_session(self, message_id: str) -> bool:
+    def contains_session(self, token: str) -> bool:
         raise NotImplementedError

@@ -13,10 +13,34 @@ class PriceInfoBasic:
         return str(self.to_dict())
 
 
+class InformativePricing(PriceInfoBasic):
+    def __init__(self, conversion_rate_details: str, indicators: str, number_of_pax: str, pricing_indicators: str,
+                 fare_amount: str, segment_information: dict, fare_component_details: dict):
+        self.conversion_rate_details = conversion_rate_details,
+        self.indicators = indicators,
+        self.number_of_pax = number_of_pax,
+        self.pricing_indicators = pricing_indicators,
+        self.fare_amount = fare_amount,
+        self.segment_information = segment_information,
+        self.fare_component_details = fare_component_details
+
+    def to_dict(self):
+        return {
+            "conversion_rate_details": self.conversion_rate_details,
+            "indicators": self.indicators,
+            "number_of_pax": self.number_of_pax,
+            "pricing_indicators": self.pricing_indicators,
+            "fare_amount": self.fare_amount,
+            "segment_information": self.segment_information,
+            "fare_component_details": self.fare_component_details
+        }
+
+
 class PriceRequest(PriceInfoBasic):
     """
     A class to hold information about request of price PNR with booking class
     """
+
     def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB"):
         self.passengers = passengers
         self.segments = segments

@@ -1,5 +1,5 @@
 from typing import List
-from pygds.core.types import TravellerNumbering, BasicDataObject
+from pygds.core.types import TravellerNumbering, BasicDataObject, FareOptions, TravelFlightInfo
 
 
 class RequestFilter:
@@ -60,7 +60,13 @@ class OriginDestination_:
 
 
 class RequestedSegment:
-    def __init__(self, sequence: int = 1, origin: str = None, destination: str = None, departure_date: str = None, arrival_date: str = None, total_seats: str = None):
+    """ airportCityQualifier
+        A Airport
+        C City
+    """
+
+    def __init__(self, sequence: int = 1, origin: str = None, destination: str = None, departure_date: str = None, arrival_date: str = None, total_seats: str = None, airport_city_qualifier: str = "A"):
+        self.airport_city_qualifier = airport_city_qualifier
         self.sequence = sequence
         self.origin = origin
         self.destination = destination
@@ -103,8 +109,12 @@ class LowFareSearchRequest(BasicDataObject):
     def __init__(self, itineraries: List[RequestedSegment], csv: str = "Y", pcc: str = None,
                  travelingNumber: TravellerNumberingInfo = None, alternatePcc: list = [],
                  requestType: str = "", preferredAirlines: list = [], baggagePref: bool = False,
-                 excludeBasicEconomy: bool = True, maxConnection: int = 3):
+                 excludeBasicEconomy: bool = True, maxConnection: int = 3, number_of_unit_rc: str = 50,
+                 fare_options: FareOptions = None, travel_flight_info: TravelFlightInfo = None):
 
+        self.travel_flight_info = travel_flight_info
+        self.fare_options = fare_options
+        self.number_of_unit_rc = number_of_unit_rc
         self.itineraries: List[RequestedSegment] = itineraries
         self.csv = csv  # the class of service/the cabine class
         self.pcc = pcc
