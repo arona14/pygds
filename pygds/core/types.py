@@ -184,23 +184,6 @@ class Itinerary(BasicDataObject):
 
     def to_data(self):
         return {
-            # "code": self.code,
-            # "resBookDesigCode": self.res_book_desig_code,
-            # "departureAirport": self.departure_airport,
-            # "arrivalAirport": self.arrival_airport,
-            # "operatingAirlineCode": self.operating_airline_code,
-            # "marketingAirlineCode": self.marketing_airline_code,
-            # "equipmentType": self.equipment_type,
-            # "eticket": self.eticket,
-            # "departureDateTime": self.departure_date_time,
-            # "arrivalDateTime": self.arrival_date_time,
-            # "flightNumber": self.flight_number,
-            # "classOfService": self.class_of_service,
-            # "numberInParty": self.number_in_party,
-            # "onBoundConnection": self.out_bound_connection,
-            # "inBoundConnection": self.in_bound_connection,
-            # "airlineRefId": self.air_line_ref_id,
-            # "elapsedTime": self.elapsed_time,
             "segments": [s.to_data() for s in self.segments],
             "itineraryType": self.itinerary_type,
             "elapsed_time": self.elapsed_time

@@ -246,6 +246,9 @@ class PriceSearchExtractor(BaseResponseExtractor):
 
 
 class AddMultiElementExtractor(BaseResponseExtractor):
+    """
+    class to extract passengers and segments information from XML Response
+    """
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="PNR_Reply")
         self.parsed = True
@@ -289,6 +292,9 @@ class AddMultiElementExtractor(BaseResponseExtractor):
 
 
 class PricePNRExtractor(BaseResponseExtractor):
+    """
+    this class is to extract price information from XML Response
+    """
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="Fare_PricePNRWithBookingClassReply")
         self.parsed = True
@@ -514,6 +520,9 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
 
 
 class IssueTicketResponseExtractor(BaseResponseExtractor):
+    """
+    this class is to extract issue ticket information  from XML Response
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "DocIssuance_IssueTicketReply")
 
@@ -535,6 +544,9 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
 
 
 class VoidTicketExtractor(BaseResponseExtractor):
+    """
+    This class is to extract void ticket information from XML Response
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "Ticket_CancelDocumentReply")
 
@@ -547,18 +559,23 @@ class VoidTicketExtractor(BaseResponseExtractor):
 
 
 class CancelPnrExtractor(BaseResponseExtractor):
+    """
+    This class is to extract cancel pnr information form XML Response
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        print(payload)
         pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
         company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
         return CancelPnrReply(pnr, company_id)
 
 
 class UpdatePassengers(BaseResponseExtractor):
+    """
+    This class is to extract update passengers information from XML Response
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
@@ -587,6 +604,9 @@ def extract_amount(amount_info, type_key="fareDataQualifier", amount_key="fareAm
 
 
 class QueueExtractor(BaseResponseExtractor):
+    """
+    This class is to extract queue information from XML Response
+    """
 
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "Queue_PlacePNRReply")
@@ -598,6 +618,9 @@ class QueueExtractor(BaseResponseExtractor):
 
 
 class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
+    """
+    This class is to extract informative pricing without pnr information from XML Response
+    """
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "Fare_InformativePricingWithoutPNRReply")
 

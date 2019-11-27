@@ -130,7 +130,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
             type_passenger = from_json_safe(psngr, "type") or "ADT"
-            passsenger = Passenger(ref, firstname, lastname, date_of_bt, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
+            passsenger = Passenger(ref, "", firstname, lastname, date_of_bt, gender, surname, forename, "", "",
+                                   number_in_party, "", type_passenger, "", {})
             passengers_list.append(passsenger)
         return passengers_list
 
