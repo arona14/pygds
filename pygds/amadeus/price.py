@@ -3,7 +3,10 @@ from typing import List
 
 
 class OptionDetail():
-    def __init__(self, attribute_type, passengers: List[str], segments: List[str]):
+    """
+    Hold information of option details
+    """
+    def __init__(self, attribute_type: str, passengers: List[str], segments: List[str]):
         self.attribute_type = attribute_type
         self.passengers = passengers
         self.segments = segments
@@ -17,11 +20,17 @@ class OptionDetail():
 
 
 class TaxValueType(Enum):
+    """
+    Hold infomation of tax value type
+    """
     PERCENTAGE = "P"
     AMOUNT = "A"
 
 
 class InformativeFareTax:
+    """
+    Hold information of Informative Fare Tax
+    """
     def __init__(self, country, nature, rate, value_type: TaxValueType):
         self.country = country
         self.nature = nature
@@ -38,6 +47,9 @@ class InformativeFareTax:
 
 
 class TaxInformation():
+    """
+    Hold information of Tax
+    """
     def __init__(self, tax_infos: List[InformativeFareTax]):
         self.tax_infos = tax_infos
 

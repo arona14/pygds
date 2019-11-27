@@ -130,7 +130,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
             type_passenger = from_json_safe(psngr, "type") or "ADT"
-            passsenger = Passenger(ref, firstname, lastname, date_of_bt, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
+            passsenger = Passenger(ref, "", firstname, lastname, date_of_bt, gender, surname, forename, "", "",
+                                   number_in_party, "", type_passenger, "", {})
             passengers_list.append(passsenger)
         return passengers_list
 
@@ -219,7 +220,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _remark(self):
         list_remark = []
         sequence = 1
-        for data_element in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
+        for data_element in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             data_remarks = from_json_safe(data_element, "miscellaneousRemarks")
             if data_remarks and from_json_safe(data_remarks, "remarks", "type") == "RM":
                 rems = from_json_safe(data_remarks, "remarks")
