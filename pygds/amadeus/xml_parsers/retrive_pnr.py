@@ -101,7 +101,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            ssr = from_json_safe(data, "serviceRequest", "ssr")
+
+            ssr = from_json_safe(data, "elementManagementData")
+            print("**** SSR ******")
+            print(ssr)
             if ssr and from_json_safe(ssr, "type") == "DOCS":
                 free_text = from_json_safe(ssr, "freeText")
                 if free_text:
@@ -116,6 +119,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         passengers_list = []
         date_of_bt = self._date_of_birth()
         gender = self._gender()
+        print("**** Gender ****")
+        print(gender)
         for traveller in ensure_list(from_json_safe(self.payload, "travellerInfo")):
             ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
             data = from_json_safe(traveller, "passengerData")
