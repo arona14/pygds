@@ -1,10 +1,18 @@
-from pygds.core.types import FareOptions, TravelFlightInfo
+from pygds.core.types import FareOptions, TravelFlightInfo, TravellerNumbering
 from pygds.core.request import RequestedSegment
 from typing import List
 
 
-def generate_number_of_unit(traveling_number, number_of_unit_rc):
+def generate_number_of_unit(traveling_number: TravellerNumbering, number_of_unit_rc: int):
+    """Generate xml content for number of unit in low fare search
 
+    Arguments:
+        traveling_number {TravellerNumbering} -- [Information of passenger]
+        number_of_unit_rc {int} -- [number of passenger]
+
+    Returns:
+        [str] -- [xml content]
+    """
     return f"""<numberOfUnit>
                 <unitNumberDetail>
                     <numberOfUnits>{traveling_number.total_seats()}</numberOfUnits>
@@ -18,57 +26,83 @@ def generate_number_of_unit(traveling_number, number_of_unit_rc):
         """
 
 
-def generate_pax_reference(traveling_number):
+def get_pax_info(pax_type: str, number_passenger: int):
+    """[summary]
 
+    Arguments:
+        pax_type {str} -- [passenger type]
+        number_passenger {int} -- [number in party]
+
+    Returns:
+        [str] -- [xml content]
+    """
+    return f"""
+            <paxReference>
+                <ptc>{pax_type}</ptc>
+                {"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(number_passenger)])}
+            </paxReference>
+        """
+
+
+def generate_pax_reference(traveling_number: TravellerNumbering):
+    """[generate xml content for passenger low fare search]
+
+    Arguments:
+        traveling_number {TravellerNumbering} -- [information passenger]
+
+    Returns:
+        [str] -- [content xml]
+    """
     content = ""
     if traveling_number.adults:
-        content += f"""
-            <paxReference>
-                <ptc>ADT</ptc>
-                {"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(traveling_number.adults)])}
-            </paxReference>
-        """
+        content += get_pax_info("ADT", traveling_number.adults)
 
     if traveling_number.children:
-        content += f"""
-            <paxReference>
-                <ptc>CH</ptc>
-                {"".join([f"<traveller><ref>{traveling_number.adults + index +1}</ref></traveller>" for index in range(traveling_number.children)])}
-            </paxReference>
-        """
+        content += get_pax_info("CH", traveling_number.children)
 
     if traveling_number.infants:
-        content += f"""
-            <paxReference>
-                <ptc>INF</ptc>
-                {"".join([f"<traveller><ref>{index +1}</ref><infantIndicator>1</infantIndicator></traveller>" for index in range(traveling_number.infants)])}
-            </paxReference>
-        """
+        content += get_pax_info("INF", traveling_number.infants)
 
     return content
 
 
-def generate_fare_options(fare_options: FareOptions):
+def get_pricing_type(type: str):
+    """generate pricing type
 
+    Arguments:
+        type {str} -- [pricing type]
+    """
+    return f"<priceType>{type}</priceType>"
+
+
+def generate_fare_options(fare_options: FareOptions):
+    """Generate xml content for fare type in low fare search
+
+    Arguments:
+        fare_options {FareOptions} -- [Content fare type option]
+
+    Returns:
+        [str] -- [content xml]
+    """
     pricing_tick_info = ""
 
     if fare_options.price_type_rp:
-        pricing_tick_info += "<priceType>RP</priceType>"
+        pricing_tick_info += get_pricing_type("RP")
     if fare_options.price_type_ru:
-        pricing_tick_info += "<priceType>RU</priceType>"
+        pricing_tick_info += get_pricing_type("RU")
     if fare_options.price_type_et:
-        pricing_tick_info += "<priceType>ET</priceType>"
+        pricing_tick_info += get_pricing_type("ET")
     if fare_options.price_type_tac:
-        pricing_tick_info += "<priceType>TAC</priceType>"
+        pricing_tick_info += get_pricing_type("TAC")
     if fare_options.price_type_cuc:
-        pricing_tick_info += "<priceType>CUC</priceType>"
+        pricing_tick_info += get_pricing_type("CUC")
 
     conversion_rate = ""
 
     if fare_options.currency_usd:
-        conversion_rate += "<currency>USD</currency>"
+        conversion_rate += "USD"
     else:
-        conversion_rate += "<currency>EUR</currency>"
+        conversion_rate += "EUR"
 
     return f"""<fareOptions>
                         <pricingTickInfo>
@@ -78,13 +112,21 @@ def generate_fare_options(fare_options: FareOptions):
                         </pricingTickInfo>
                         <conversionRate>
                             <conversionRateDetail>
-                                {conversion_rate}
+                                <currency>{conversion_rate}</currency>
                             </conversionRateDetail>
                         </conversionRate>
                     </fareOptions>"""
 
 
 def generate_travel_flight_info(travel_flight_info: TravelFlightInfo):
+    """Generate xml content for flight info in low fare search
+
+    Arguments:
+        travel_flight_info {TravelFlightInfo} -- [Information flight]
+
+    Returns:
+        [str] -- [xml content]
+    """
     return f"""<travelFlightInfo>
                 <cabinId>
                     <cabinQualifier>{travel_flight_info.rules_cabin}</cabinQualifier>
