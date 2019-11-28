@@ -76,8 +76,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             resbook_designator = data["travelProduct"]["productDetails"]["classOfService"]
             departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
             arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
-            departure = FlightPointDetails("", departure_airport, departure_terminal)
-            arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
+            departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
+            arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
             marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
             operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
             segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
@@ -102,9 +102,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
 
-            ssr = from_json_safe(data, "serviceRequest")
-            print("**** SSR ******")
-            print(ssr)
+            ssr = from_json_safe(data, "serviceRequest", "ssr")
             if ssr and from_json_safe(ssr, "type") == "DOCS":
                 free_text = from_json_safe(ssr, "freeText")
                 if free_text:
@@ -118,8 +116,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _passengers(self):
         passengers_list = []
         gender = self._gender()
-        print("**** Gender ****")
-        print(gender)
         for traveller in ensure_list(from_json_safe(self.payload, "travellerInfo")):
             ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
             data = from_json_safe(traveller, "passengerData")

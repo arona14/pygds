@@ -30,7 +30,7 @@ class PriceTicket(unittest.TestCase):
         client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
         token = None
         log.info("1. Getting Reservation****************************")
-        res_reservation = client.get_reservation(pnr, token, False)
+        res_reservation = client.get_reservation(token, pnr, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         self.assertIsNotNone(res_reservation)
         self.assertIsNotNone(session_info)

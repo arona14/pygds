@@ -39,7 +39,7 @@ class FlightPointDetails(BasicDataObject):
 
     def to_data(self):
         return {
-            "airport_code": self.airport,
+            "airport": self.airport,
             "departure_date_time": self.departure_date_time,
             "terminal": self.terminal
         }
@@ -135,9 +135,11 @@ class FlightSegment(BasicDataObject):
         return {
             "sequence": self.sequence,
             "res_book_desig_code": self.res_book_desig_code,
-            "departure": self.departure_airport.to_data() if self.departure_airport else None,
-            "arrival": self.arrival_airport.to_data() if self.arrival_airport else None,
-            "airline_ref_id": self.airline,
+            "departure_date_time": self.departure_date_time,
+            "departure_airport": self.departure_airport.to_data() if self.departure_airport else None,
+            "arrival_date_time": self.arrival_date_time,
+            "arrival_airport": self.arrival_airport.to_data() if self.arrival_airport else None,
+            "airline": self.airline,
             "marketing": self.marketing.to_data() if self.marketing else None,
             "operating": self.operating.to_data() if self.operating else None,
             "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier else None,
