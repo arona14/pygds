@@ -23,7 +23,7 @@ def get_data_from_json(json_data, *paths):
     return value
 
 
-def get_data_from_json_safe(json_data, *paths, default=None):
+dateOfBirthdef get_data_from_json_safe(json_data, *paths, default=None):
     """
     Like `get_data_from_json` but without raising `KeyError`
     :param json_data: The json data

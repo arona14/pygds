@@ -102,7 +102,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
 
-            ssr = from_json_safe(data, "elementManagementData")
+            ssr = from_json_safe(data, "serviceRequest")
             print("**** SSR ******")
             print(ssr)
             if ssr and from_json_safe(ssr, "type") == "DOCS":
@@ -117,7 +117,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _passengers(self):
         passengers_list = []
-        date_of_bt = self._date_of_birth()
         gender = self._gender()
         print("**** Gender ****")
         print(gender)
@@ -127,15 +126,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             traveller_info = from_json_safe(data, "travellerInformation")
             psngr = from_json_safe(traveller_info, "passenger")
             travel = from_json_safe(traveller_info, "traveller")
-            # date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            # date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
+            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
+            date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
             firstname = from_json_safe(psngr, "firstName")
             lastname = from_json_safe(travel, "surname")
             surname = from_json_safe(travel, "surname")
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
             type_passenger = from_json_safe(psngr, "type") or "ADT"
-            passsenger = Passenger(ref, "", firstname, lastname, date_of_bt, gender, surname, forename, "", "",
+            passsenger = Passenger(ref, "", firstname, lastname, date_of_birth, gender, surname, forename, "", "",
                                    number_in_party, "", type_passenger, "", {})
             passengers_list.append(passsenger)
         return passengers_list
