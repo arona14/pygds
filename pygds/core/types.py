@@ -591,6 +591,41 @@ class InfoPayment(BasicDataObject):
         }
 
 
+class GetReservation(BasicDataObject):
+
+    def __init__(self, passengers: Passenger, itineraries: FlightSegment, form_of_payments: FormOfPayment,
+                 price_quotes: PriceQuote, ticketing_info: TicketingInfo, remarks: Remarks,
+                 pnr_info: PnrInfo, dk_number: str, tst_data: dict, pnr_header: PnrHeader,
+                 other_information: str):
+
+        self.passengers = passengers
+        self.itineraries = itineraries
+        self.form_of_payments = form_of_payments
+        self.price_quotes = price_quotes
+        self.ticketing_info = ticketing_info
+        self.remarks = remarks
+        self.pnr_info = pnr_info
+        self.dk_number = dk_number
+        self.tst_data = tst_data
+        self.pnr_header = pnr_header
+        self.other_information = other_information
+
+    def to_data(self):
+        return {
+            "passengers": self.passengers,
+            "itineraries": self.itineraries,
+            "form_of_payments": self.form_of_payments,
+            "price_quotes": self.price_quotes,
+            "ticketing_info": self.ticketing_info,
+            "remarks": self.remarks,
+            "pnr_info": self.pnr_info,
+            "dk_number": self.dk_number,
+            "tst_data": self.tst_data,
+            "pnr_header": self.pnr_header,
+            "other_information": self.other_information
+        }
+
+
 class FareElement(BasicDataObject):
 
     def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):
