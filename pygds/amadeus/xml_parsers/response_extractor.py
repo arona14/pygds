@@ -12,6 +12,7 @@ from pygds.core.ticket import TicketReply
 from pygds.core.types import CancelPnrReply
 from pygds.core.types import VoidTicket, UpdatePassenger
 from pygds.core import generate_token
+from pygds.core.form_of_payment import FormOfPayment
 from pygds.core.price import InformativePricing
 
 
@@ -84,27 +85,21 @@ class InformativeBestPricingWithoutPNRExtractor(BaseResponseExtractor):
         indicators = from_json_safe(
             payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
         )
-
         number_of_pax = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "numberOfPax"
         )
-
         pricing_indicators = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "pricingIndicators"
         )
-
         fare_amount = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareAmount"
         )
-
         segment_information = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "segmentLevelGroup", "segmentInformation"
         )
-
         fare_component_details = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareComponentDetailsGroup"
         )
-
         return InformativePricing(conversion_rate_details, indicators, number_of_pax, pricing_indicators,
                                   fare_amount, segment_information, fare_component_details)
 
@@ -646,27 +641,21 @@ class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
         indicators = from_json_safe(
             payload, "mainGroup", "generalIndicatorsGroup", "generalIndicators", "priceTicketDetails", "indicators"
         )
-
         number_of_pax = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "numberOfPax"
         )
-
         pricing_indicators = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "pricingIndicators"
         )
-
         fare_amount = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareAmount"
         )
-
         segment_information = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "segmentLevelGroup", "segmentInformation"
         )
-
         fare_component_details = from_json_safe(
             payload, "mainGroup", "pricingGroupLevelGroup", "fareInfoGroup", "fareComponentDetailsGroup"
         )
-
         return InformativePricing(conversion_rate_details, indicators, number_of_pax, pricing_indicators,
                                   fare_amount, segment_information, fare_component_details)
 
@@ -683,4 +672,8 @@ class FoPExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "FOP_CreateFormOfPaymentReply")
         fop_list = ensure_list(from_json_safe(payload, "fopDescription"))
-        return {"list_fop": fop_list}
+        all_fop = []
+        for fop in fop_list:
+            ref = from_json_safe(fop, "fopReference")
+            all_fop.append(FormOfPayment(ref, fop))
+        return all_fop
