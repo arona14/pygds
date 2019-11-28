@@ -19,7 +19,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.payload = payload
-        # print(payload)
         return {
             'passengers': self._passengers(),
             'itineraries': self._segments(),
@@ -30,10 +29,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'pnr_info': self._pnr_info(),
             'dk_number': self._dk_number(),
             'tst_data': self._tst_data(),
-            'pnr_header': self.pnr_header()
+            'pnr_header': self._pnr_header(),
+            'other_information': self._ot_info()
         }
 
-    def pnr_header(self):
+    def _ot_info(self):
+        ot_informations = from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")
+        return ot_informations
+
+    def _pnr_header(self):
         pnr_header = from_json_safe(self.payload, "pnrHeader", "reservationInfo", "reservation")
         if isinstance(pnr_header, dict):
             controle_number = from_json_safe(pnr_header, "controlNumber")
@@ -89,7 +93,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 free_text = from_json_safe(ssr, "freeText")
                 if free_text:
                     check_date_of_birth = re.split("[, /,////?//:; ]+", free_text)  # to transform the caracter chaine in liste_object
-                    print(check_date_of_birth)
                     if len(check_date_of_birth) >= 2:
                         check_date_of_birth = check_date_of_birth[1]
                         data_date_of_birth = reformat_date(check_date_of_birth, "%d%b%y", "%Y-%m-%d")
@@ -126,11 +129,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             surname = from_json_safe(travel, "surname")
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
-            if psngr and from_json_safe(psngr, "type"):
-                type_passenger = from_json_safe(psngr, "type")
-            else:
-                type_passenger = "ADT"
-            passsenger = Passenger(ref, firstname, lastname, date_of_bt, gender, surname, forename, "", "", number_in_party, "", type_passenger, "")
+            type_passenger = from_json_safe(psngr, "type") or "ADT"
+            passsenger = Passenger(ref, "", firstname, lastname, date_of_bt, gender, surname, forename, "", "",
+                                   number_in_party, "", type_passenger, "", {})
             passengers_list.append(passsenger)
         return passengers_list
 
@@ -189,8 +190,12 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return qualifier, number
 
     def _ticketing_info(self):
+        """
+        This method is to return a list of ticket
+        return list_ticket
+        """
         list_ticket = []
-        for ticket in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for ticket in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
             if "ticketElement" in ticket:
                 data_element = from_json_safe(ticket, "ticketElement")
                 ticket_element = from_json_safe(data_element, "ticket")
@@ -209,16 +214,14 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 if segment_name == "FA":
                     long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
                     ticketing = TicketingInfo("", "", "", "", "", "", long_free_text, qualifier, number)
-                    print(ticketing)
                     list_ticket.append(ticketing)
         return list_ticket
 
     def _remark(self):
         list_remark = []
         sequence = 1
-        for data_element in ensure_list(from_json_safe(self.payload["dataElementsMaster"], "dataElementsIndiv")):
+        for data_element in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
             data_remarks = from_json_safe(data_element, "miscellaneousRemarks")
-            # print(data_remarks)
             if data_remarks and from_json_safe(data_remarks, "remarks", "type") == "RM":
                 rems = from_json_safe(data_remarks, "remarks")
                 remark_type = from_json_safe(rems, "type")
@@ -230,14 +233,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return list_remark
 
     def _tst_data(self):
-        tst_data = from_json_safe(self.payload, "tstData")
-        if tst_data:
+        tst_datas = from_json_safe(self.payload, "tstData")
+        tst_results = []
+        for tst_data in ensure_list(tst_datas):
             fare_elements = self._tst_fare_elements(tst_data)
             total_taxes, taxes = self._tst_taxes(tst_data)
             pax_refs, segment_refs = self._tst_pax_segs_refs(tst_data)
             base_fare, total_fare, amounts = self._tst_amounts(tst_data)
 
-            return {
+            tst = {
                 "passenger_references": pax_refs,
                 "base_fare": base_fare.to_dict() if base_fare else None,
                 "total_fare": total_fare.to_dict() if total_fare else None,
@@ -247,6 +251,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 "taxes": [ta.to_dict() for ta in taxes],
                 "fare_elements": [fe.to_dict() for fe in fare_elements]
             }
+            tst_results.append(tst)
+        return tst_results
 
     def _tst_pax_segs_refs(self, tst_data):
         pax_refs = []

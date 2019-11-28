@@ -1,11 +1,11 @@
 import setuptools
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = "\n".join(fh.readlines())
 
 setuptools.setup(
     name='pygds-sessionless',
-    version='0.0.20',
+    version='0.0.21',
     description="A python package to make it easy interacting with gds."
                 "In this version the system won't hold any session",
     long_description=long_description,
