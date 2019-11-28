@@ -98,6 +98,6 @@
     - feat add passengers info to seat map request [mbayane1990](mbaye@ctsfares.com)
     - feat add name assoc id (traveler id) to display pnr extractor [mbayane1990](mbaye@ctsfares.com)
 
-# 0.0.21 (2019-11-28)
+# 0.0.22 (2019-11-28)
 - Sabre:
     - adding pseudo city code in parameter revalidate[virginieSy](virginie@ctsfares.com)
