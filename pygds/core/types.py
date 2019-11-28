@@ -595,7 +595,7 @@ class InfoPayment(BasicDataObject):
 
 
 class GetReservation(BasicDataObject):
-
+    # TODO this class use Reservation by returning an object reservation instead of returning a dictionnary
     def __init__(self, passengers: Passenger, itineraries: FlightSegment, form_of_payments: FormOfPayment,
                  price_quotes: PriceQuote, ticketing_info: TicketingInfo, remarks: Remarks,
                  pnr_info: PnrInfo, dk_number: str, tst_data: dict, pnr_header: PnrHeader,

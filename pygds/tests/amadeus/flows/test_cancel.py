@@ -31,12 +31,12 @@ def test():
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)
-        # token = session_info.security_token
-        # cancel_response = client.cancel_pnr(token, False)
-        # session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
-        # log.info(cancel_response)
-        # if session_info.session_ended is False:
-        #     client.close_session(token)
+        token = session_info.security_token
+        cancel_response = client.cancel_pnr(token, False)
+        session_info, cancel_response = (cancel_response.session_info, cancel_response.payload)
+        log.info(cancel_response)
+        if session_info.session_ended is False:
+            client.close_session(token)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
         log.error(f"session: {ce.session_info}")

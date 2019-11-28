@@ -139,7 +139,6 @@ try:
     res_save = client.pnr_add_multi_element(token, 11, "AIR").payload
     log.info(res_save)
     pnr = res_save["pnr_header"].controle_number
-    print(pnr)
     # res_ticket = client.issue_ticket_with_retrieve(message_id, tst_refs, [])
     res_ticket = client.issue_combined(token, passengers=pax_refs, segments=[], retrieve_pnr=False)
     # session_info, res_ticket = (res_ticket.session_info, res_ticket.payload)
