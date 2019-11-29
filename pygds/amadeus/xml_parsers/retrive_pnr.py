@@ -159,8 +159,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         for tst in self._tst_data():
             list_passengers = []
             pq_number = 0
-            status = ""
-            fare_type = ""
+            status = None
+            fare_type = None
             base_fare = tst["base_fare"]
             if base_fare:
                 base_fare_value = float(base_fare["amount"])
@@ -190,8 +190,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 tax_fare_cc = total_fare["currency"]
 
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
-            validating_carrier = ""
-            commission_percentage = ""
+            validating_carrier = None
+            commission_percentage = None
             for passenger in tst["passenger_references"]:
                 passenger = FormatPassengersInPQ(passenger["name_id"], passenger["type"]).to_data()
                 list_passengers.append(passenger)
@@ -242,7 +242,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
                 qualifier, name_id = self._extract_qualifier_number(list_reference)
                 passenger = self.get_passenger(name_id)
-                full_name = passenger.first_name + " " + passenger.last_name if passenger else ""
+                full_name = passenger.first_name + " " + passenger.last_name if passenger else None
                 full_ticket_number = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
                 index = from_json_safe(ticket, "elementManagementData", "reference", "number")
                 ticket_number = self.get_ticket_number(full_ticket_number)
