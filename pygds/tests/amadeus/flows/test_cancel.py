@@ -21,13 +21,13 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "QIQ2JD"
+    pnr = "O95J97"  # QIQ2JD RGW46M
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
         token = None
-        res_reservation = client.get_reservation(pnr, token, False)
+        res_reservation = client.get_reservation(token, pnr, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         log.info(session_info)
         log.info(res_reservation)

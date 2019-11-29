@@ -39,7 +39,7 @@ class FlightPointDetails(BasicDataObject):
 
     def to_data(self):
         return {
-            "airport_code": self.airport,
+            "airport": self.airport,
             "departure_date_time": self.departure_date_time,
             "terminal": self.terminal
         }
@@ -135,9 +135,11 @@ class FlightSegment(BasicDataObject):
         return {
             "sequence": self.sequence,
             "res_book_desig_code": self.res_book_desig_code,
-            "departure": self.departure_airport.to_data() if self.departure_airport else None,
-            "arrival": self.arrival_airport.to_data() if self.arrival_airport else None,
-            "airline_ref_id": self.airline,
+            "departure_date_time": self.departure_date_time,
+            "departure_airport": self.departure_airport.to_data() if self.departure_airport else None,
+            "arrival_date_time": self.arrival_date_time,
+            "arrival_airport": self.arrival_airport.to_data() if self.arrival_airport else None,
+            "airline": self.airline,
             "marketing": self.marketing.to_data() if self.marketing else None,
             "operating": self.operating.to_data() if self.operating else None,
             "disclosure_carrier": self.disclosure_carrier.to_data() if self.disclosure_carrier else None,
@@ -157,6 +159,7 @@ class FlightSegment(BasicDataObject):
             "number_in_party": self.number_in_party,
             "code": self.code,
             "action_code": self.action_code,
+            "status": self.status
 
         }
 
@@ -588,6 +591,41 @@ class InfoPayment(BasicDataObject):
             "expire_month": self.expire_month,
             "expire_year": self.expire_year
 
+        }
+
+
+class GetReservation(BasicDataObject):
+    # TODO this class use Reservation by returning an object reservation instead of returning a dictionnary
+    def __init__(self, passengers: Passenger, itineraries: FlightSegment, form_of_payments: FormOfPayment,
+                 price_quotes: PriceQuote, ticketing_info: TicketingInfo, remarks: Remarks,
+                 pnr_info: PnrInfo, dk_number: str, tst_data: dict, pnr_header: PnrHeader,
+                 other_information: str):
+
+        self.passengers = passengers
+        self.itineraries = itineraries
+        self.form_of_payments = form_of_payments
+        self.price_quotes = price_quotes
+        self.ticketing_info = ticketing_info
+        self.remarks = remarks
+        self.pnr_info = pnr_info
+        self.dk_number = dk_number
+        self.tst_data = tst_data
+        self.pnr_header = pnr_header
+        self.other_information = other_information
+
+    def to_data(self):
+        return {
+            "passengers": self.passengers,
+            "itineraries": self.itineraries,
+            "form_of_payments": self.form_of_payments,
+            "price_quotes": self.price_quotes,
+            "ticketing_info": self.ticketing_info,
+            "remarks": self.remarks,
+            "pnr_info": self.pnr_info,
+            "dk_number": self.dk_number,
+            "tst_data": self.tst_data,
+            "pnr_header": self.pnr_header,
+            "other_information": self.other_information
         }
 
 

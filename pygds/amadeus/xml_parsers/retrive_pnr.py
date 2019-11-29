@@ -76,8 +76,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             resbook_designator = data["travelProduct"]["productDetails"]["classOfService"]
             departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
             arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
-            departure = FlightPointDetails("", departure_airport, departure_terminal)
-            arrival = FlightPointDetails("", arrival_airport, arrival_terminal)
+            departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
+            arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
             marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
             operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
             segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
@@ -101,6 +101,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+
             ssr = from_json_safe(data, "serviceRequest", "ssr")
             if ssr and from_json_safe(ssr, "type") == "DOCS":
                 free_text = from_json_safe(ssr, "freeText")
@@ -114,7 +115,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _passengers(self):
         passengers_list = []
-        date_of_bt = self._date_of_birth()
         gender = self._gender()
         for traveller in ensure_list(from_json_safe(self.payload, "travellerInfo")):
             ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
@@ -122,15 +122,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             traveller_info = from_json_safe(data, "travellerInformation")
             psngr = from_json_safe(traveller_info, "passenger")
             travel = from_json_safe(traveller_info, "traveller")
-            # date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            # date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
+            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
+            date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
             firstname = from_json_safe(psngr, "firstName")
             lastname = from_json_safe(travel, "surname")
             surname = from_json_safe(travel, "surname")
             forename = from_json_safe(psngr, "firstName")
             number_in_party = from_json_safe(travel, "quantity")
             type_passenger = from_json_safe(psngr, "type") or "ADT"
-            passsenger = Passenger(ref, "", firstname, lastname, date_of_bt, gender, surname, forename, "", "",
+            passsenger = Passenger(ref, "", firstname, lastname, date_of_birth, gender, surname, forename, "", "",
                                    number_in_party, "", type_passenger, "", {})
             passengers_list.append(passsenger)
         return passengers_list

@@ -27,7 +27,7 @@ def test():
 
     try:
         token = None
-        res_reservation = client.get_reservation(pnr, token, False)
+        res_reservation = client.get_reservation(token, pnr, False)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
         print(res_reservation)
         if session_info.session_ended is True:

@@ -30,7 +30,7 @@ try:
 
     itineraries = [
         RequestedSegment(
-            sequence=1, origin="CDG", destination="DTW", departure_date="271119", arrival_date="081219", total_seats=None, airport_city_qualifier="C")]
+            sequence=1, origin="CDG", destination="DTW", departure_date="291119", arrival_date="081219", total_seats=None, airport_city_qualifier="C")]
 
     traveller = TravellerNumbering(1, 1, 1)
 
@@ -98,7 +98,7 @@ try:
         2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", inf_am
     ),
         TravellerInfo(
-        3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
+        3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
     )]
 
     reservation_info = ReservationInfo(traveller_infos, number_tel_agent="776656986")
