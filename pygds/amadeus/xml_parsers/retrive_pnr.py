@@ -4,7 +4,7 @@ from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
-    TicketingInfo, FormOfPayment, PnrInfo, PnrHeader
+    FormOfPayment, PnrInfo, PnrHeader, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
@@ -28,9 +28,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'remarks': self._remark(),
             'pnr_info': self._pnr_info(),
             'dk_number': self._dk_number(),
-            'tst_data': self._tst_data(),
-            'pnr_header': self._pnr_header(),
-            'other_information': self._ot_info()
         }
 
     def _ot_info(self):
@@ -157,17 +154,52 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return dk_list
 
     def _price_quotes(self):
-        price_quotes = []
-        pqs = from_json_safe(self.payload, "pricingRecordGroup", "productPricingQuotationRecord")
-        pqs = ensure_list(pqs)
-        for data in pqs:
-            price_quotes_details = {
-                'pricing_record_id': data['pricingRecordId'],
-                'passenger_tattoos': data['passengerTattoos'],
-                'total_fare': data['documentDetailsGroup']['totalFare']
-            }
-            price_quotes.append(price_quotes_details)
-        return price_quotes
+        list_price_quote = []
+
+        for tst in self._tst_data():
+            list_passengers = []
+            pq_number = 0
+            status = ""
+            fare_type = ""
+            base_fare = tst["base_fare"]
+            if base_fare:
+                base_fare_value = float(base_fare["amount"])
+                base_fare_cc = base_fare["currency"]
+            else:
+                base_fare_value = None
+                base_fare_cc = None
+
+            base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
+
+            total_fare = tst["total_fare"]
+            if total_fare:
+                total_fare_value = float(total_fare["amount"])
+                total_fare_cc = total_fare["currency"]
+            else:
+                total_fare_value = float(total_fare["amount"])
+                total_fare_cc = total_fare["currency"]
+
+            total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
+
+            total_taxes = tst["total_taxes"]
+            if total_taxes:
+                tax_fare_value = float(total_taxes["amount"])
+                tax_fare_cc = total_taxes["currency"]
+            else:
+                tax_fare_value = float(total_fare["amount"])
+                tax_fare_cc = total_fare["currency"]
+
+            tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
+            validating_carrier = ""
+            commission_percentage = ""
+            for passenger in tst["passenger_references"]:
+                passenger = FormatPassengersInPQ(passenger["name_id"], passenger["type"]).to_data()
+                list_passengers.append(passenger)
+
+            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
+            list_price_quote.append(price_quote_data)
+
+        return list_price_quote
 
     def _form_of_payments(self):
         list_form_payment = []
@@ -195,27 +227,45 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return list_ticket
         """
         list_ticket = []
+        agency_location = None
+        time_stamp = None
+        transaction_indicator = None
         for ticket in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
             if "ticketElement" in ticket:
                 data_element = from_json_safe(ticket, "ticketElement")
                 ticket_element = from_json_safe(data_element, "ticket")
-                element_id = from_json_safe(ticket_element, "officeId")
-                date = from_json_safe(ticket_element, "date")
-                comment = from_json_safe(ticket_element, "indicator")
-                code = from_json_safe(ticket_element, "airlineCode")
-                ticketing = TicketingInfo(element_id, "", "", code, "", date, "", "", comment)
+                agency_location = from_json_safe(ticket_element, "officeId")
+                time_stamp = from_json_safe(ticket_element, "date")
+                transaction_indicator = from_json_safe(ticket_element, "indicator")
+
+            if from_json_safe(ticket, "elementManagementData", "segmentName") in ["FA"]:
+                list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
+                qualifier, name_id = self._extract_qualifier_number(list_reference)
+                passenger = self.get_passenger(name_id)
+                full_name = passenger.first_name + " " + passenger.last_name if passenger else ""
+                full_ticket_number = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
+                index = from_json_safe(ticket, "elementManagementData", "reference", "number")
+                ticket_number = self.get_ticket_number(full_ticket_number)
+                ticketing = TicketingInfo_(
+                    ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, "", full_name
+                )
                 list_ticket.append(ticketing)
-            elif "otherDataFreetext" in ticket:
-                if "elementManagementData" in ticket:
-                    segment_name = from_json_safe(ticket["elementManagementData"], "segmentName")
-                if "referenceForDataElement" in ticket:
-                    list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
-                    qualifier, number = self._extract_qualifier_number(list_reference)
-                if segment_name == "FA":
-                    long_free_text = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
-                    ticketing = TicketingInfo("", "", "", "", "", "", long_free_text, qualifier, number)
-                    list_ticket.append(ticketing)
         return list_ticket
+
+    def get_passenger(self, passenger_id):
+        for passenger in self._passengers():
+            if passenger.name_id == passenger_id:
+                return passenger
+
+        return None
+
+    def get_ticket_number(self, ticket_number: str):
+        if not ticket_number:
+            return ""
+        # PAX 080-7421982399/ETLO/USD126.39/29NOV19/DTW1S210B/23612444
+        split_value = ticket_number.split(" ")
+        value = split_value[len(split_value) - 1]
+        return value.split("/")[0]
 
     def _remark(self):
         list_remark = []
@@ -257,13 +307,20 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _tst_pax_segs_refs(self, tst_data):
         pax_refs = []
         segment_refs = []
+        passengers = self._passengers()
+
         for ref in ensure_list(from_json_safe(tst_data, "referenceForTstData", "reference")):
             qualifier, reference = (from_json_safe(ref, "qualifier"), from_json_safe(ref, "number"))
             if qualifier == "PT":
                 pax_refs.append(reference)
             elif qualifier == "ST":
                 segment_refs.append(reference)
-        return pax_refs, segment_refs
+
+        return [
+            {
+                "name_id": passenger.name_id,
+                "type": passenger.passenger_type
+            } for passenger in passengers if passenger.name_id in pax_refs], segment_refs
 
     def _tst_fare_elements(self, tst_data):
         fare_elements = []
