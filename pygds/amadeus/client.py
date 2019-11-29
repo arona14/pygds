@@ -104,7 +104,7 @@ class AmadeusClient(BaseClient):
             values = payload["info_token"]
             return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
 
-    def get_reservation(self, token: str, record_locator: str, close_trx: bool = False):
+    def get_reservation(self, token: str, close_trx: bool, record_locator: str):
         """
             Return the reservation data from PNR.
         """
