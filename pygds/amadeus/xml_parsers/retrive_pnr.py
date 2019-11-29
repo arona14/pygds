@@ -176,8 +176,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 total_fare_value = float(total_fare["amount"])
                 total_fare_cc = total_fare["currency"]
             else:
-                total_fare_value = float(total_fare["amount"])
-                total_fare_cc = total_fare["currency"]
+                total_fare_value = None
+                total_fare_cc = None
 
             total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
 
@@ -186,8 +186,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 tax_fare_value = float(total_taxes["amount"])
                 tax_fare_cc = total_taxes["currency"]
             else:
-                tax_fare_value = float(total_fare["amount"])
-                tax_fare_cc = total_fare["currency"]
+                tax_fare_value = None
+                tax_fare_cc = None
 
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
             validating_carrier = None
