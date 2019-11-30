@@ -78,13 +78,39 @@ class TestGetPnrResponseExtractor(TestCase):
         ticketing_infos = self.extractor.get_ticketing_info
         self.assertEqual(ticketing_infos, [])
 
+    def test_get_form_of_payment(self):
+        extractor = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        form_of_payments = extractor.get_form_of_payments[0] if extractor.get_form_of_payments else None
+        if form_of_payments:
+            self.assertEqual(form_of_payments.card_number, 'PAX CCVIXXXXXXXXXXXX4305/1020*CVX/AAPS1OK')
+            self.assertEqual(form_of_payments.card_type, 'PAX CC')
+            self.assertEqual(form_of_payments.expire_month, None)
+            self.assertEqual(form_of_payments.expire_year, None)
+
+    def test_get_form_of_payment_bad_request(self):
+        form_of_payments = self.extractor.get_form_of_payments
+        self.assertEqual(form_of_payments, [])
+
+    def test_get_remarks(self):
+        extractor = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        get_remarks = extractor.get_remarks
+        self.assertEqual(get_remarks, [])
+
+    def test_get_remarks_bad_request(self):
+        get_remarks = self.extractor.get_remarks
+        self.assertEqual(get_remarks, [])
+
 
 if __name__ == "__main__":
     test = TestGetPnrResponseExtractor()
     test.setUp()
-    test.test_passengers()
-    test.test_passenger_bad_response()
-    test.test_price_quote()
-    test.test_price_quote_bad_request()
-    test.test_ticketing_info()
-    test.test_ticketing_info_bad_request()
+    # test.test_passengers()
+    # test.test_passenger_bad_response()
+    # test.test_price_quote()
+    # test.test_price_quote_bad_request()
+    # test.test_ticketing_info()
+    # test.test_ticketing_info_bad_request()
+    # test.test_get_form_of_payment()
+    # test.test_get_form_of_payment_bad_request()
+    # test.test_get_remarks()
+    # test.test_get_remarks_bad_request()

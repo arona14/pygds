@@ -4,7 +4,7 @@ from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
-    FormOfPayment, PnrInfo, PnrHeader, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_
+    InfoPayment, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary
 import fnc
 
 
@@ -21,80 +21,74 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _extract(self):
         return {
             'passengers': self.get_all_passengers,
-            'itineraries': self._segments(),
-            'form_of_payments': self._form_of_payments(),
+            'itineraries': self.get_segments,
+            'form_of_payments': self.get_form_of_payments,
             'price_quotes': self.price_quotes,
             'ticketing_info': self.get_ticketing_info,
-            'remarks': self._remark(),
-            'pnr_info': self._pnr_info(),
-            'dk_number': self._dk_number(),
+            'remarks': self.get_remarks,
+            'dk_number': self.get_dk_number
         }
 
-    def _ot_info(self):
-        ot_informations = from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")
-        return ot_informations
+    @property
+    def get_segments(self):
+        all_itineraries = []
+        for itinerary in ensure_list(
+            fnc.get("originDestinationDetails", self.payload, default=[])
+        ):
+            itinerary_object = Itinerary()
+            for segment in ensure_list(
+                fnc.get("itineraryInfo", self.payload, default=[])
+            ):
+                dep_date = fnc.get("travelProduct.product.depDate", segment)
+                dep_time = fnc.get("travelProduct.product.depTime", segment)
+                arr_date = fnc.get("travelProduct.product.arrDate", segment)
+                arr_time = fnc.get("travelProduct.product.arrTime", segment)
 
-    def _pnr_header(self):
-        pnr_header = from_json_safe(self.payload, "pnrHeader", "reservationInfo", "reservation")
-        if isinstance(pnr_header, dict):
-            controle_number = from_json_safe(pnr_header, "controlNumber")
-            company_id = from_json_safe(pnr_header, "companyId")
-            creation_date = from_json_safe(pnr_header, "date")
-            creation_time = from_json_safe(pnr_header, "time")
-            return PnrHeader(controle_number, company_id, creation_date, creation_time)
-        return None
+                departure_date_time = reformat_date(
+                    dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S"
+                ) if dep_date and dep_time else None
+                arrival_date_time = reformat_date(
+                    arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S"
+                ) if arr_date and arr_time else None
 
-    def _segments(self):
-        segments_list = []
-        index = 1
-        for data in ensure_list(from_json_safe(self.payload, "originDestinationDetails", "itineraryInfo")):
-            dep_date = from_json_safe(data, "travelProduct", "product", "depDate")
-            dep_time = from_json_safe(data, "travelProduct", "product", "depTime")
-            arr_date = from_json_safe(data, "travelProduct", "product", "arrDate")
-            arr_time = from_json_safe(data, "travelProduct", "product", "arrTime")
-            departure_airport = from_json_safe(data, "travelProduct", "boardpointDetail", "cityCode")
-            airline_code_marketing = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            airline_code_operat = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            flight_number_airline_mark = from_json_safe(data, "travelProduct", "productDetails", "identification")
-            control_number = from_json_safe(data, "itineraryReservationInfo", "reservation", "controlNumber")
-            flight_number_airline_operat = from_json_safe(data, "travelProduct", "productDetails", "identification")
-            arrival_airport = from_json_safe(data, "travelProduct", "offpointDetail", "cityCode")
-            # company_id = from_json_safe(data, "itineraryReservationInfo", "reservation", "companyId")
-            # quantity = from_json_safe(data, "relatedProduct", "quantity")
-            status = from_json_safe(data, "relatedProduct", "status")
-            if isinstance(status, list):
-                status = status[0]  # we need to recover the first item if status is a list
-            else:
-                status = status
-            segment_reference = from_json_safe(data, "elementManagementItinerary", "reference", "number")
-            departure_date_time = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            equipment_type = data["flightDetail"]["productDetails"]["equipment"]
-            resbook_designator = data["travelProduct"]["productDetails"]["classOfService"]
-            departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
-            arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
-            departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
-            arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
-            marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
-            operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
-            segment_data = FlightSegment(index, resbook_designator, departure_date_time, departure, arrival_date_time, arrival, status, marketing_airline, operating_airline, "", "", "", "", "", "", "", "", "", "", "", "", "", equipment_type, "", "")
-            segment_data.segment_reference = segment_reference
-            index += 1
-            segments_list.append(segment_data)
-        return segments_list
+                departure_airport = fnc.get("travelProduct.boardpointDetail.cityCode", segment)
+                arrival_airport = from_json_safe("travelProduct.offpointDetail.cityCode", segment)
+                flight_number_airline_mark = fnc.get("travelProduct.productDetails.identification", segment)
+                airline_code_marketing = fnc.get("itineraryReservationInfo.reservation.companyId", segment)
+                control_number = fnc.get("itineraryReservationInfo.reservation.controlNumber", segment)
+                airline_code_operat = None
+                flight_number_airline_operat = None
 
-    def _date_of_birth(self):
-        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            ssr = from_json_safe(data, "serviceRequest", "ssr")
-            if ssr and from_json_safe(ssr, "type") == "DOCS":
-                free_text = from_json_safe(ssr, "freeText")
-                if free_text:
-                    check_date_of_birth = re.split("[, /,////?//:; ]+", free_text)  # to transform the caracter chaine in liste_object
-                    if len(check_date_of_birth) >= 2:
-                        check_date_of_birth = check_date_of_birth[1]
-                        data_date_of_birth = reformat_date(check_date_of_birth, "%d%b%y", "%Y-%m-%d")
-                        return data_date_of_birth
-        return None
+                status = fnc.get("relatedProduct.status", segment)
+                if isinstance(status, list):
+                    status = status[0]  # we need to recover the first item if status is a list
+
+                segment_reference = fnc.get("elementManagementItinerary.reference.number", segment)
+                equipment_type = fnc.get("flightDetail.productDetails.equipment", segment)
+                resbook_designator = fnc.get("travelProduct.productDetails.classOfService", segment)
+                departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
+                arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
+
+                departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
+                arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
+
+                marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
+                operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
+
+                segment_data = FlightSegment(
+                    segment_reference,
+                    resbook_designator,
+                    departure_date_time,
+                    departure, arrival_date_time,
+                    arrival, status,
+                    marketing_airline,
+                    operating_airline,
+                    "", "", "", "", "", "", "", "", "", "", "", "", "",
+                    equipment_type, "", "")
+
+                itinerary_object.addSegment(segment_data)
+            all_itineraries.append(itinerary_object)
+        return all_itineraries
 
     def _gender(self):
         for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
@@ -145,26 +139,14 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 all_passengers.append(passsenger)
         return all_passengers
 
-    def _dk_number(self):
-        dk = ""
-        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+    @property
+    def get_dk_number(self):
+        for data in ensure_list(
+            fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])
+        ):
             if "accounting" in data:
-                data_account = from_json_safe(data, "accounting")
-                dk = from_json_safe(data_account, "account", "number")
-        return dk
-
-    def pnr_info(self):
-        dk = self._dk_number()
-        dk_list = []
-        for data in ensure_list(from_json_safe(self.payload, "securityInformation", "secondRpInformation")):
-            agent_signature = from_json_safe(data, "agentSignature")
-            creation_office_id = from_json_safe(data, "creationOfficeId")
-            creation_date = from_json_safe(data, "creationDate")
-            creation_time = from_json_safe(data, "creationTime")
-            creation_date_time = reformat_date(creation_date + creation_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
-            pnr = PnrInfo(dk, agent_signature, creation_office_id, creation_date_time)
-            dk_list.append(pnr)
-        return dk_list
+                return fnc.get("accounting.account.number", data)
+        return None
 
     @property
     def get_price_quotes(self):
@@ -218,16 +200,25 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
         return all_price_quote
 
-    def _form_of_payments(self):
-        list_form_payment = []
-        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            element_management_data = from_json_safe(data, "elementManagementData")
-            if element_management_data["segmentName"] == "FP":
-                other_details = from_json_safe(data, "otherDataFreetext")
-                text = from_json_safe(other_details, "longFreetext")
-                form_payment = FormOfPayment(text)
-                list_form_payment.append(form_payment)
-        return list_form_payment
+    @property
+    def get_form_of_payments(self):
+        all_form_payment = []
+        for data in ensure_list(
+            fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])
+        ):
+            if fnc.get("elementManagementData.segmentName", data) == "FP":
+                card_type = fnc.get("otherDataFreetext.longFreetext", data)
+                if card_type and len(card_type) > 10:
+                    card_number = card_type
+                    card_type = card_type[:2] if "PA" not in card_type[:2] else card_type[:6]
+                expire_month = None
+                expire_year = None
+                form_payment = InfoPayment(card_type=card_type,
+                                           card_number=card_number,
+                                           expire_month=expire_month,
+                                           expire_year=expire_year)
+                all_form_payment.append(form_payment)
+        return all_form_payment
 
     def _extract_qualifier_number(self, list_reference):
         qualifier, number = "", ""
@@ -295,20 +286,20 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         value = split_value[len(split_value) - 1]
         return value.split("/")[0]
 
-    def _remark(self):
-        list_remark = []
-        sequence = 1
-        for data_element in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
-            data_remarks = from_json_safe(data_element, "miscellaneousRemarks")
-            if data_remarks and from_json_safe(data_remarks, "remarks", "type") == "RM":
-                rems = from_json_safe(data_remarks, "remarks")
-                remark_type = from_json_safe(rems, "type")
-                categorie = from_json_safe(rems, "category")
-                text = from_json_safe(rems, "freetext")
-                remarks_object = Remarks(sequence, remark_type, categorie, text)
-                sequence += 1
-                list_remark.append(remarks_object)
-        return list_remark
+    @property
+    def get_remarks(self):
+        all_remark = []
+        for data in ensure_list(
+            fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])
+        ):
+            if fnc.get("elementManagementData.segmentName", data) == "RM":
+                remark_type = fnc.get("miscellaneousRemarks.remarks.type", data)
+                categorie = fnc.get("miscellaneousRemarks.remarks.category", data)
+                text = fnc.get("miscellaneousRemarks.remarks.freetext", data)
+                index = text = fnc.get("elementManagementData.reference.number", data)
+                remarks_object = Remarks(index, remark_type, categorie, text)
+                all_remark.append(remarks_object)
+        return all_remark
 
     def _tst_data(self):
         all_tst = []
