@@ -5,6 +5,7 @@ from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     FormOfPayment, PnrInfo, PnrHeader, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_
+import fnc
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
@@ -15,16 +16,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def __init__(self, xml_content: str):
         super().__init__(xml_content, True, True, "PNR_Reply")
         self.parsed = True
+        self.payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
 
     def _extract(self):
-        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        self.payload = payload
         return {
-            'passengers': self._passengers(),
+            'passengers': self.get_all_passengers,
             'itineraries': self._segments(),
             'form_of_payments': self._form_of_payments(),
-            'price_quotes': self._price_quotes(),
-            'ticketing_info': self._ticketing_info(),
+            'price_quotes': self.price_quotes,
+            'ticketing_info': self.get_ticketing_info,
             'remarks': self._remark(),
             'pnr_info': self._pnr_info(),
             'dk_number': self._dk_number(),
@@ -110,27 +110,40 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                             return check_gender
         return None
 
-    def _passengers(self):
-        passengers_list = []
-        gender = self._gender()
-        for traveller in ensure_list(from_json_safe(self.payload, "travellerInfo")):
-            ref = from_json_safe(traveller, "elementManagementPassenger", "reference", "number")
-            data = from_json_safe(traveller, "passengerData")
-            traveller_info = from_json_safe(data, "travellerInformation")
-            psngr = from_json_safe(traveller_info, "passenger")
-            travel = from_json_safe(traveller_info, "traveller")
-            date_of_birth_tag = from_json_safe(data, "dateOfBirth", "dateAndTimeDetails", "date")
-            date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
-            firstname = from_json_safe(psngr, "firstName")
-            lastname = from_json_safe(travel, "surname")
-            surname = from_json_safe(travel, "surname")
-            forename = from_json_safe(psngr, "firstName")
-            number_in_party = from_json_safe(travel, "quantity")
-            type_passenger = from_json_safe(psngr, "type") or "ADT"
-            passsenger = Passenger(ref, "", firstname, lastname, date_of_birth, gender, surname, forename, "", "",
-                                   number_in_party, "", type_passenger, "", {})
-            passengers_list.append(passsenger)
-        return passengers_list
+    @property
+    def get_all_passengers(self):
+        all_passengers = []
+
+        for traveller in ensure_list(
+            fnc.get("travellerInfo", self.payload, default=[])
+        ):
+            reference = fnc.get("elementManagementPassenger.reference.number", traveller)
+            all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
+
+            for index, passenger in enumerate(fnc.get(
+                "enhancedPassengerData", traveller, default=[]
+            )):
+                date_of_birth = fnc.get(
+                    "dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger
+                )
+                surname = fnc.get(
+                    "enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
+                given_name = fnc.get(
+                    "enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
+                passenger_type = fnc.get(
+                    "enhancedTravellerInformation.travellerNameInfo.type", passenger
+                )
+                firstname = fnc.get(
+                    "travellerInformation.passenger.firstName", all_passenger_data[index] if len(all_passenger_data) > index else {}
+                )
+                number_in_party = fnc.get(
+                    "travellerInformation.traveller.quantity", all_passenger_data[index] if len(all_passenger_data) > index else {}
+                )
+
+                passsenger = Passenger(reference, "", firstname, None, date_of_birth, None, surname, given_name, "", "",
+                                       number_in_party, "", passenger_type, "", {})
+                all_passengers.append(passsenger)
+        return all_passengers
 
     def _dk_number(self):
         dk = ""
@@ -140,7 +153,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 dk = from_json_safe(data_account, "account", "number")
         return dk
 
-    def _pnr_info(self):
+    def pnr_info(self):
         dk = self._dk_number()
         dk_list = []
         for data in ensure_list(from_json_safe(self.payload, "securityInformation", "secondRpInformation")):
@@ -153,15 +166,16 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             dk_list.append(pnr)
         return dk_list
 
-    def _price_quotes(self):
-        list_price_quote = []
+    @property
+    def get_price_quotes(self):
+        all_price_quote = []
 
         for tst in self._tst_data():
-            list_passengers = []
+            all_passengers = []
             pq_number = 0
             status = None
             fare_type = None
-            base_fare = tst["base_fare"]
+            base_fare = tst["base_fare"] if "base_fare" in tst else None
             if base_fare:
                 base_fare_value = float(base_fare["amount"])
                 base_fare_cc = base_fare["currency"]
@@ -171,7 +185,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
             base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
 
-            total_fare = tst["total_fare"]
+            total_fare = tst["total_fare"] if "total_fare" in tst else None
             if total_fare:
                 total_fare_value = float(total_fare["amount"])
                 total_fare_cc = total_fare["currency"]
@@ -181,7 +195,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
             total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
 
-            total_taxes = tst["total_taxes"]
+            total_taxes = tst["total_taxes"] if "total_taxes" in tst else None
             if total_taxes:
                 tax_fare_value = float(total_taxes["amount"])
                 tax_fare_cc = total_taxes["currency"]
@@ -192,14 +206,17 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
             validating_carrier = None
             commission_percentage = None
-            for passenger in tst["passenger_references"]:
-                passenger = FormatPassengersInPQ(passenger["name_id"], passenger["type"]).to_data()
-                list_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
-            list_price_quote.append(price_quote_data)
+            for passenger in tst["passenger_references"] if "passenger_references" in tst else []:
+                passenger = FormatPassengersInPQ(
+                    passenger["name_id"] if "name_id" in passenger else None, passenger["type"] if "type" in passenger else None
+                ).to_data()
+                all_passengers.append(passenger)
 
-        return list_price_quote
+            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
+            all_price_quote.append(price_quote_data)
+
+        return all_price_quote
 
     def _form_of_payments(self):
         list_form_payment = []
@@ -221,40 +238,51 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 number = reference["number"]
         return qualifier, number
 
-    def _ticketing_info(self):
+    @property
+    def get_ticketing_info(self):
         """
         This method is to return a list of ticket
         return list_ticket
         """
-        list_ticket = []
+        all_ticket = []
         agency_location = None
         time_stamp = None
         transaction_indicator = None
-        for ticket in ensure_list(from_json_safe(from_json_safe(self.payload, "dataElementsMaster"), "dataElementsIndiv")):
+        for ticket in ensure_list(
+            fnc.get(
+                "dataElementsIndiv", fnc.get("dataElementsMaster", self.payload, default={}), default=[]
+            )
+        ):
             if "ticketElement" in ticket:
-                data_element = from_json_safe(ticket, "ticketElement")
-                ticket_element = from_json_safe(data_element, "ticket")
-                agency_location = from_json_safe(ticket_element, "officeId")
-                time_stamp = from_json_safe(ticket_element, "date")
-                transaction_indicator = from_json_safe(ticket_element, "indicator")
+                agency_location = fnc.get("ticketElement.ticket.officeId", ticket)
+                time_stamp = fnc.get("ticketElement.ticket.date", ticket)
+                transaction_indicator = fnc.get("ticketElement.ticket.indicator", ticket)
 
-            if from_json_safe(ticket, "elementManagementData", "segmentName") in ["FA"]:
-                list_reference = from_json_safe(ticket["referenceForDataElement"], "reference")
+            if fnc.get("elementManagementData.segmentName", ticket) in ["FA"]:
+                list_reference = fnc.get(
+                    "reference", ticket["referenceForDataElement"] if "referenceForDataElement" in ticket else {}
+                )
                 qualifier, name_id = self._extract_qualifier_number(list_reference)
                 passenger = self.get_passenger(name_id)
-                full_name = passenger.first_name + " " + passenger.last_name if passenger else None
-                full_ticket_number = from_json_safe(ticket["otherDataFreetext"], "longFreetext")
-                index = from_json_safe(ticket, "elementManagementData", "reference", "number")
+
+                full_name = (passenger.first_name if passenger.first_name else "") + " " + (passenger.last_name if passenger.last_name else "") if passenger else None
+                full_ticket_number = fnc.get(
+                    "longFreetext", ticket["otherDataFreetext"] if "otherDataFreetext" in ticket else {}
+                )
+                index = fnc.get("elementManagementData.reference.number", ticket)
+
                 ticket_number = self.get_ticket_number(full_ticket_number)
+
                 ticketing = TicketingInfo_(
                     ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, "", full_name
                 )
-                list_ticket.append(ticketing)
-        return list_ticket
 
-    def get_passenger(self, passenger_id):
-        for passenger in self._passengers():
-            if passenger.name_id == passenger_id:
+                all_ticket.append(ticketing)
+        return all_ticket
+
+    def get_passenger(self, name_id):
+        for passenger in self.get_all_passengers:
+            if passenger.name_id == name_id:
                 return passenger
 
         return None
@@ -283,9 +311,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return list_remark
 
     def _tst_data(self):
-        tst_datas = from_json_safe(self.payload, "tstData")
-        tst_results = []
-        for tst_data in ensure_list(tst_datas):
+        all_tst = []
+        for tst_data in ensure_list(
+            fnc.get("tstData", self.payload, default=[])
+        ):
             fare_elements = self._tst_fare_elements(tst_data)
             total_taxes, taxes = self._tst_taxes(tst_data)
             pax_refs, segment_refs = self._tst_pax_segs_refs(tst_data)
@@ -301,13 +330,13 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 "taxes": [ta.to_dict() for ta in taxes],
                 "fare_elements": [fe.to_dict() for fe in fare_elements]
             }
-            tst_results.append(tst)
-        return tst_results
+            all_tst.append(tst)
+        return all_tst
 
     def _tst_pax_segs_refs(self, tst_data):
         pax_refs = []
         segment_refs = []
-        passengers = self._passengers()
+        passengers = self.get_all_passengers
 
         for ref in ensure_list(from_json_safe(tst_data, "referenceForTstData", "reference")):
             qualifier, reference = (from_json_safe(ref, "qualifier"), from_json_safe(ref, "number"))
