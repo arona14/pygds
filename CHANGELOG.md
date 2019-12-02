@@ -104,7 +104,7 @@
 
 # 0.0.23 (2019-12-1)
 - Core:
-    - use jwt as token for amadeus response
+    - use jwt as token for amadeus response[diallocts](amadou@ctsfares.com)
 - Amadeus:
-    - change format of amadeus retrieve pnr as sabre retrieve pnr response
-    - change signature of amadeus retrieve pnr as sabre retrieve pnr signature
+    - change format of amadeus retrieve pnr as sabre retrieve pnr response[salioucts](saliou@ctsfares.com)
+    - change signature of amadeus retrieve pnr as sabre retrieve pnr signature[diallocts](amadou@ctsfares.com)
