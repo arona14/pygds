@@ -220,12 +220,17 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         ):
             if fnc.get("elementManagementData.segmentName", data) == "FP":
                 card_type = fnc.get("otherDataFreetext.longFreetext", data)
-                if card_type and len(card_type) > 10:
-                    card_number = card_type
-                    card_type = card_type[:2] if "PA" not in card_type[:2] else card_type[:6]
-                expire_month = None
-                expire_year = None
-                form_payment = InfoPayment(card_type=card_type,
+                if card_type not in ["CASH", "CHECKH"]:
+                    expire_month = None
+                    expire_year = None
+                    card_number = None
+                    two_info = card_type.split(" ")
+                    info_cc_exp = two_info[1].split("/") if two_info else None
+                    if info_cc_exp:
+                        card_number = info_cc_exp[0][4:] if len(info_cc_exp) > 1 else None
+                        expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 2 else None
+                        expire_month = info_cc_exp[1][:2] if len(info_cc_exp) > 2 else None
+                form_payment = InfoPayment(card_type="CC",
                                            card_number=card_number,
                                            expire_month=expire_month,
                                            expire_year=expire_year)
@@ -293,7 +298,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def get_ticket_number(self, ticket_number: str):
         if not ticket_number:
             return ""
-        # PAX 080-7421982399/ETLO/USD126.39/29NOV19/DTW1S210B/23612444
         split_value = ticket_number.split(" ")
         value = split_value[len(split_value) - 1]
         return value.split("/")[0]

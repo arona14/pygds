@@ -85,10 +85,10 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_ticket.get_form_of_payments
         form_of_payments = extractor[0] if extractor else None
         if form_of_payments:
-            self.assertEqual(form_of_payments.card_number, 'PAX CCVIXXXXXXXXXXXX4305/1020*CVX/AAPS1OK')
-            self.assertEqual(form_of_payments.card_type, 'PAX CC')
-            self.assertEqual(form_of_payments.expire_month, None)
-            self.assertEqual(form_of_payments.expire_year, None)
+            self.assertEqual(form_of_payments.card_number, 'XXXXXXXXXXXX4305')
+            self.assertEqual(form_of_payments.card_type, 'CC')
+            self.assertEqual(form_of_payments.expire_month, '10')
+            self.assertEqual(form_of_payments.expire_year, '20')
 
     def test_get_form_of_payment_bad_request(self):
         form_of_payments = self.extractor.get_form_of_payments
