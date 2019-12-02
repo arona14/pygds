@@ -27,9 +27,8 @@ def test():
 
     try:
         token = None
-        res_reservation = client.get_reservation(token, pnr, False)
+        res_reservation = client.get_reservation(token, False, pnr)
         session_info, res_reservation = (res_reservation.session_info, res_reservation.payload)
-        print(res_reservation)
         if session_info.session_ended is True:
             log.error(" Session is ended after retrieve PNR")
         token = session_info.security_token
