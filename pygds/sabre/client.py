@@ -283,7 +283,7 @@ class SabreClient(BaseClient):
         :param token: the security token
         :param remark_text: the remark text
         :param remark_type: the remark type
-        :return:
+        :return dict:
         """
         request = self.xml_builder.send_remark_rq(token, remark_text, remark_type)
         send_remark_request = request.encode(encoding='UTF-8')
