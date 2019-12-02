@@ -4,7 +4,6 @@ from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
-from pygds.core.file_logger import FileLogger
 from pygds.core import generate_token
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
@@ -33,7 +32,6 @@ class AmadeusClient(BaseClient):
     def __init__(self, endpoint: str, username: str, password: str, office_id: str, wsap: str, debug: bool = False):
         super().__init__(endpoint, username, password, office_id, debug)
         self.xml_builder: AmadeusXMLBuilder = AmadeusXMLBuilder(endpoint, username, password, office_id, wsap)
-        self.file_logger = FileLogger()
 
     def __request_wrapper(self, method_name: str, request_data: str, soap_action: str):
         """
@@ -51,9 +49,7 @@ class AmadeusClient(BaseClient):
         status = response.status_code
         if self.is_debugging:
             self.log.debug(request_data)
-            self.file_logger.log_data(request_data, f"{method_name}_request.xml", False, True)
             self.log.debug(response.content)
-            self.file_logger.log_data(response.content, f"{method_name}_response.xml", True, False)
             self.log.debug(f"{method_name} status: {status}")
         if status == 500:
             error = ErrorExtractor(response.content).extract()
@@ -104,7 +100,7 @@ class AmadeusClient(BaseClient):
             values = payload["info_token"]
             return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
 
-    def get_reservation(self, token: str, record_locator: str, close_trx: bool = False):
+    def get_reservation(self, token: str, close_trx: bool, record_locator: str):
         """
             Return the reservation data from PNR.
         """

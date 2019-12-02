@@ -1,10 +1,6 @@
 import jwt
 import datetime
-from pygds.env_settings import get_setting
-
-TOKEN_KEY = get_setting("JWT_SECRET_KEY")
-ALGORITHM_TYPE = get_setting("JWT_ALGORYTHM_TOKEN")
-DURATION = get_setting("JWT_DURATION_TOKEN")
+from pygds.core.config import JWT_ALGORYTHM_TOKEN_AMADEUS, JWT_DURATION_TOKEN_AMADEUS, JWT_SECRET_KEY_AMADEUS
 
 
 def generate_token(message_id: str, sequence: int, session_id: str, security_token: str):
@@ -17,10 +13,10 @@ def generate_token(message_id: str, sequence: int, session_id: str, security_tok
     return token
     """
     token = jwt.encode(
-        {'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=int(DURATION)),
+        {'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=int(JWT_DURATION_TOKEN_AMADEUS)),
          "info_token": {"message_id": f"""{message_id}""",
                         "sequence": f"""{sequence}""", "session_id": f"""{session_id}""",
-                        "security_token": f"""{security_token}"""}}, TOKEN_KEY, ALGORITHM_TYPE)
+                        "security_token": f"""{security_token}"""}}, JWT_SECRET_KEY_AMADEUS, JWT_ALGORYTHM_TOKEN_AMADEUS)
     return token
 
 
@@ -28,6 +24,6 @@ def decode_token(token: str):
     if token is None:
         return None
     try:
-        return jwt.decode(token, TOKEN_KEY, ALGORITHM_TYPE)
+        return jwt.decode(token, JWT_SECRET_KEY_AMADEUS, JWT_ALGORYTHM_TOKEN_AMADEUS)
     except jwt.ExpiredSignatureError:
         return None
