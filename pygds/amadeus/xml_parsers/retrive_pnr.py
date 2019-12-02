@@ -1,7 +1,6 @@
 import re
 from pygds.amadeus.xml_parsers.response_extractor import BaseResponseExtractor, extract_amount
-from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure_list, \
-    get_data_from_xml as from_xml, reformat_date
+from pygds.core.helpers import ensure_list, get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     InfoPayment, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp
@@ -102,18 +101,19 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             all_itineraries.append(itinerary_object)
         return all_itineraries
 
-    def _gender(self):
-        for data in ensure_list(from_json_safe(self.payload, "dataElementsMaster", "dataElementsIndiv")):
+    def get_gender_by_passenger(self, passenger_id):
+        for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
 
-            ssr = from_json_safe(data, "serviceRequest", "ssr")
-            if ssr and from_json_safe(ssr, "type") == "DOCS":
-                free_text = from_json_safe(ssr, "freeText")
-                if free_text:
-                    check_gender = re.split("[, /,////?//:; ]+", free_text)  # to transform the caracter chaine in liste_object
-                    if len(check_gender) >= 3:
-                        check_gender = check_gender[2]
-                        if check_gender == "M" or check_gender == "F":
-                            return check_gender
+            if fnc.get("serviceRequest.ssr.type", data) == "DOCS" and fnc.get(
+                    "referenceForDataElement.reference.number"
+            ) == passenger_id:
+                free_text = fnc.get("serviceRequest.ssr.freeText", data)
+                check_gender = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
+
+                if check_gender and len(check_gender) >= 3:
+                    check_gender = check_gender[2]
+                    if check_gender == "M" or check_gender == "F":
+                        return check_gender
         return None
 
     @property
@@ -341,8 +341,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         segment_refs = []
         passengers = self.get_all_passengers
 
-        for ref in ensure_list(from_json_safe(tst_data, "referenceForTstData", "reference")):
-            qualifier, reference = (from_json_safe(ref, "qualifier"), from_json_safe(ref, "number"))
+        for ref in ensure_list(fnc.get("referenceForTstData.reference", tst_data, default=[])):
+            qualifier, reference = (fnc.get("qualifier", ref), fnc.get("number", ref))
             if qualifier == "PT":
                 pax_refs.append(reference)
             elif qualifier == "ST":
@@ -356,15 +356,15 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _tst_fare_elements(self, tst_data):
         fare_elements = []
-        for fe in ensure_list(from_json_safe(tst_data, "fareBasisInfo", "fareElement")):
-            p_code = from_json_safe(fe, "primaryCode")
-            connx = from_json_safe(fe, "connection")
-            n_valid_b = from_json_safe(fe, "notValidBefore")
+        for fe in ensure_list(fnc.get("fareBasisInfo.fareElement", tst_data, default=[])):
+            p_code = fnc.get("primaryCode", fe)
+            connx = fnc.get("connection", fe)
+            n_valid_b = fnc.get("notValidBefore", fe)
             n_valid_b = reformat_date(n_valid_b, "%d%m%y", "%Y-%m-%d") if n_valid_b else None
-            n_valid_a = from_json_safe(fe, "notValidAfter")
+            n_valid_a = fnc.get("notValidAfter", fe)
             n_valid_a = reformat_date(n_valid_a, "%d%m%y", "%Y-%m-%d") if n_valid_a else None
-            b_allow = from_json_safe(fe, "baggageAllowance")
-            f_basis = from_json_safe(fe, "fareBasis")
+            b_allow = fnc.get("baggageAllowance", fe)
+            f_basis = fnc.get("fareBasis", fe)
             f_el = FareElement(p_code, connx, n_valid_b, n_valid_a, b_allow, f_basis)
             fare_elements.append(f_el)
         return fare_elements
@@ -373,7 +373,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         amounts = []
         base_fare = None
         total_fare = None
-        for am in ensure_list(from_json_safe(tst_data, "fareData", "monetaryInfo")):
+        for am in ensure_list(fnc.get("fareData.monetaryInfo", tst_data, default=[])):
             am = extract_amount(am, "qualifier", "amount", "currencyCode")
             if am.qualifier == "F" and not base_fare:
                 base_fare = am
@@ -388,10 +388,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         total_taxes = 0.0
         total_taxes_currency = None
         taxes = []
-        for tax_info in ensure_list(from_json_safe(tst_data, "fareData", "taxFields")):
+        for tax_info in ensure_list(fnc.get("fareData.taxFields", tst_data, default=[])):
             tax: TaxInformation = TaxInformation()
-            tax.tax_type = from_json_safe(tax_info, "taxCountryCode")
-            tax.tax_nature = from_json_safe(tax_info, "taxNatureCode")
+            tax.tax_type = fnc.get("taxCountryCode", tax_info)
+            tax.tax_nature = fnc.get("taxNatureCode", tax_info)
             am = extract_amount(tax_info, "taxIndicator", "taxAmount", "taxCurrency")
             tax.tax_amount = am
             if not total_taxes_currency:

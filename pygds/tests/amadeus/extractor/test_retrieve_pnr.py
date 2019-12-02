@@ -42,8 +42,8 @@ class TestGetPnrResponseExtractor(TestCase):
         self.extractor_data_retrieve_pnr_ticket = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
 
     def test_passengers(self):
-        extractor = self.extractor_data_retrieve_pnr_p
-        passenger = extractor.get_all_passengers[0] if extractor.get_all_passengers else None
+        extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
+        passenger = extractor[0] if extractor else None
         if passenger:
             self.assertEqual(passenger.name_id, "1")
             self.assertEqual(passenger.first_name, "A MRS")
@@ -56,8 +56,8 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(passengers, [])
 
     def test_price_quote(self):
-        extractor = self.extractor_data_retrieve_pnr
-        price_quotes = extractor.get_price_quotes[0] if extractor.get_price_quotes else None
+        extractor = self.extractor_data_retrieve_pnr.get_price_quotes
+        price_quotes = extractor[0] if extractor else None
         if price_quotes:
             self.assertEqual(price_quotes.fare_type, None)
             self.assertEqual(price_quotes.status, None)
@@ -69,8 +69,8 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(price_quotes, [])
 
     def test_ticketing_info(self):
-        extractor = self.extractor_data_retrieve_pnr_ticket
-        ticketing_infos = extractor.get_ticketing_info[0] if extractor.get_ticketing_info else None
+        extractor = self.extractor_data_retrieve_pnr_ticket.get_ticketing_info
+        ticketing_infos = extractor[0] if extractor else None
         if ticketing_infos:
             self.assertEqual(ticketing_infos.date_time, '291119')
             self.assertEqual(ticketing_infos.full_name, 'ANDRA ')
@@ -82,8 +82,8 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(ticketing_infos, [])
 
     def test_get_form_of_payment(self):
-        extractor = self.extractor_data_retrieve_pnr_ticket
-        form_of_payments = extractor.get_form_of_payments[0] if extractor.get_form_of_payments else None
+        extractor = self.extractor_data_retrieve_pnr_ticket.get_form_of_payments
+        form_of_payments = extractor[0] if extractor else None
         if form_of_payments:
             self.assertEqual(form_of_payments.card_number, 'PAX CCVIXXXXXXXXXXXX4305/1020*CVX/AAPS1OK')
             self.assertEqual(form_of_payments.card_type, 'PAX CC')
@@ -104,8 +104,8 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(get_remarks, [])
 
     def test_get_segments(self):
-        extractor = self.extractor_data_retrieve_pnr_ticket
-        segments = extractor.get_segments[0] if extractor.get_segments else None
+        extractor = self.extractor_data_retrieve_pnr_ticket.get_segments
+        segments = extractor[0] if extractor else None
         if segments:
             self.assertEqual(len(segments.segments), 2)
             self.assertEqual(segments.segments[0].action_code, 'HK')
