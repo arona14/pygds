@@ -281,7 +281,8 @@ class SabreClient(BaseClient):
     def send_remark(self, token: str, remark_text, remark_type: str = "General"):
         """this will send a remark for a pnr
         :param token: the security token
-        :param text: the remark text
+        :param remark_text: the remark text
+        :param remark_type: the remark type
         :return:
         """
         request = self.xml_builder.send_remark_rq(token, remark_text, remark_type)
