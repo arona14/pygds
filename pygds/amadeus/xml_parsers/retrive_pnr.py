@@ -4,7 +4,7 @@ from pygds.core.helpers import get_data_from_json_safe as from_json_safe, ensure
     get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
-    InfoPayment, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary
+    InfoPayment, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp
 import fnc
 
 
@@ -23,7 +23,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'passengers': self.get_all_passengers,
             'itineraries': self.get_segments,
             'form_of_payments': self.get_form_of_payments,
-            'price_quotes': self.price_quotes,
+            'price_quotes': self.get_price_quotes,
             'ticketing_info': self.get_ticketing_info,
             'remarks': self.get_remarks,
             'dk_number': self.get_dk_number
@@ -37,7 +37,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         ):
             itinerary_object = Itinerary()
             for segment in ensure_list(
-                fnc.get("itineraryInfo", self.payload, default=[])
+                fnc.get("itineraryInfo", itinerary, default=[])
             ):
                 dep_date = fnc.get("travelProduct.product.depDate", segment)
                 dep_time = fnc.get("travelProduct.product.depTime", segment)
@@ -52,12 +52,14 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 ) if arr_date and arr_time else None
 
                 departure_airport = fnc.get("travelProduct.boardpointDetail.cityCode", segment)
-                arrival_airport = from_json_safe("travelProduct.offpointDetail.cityCode", segment)
+                arrival_airport = fnc.get("travelProduct.offpointDetail.cityCode", segment)
+
                 flight_number_airline_mark = fnc.get("travelProduct.productDetails.identification", segment)
+                flight_number_airline_operat = fnc.get("itineraryReservationInfo.reservation.controlNumber", segment)
+                control_number = flight_number_airline_mark
+
                 airline_code_marketing = fnc.get("itineraryReservationInfo.reservation.companyId", segment)
-                control_number = fnc.get("itineraryReservationInfo.reservation.controlNumber", segment)
-                airline_code_operat = None
-                flight_number_airline_operat = None
+                airline_code_operat = fnc.get("travelProduct.companyDetail.identification", segment)
 
                 status = fnc.get("relatedProduct.status", segment)
                 if isinstance(status, list):
@@ -65,16 +67,24 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
                 segment_reference = fnc.get("elementManagementItinerary.reference.number", segment)
                 equipment_type = fnc.get("flightDetail.productDetails.equipment", segment)
-                resbook_designator = fnc.get("travelProduct.productDetails.classOfService", segment)
-                departure_terminal = None  # from_json_safe("flightDetail", "departureInformation", "departTerminal")
-                arrival_terminal = None  # from_json_safe("flightDetail", "arrivalStationInfo", "terminal")
+                resbook_designator = None
+                departure_terminal = fnc.get("flightDetail.departureInformation.departTerminal", segment)
+                arrival_terminal = fnc.get("flightDetail.arrivalStationInfo.terminal", segment)
+
+                class_of_servive = fnc.get("travelProduct.productDetails.classOfService", segment)
+                action_code = fnc.get("relatedProduct.status", segment)
+                number_in_party = fnc.get("relatedProduct.quantity", segment)
 
                 departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
                 arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
 
-                marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, "", control_number)
-                operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, "", control_number)
+                marketing_airline = FlightAirlineDetails(airline_code_marketing, flight_number_airline_mark, None, class_of_servive)
+                operating_airline = FlightAirlineDetails(airline_code_operat, flight_number_airline_operat, None, class_of_servive)
 
+                disclosure_carrier = FlightDisclosureCarrier(None, None, None)
+                mariage_grp = FlightMarriageGrp(None, None, None)
+
+                seats = None
                 segment_data = FlightSegment(
                     segment_reference,
                     resbook_designator,
@@ -83,8 +93,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     arrival, status,
                     marketing_airline,
                     operating_airline,
-                    "", "", "", "", "", "", "", "", "", "", "", "", "",
-                    equipment_type, "", "")
+                    disclosure_carrier, mariage_grp,
+                    seats, action_code, None, None, None, None,
+                    None, None, control_number, class_of_servive, None,
+                    equipment_type, None, number_in_party, None)
 
                 itinerary_object.addSegment(segment_data)
             all_itineraries.append(itinerary_object)
@@ -114,9 +126,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             reference = fnc.get("elementManagementPassenger.reference.number", traveller)
             all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
 
-            for index, passenger in enumerate(fnc.get(
+            for index, passenger in enumerate(ensure_list(fnc.get(
                 "enhancedPassengerData", traveller, default=[]
-            )):
+            ))):
                 date_of_birth = fnc.get(
                     "dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger
                 )
@@ -134,9 +146,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     "travellerInformation.traveller.quantity", all_passenger_data[index] if len(all_passenger_data) > index else {}
                 )
 
-                passsenger = Passenger(reference, "", firstname, None, date_of_birth, None, surname, given_name, "", "",
-                                       number_in_party, "", passenger_type, "", {})
-                all_passengers.append(passsenger)
+                passsenger_o = Passenger(reference, "", firstname, None, date_of_birth, None, surname, given_name, "", "",
+                                         number_in_party, "", passenger_type, "", {})
+                all_passengers.append(passsenger_o)
         return all_passengers
 
     @property

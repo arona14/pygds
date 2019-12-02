@@ -37,9 +37,12 @@ class TestGetPnrResponseExtractor(TestCase):
                         </PNR_Reply>
                     </soapenv:Body>
                 </soapenv:Envelope>""")
+        self.extractor_data_retrieve_pnr_p = GetPnrResponseExtractor(data_retrieve_pnr_p)
+        self.extractor_data_retrieve_pnr = GetPnrResponseExtractor(data_retrieve_pnr)
+        self.extractor_data_retrieve_pnr_ticket = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
 
     def test_passengers(self):
-        extractor = GetPnrResponseExtractor(data_retrieve_pnr_p)
+        extractor = self.extractor_data_retrieve_pnr_p
         passenger = extractor.get_all_passengers[0] if extractor.get_all_passengers else None
         if passenger:
             self.assertEqual(passenger.name_id, "1")
@@ -53,7 +56,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(passengers, [])
 
     def test_price_quote(self):
-        extractor = GetPnrResponseExtractor(data_retrieve_pnr)
+        extractor = self.extractor_data_retrieve_pnr
         price_quotes = extractor.get_price_quotes[0] if extractor.get_price_quotes else None
         if price_quotes:
             self.assertEqual(price_quotes.fare_type, None)
@@ -66,7 +69,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(price_quotes, [])
 
     def test_ticketing_info(self):
-        extractor = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        extractor = self.extractor_data_retrieve_pnr_ticket
         ticketing_infos = extractor.get_ticketing_info[0] if extractor.get_ticketing_info else None
         if ticketing_infos:
             self.assertEqual(ticketing_infos.date_time, '291119')
@@ -79,7 +82,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(ticketing_infos, [])
 
     def test_get_form_of_payment(self):
-        extractor = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        extractor = self.extractor_data_retrieve_pnr_ticket
         form_of_payments = extractor.get_form_of_payments[0] if extractor.get_form_of_payments else None
         if form_of_payments:
             self.assertEqual(form_of_payments.card_number, 'PAX CCVIXXXXXXXXXXXX4305/1020*CVX/AAPS1OK')
@@ -92,25 +95,39 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(form_of_payments, [])
 
     def test_get_remarks(self):
-        extractor = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
-        get_remarks = extractor.get_remarks
+
+        get_remarks = self.extractor_data_retrieve_pnr_ticket.get_remarks
         self.assertEqual(get_remarks, [])
 
     def test_get_remarks_bad_request(self):
         get_remarks = self.extractor.get_remarks
         self.assertEqual(get_remarks, [])
 
+    def test_get_segments(self):
+        extractor = self.extractor_data_retrieve_pnr_ticket
+        segments = extractor.get_segments[0] if extractor.get_segments else None
+        if segments:
+            self.assertEqual(len(segments.segments), 2)
+            self.assertEqual(segments.segments[0].action_code, 'HK')
+            self.assertEqual(segments.segments[0].sequence, "1")
+
+    def test_get_segments_bad_request(self):
+        segments = self.extractor.get_segments
+        self.assertEqual(segments, [])
+
 
 if __name__ == "__main__":
     test = TestGetPnrResponseExtractor()
     test.setUp()
-    # test.test_passengers()
-    # test.test_passenger_bad_response()
-    # test.test_price_quote()
-    # test.test_price_quote_bad_request()
-    # test.test_ticketing_info()
-    # test.test_ticketing_info_bad_request()
-    # test.test_get_form_of_payment()
-    # test.test_get_form_of_payment_bad_request()
-    # test.test_get_remarks()
-    # test.test_get_remarks_bad_request()
+    test.test_passengers()
+    test.test_passenger_bad_response()
+    test.test_price_quote()
+    test.test_price_quote_bad_request()
+    test.test_ticketing_info()
+    test.test_ticketing_info_bad_request()
+    test.test_get_form_of_payment()
+    test.test_get_form_of_payment_bad_request()
+    test.test_get_remarks()
+    test.test_get_remarks_bad_request()
+    test.test_get_segments()
+    test.test_get_segments_bad_request()
