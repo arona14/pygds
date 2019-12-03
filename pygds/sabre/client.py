@@ -278,13 +278,14 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def send_remark(self, token: str, text):
+    def send_remark(self, token: str, remark_text, remark_type: str = "General"):
         """this will send a remark for a pnr
         :param token: the security token
-        :param text: the remark text
-        :return:
+        :param remark_text: the remark text
+        :param remark_type: the remark type
+        :return dict:
         """
-        request = self.xml_builder.send_remark_rq(token, text)
+        request = self.xml_builder.send_remark_rq(token, remark_text, remark_type)
         send_remark_request = request.encode(encoding='UTF-8')
         send_remark_response = self.__request_wrapper("send_remark", send_remark_request, self.endpoint)
         response = SendRemarkExtractor(send_remark_response).extract()
