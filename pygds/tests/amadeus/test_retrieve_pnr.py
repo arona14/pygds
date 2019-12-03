@@ -15,8 +15,8 @@ data_retrieve_pnr_ticket = data_retrieve_pnr_ticket.read()
 class TestGetPnrResponseExtractor(TestCase):
     def setUp(self):
         self.extractor = GetPnrResponseExtractor("""<?xml version="1.0"?>
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-                    xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3" 
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"
                     xmlns:wsa="http://www.w3.org/2005/08/addressing">
                     <soapenv:Header>
                         <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
