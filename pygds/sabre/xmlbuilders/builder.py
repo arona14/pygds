@@ -654,7 +654,7 @@ class SabreXMLBuilder:
                     </soapenv:Body>
                 </soapenv:Envelope>"""
 
-    def send_remark_rq(self, token, text):
+    def send_remark_rq(self, token, text, remark_type):
         """
             Return the xml request to add a remark for a pnr
         """
@@ -670,7 +670,7 @@ class SabreXMLBuilder:
                         <SpecialReqDetails>
                             <AddRemarkRQ>
                                 <RemarkInfo>
-                                    <Remark Type="General">
+                                    <Remark Type="{remark_type}">
                                         <Text>{text}</Text>
                                     </Remark>
                                 </RemarkInfo>
