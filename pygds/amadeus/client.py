@@ -3,7 +3,7 @@ from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
-from pygds.amadeus.xml_parsers.retrive_pnr import GetPnrResponseExtractor
+from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 from pygds.core import generate_token
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
