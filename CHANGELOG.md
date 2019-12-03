@@ -108,3 +108,8 @@
 - Amadeus:
     - change format of amadeus retrieve pnr as sabre retrieve pnr response[salioucts](saliou@ctsfares.com)
     - change signature of amadeus retrieve pnr as sabre retrieve pnr signature[diallocts](amadou@ctsfares.com)
+
+
+# 0.0.24 (2019-12-3)
+- Sabre:
+    - Adding the remark_type parameter in the API allows you to add notes to a pnr[Virginie](virginie@ctsfares.com)
