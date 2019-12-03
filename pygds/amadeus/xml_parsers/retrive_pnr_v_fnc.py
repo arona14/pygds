@@ -219,18 +219,21 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])
         ):
             if fnc.get("elementManagementData.segmentName", data) == "FP":
+                expire_month = None
+                expire_year = None
+                card_number = None
+
                 card_type = fnc.get("otherDataFreetext.longFreetext", data)
+
                 if card_type not in ["CASH", "CHECKH"]:
-                    expire_month = None
-                    expire_year = None
-                    card_number = None
                     two_info = card_type.split(" ")
                     info_cc_exp = two_info[1].split("/") if two_info else None
                     if info_cc_exp:
                         card_number = info_cc_exp[0][4:] if len(info_cc_exp) > 1 else None
                         expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 2 else None
                         expire_month = info_cc_exp[1][:2] if len(info_cc_exp) > 2 else None
-                form_payment = InfoPayment(card_type="CC",
+                    card_type = "CC"
+                form_payment = InfoPayment(card_type=card_type,
                                            card_number=card_number,
                                            expire_month=expire_month,
                                            expire_year=expire_year)
