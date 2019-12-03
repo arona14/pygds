@@ -101,3 +101,10 @@
 # 0.0.22 (2019-11-28)
 - Sabre:
     - adding pseudo city code in parameter revalidate[virginieSy](virginie@ctsfares.com)
+
+# 0.0.23 (2019-12-1)
+- Core:
+    - use jwt as token for amadeus response[diallocts](amadou@ctsfares.com)
+- Amadeus:
+    - change format of amadeus retrieve pnr as sabre retrieve pnr response[salioucts](saliou@ctsfares.com)
+    - change signature of amadeus retrieve pnr as sabre retrieve pnr signature[diallocts](amadou@ctsfares.com)
