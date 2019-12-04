@@ -25,7 +25,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             'price_quotes': self.get_price_quotes,
             'ticketing_info': self.get_ticketing_info,
             'remarks': self.get_remarks,
-            'dk_number': self.get_dk_number
+            'dk_number': self.get_dk_number,
+            "record_locator": fnc.get("pnrHeader.reservationInfo.reservation.controlNumber", self.payload),
+            "booking_source": fnc.get("securityInformation.secondRpInformation.creationOfficeId", self.payload),
         }
 
     @property
@@ -105,8 +107,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
 
             if fnc.get("serviceRequest.ssr.type", data) == "DOCS" and fnc.get(
-                    "referenceForDataElement.reference.number"
-            ) == passenger_id:
+                    "referenceForDataElement.reference.number", data) == passenger_id:
                 free_text = fnc.get("serviceRequest.ssr.freeText", data)
                 check_gender = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
 
@@ -120,33 +121,23 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def get_all_passengers(self):
         all_passengers = []
 
-        for traveller in ensure_list(
-            fnc.get("travellerInfo", self.payload, default=[])
-        ):
+        for traveller in ensure_list(fnc.get("travellerInfo", self.payload, default=[])):
             reference = fnc.get("elementManagementPassenger.reference.number", traveller)
+            name_assoc_id = reference = int(fnc.get("elementManagementPassenger.reference.number", traveller))
             all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
+            for index, passenger in enumerate(ensure_list(fnc.get("enhancedPassengerData", traveller, default=[]))):
+                date_of_birth_tag = fnc.get("dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger)
 
-            for index, passenger in enumerate(ensure_list(fnc.get(
-                "enhancedPassengerData", traveller, default=[]
-            ))):
-                date_of_birth = fnc.get(
-                    "dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger
-                )
-                surname = fnc.get(
-                    "enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
-                given_name = fnc.get(
-                    "enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
-                passenger_type = fnc.get(
-                    "enhancedTravellerInformation.travellerNameInfo.type", passenger
-                )
-                firstname = fnc.get(
-                    "travellerInformation.passenger.firstName", all_passenger_data[index] if len(all_passenger_data) > index else {}
-                )
-                number_in_party = fnc.get(
-                    "travellerInformation.traveller.quantity", all_passenger_data[index] if len(all_passenger_data) > index else {}
-                )
+                gender = self.get_gender_by_passenger(reference)
+                surname = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
+                given_name = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
+                forename = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
+                passenger_type = fnc.get("enhancedTravellerInformation.travellerNameInfo.type", passenger)
+                firstname = fnc.get("travellerInformation.passenger.firstName", all_passenger_data[index] if len(all_passenger_data) > index else {})
+                last_name = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
+                number_in_party = fnc.get("travellerInformation.traveller.quantity", all_passenger_data[index] if len(all_passenger_data) > index else {})
 
-                passsenger_o = Passenger(reference, "", firstname, None, date_of_birth, None, surname, given_name, "", "",
+                passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth_tag, gender, surname, given_name, forename, "",
                                          number_in_party, "", passenger_type, "", {})
                 all_passengers.append(passsenger_o)
         return all_passengers
