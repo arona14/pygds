@@ -119,3 +119,7 @@
     - change the number of parameters for the forms of payment[Virginie](virginie@ctsfares.com)
     - Adding stop quantity field to retreive pnr extractor [mbayane1990](mbaye@ctsfares.com)
 
+
+# 0.0.26 (2019-12-4)
+- Sabre:
+    - Change version to 0.0.26[Virginie](virginie@ctsfares.com)
