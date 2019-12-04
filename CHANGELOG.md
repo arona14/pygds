@@ -113,3 +113,8 @@
 # 0.0.24 (2019-12-3)
 - Sabre:
     - Adding the remark_type parameter in the API allows you to add notes to a pnr[Virginie](virginie@ctsfares.com)
+
+
+# 0.0.24 (2019-12-04)
+- Sabre:
+    - Adding stop quantity field to retreive pnr extractor [mbayane1990](mbaye@ctsfares.com)
