@@ -45,7 +45,7 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
         passenger = extractor[0] if extractor else None
         if passenger:
-            self.assertEqual(passenger.name_id, "1")
+            self.assertEqual(passenger.name_id, 1)
             self.assertEqual(passenger.first_name, "A MRS")
             self.assertEqual(passenger.fore_name, "A MRS")
             self.assertEqual(passenger.passenger_type, "ADT")
@@ -73,7 +73,7 @@ class TestGetPnrResponseExtractor(TestCase):
         ticketing_infos = extractor[0] if extractor else None
         if ticketing_infos:
             self.assertEqual(ticketing_infos.date_time, '291119')
-            self.assertEqual(ticketing_infos.full_name, 'ANDRA ')
+            self.assertIsNotNone(ticketing_infos.ticket_number)
             self.assertEqual(ticketing_infos.index, "20")
             self.assertEqual(ticketing_infos.passenger, "3")
 
