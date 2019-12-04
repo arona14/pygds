@@ -3,7 +3,7 @@ from pygds.amadeus.xml_parsers.response_extractor import BaseResponseExtractor, 
 from pygds.core.helpers import ensure_list, get_data_from_xml as from_xml, reformat_date
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
-    InfoPayment, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp
+    InfoPaymentCreditCard, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp
 import fnc
 
 
@@ -224,10 +224,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                         expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 2 else None
                         expire_month = info_cc_exp[1][:2] if len(info_cc_exp) > 2 else None
                     card_type = "CC"
-                form_payment = InfoPayment(card_type=card_type,
-                                           card_number=card_number,
-                                           expire_month=expire_month,
-                                           expire_year=expire_year)
+                form_payment = InfoPaymentCreditCard(card_type=card_type, card_number=card_number, expire_month=expire_month, expire_year=expire_year)
                 all_form_payment.append(form_payment)
         return all_form_payment
 

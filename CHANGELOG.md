@@ -114,7 +114,8 @@
 - Sabre:
     - Adding the remark_type parameter in the API allows you to add notes to a pnr[Virginie](virginie@ctsfares.com)
 
-
-# 0.0.25 (2019-12-04)
+# 0.0.25 (2019-12-4)
 - Sabre:
+    - change the number of parameters for the forms of payment[Virginie](virginie@ctsfares.com)
     - Adding stop quantity field to retreive pnr extractor [mbayane1990](mbaye@ctsfares.com)
+

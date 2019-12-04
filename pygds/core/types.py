@@ -580,7 +580,18 @@ class Remarks(BasicDataObject):
 
 
 class InfoPayment(BasicDataObject):
+    def __init__(self, fop_type: str):
+        self.fop_type = fop_type
+
+    def to_data(self):
+        return {
+            "fop_type": self.fop_type
+        }
+
+
+class InfoPaymentCreditCard(InfoPayment):
     def __init__(self, card_type: str, card_number: int, expire_month: int, expire_year: int):
+        super().__init__("CC")
         self.card_type = card_type
         self.card_number = card_number
         self.expire_month = expire_month
@@ -588,12 +599,18 @@ class InfoPayment(BasicDataObject):
 
     def to_data(self):
         return {
+            "fop_type": "CC",
             "card_type": self.card_type,
             "card_number": self.card_number,
             "expire_month": self.expire_month,
             "expire_year": self.expire_year
 
         }
+
+
+class InfoPaymentOther(InfoPayment):
+    def __init__(self, fop_type: str):
+        super().__init__(fop_type)
 
 
 class GetReservation(BasicDataObject):
