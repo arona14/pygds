@@ -380,6 +380,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 funnel_flight = from_json_safe(air_segment, "stl18:FunnelFlight")
                 change_of_gauge = from_json_safe(air_segment, "stl18:ChangeOfGauge")
                 action_code = from_json_safe(air_segment, "stl18:ActionCode")
+                stop_quantity = int(from_json_safe(air_segment, "StopQuantity", default=0))
                 departure_airport = FlightPointDetails(departure_date_time, depart_airport, departure_terminal_code)
                 arrival_airport = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal_code)
                 marketing = FlightAirlineDetails(marketing_airline_code, markting_flight_number, markting_short_name, markting_class_of_service)
@@ -387,7 +388,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 disclosure_carrier = FlightDisclosureCarrier(code_disclosure_carrier, dot, banner)
                 mariage_grp = FlightMarriageGrp(ind, group, sequence)
                 index += 1
-                segment = FlightSegment(index, res_book_desig_code, departure_date_time, departure_airport, arrival_date_time, arrival_airport, airline_ref_id, marketing, operating, disclosure_carrier, mariage_grp, seats, action_code, segment_special_requests, schedule_change_indicator, segment_booked_date, air_miles_flown, funnel_flight, change_of_gauge, flight_number, class_of_service, elapsed_time, equipment_type, eticket, number_in_party, code)
+                segment = FlightSegment(index, res_book_desig_code, departure_date_time, departure_airport, arrival_date_time, arrival_airport, airline_ref_id, marketing, operating, disclosure_carrier, mariage_grp, seats, action_code, segment_special_requests, schedule_change_indicator, segment_booked_date, air_miles_flown, funnel_flight, change_of_gauge, flight_number, class_of_service, elapsed_time, equipment_type, eticket, number_in_party, code, stop_quantity=stop_quantity)
                 if in_bound_connection == "false":  # begining of an itinerary
                     current_itinerary = Itinerary()
                 current_itinerary.addSegment(segment)
