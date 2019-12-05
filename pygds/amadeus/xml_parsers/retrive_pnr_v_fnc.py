@@ -123,7 +123,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
         for traveller in ensure_list(fnc.get("travellerInfo", self.payload, default=[])):
             reference = fnc.get("elementManagementPassenger.reference.number", traveller)
-            name_assoc_id = reference = int(fnc.get("elementManagementPassenger.reference.number", traveller))
+            name_assoc_id = fnc.get("elementManagementPassenger.reference.number", traveller)
             all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
             for index, passenger in enumerate(ensure_list(fnc.get("enhancedPassengerData", traveller, default=[]))):
                 date_of_birth_tag = fnc.get("dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger)
@@ -198,7 +198,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 ).to_data()
                 all_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
+            price_quote_data = PriceQuote_(pq_number, status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
             all_price_quote.append(price_quote_data)
 
         return all_price_quote
@@ -228,14 +228,21 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 all_form_payment.append(form_payment)
         return all_form_payment
 
+    def get_passenger(self, name_id):
+        for passenger in self.get_all_passengers:
+            if passenger.name_id == name_id:
+                return passenger
+
+        return None
+
     def _extract_qualifier_number(self, list_reference):
-        qualifier, number = "", ""
         list_reference = ensure_list(list_reference)
         for reference in list_reference:
             if reference["qualifier"] == "PT":
                 qualifier = reference["qualifier"]
                 number = reference["number"]
-        return qualifier, number
+                return qualifier, number
+        return None, None
 
     @property
     def get_ticketing_info(self):
@@ -247,9 +254,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         agency_location = None
         time_stamp = None
         transaction_indicator = None
+        agent_sign = fnc.get("securityInformation.secondRpInformation.agentSignature", self.payload)
         for ticket in ensure_list(
             fnc.get(
-                "dataElementsIndiv", fnc.get("dataElementsMaster", self.payload, default={}), default=[]
+                "dataElementsMaster.dataElementsIndiv", self.payload, default=[]
             )
         ):
             if "ticketElement" in ticket:
@@ -262,7 +270,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     "reference", ticket["referenceForDataElement"] if "referenceForDataElement" in ticket else {}
                 )
                 qualifier, name_id = self._extract_qualifier_number(list_reference)
-                passenger = self.get_passenger(name_id)
+                passenger = self.get_passenger(name_id) if name_id else None
 
                 full_name = (passenger.first_name if passenger.first_name else "") + " " + (passenger.last_name if passenger.last_name else "") if passenger else None
                 full_ticket_number = fnc.get(
@@ -273,18 +281,11 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 ticket_number = self.get_ticket_number(full_ticket_number)
 
                 ticketing = TicketingInfo_(
-                    ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, "", full_name
+                    ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, agent_sign, full_name
                 )
 
                 all_ticket.append(ticketing)
         return all_ticket
-
-    def get_passenger(self, name_id):
-        for passenger in self.get_all_passengers:
-            if passenger.name_id == name_id:
-                return passenger
-
-        return None
 
     def get_ticket_number(self, ticket_number: str):
         if not ticket_number:
@@ -303,7 +304,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 remark_type = fnc.get("miscellaneousRemarks.remarks.type", data)
                 categorie = fnc.get("miscellaneousRemarks.remarks.category", data)
                 text = fnc.get("miscellaneousRemarks.remarks.freetext", data)
-                index = text = fnc.get("elementManagementData.reference.number", data)
+                index = fnc.get("elementManagementData.reference.number", data)
                 remarks_object = Remarks(index, remark_type, categorie, text)
                 all_remark.append(remarks_object)
         return all_remark
