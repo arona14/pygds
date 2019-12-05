@@ -218,7 +218,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
                 if card_type not in ["CASH", "CHECKH"]:
                     two_info = card_type.split(" ")
-                    info_cc_exp = two_info[1].split("/") if two_info else None
+                    info_cc_exp = two_info[1].split("/") if len(two_info) > 1 else None
                     if info_cc_exp:
                         card_number = info_cc_exp[0][4:] if len(info_cc_exp) > 1 else None
                         expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 2 else None
