@@ -45,7 +45,7 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
         passenger = extractor[0] if extractor else None
         if passenger:
-            self.assertEqual(passenger.name_id, 1)
+            self.assertEqual(passenger.name_id, "1")
             self.assertEqual(passenger.first_name, "A MRS")
             self.assertEqual(passenger.fore_name, "A MRS")
             self.assertEqual(passenger.passenger_type, "ADT")
