@@ -123,7 +123,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
         for traveller in ensure_list(fnc.get("travellerInfo", self.payload, default=[])):
             reference = fnc.get("elementManagementPassenger.reference.number", traveller)
-            name_assoc_id = int(fnc.get("elementManagementPassenger.reference.number", traveller))
+            name_assoc_id = fnc.get("elementManagementPassenger.reference.number", traveller)
             all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
             for index, passenger in enumerate(ensure_list(fnc.get("enhancedPassengerData", traveller, default=[]))):
                 date_of_birth_tag = fnc.get("dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger)
@@ -198,7 +198,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 ).to_data()
                 all_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
+            price_quote_data = PriceQuote_(pq_number, status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
             all_price_quote.append(price_quote_data)
 
         return all_price_quote
@@ -236,7 +236,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         return None
 
     def _extract_qualifier_number(self, list_reference):
-        qualifier, number = "", ""
         list_reference = ensure_list(list_reference)
         for reference in list_reference:
             if reference["qualifier"] == "PT":
