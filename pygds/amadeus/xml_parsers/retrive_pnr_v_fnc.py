@@ -12,12 +12,12 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     """
         A class to extract Reservation from response of retrieve PNR.
     """
-    all_ssr = {}
 
     def __init__(self, xml_content: str):
         super().__init__(xml_content, True, True, "PNR_Reply")
         self.parsed = True
         self.payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        self.all_ssr = {}
 
     def _extract(self):
         return {
@@ -157,17 +157,18 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
             if (fnc.get("serviceRequest.ssr.type", data) == "DOCS"):
                 key = fnc.get("referenceForDataElement.reference.number", data)
+                free_text = fnc.get("serviceRequest.ssr.freeText", data)
+                infos = self.get_gender_birth_day(free_text) if free_text else []
+                if len(infos) > 1:
+                    gender, date_of_birth = infos[0], infos[1]
+                else:
+                    gender, date_of_birth = None, None
+                if key and gender in ["FI", "MI"]:
+                    self.all_ssr[key + "INF"] = gender, date_of_birth
                 if key:
-                    self.all_ssr[key] = data
+                    self.all_ssr[key] = gender, date_of_birth
 
-    def get_gender_and_date_of_birth_by_passenger(self, passenger_id):
-
-        if not self.all_ssr:
-            self.get_all_ssr()
-        ssr = fnc.get(passenger_id, self.all_ssr)
-        if not ssr:
-            return None, None
-        free_text = fnc.get("serviceRequest.ssr.freeText", ssr)
+    def get_gender_birth_day(self, free_text):
         check_info = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
 
         if check_info and len(check_info) >= 3:
@@ -176,25 +177,37 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             return gender, date_of_birth
         return None, None
 
+    def get_gender_and_date_of_birth_by_passenger(self, passenger_id):
+
+        if not self.all_ssr:
+            self.get_all_ssr()
+        ssr = fnc.get(passenger_id, self.all_ssr)
+        if not ssr:
+            return None, None
+        return ssr[0], ssr[1]
+
     @property
     def get_all_passengers(self):
         all_passengers = []
-        gender = ""
         for traveller in ensure_list(fnc.get("travellerInfo", self.payload, default=[])):
             reference = fnc.get("elementManagementPassenger.reference.number", traveller)
             name_assoc_id = fnc.get("elementManagementPassenger.reference.number", traveller)
             all_passenger_data = ensure_list(fnc.get("passengerData", traveller, default=[]))
             for index, passenger in enumerate(ensure_list(fnc.get("enhancedPassengerData", traveller, default=[]))):
-                gender, date_of_birth = self.get_gender_and_date_of_birth_by_passenger(reference)
-                if not date_of_birth:
-                    date_of_birth_tag = fnc.get("dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger)
-                    date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
                 middle_name = ""
                 seat = self.get_seat_by_passenger(reference)
                 surname = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
                 given_name = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
                 forename = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.givenName", passenger)
                 passenger_type = fnc.get("enhancedTravellerInformation.travellerNameInfo.type", passenger)
+                if not passenger_type:
+                    passenger_type = "ADT"
+                reference_p = reference if passenger_type not in ["INF"] else reference + "INF"
+                gender, date_of_birth = self.get_gender_and_date_of_birth_by_passenger(reference_p)
+                if not date_of_birth:
+                    date_of_birth_tag = fnc.get("dateOfBirthInEnhancedPaxData.dateAndTimeDetails.date", passenger)
+                    date_of_birth = reformat_date(date_of_birth_tag, "%d%m%Y", "%Y-%m-%d") if date_of_birth_tag else None
+
                 firstname = fnc.get("travellerInformation.passenger.firstName", all_passenger_data[index] if len(all_passenger_data) > index else {})
                 last_name = fnc.get("enhancedTravellerInformation.otherPaxNamesDetails.surname", passenger)
                 number_in_party = fnc.get("travellerInformation.traveller.quantity", all_passenger_data[index] if len(all_passenger_data) > index else {})

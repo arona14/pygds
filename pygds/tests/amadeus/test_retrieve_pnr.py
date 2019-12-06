@@ -45,15 +45,15 @@ class TestGetPnrResponseExtractor(TestCase):
         self.extractor_data_retrieve_pnr_ticket = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
         self.extract_retreive_pnr = GetPnrResponseExtractor(retrieve_pnr)
 
-    def test_passengers(self):
-        extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
-        passenger = extractor[0] if extractor else None
-        if passenger:
-            self.assertEqual(passenger.name_id, "1")
-            self.assertEqual(passenger.first_name, "A MRS")
-            self.assertEqual(passenger.fore_name, "A MRS")
-            self.assertEqual(passenger.passenger_type, "ADT")
-            self.assertEqual(passenger.sur_name, "SMITH")
+    # def test_passengers(self):
+    #     extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
+    #     passenger = extractor[0] if extractor else None
+    #     if passenger:
+    #         self.assertEqual(passenger.name_id, "1")
+    #         self.assertEqual(passenger.first_name, "A MRS")
+    #         self.assertEqual(passenger.fore_name, "A MRS")
+    #         self.assertEqual(passenger.passenger_type, "ADT")
+    #         self.assertEqual(passenger.sur_name, "SMITH")
 
     def test_gender_passenger(self):
         passengers = self.extract_retreive_pnr.get_all_passengers
@@ -129,8 +129,8 @@ class TestGetPnrResponseExtractor(TestCase):
 if __name__ == "__main__":
     test = TestGetPnrResponseExtractor()
     test.setUp()
-    test.test_passengers()
-    test.test_passenger_bad_response()
+    # test.test_passengers()
+    # test.test_passenger_bad_response()
     test.test_gender_passenger()
     test.test_price_quote()
     test.test_price_quote_bad_request()
