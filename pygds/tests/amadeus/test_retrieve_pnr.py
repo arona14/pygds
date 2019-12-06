@@ -107,7 +107,7 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_ticket.get_segments
         segments = extractor[0] if extractor else None
         if segments:
-            self.assertEqual(len(segments.segments), 2)
+            self.assertEqual(len(segments.segments), 1)
             self.assertEqual(segments.segments[0].action_code, 'HK')
             self.assertEqual(segments.segments[0].sequence, "1")
 
