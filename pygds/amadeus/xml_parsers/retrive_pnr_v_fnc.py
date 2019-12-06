@@ -215,14 +215,16 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 card_number = None
 
                 card_type = fnc.get("otherDataFreetext.longFreetext", data)
-
-                if card_type not in ["CASH", "CHECKH"]:
-                    two_info = card_type.split(" ")
-                    info_cc_exp = two_info[1].split("/") if two_info else None
+                conditions = [
+                    "CASH" not in card_type, "CHECK" not in card_type
+                ]
+                if all(conditions):
+                    two_info = card_type.split(" ") if " " in card_type else card_type
+                    info_cc_exp = two_info[1].split("/") if isinstance(two_info, list) else two_info.split("/")
                     if info_cc_exp:
-                        card_number = info_cc_exp[0][4:] if len(info_cc_exp) > 1 else None
-                        expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 2 else None
-                        expire_month = info_cc_exp[1][:2] if len(info_cc_exp) > 2 else None
+                        card_number = "".join([i for i in info_cc_exp[0] if (i.isdigit() or i == "X")]) if len(info_cc_exp) > 0 else None
+                        expire_year = info_cc_exp[1][2:4] if len(info_cc_exp) > 1 else None
+                        expire_month = info_cc_exp[1][:2] if len(info_cc_exp) > 1 else None
                     card_type = "CC"
                 form_payment = InfoPaymentCreditCard(card_type=card_type, card_number=card_number, expire_month=expire_month, expire_year=expire_year)
                 all_form_payment.append(form_payment)
