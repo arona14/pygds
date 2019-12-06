@@ -215,8 +215,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 card_number = None
 
                 card_type = fnc.get("otherDataFreetext.longFreetext", data)
-
-                if "CASH" not in card_type and "CHECKH" not in card_type:
+                conditions = [
+                    "CASH" not in card_type, "CHECK" not in card_type
+                ]
+                if all(conditions):
                     two_info = card_type.split(" ") if " " in card_type else card_type
                     info_cc_exp = two_info[1].split("/") if isinstance(two_info, list) else two_info.split("/")
                     if info_cc_exp:
