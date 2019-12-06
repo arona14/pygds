@@ -66,7 +66,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             departure_terminal = fnc.get("flightDetail.departureInformation.departTerminal", segment)
 
             arrival_terminal = fnc.get("flightDetail.arrivalStationInfo.terminal", segment)
-            class_of_servive = fnc.get("travelProduct.productDetails.classOfService", segment)
+            class_of_service = fnc.get("travelProduct.productDetails.classOfService", segment)
             action_code = fnc.get("relatedProduct.status", segment)
             number_in_party = fnc.get("relatedProduct.quantity", segment)
 
@@ -74,8 +74,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
             markting_airline_short_name = ""
             operating_airline_short_name = ""
-            marketing = FlightAirlineDetails(code_marketing, marketing_number, markting_airline_short_name, class_of_servive)
-            operating = FlightAirlineDetails(code_operating, operating_number, operating_airline_short_name, class_of_servive)
+            marketing = FlightAirlineDetails(code_marketing, marketing_number, markting_airline_short_name, class_of_service)
+            operating = FlightAirlineDetails(code_operating, operating_number, operating_airline_short_name, class_of_service)
 
             disclosure_carrier = FlightDisclosureCarrier("", "", "")
             mariage_grp = FlightMarriageGrp("", "", "")
@@ -91,7 +91,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 operating,
                 disclosure_carrier, mariage_grp,
                 seats, action_code, "", "", "", "",
-                "", "", control_number, class_of_servive, "",
+                "", "", control_number, class_of_service, "",
                 equipment_type, "", number_in_party, "")
 
             itinerary.addSegment(segment_data)
