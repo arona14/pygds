@@ -12,6 +12,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     """
         A class to extract Reservation from response of retrieve PNR.
     """
+    all_ssr = {}
 
     def __init__(self, xml_content: str):
         super().__init__(xml_content, True, True, "PNR_Reply")
@@ -57,7 +58,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             code_operating = fnc.get("travelProduct.companyDetail.identification", segment)
 
             status = fnc.get("relatedProduct.status", segment)
-            if isinstance(status, list):
+            if isinstance(status, list) and status:
                 status = status[0]  # we need to recover the first item if status is a list
             segment_reference = fnc.get("elementManagementItinerary.reference.number", segment)
             equipment_type = fnc.get("flightDetail.productDetails.equipment", segment)
@@ -149,31 +150,30 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 }
         return None
 
-    def get_middle_name_by_passenger(self, passenger_id: int):
+    def get_all_ssr(self):
+        """
+        This function is use to get all ssr of type DOCS
+        """
         for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
-
-            if (fnc.get("serviceRequest.ssr.type", data) == "DOCS") and (fnc.get(
-                    "referenceForDataElement.reference.number", data) == passenger_id):
-                free_text = fnc.get("serviceRequest.ssr.freeText", data)
-                check_middle_name = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
-
-                if check_middle_name and len(check_middle_name) >= 5:
-                    check_middle_name = check_middle_name[5]
-                    return check_middle_name
-        return None
+            if (fnc.get("serviceRequest.ssr.type", data) == "DOCS"):
+                key = fnc.get("referenceForDataElement.reference.number", data)
+                if key:
+                    self.all_ssr[key] = data
 
     def get_gender_and_date_of_birth_by_passenger(self, passenger_id):
-        for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
-            if (fnc.get("serviceRequest.ssr.type", data) == "DOCS") and (fnc.get(
-                    "referenceForDataElement.reference.number", data) == passenger_id):
-                free_text = fnc.get("serviceRequest.ssr.freeText", data)
-                check_info = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
 
-                if check_info and len(check_info) >= 3:
-                    gender = check_info[2]
-                    date_of_birth = check_info[1]
-                    if gender == "M" or gender == "F":
-                        return gender, date_of_birth
+        if not self.all_ssr:
+            self.get_all_ssr()
+        ssr = fnc.get(passenger_id, self.all_ssr)
+        if not ssr:
+            return None, None
+        free_text = fnc.get("serviceRequest.ssr.freeText", ssr)
+        check_info = re.split("[, /,////?//:; ]+", free_text) if free_text else None  # to transform the caracter chaine in liste_object
+
+        if check_info and len(check_info) >= 3:
+            gender = check_info[2]
+            date_of_birth = check_info[1]
+            return gender, date_of_birth
         return None, None
 
     @property

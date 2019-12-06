@@ -11,6 +11,9 @@ data_retrieve_pnr = data_retrieve_pnr.read()
 data_retrieve_pnr_ticket = open("pygds/tests/data/retrieve_pnr_ticket.xml")
 data_retrieve_pnr_ticket = data_retrieve_pnr_ticket.read()
 
+retrieve_pnr = open("pygds/tests/data/retreive_pnr_PFU66D.xml")
+retrieve_pnr = retrieve_pnr.read()
+
 
 class TestGetPnrResponseExtractor(TestCase):
     def setUp(self):
@@ -40,6 +43,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.extractor_data_retrieve_pnr_p = GetPnrResponseExtractor(data_retrieve_pnr_p)
         self.extractor_data_retrieve_pnr = GetPnrResponseExtractor(data_retrieve_pnr)
         self.extractor_data_retrieve_pnr_ticket = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        self.extract_retreive_pnr = GetPnrResponseExtractor(retrieve_pnr)
 
     def test_passengers(self):
         extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
@@ -50,6 +54,12 @@ class TestGetPnrResponseExtractor(TestCase):
             self.assertEqual(passenger.fore_name, "A MRS")
             self.assertEqual(passenger.passenger_type, "ADT")
             self.assertEqual(passenger.sur_name, "SMITH")
+
+    def test_gender_passenger(self):
+        passengers = self.extract_retreive_pnr.get_all_passengers
+        if passengers:
+            for passenger in passengers:
+                self.assertIsNotNone(passenger.date_of_birth)
 
     def test_passenger_bad_response(self):
         passengers = self.extractor.get_all_passengers
@@ -121,6 +131,7 @@ if __name__ == "__main__":
     test.setUp()
     test.test_passengers()
     test.test_passenger_bad_response()
+    test.test_gender_passenger()
     test.test_price_quote()
     test.test_price_quote_bad_request()
     test.test_ticketing_info()
