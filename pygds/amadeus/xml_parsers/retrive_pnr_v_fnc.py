@@ -1,4 +1,3 @@
-import re
 from typing import List
 from pygds.amadeus.xml_parsers.response_extractor import BaseResponseExtractor, extract_amount
 from pygds.core.helpers import ensure_list, get_data_from_xml as from_xml, reformat_date
@@ -6,6 +5,7 @@ from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     InfoPaymentCreditCard, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp, InfoPaymentOther
 import fnc
+from pygds.core.mapping import change_string_date
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
@@ -211,12 +211,12 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
                     info_ssr = self.get_ssr_by_passenger(reference_p) if reference_p else []
                     gender = info_ssr[5] if len(info_ssr) > 5 else None
-                    date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else None
-
-                    surname = self.change_value_if_null(surname, info_ssr[7]) if len(info_ssr) > 7 else None
+                    date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
+                    date_of_birth = change_string_date(date_of_birth) if date_of_birth else date_of_birth
+                    surname = self.change_value_if_null(surname, info_ssr[7]) if len(info_ssr) > 7 else surname
                     last_name = surname
 
-                    firstname = self.change_value_if_null(firstname, info_ssr[8])
+                    firstname = self.change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
                     forename = firstname
                     given_name = firstname
                     passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, surname, given_name, forename, middle_name,
