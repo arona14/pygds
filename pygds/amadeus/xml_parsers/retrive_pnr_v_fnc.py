@@ -187,7 +187,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             reference = name_assoc_id = fnc.get("elementManagementPassenger.reference.number", traveller)
 
             for passenger in ensure_list(fnc.get("passengerData", traveller, default=[])):
-                middle_name = None
+                middle_name = ""
                 seat = self.get_seat_by_passenger(reference)
 
                 number_in_party = fnc.get("travellerInformation.traveller.quantity", passenger)
@@ -213,14 +213,13 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     gender = info_ssr[5] if len(info_ssr) > 5 else None
                     date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
                     date_of_birth = change_string_date(date_of_birth) if date_of_birth else date_of_birth
-                    surname = self.change_value_if_null(surname, info_ssr[7]) if len(info_ssr) > 7 else surname
-                    last_name = surname
+                    last_name = self.change_value_if_null(surname, info_ssr[7]) if len(info_ssr) > 7 else ""
+                     
 
                     firstname = self.change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
-                    forename = firstname
-                    given_name = firstname
-                    passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, surname, given_name, forename, middle_name,
-                                             number_in_party, "", passenger_type, "", seat)
+                    forename = ""
+                    passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, surname, forename, middle_name,
+                                             "", number_in_party, "", passenger_type, "", seat)
                     all_passengers.append(passsenger_o)
         return all_passengers
 
