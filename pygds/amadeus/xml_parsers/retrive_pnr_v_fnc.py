@@ -187,11 +187,10 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             reference = name_assoc_id = fnc.get("elementManagementPassenger.reference.number", traveller)
 
             for passenger in ensure_list(fnc.get("passengerData", traveller, default=[])):
-                middle_name = ""
                 seat = self.get_seat_by_passenger(reference)
 
                 number_in_party = fnc.get("travellerInformation.traveller.quantity", passenger)
-                surname = fnc.get("travellerInformation.traveller.surname", passenger)
+                last_name = fnc.get("travellerInformation.traveller.surname", passenger)
 
                 info_passengers = ensure_list(fnc.get("travellerInformation.passenger", passenger, default=[]))
                 for index, info_passenger in enumerate(info_passengers):
@@ -213,12 +212,11 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     gender = info_ssr[5] if len(info_ssr) > 5 else None
                     date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
                     date_of_birth = change_string_date(date_of_birth) if date_of_birth else date_of_birth
-                    last_name = self.change_value_if_null(surname, info_ssr[7]) if len(info_ssr) > 7 else ""
-                     
-
+                    last_name = self.change_value_if_null(last_name, info_ssr[7]) if len(info_ssr) > 7 else last_name
                     firstname = self.change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
-                    forename = ""
-                    passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, surname, forename, middle_name,
+                    middle_name = ""
+
+                    passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, "", "", middle_name,
                                              "", number_in_party, "", passenger_type, "", seat)
                     all_passengers.append(passsenger_o)
         return all_passengers
