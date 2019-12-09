@@ -1222,12 +1222,13 @@ class PassengerUpdate:
 
 class FlightSeatMap:
     def __init__(self):
-        self.flight_number: str = None
         self.origin: str = None
         self.destination: str = None
         self.depart_date: str = None
         self.operating_code: str = None
+        self.operating_flight_number: str = None
         self.marketing_code: str = None
+        self.marketing_flight_number: str = None
         self.arrival_date: str = None
         self.class_of_service: str = None
         self.currency_code: str = None
