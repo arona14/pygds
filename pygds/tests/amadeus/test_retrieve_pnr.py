@@ -95,7 +95,7 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_ticket.get_form_of_payments
         form_of_payments = extractor[0] if extractor else None
         if form_of_payments:
-            self.assertEqual(form_of_payments.card_number, 'XXXXXXXXXXXX4305')
+            self.assertEqual(form_of_payments.card_number, '1283740982174305')
             self.assertEqual(form_of_payments.card_type, 'CC')
             self.assertEqual(form_of_payments.expire_month, '10')
             self.assertEqual(form_of_payments.expire_year, '20')
