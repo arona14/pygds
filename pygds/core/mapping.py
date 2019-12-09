@@ -7,15 +7,20 @@ def change_string_date(date: str):
     day = date[:2]
     month = date[2:5]
     year = date[5:]
-    month = MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT[month] if month in MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT else None
-    if not month:
+    
+    try:
+        month = MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT[month]
+    except KeyError:
         return date
+
     for digit in year:
         if not digit.isdigit():
             return date
     new_date = month + "." + day + "." + year
+
     try:
         new_date = datetime.datetime.strptime(new_date, '%m.%d.%y').strftime('%m-%d-%Y')
     except Exception:
         return date
+        
     return new_date
