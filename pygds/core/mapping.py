@@ -7,7 +7,10 @@ def change_string_date(date: str):
     day = date[:2]
     month = date[2:5]
     year = date[5:]
-    month = MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT[month] if month in MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT else None
+    try:
+        month = MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT[month]
+    except KeyError:
+        return date
     if not month:
         return date
     for digit in year:
