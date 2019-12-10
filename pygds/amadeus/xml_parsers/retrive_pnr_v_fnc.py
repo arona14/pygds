@@ -5,7 +5,6 @@ from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     InfoPaymentCreditCard, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp, InfoPaymentOther
 import fnc
-from pygds.core.mapping import change_string_date
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
