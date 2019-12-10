@@ -1,5 +1,5 @@
 import datetime
-
+from .helpers import reformat_date
 MONTH_STR_FORMAT_TO_MONTH_NUMBER_FORMAT = {"JAN": "01", "FEB": "02", "MAR": "03", "APR": "04", "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08", "OCT": "09", "SEP": "10", "NOV": "11", "DEC": "12"}
 
 
@@ -18,7 +18,7 @@ def change_string_date(date: str):
     new_date = month + "." + day + "." + year
 
     try:
-        new_date = datetime.datetime.strptime(new_date, '%m.%d.%y').strftime('%m-%d-%Y')
+        new_date = reformat_date(new_date, '%m.%d.%y', '%m-%d-%Y')
     except Exception:
         return date
 
