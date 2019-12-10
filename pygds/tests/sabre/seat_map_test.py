@@ -38,7 +38,7 @@ class SeatMapTest(unittest.TestCase):
         self.assertIn("<eb:Action>EnhancedSeatMapRQ</eb:Action>", seat_map_xml)
         self.assertIn("<tag0:DepartureDate>10/10/2019</tag0:DepartureDate>", seat_map_xml)
         self.assertIn("<tag0:Operating carrier=\"ARL\">8800</tag0:Operating>", seat_map_xml)
-        self.assertIn("<tag0:Marketing carrier=\"DL\">8800</tag0:Marketing>", seat_map_xml)
+        self.assertIn("<tag0:Marketing carrier=\"ARL\">8800</tag0:Marketing>", seat_map_xml)
 
 
 if __name__ == "__main__":
