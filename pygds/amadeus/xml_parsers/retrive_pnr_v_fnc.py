@@ -210,8 +210,17 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
                     info_ssr = self.get_ssr_by_passenger(reference_p) if reference_p else []
                     gender = info_ssr[5] if len(info_ssr) > 5 else None
+
                     date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
-                    date_of_birth = change_string_date(date_of_birth) if date_of_birth else date_of_birth
+
+                    try:
+                        if all([digit.isdigit() for digit in date_of_birth]):
+                            date_of_birth = reformat_date(date_of_birth, "%m%d%y", "%m-%d-%Y")
+                        else:
+                            date_of_birth = reformat_date(date_of_birth, "%m%b%y", "%m-%d-%Y")
+                    except Exception:
+                        pass
+
                     last_name = self.change_value_if_null(last_name, info_ssr[7]) if len(info_ssr) > 7 else last_name
                     firstname = self.change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
                     middle_name = ""
