@@ -214,9 +214,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
                     try:
                         if all([digit.isdigit() for digit in date_of_birth]):
-                            date_of_birth = reformat_date(date_of_birth, "%m%d%y", "%m-%d-%Y")
+                            date_of_birth = reformat_date(date_of_birth, "%d%m%y", "%m-%d-%Y")
                         else:
-                            date_of_birth = reformat_date(date_of_birth, "%m%b%y", "%m-%d-%Y")
+                            date_of_birth = reformat_date(date_of_birth, "%d%b%y", "%m-%d-%Y")
                     except Exception:
                         pass
 
