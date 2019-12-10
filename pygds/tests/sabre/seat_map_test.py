@@ -20,8 +20,6 @@ class SeatMapTest(unittest.TestCase):
         flight_info.origin = "DTW"
         flight_info.destination = "NYC"
         flight_info.operating_flight_number = "8800"
-        flight_info.marketing_flight_number = "8800"
-        flight_info.marketing_code = "DL"
         flight_info.operating_code = "ARL"
         flight_info.currency_code = "USD"
         flight_info.depart_date = "10/10/2019"
