@@ -313,12 +313,12 @@ def get_commission_exchange(fare_type, value):
     return commission_value
 
 
-def add_flight_segment(origin, destination, depart_date, operating_code, marketing_code, flight_number, arrival_date, class_of_service, currency_code):
+def add_flight_segment(origin, destination, depart_date, operating_code, operating_flight_number, marketing_code, marketing_flight_number, arrival_date, class_of_service, currency_code):
 
     return f"""<tag0:Flight origin="{origin}" destination="{destination}">
       <tag0:DepartureDate>{depart_date}</tag0:DepartureDate>
-      <tag0:Operating carrier="{operating_code}">{flight_number}</tag0:Operating>
-      <tag0:Marketing carrier="{marketing_code}">{flight_number}</tag0:Marketing>
+      <tag0:Operating carrier="{operating_code}">{operating_flight_number}</tag0:Operating>
+      <tag0:Marketing carrier="{marketing_code}">{marketing_flight_number}</tag0:Marketing>
       <tag0:ArrivalDate>{arrival_date}</tag0:ArrivalDate>
     </tag0:Flight>
     <tag0:CabinDefinition>

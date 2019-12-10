@@ -123,3 +123,7 @@
 # 0.0.26 (2019-12-4)
 - Sabre:
     - Change version to 0.0.26[Virginie](virginie@ctsfares.com)
+
+# 0.0.27 (2019-12-09)
+- Sabre:
+    - Change seat map request (add operating flight number and marketing flight number) [mbayane1990](mbaye@ctsfares.com)
