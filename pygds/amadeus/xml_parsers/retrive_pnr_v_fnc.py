@@ -1,6 +1,6 @@
 from typing import List
 from pygds.amadeus.xml_parsers.response_extractor import BaseResponseExtractor, extract_amount
-from pygds.core.helpers import ensure_list, get_data_from_xml as from_xml, reformat_date
+from pygds.core.helpers import ensure_list, get_data_from_xml as from_xml, reformat_date, change_value_if_null
 from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     InfoPaymentCreditCard, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp, InfoPaymentOther
@@ -255,11 +255,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             self.get_all_ssr()
         return fnc.get(passenger_id, self.all_ssr, default=[])
 
-    def change_value_if_null(self, old_value, new_value):
-        if old_value is None:
-            return new_value
-        return old_value
-
     @property
     def get_all_passengers(self):
         all_passengers = []
@@ -291,7 +286,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     info_ssr = self.get_ssr_by_passenger(reference_p) if reference_p else []
                     gender = info_ssr[5] if len(info_ssr) > 5 else None
 
-                    date_of_birth = self.change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
+                    date_of_birth = change_value_if_null(date_of_birth, info_ssr[4]) if len(info_ssr) > 4 else date_of_birth
 
                     try:
                         if all([digit.isdigit() for digit in date_of_birth]):
@@ -301,8 +296,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     except Exception:
                         pass
 
-                    last_name = self.change_value_if_null(last_name, info_ssr[7]) if len(info_ssr) > 7 else last_name
-                    firstname = self.change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
+                    last_name = change_value_if_null(last_name, info_ssr[7]) if len(info_ssr) > 7 else last_name
+                    firstname = change_value_if_null(firstname, info_ssr[8]) if len(info_ssr) > 8 else firstname
                     middle_name = ""
 
                     passsenger_o = Passenger(reference, name_assoc_id, firstname, last_name, date_of_birth, gender, "", "", middle_name,
