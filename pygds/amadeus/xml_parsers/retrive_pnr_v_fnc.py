@@ -40,7 +40,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 return segment_book_date
         return None
 
-    def elapside_time(self, departure, arrival):
+    def elapsed_time(self, departure, arrival):
         departure_date = datetime.strptime(departure, "%d%m%y%H%M")
         arrival_date = datetime.strptime(arrival, "%d%m%y%H%M")
         return (arrival_date - departure_date)
@@ -88,7 +88,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
     def _get_itinerary(self, itinerary_infos: List):
         itinerary = Itinerary()
         segment_book_date = self.segment_book_date
-        elapsed_time = self.elapside_time
         schedule_change_indicator = True
         for segment in itinerary_infos:
             dep_date = fnc.get("travelProduct.product.depDate", segment)
@@ -139,8 +138,8 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 mariage_grp = FlightMarriageGrp("", "", "")
             elapsed_dep_date_time = (dep_date + dep_time) if dep_date and dep_time else None
             elapsed_arriv_date_time = (arr_date + arr_time) if arr_date and arr_time else None
-            elapsed = elapsed_time(elapsed_dep_date_time, elapsed_arriv_date_time)
-            elapsed = str(elapsed_time).replace(":", ".")
+            elapsed = self.elapsed_time(elapsed_dep_date_time, elapsed_arriv_date_time)
+            elapsed = str(elapsed).replace(":", ".")
             segment_booked_date = segment_book_date
             airline_ref_id = flight_number
             segment_special_request = ""
