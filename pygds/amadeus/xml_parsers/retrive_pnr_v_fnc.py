@@ -325,9 +325,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
         for tst in self._tst_data():
             all_passengers = []
-            pq_number = 0
-            status = None
-            fare_type = None
+
             base_fare = tst["base_fare"] if "base_fare" in tst else None
             if base_fare:
                 base_fare_value = float(base_fare["amount"])
@@ -335,7 +333,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             else:
                 base_fare_value = None
                 base_fare_cc = None
-
             base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
 
             total_fare = tst["total_fare"] if "total_fare" in tst else None
@@ -345,7 +342,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             else:
                 total_fare_value = None
                 total_fare_cc = None
-
             total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
 
             total_taxes = tst["total_taxes"] if "total_taxes" in tst else None
@@ -355,21 +351,30 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             else:
                 tax_fare_value = None
                 tax_fare_cc = None
-
             tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
-            validating_carrier = None
-            commission_percentage = None
 
-            for passenger in tst["passenger_references"] if "passenger_references" in tst else []:
+            for passenger in tst["passenger_references"]:
                 passenger = FormatPassengersInPQ(
                     passenger["name_id"] if "name_id" in passenger else None, passenger["type"] if "type" in passenger else None
                 ).to_data()
                 all_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(pq_number, status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
+            pq_number = tst["tst_reference_number"]
+
+            validating_carrier = tst["validating_carrier"]
+
+            status = tst["status"]
+
+            fare_type = None
+
+            commission_percentage = tst["commission"]
+
+            price_quote_data = PriceQuote_(
+                pq_number, status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, all_passengers, commission_percentage)
             all_price_quote.append(price_quote_data)
 
         return all_price_quote
+
 
     @property
     def get_form_of_payments(self):
@@ -400,12 +405,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 all_form_payment.append(form_payment)
         return all_form_payment
 
-    def get_passenger(self, name_id):
-        for passenger in self.get_all_passengers:
-            if passenger.name_id == name_id:
-                return passenger
-
-        return None
 
     def _extract_qualifier_number(self, list_reference):
         list_reference = ensure_list(list_reference)
@@ -426,10 +425,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         agency_location = None
         time_stamp = None
         transaction_indicator = None
-        agent_sign = fnc.get("securityInformation.secondRpInformation.agentSignature", self.payload)
         for ticket in ensure_list(
             fnc.get(
-                "dataElementsMaster.dataElementsIndiv", self.payload, default=[]
+                "dataElementsIndiv", fnc.get("dataElementsMaster", self.payload, default={}), default=[]
             )
         ):
             if "ticketElement" in ticket:
@@ -441,23 +439,37 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 list_reference = fnc.get(
                     "reference", ticket["referenceForDataElement"] if "referenceForDataElement" in ticket else {}
                 )
-                qualifier, name_id = self._extract_qualifier_number(list_reference)
-                passenger = self.get_passenger(name_id) if name_id else None
-
-                full_name = (passenger.first_name if passenger.first_name else "") + " " + (passenger.last_name if passenger.last_name else "") if passenger else None
                 full_ticket_number = fnc.get(
                     "longFreetext", ticket["otherDataFreetext"] if "otherDataFreetext" in ticket else {}
                 )
                 index = fnc.get("elementManagementData.reference.number", ticket)
 
                 ticket_number = self.get_ticket_number(full_ticket_number)
+                passenger_type = None
+                if "PAX" not in full_ticket_number:
+                    passenger_type = "INF"
+
+                qualifier, name_id = self._extract_qualifier_number(list_reference)
+                passenger = self.get_passenger(name_id, passenger_type)
+
+                full_name = (passenger.first_name if passenger.first_name else "") + " " + (passenger.last_name if passenger.last_name else "") if passenger else None
 
                 ticketing = TicketingInfo_(
-                    ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, agent_sign, full_name
+                    ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, full_ticket_number, "", full_name
                 )
 
                 all_ticket.append(ticketing)
         return all_ticket
+
+    def get_passenger(self, name_id, passenger_type):
+        for passenger in self.get_all_passengers:
+
+            if all([passenger.name_id == name_id, passenger_type == "INF", passenger.passenger_type == "INF"]):
+                return passenger
+            elif passenger.name_id == name_id:
+                return passenger
+
+        return None
 
     def get_ticket_number(self, ticket_number: str):
         if not ticket_number:
@@ -486,12 +498,38 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         for tst_data in ensure_list(
             fnc.get("tstData", self.payload, default=[])
         ):
+            tst_reference_number = fnc.get(
+                "tstGeneralInformation.generalInformation.tstReferenceNumber", tst_data
+            )
+            passenger_type = None
+            commission = None
+            status = None
+            validating_carrier = None
+            for free_text in ensure_list(fnc.get("tstFreetext", tst_data)):
+                if fnc.get("freetextDetail.type", free_text) == "41":
+                    passenger_type = fnc.get("longFreetext", free_text)
+                if fnc.get("freetextDetail.type", free_text) == "11":
+                    commission = fnc.get("longFreetext", free_text)
+                if fnc.get("freetextDetail.type", free_text) == "17":
+                    status = fnc.get("longFreetext", free_text)
+                if fnc.get("freetextDetail.type", free_text) == "P18":
+                    validating_carrier = fnc.get("longFreetext", free_text)
+            fare_type = "PUB"
+            for option in ensure_list(fnc.get("segmentAssociation.selection", tst_data)):
+                if fnc.get("option", option) == "B":
+                    fare_type = "NET"
+
             fare_elements = self._tst_fare_elements(tst_data)
             total_taxes, taxes = self._tst_taxes(tst_data)
-            pax_refs, segment_refs = self._tst_pax_segs_refs(tst_data)
+            pax_refs, segment_refs = self._tst_pax_segs_refs(tst_data, passenger_type)
             base_fare, total_fare, amounts = self._tst_amounts(tst_data)
 
             tst = {
+                "fare_type": fare_type,
+                "status": status,
+                "validating_carrier": validating_carrier,
+                "commission": commission,
+                "tst_reference_number": tst_reference_number,
                 "passenger_references": pax_refs,
                 "base_fare": base_fare.to_dict() if base_fare else None,
                 "total_fare": total_fare.to_dict() if total_fare else None,
@@ -504,10 +542,14 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             all_tst.append(tst)
         return all_tst
 
-    def _tst_pax_segs_refs(self, tst_data):
+    def _tst_pax_segs_refs(self, tst_data, passenger_type):
         pax_refs = []
         segment_refs = []
         passengers = self.get_all_passengers
+        if passenger_type == "INF":
+            passengers = [passenger for passenger in passengers if passenger.passenger_type == "INF"]
+        else:
+            passengers = [passenger for passenger in passengers if passenger.passenger_type != "INF"]
 
         for ref in ensure_list(fnc.get("referenceForTstData.reference", tst_data, default=[])):
             qualifier, reference = (fnc.get("qualifier", ref), fnc.get("number", ref))
@@ -567,5 +609,5 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             if am.currency == total_taxes_currency:  # avoid summing amounts on different currencies
                 total_taxes += float(am.amount)
             taxes.append(tax)
-        total_taxes = FareAmount(None, total_taxes, total_taxes_currency)
+        total_taxes = FareAmount(None, round(total_taxes, 2), total_taxes_currency)
         return total_taxes, taxes
