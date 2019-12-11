@@ -5,6 +5,7 @@ from pygds.core.price import FareElement, TaxInformation, FareAmount
 from pygds.core.types import FlightPointDetails, FlightAirlineDetails, FlightSegment, Passenger, Remarks, \
     InfoPaymentCreditCard, FormatAmount, FormatPassengersInPQ, PriceQuote_, TicketingInfo_, Itinerary, FlightDisclosureCarrier, FlightMarriageGrp, InfoPaymentOther
 import fnc
+from datetime import datetime
 
 
 class GetPnrResponseExtractor(BaseResponseExtractor):
@@ -17,6 +18,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
         self.parsed = True
         self.payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
         self.all_ssr = {}
+        self.all_mariage_group = None
 
     def _extract(self):
         return {
@@ -31,67 +33,147 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
             "booking_source": fnc.get("securityInformation.secondRpInformation.creationOfficeId", self.payload),
         }
 
+    def segment_book_date(self):
+        for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
+            if fnc.get("miscellaneousRemarks.remarks.category", data) == "B":
+                segment_book_date = fnc.get("miscellaneousRemarks.remarks.freetext", data)
+                return segment_book_date
+        return None
+
+    def elapside_time(self, departure, arrival):
+        departure_date = datetime.strptime(departure, "%d%m%y%H%M")
+        arrival_date = datetime.strptime(arrival, "%d%m%y%H%M")
+        return (arrival_date - departure_date)
+
+    def get_all_mariage_group(self):
+        self.all_mariage_group = {}
+        group_id = 1
+        for segment_info in ensure_list(fnc.get("segmentGroupingInfo", self.payload, default=())):
+            if fnc.get("groupingCode", segment_info) == "MIN":
+                for sequence_id, mariage_detail in enumerate(ensure_list(ensure_list(fnc.get("marriageDetail", segment_info, default=[])))):
+                    tatoo_number = fnc.get("tatooNum", mariage_detail)
+                    if tatoo_number:
+                        self.all_mariage_group[tatoo_number] = {
+                            "group": str(group_id),
+                            "sequence": str(sequence_id + 1),
+                            "ind": fnc.get("marriageQualifier", mariage_detail)
+                        }
+                group_id += 1
+
+    def get_mariage_group_by_segment(self, id_segment):
+        if not self.all_mariage_group:
+            self.get_all_mariage_group()
+        try:
+            return self.all_mariage_group[id_segment]
+        except Exception:
+            return None
+
+    def get_seat_by_segment(self, segment_ref: int):
+        for data in ensure_list(fnc.get("dataElementsMaster.dataElementsIndiv", self.payload, default=[])):
+
+            if (fnc.get("referenceForDataElement.reference.qualifier", data) == "ST") and (fnc.get(
+                    "referenceForDataElement.reference.number", data) == segment_ref):
+
+                is_smoked = False
+                return {
+                    "id": "",
+                    "seat_number": fnc.get("serviceRequest.ssrb.data", data),
+                    "smoking_pref_offered_indicator": is_smoked if (fnc.get("serviceRequest.ssrb.seatType", data) == "N") else True,
+                    "seat_type_code": fnc.get("serviceRequest.ssrb.seatType", data),
+                    "seat_status_code": fnc.get("serviceRequest.ssr.status", data),
+                    "name_id": fnc.get("serviceRequest.ssrb.crossRef", data),
+                }
+        return None
+
     def _get_itinerary(self, itinerary_infos: List):
         itinerary = Itinerary()
+        segment_book_date = self.segment_book_date
+        elapsed_time = self.elapside_time
+        schedule_change_indicator = True
         for segment in itinerary_infos:
             dep_date = fnc.get("travelProduct.product.depDate", segment)
             dep_time = fnc.get("travelProduct.product.depTime", segment)
             arr_date = fnc.get("travelProduct.product.arrDate", segment)
             arr_time = fnc.get("travelProduct.product.arrTime", segment)
 
-            departure_date_time = reformat_date(
-                dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S"
-            ) if dep_date and dep_time else None
-            arrival_date_time = reformat_date(
-                arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S"
-            ) if arr_date and arr_time else None
+            departure_date_time = reformat_date(dep_date + dep_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S") if dep_date and dep_time else None
+            arrival_date_time = reformat_date(arr_date + arr_time, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S") if arr_date and arr_time else None
 
             departure_airport = fnc.get("travelProduct.boardpointDetail.cityCode", segment)
             arrival_airport = fnc.get("travelProduct.offpointDetail.cityCode", segment)
 
-            marketing_number = fnc.get("travelProduct.productDetails.identification", segment)
-            operating_number = fnc.get("itineraryReservationInfo.reservation.controlNumber", segment)
-            control_number = marketing_number
+            flight_number_mark = fnc.get("travelProduct.productDetails.identification", segment)
+            flight_number_oper = fnc.get("travelProduct.productDetails.identification", segment)
+            flight_number = flight_number_mark
 
-            code_marketing = fnc.get("itineraryReservationInfo.reservation.companyId", segment)
-            code_operating = fnc.get("travelProduct.companyDetail.identification", segment)
-
+            code_marketing = fnc.get("pnrHeader.reservationInfo.reservation.companyId", self.payload)
+            code_operating = fnc.get("itineraryReservationInfo.reservation.companyId", segment)
             status = fnc.get("relatedProduct.status", segment)
             if isinstance(status, list) and status:
                 status = status[0]  # we need to recover the first item if status is a list
             segment_reference = fnc.get("elementManagementItinerary.reference.number", segment)
             equipment_type = fnc.get("flightDetail.productDetails.equipment", segment)
+            number_of_stop = fnc.get("flightDetail.productDetails.numOfStops", segment)
             resbook_designator = fnc.get("travelProduct.productDetails.classOfService", segment)
             departure_terminal = fnc.get("flightDetail.departureInformation.departTerminal", segment)
 
             arrival_terminal = fnc.get("flightDetail.arrivalStationInfo.terminal", segment)
             class_of_service = fnc.get("travelProduct.productDetails.classOfService", segment)
             action_code = fnc.get("relatedProduct.status", segment)
+            if action_code == "HK":
+                schedule_change_indicator = False
             number_in_party = fnc.get("relatedProduct.quantity", segment)
 
             departure = FlightPointDetails(departure_date_time, departure_airport, departure_terminal)
             arrival = FlightPointDetails(arrival_date_time, arrival_airport, arrival_terminal)
             markting_airline_short_name = ""
             operating_airline_short_name = ""
-            marketing = FlightAirlineDetails(code_marketing, marketing_number, markting_airline_short_name, class_of_service)
-            operating = FlightAirlineDetails(code_operating, operating_number, operating_airline_short_name, class_of_service)
+            marketing = FlightAirlineDetails(code_marketing, flight_number_mark, markting_airline_short_name, class_of_service)
+            operating = FlightAirlineDetails(code_operating, flight_number_oper, operating_airline_short_name, class_of_service)
 
             disclosure_carrier = FlightDisclosureCarrier("", "", "")
-            mariage_grp = FlightMarriageGrp("", "", "")
-
-            seats = ""
+            mariage_grp = self.get_mariage_group_by_segment(segment_reference)
+            if mariage_grp:
+                mariage_grp = FlightMarriageGrp(mariage_grp["ind"], mariage_grp["group"], mariage_grp["sequence"])
+            else:
+                mariage_grp = FlightMarriageGrp("", "", "")
+            elapsed_dep_date_time = (dep_date + dep_time) if dep_date and dep_time else None
+            elapsed_arriv_date_time = (arr_date + arr_time) if arr_date and arr_time else None
+            elapsed = elapsed_time(elapsed_dep_date_time, elapsed_arriv_date_time)
+            elapsed = str(elapsed_time).replace(":", ".")
+            segment_booked_date = segment_book_date
+            airline_ref_id = flight_number
+            segment_special_request = ""
+            air_miles_flown = ""
+            funnel_flight = ""
+            change_of_gauge = ""
+            eticket = ""
+            code = fnc.get("travelProduct.companyDetail.identification", segment)
+            seats = self.get_seat_by_segment(segment_reference)
             segment_data = FlightSegment(
                 segment_reference,
                 resbook_designator,
                 departure_date_time,
-                departure, arrival_date_time,
-                arrival, status,
+                departure,
+                arrival_date_time,
+                arrival,
+                airline_ref_id,
                 marketing,
                 operating,
-                disclosure_carrier, mariage_grp,
-                seats, action_code, "", "", "", "",
-                "", "", control_number, class_of_service, "",
-                equipment_type, "", number_in_party, "")
+                disclosure_carrier,
+                mariage_grp,
+                seats,
+                action_code,
+                segment_special_request,
+                schedule_change_indicator,
+                segment_booked_date,
+                air_miles_flown,
+                funnel_flight,
+                change_of_gauge,
+                flight_number,
+                class_of_service,
+                elapsed,
+                equipment_type, eticket, number_in_party, code, status, number_of_stop)
 
             itinerary.addSegment(segment_data)
         return itinerary
@@ -162,7 +244,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                 if key and gender not in ["MI", "FI"]:
                     self.all_ssr[key] = ssr
                 elif key:
-                    self.all_ssr[key + "1"] = ssr
+                    self.all_ssr[key + "plus"] = ssr
 
     def get_ssr(self, free_text):
         check_info = free_text.split("/") if free_text else []  # to transform the caracter chaine in liste_object
@@ -202,7 +284,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                         date_of_birth = fnc.get("dateOfBirth.dateAndTimeDetails.date", passenger)
                     elif index == 1:
                         date_of_birth = fnc.get("dateOfBirth.dateAndTimeDetails.date", passenger)
-                        reference_p = reference + str(index) if reference else None
+                        reference_p = reference + "plus" if reference else None
 
                     if not passenger_type:
                         passenger_type = "ADT"
