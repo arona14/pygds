@@ -375,7 +375,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
         return all_price_quote
 
-
     @property
     def get_form_of_payments(self):
         all_form_payment = []
@@ -404,7 +403,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
                     form_payment = InfoPaymentOther(card_type)
                 all_form_payment.append(form_payment)
         return all_form_payment
-
 
     def _extract_qualifier_number(self, list_reference):
         list_reference = ensure_list(list_reference)
