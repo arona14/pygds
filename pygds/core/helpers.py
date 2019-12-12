@@ -67,3 +67,7 @@ def reformat_date(date_time, input_format: str, output_format: str):
     :return: str: the date time formatted in the desired format
     """
     return time.strftime(output_format, time.strptime(date_time, input_format))
+
+
+def change_value_if_null(old_value, new_value):
+    return old_value or new_value

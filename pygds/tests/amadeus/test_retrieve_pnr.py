@@ -8,8 +8,11 @@ data_retrieve_pnr_p = data_retrieve_pnr_p.read()
 data_retrieve_pnr = open("pygds/tests/data/retrieve_pnr.xml")
 data_retrieve_pnr = data_retrieve_pnr.read()
 
-data_retrieve_pnr_ticket = open("pygds/tests/data/retrieve_pnr_ticket.xml")
+data_retrieve_pnr_ticket = open("pygds/tests/data/retreive_pnr_PFU66D.xml")
 data_retrieve_pnr_ticket = data_retrieve_pnr_ticket.read()
+
+retrieve_pnr = open("pygds/tests/data/retreive_pnr_PFU66D.xml")
+retrieve_pnr = retrieve_pnr.read()
 
 
 class TestGetPnrResponseExtractor(TestCase):
@@ -40,6 +43,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.extractor_data_retrieve_pnr_p = GetPnrResponseExtractor(data_retrieve_pnr_p)
         self.extractor_data_retrieve_pnr = GetPnrResponseExtractor(data_retrieve_pnr)
         self.extractor_data_retrieve_pnr_ticket = GetPnrResponseExtractor(data_retrieve_pnr_ticket)
+        self.extract_retreive_pnr = GetPnrResponseExtractor(retrieve_pnr)
 
     def test_passengers(self):
         extractor = self.extractor_data_retrieve_pnr_p.get_all_passengers
@@ -47,9 +51,15 @@ class TestGetPnrResponseExtractor(TestCase):
         if passenger:
             self.assertEqual(passenger.name_id, "1")
             self.assertEqual(passenger.first_name, "A MRS")
-            self.assertEqual(passenger.fore_name, "A MRS")
+            self.assertEqual(passenger.fore_name, "")
             self.assertEqual(passenger.passenger_type, "ADT")
-            self.assertEqual(passenger.sur_name, "SMITH")
+            self.assertEqual(passenger.sur_name, "")
+
+    def test_gender_passenger(self):
+        passengers = self.extract_retreive_pnr.get_all_passengers
+        if passengers:
+            for passenger in passengers:
+                self.assertIsNotNone(passenger.date_of_birth)
 
     def test_passenger_bad_response(self):
         passengers = self.extractor.get_all_passengers
@@ -85,10 +95,10 @@ class TestGetPnrResponseExtractor(TestCase):
         extractor = self.extractor_data_retrieve_pnr_ticket.get_form_of_payments
         form_of_payments = extractor[0] if extractor else None
         if form_of_payments:
-            self.assertEqual(form_of_payments.card_number, '1283740982174305')
+            self.assertEqual(form_of_payments.card_number, 'XXXXXXXXXXXX2007')
             self.assertEqual(form_of_payments.card_type, 'CC')
-            self.assertEqual(form_of_payments.expire_month, '10')
-            self.assertEqual(form_of_payments.expire_year, '20')
+            self.assertEqual(form_of_payments.expire_month, '04')
+            self.assertEqual(form_of_payments.expire_year, '23')
 
     def test_get_form_of_payment_bad_request(self):
         form_of_payments = self.extractor.get_form_of_payments
@@ -97,7 +107,7 @@ class TestGetPnrResponseExtractor(TestCase):
     def test_get_remarks(self):
 
         get_remarks = self.extractor_data_retrieve_pnr_ticket.get_remarks
-        self.assertEqual(get_remarks, [])
+        self.assertEqual(len(get_remarks), 1)
 
     def test_get_remarks_bad_request(self):
         get_remarks = self.extractor.get_remarks
@@ -121,6 +131,7 @@ if __name__ == "__main__":
     test.setUp()
     test.test_passengers()
     test.test_passenger_bad_response()
+    test.test_gender_passenger()
     test.test_price_quote()
     test.test_price_quote_bad_request()
     test.test_ticketing_info()
