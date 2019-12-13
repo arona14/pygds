@@ -207,13 +207,19 @@ class PassengerPreferences(BasicDataObject):
         return self.prefs
 
 
-class Passenger(BasicDataObject):
+class PassengerBasicInfo(BasicDataObject):
+    def __init__(self, name_id: str = None, passenger_type: str = None):
+        self.name_id = name_id
+        self.passenger_type = passenger_type
+
+
+class Passenger(PassengerBasicInfo):
     """
         A class to keep information about a passenger
     """
 
     def __init__(self, name_id: str = None, name_assoc_id: str = None, first_name: str = None, last_name: str = None, date_of_birth: str = None, gender: str = None, sur_name: str = None, fore_name: str = None, middle_name: str = None, action_code: str = None, number_in_party: str = None, vendor_code: str = None, passenger_type: str = None, preferences=None, seats: dict = None):
-        self.name_id = name_id
+        super().__init__(name_id, passenger_type)
         self.name_assoc_id = name_assoc_id
         self.first_name = first_name
         self.last_name = last_name
@@ -225,7 +231,6 @@ class Passenger(BasicDataObject):
         self.action_code = action_code
         self.number_in_party = number_in_party
         self.vendor_code = vendor_code
-        self.passenger_type = passenger_type
         self.seats = seats
         self.preferences = preferences if isinstance(preferences, PassengerPreferences) else PassengerPreferences(preferences) if isinstance(preferences, dict) else PassengerPreferences({})
         # self.retrieve_passenger_type()

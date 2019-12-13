@@ -257,15 +257,17 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
 
-    def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):
+    def store_price_quote(self, token: str, **kwargs):
         """
             Creates a TST from TST reference
+            token: str
+            tst_infos: List[TSTInfo]
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.ticket_create_tst_from_price(message_id, session_id, sequence_number,
-                                                                     security_token, tst_references)
+                                                                     security_token, kwargs["tst_infos"])
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
         return CreateTstResponseExtractor(response_data).extract()

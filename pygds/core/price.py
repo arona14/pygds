@@ -278,6 +278,26 @@ class SearchPriceInfos(PriceInfoBasic):
         }
 
 
+class TSTInfo(PriceInfoBasic):
+    """
+        This class we will get the Info of Search price
+    """
+
+    def __init__(self, status: str = None, pnr: str = None, tst_ref: str = None, passengers: List = []):
+        self.status: str = None  # the status of result
+        self.pnr = pnr
+        self.passengers = passengers
+        self.tst_ref = tst_ref
+
+    def to_dict(self):
+        return {
+            "status": self.status,
+            "pnr": self.pnr,
+            "passengers": self.passengers,
+            "tst_ref": self.tst_ref
+        }
+
+
 class FareElement(PriceInfoBasic):
 
     def __init__(self, primary_code, connection, not_valid_before, not_valid_after, baggage_allowance, fare_basis):

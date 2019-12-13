@@ -2,7 +2,7 @@ from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.amadeus.xmlbuilders import low_fare_search_helper
-from pygds.core.price import PriceRequest
+from pygds.core.price import PriceRequest, TSTInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
@@ -358,16 +358,23 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_references: List[str] = []):
+    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_infos: List[TSTInfo] = []):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
         content = ""
-        for tst_ref in tst_references:
+        for tst in tst_infos:
             content += f"""<psaList>
                                 <itemReference>
                                 <referenceType>TST</referenceType>
-                                <uniqueReference>{tst_ref}</uniqueReference>
+                                    <uniqueReference>{tst.tst_ref}</uniqueReference>
                                 </itemReference>
+                                <paxReference>
+                                    {''.join(
+                                        [
+                                            f"<referenceDetails><type>{passenger.passenger_type}</type><value>{passenger.name_id}</value></referenceDetails>"
+                                            for passenger in tst.passengers
+                                            ])}
+                                </paxReference>
                             </psaList>"""
 
         return f"""
