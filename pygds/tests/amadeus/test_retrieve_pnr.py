@@ -114,7 +114,7 @@ class TestGetPnrResponseExtractor(TestCase):
         self.assertEqual(get_remarks, [])
 
     def test_get_segments(self):
-        extractor = self.extractor_data_retrieve_pnr_ticket.get_segments
+        extractor = self.extractor_data_retrieve_pnr_ticket._itineraries
         segments = extractor[0] if extractor else None
         if segments:
             self.assertEqual(len(segments.segments), 2)
@@ -122,7 +122,7 @@ class TestGetPnrResponseExtractor(TestCase):
             self.assertEqual(segments.segments[0].sequence, "1")
 
     def test_get_segments_bad_request(self):
-        segments = self.extractor.get_segments
+        segments = self.extractor._itineraries
         self.assertEqual(segments, [])
 
 
