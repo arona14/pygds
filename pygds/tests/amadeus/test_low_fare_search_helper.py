@@ -32,3 +32,10 @@ class TravelFlightInfoTest(TestCase):
         self.assertEqual(flight_info.airlines, ["DL", "AF"])
         self.assertEqual(flight_info.rules_cabin, "RC")
         self.assertEqual(flight_info.rules_airline, "F")
+
+
+if __name__ == "__main__":
+    test = TravelFlightInfoTest()
+    test.test_travel_flight_info()
+    test = LowFareSearchTest()
+    test.test_generate_number_of_unit()
