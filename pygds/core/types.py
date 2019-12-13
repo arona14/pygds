@@ -160,7 +160,6 @@ class FlightSegment(BasicDataObject):
             "number_in_party": self.number_in_party,
             "code": self.code,
             "action_code": self.action_code,
-            "status": self.status,
             "stop_quantity": self.stop_quantity
 
         }
