@@ -27,9 +27,18 @@ class TestCreateTST(TestCase):
         self.assertIn("<referenceDetails><type>PA</type><value>1</value></referenceDetails>", result)
         self.assertIn("<referenceDetails><type>PI</type><value>2</value></referenceDetails>", result)
 
+    def tesy_class_tst_info(self):
+        tst_infos = TSTInfo(tst_ref="1", passengers=[PassengerBasicInfo(name_id="1", passenger_type="PA")])
+        self.assertEqual(tst_infos.pnr, None)
+        self.assertEqual(tst_infos.status, None)
+        self.assertEqual(tst_infos.tst_ref, "1")
+        self.assertEqual(tst_infos.passengers[0].name_id, "1")
+        self.assertEqual(tst_infos.passengers[0].passenger_type, "PA")
+
 
 if __name__ == "__main__":
     test = TestCreateTST()
     test.setUp()
     test.test_create_tst()
     test.test_bulder_client()
+    test.tesy_class_tst_info()
