@@ -119,7 +119,7 @@ class TestGetPnrResponseExtractor(TestCase):
         if segments:
             self.assertEqual(len(segments.segments), 2)
             self.assertEqual(segments.segments[0].action_code, 'HK')
-            self.assertEqual(segments.segments[0].sequence, "1")
+            self.assertEqual(segments.segments[0].sequence, 1)
 
     def test_get_segments_bad_request(self):
         segments = self.extractor._itineraries
