@@ -329,8 +329,7 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     @property
     def get_agent_sine(self):
-        agent_signature = fnc.get("securityInformation.secondRpInformation.agentSignature", self.payload)
-        return agent_signature if agent_signature is not None else ""
+        return fnc.get("securityInformation.secondRpInformation.agentSignature", self.payload, default="")
 
     @property
     def get_price_quotes(self):
