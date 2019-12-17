@@ -319,6 +319,10 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
+    def delete_all_tst(self, token):
+        return self.send_command(token, "PQD-ALL")
+
+    @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
         """This function is for queue place
         """
