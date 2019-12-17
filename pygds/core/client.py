@@ -114,7 +114,7 @@ class BaseClient:
     def fare_price_pnr_with_booking_class(self, message_id, price_request: PriceRequest):
         raise NotImplementedError
 
-    def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
+    def send_command(self, token: str, action: str = None, close_trx: bool = False, gds: str = None):
         raise NotImplementedError
 
     def new_rest_token(self):

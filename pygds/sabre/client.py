@@ -18,7 +18,7 @@ from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
-from pygds.sabre.price import StoreSegmentSelect
+from pygds.core.price import StoreSegmentSelect
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, \
     IssueTicketExtractor, EndTransactionExtractor, \
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \

@@ -1,4 +1,4 @@
-from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor
+from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
 from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
 from pygds.core.price import TSTInfo
 from pygds.core.types import PassengerBasicInfo
@@ -7,7 +7,7 @@ from unittest import TestCase
 
 class TestCreateTST(TestCase):
     def setUp(self):
-        data_retrieve_pnr_p = open("pygds/tests/data/tst.xml")
+        data_retrieve_pnr_p = open("pygds/tests/amadeus/data/tst.xml")
         data_retrieve_pnr_p = data_retrieve_pnr_p.read()
         self.tst_extractor = CreateTstResponseExtractor(data_retrieve_pnr_p)
 
@@ -36,9 +36,23 @@ class TestCreateTST(TestCase):
         self.assertEqual(tst_infos.passengers[0].passenger_type, "PA")
 
 
+class TestDisplayTST(TestCase):
+    def setUp(self):
+        data_retrieve_pnr_p = open("pygds/tests/amadeus/data/display_tst.xml")
+        data_retrieve_pnr_p = data_retrieve_pnr_p.read()
+        self.tst_extractor = DisplayTSTExtractor(data_retrieve_pnr_p)
+
+    def test_display_tst(self):
+        extractor = self.tst_extractor._extract()
+        self.assertEqual(extractor, None)
+
+
 if __name__ == "__main__":
-    test = TestCreateTST()
+    # test = TestCreateTST()
+    # test.setUp()
+    # test.test_create_tst()
+    # test.test_bulder_client()
+    # test.tesy_class_tst_info()
+    test = TestDisplayTST()
     test.setUp()
-    test.test_create_tst()
-    test.test_bulder_client()
-    test.tesy_class_tst_info()
+    test.test_display_tst()
