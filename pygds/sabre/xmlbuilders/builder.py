@@ -459,7 +459,7 @@ class SabreXMLBuilder:
             Return the xml request to search a seap map
         """
         header = self.generate_header("EnhancedSeatMapRQ", "EnhancedSeatMapRQ", token)
-        flight_info = add_flight_segment(flight_infos.origin, flight_infos.destination, flight_infos.depart_date, flight_infos.operating_code, flight_infos.operating_flight_number, flight_infos.arrival_date, flight_infos.class_of_service, flight_infos.currency_code)
+        flight_info = add_flight_segment(flight_infos.origin, flight_infos.destination, flight_infos.depart_date, flight_infos.operating_code, flight_infos.operating_flight_number, flight_infos.marketing_code, flight_infos.marketing_flight_number, flight_infos.arrival_date, flight_infos.class_of_service, flight_infos.currency_code)
         pax_info = add_passenger_info(passengers_info)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
