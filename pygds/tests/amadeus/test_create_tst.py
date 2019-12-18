@@ -44,7 +44,11 @@ class TestDisplayTST(TestCase):
 
     def test_display_tst(self):
         extractor = self.tst_extractor._extract()
-        self.assertEqual(extractor, None)
+        self.assertEqual(extractor.status, "ADT")
+        self.assertEqual(extractor.air_itinerary_pricing_info.tour_code, "")
+        self.assertEqual(extractor.air_itinerary_pricing_info.valiating_carrier, "6X")
+        self.assertEqual(extractor.air_itinerary_pricing_info.taxes, "112200.0")
+        self.assertEqual(extractor.air_itinerary_pricing_info.total_fare, "1324900")
 
 
 if __name__ == "__main__":

@@ -265,8 +265,6 @@ class AmadeusClient(BaseClient):
             token: str
             tst_infos: List[TSTInfo]
         """
-        if tst_info is None:
-            raise Exception("The tst_info argument must not be equal to None")
 
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
@@ -281,8 +279,8 @@ class AmadeusClient(BaseClient):
             return response_json
         if response_json.session_info.security_token is None:
             return response_data
-        tst_info = response_json.payload[0] if response_json.payload else None
 
+        tst_info = response_json.payload[0] if response_json.payload else None
         if tst_info:
             return self.display_tst(
                 response_json.session_info.security_token, tst_info.tst_ref

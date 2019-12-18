@@ -60,20 +60,29 @@ class DisplayTSTExtractor(BaseResponseExtractor):
         return None
 
     def get_air_itinerary_pricing_info(self, fare: dict = {}):
-        validating_carier = fnc.get("validatingCarrier.carrierInformation.carrierCode", fare)
+        validating_carier = fnc.get(
+            "validatingCarrier.carrierInformation.carrierCode", fare
+        )
         base_fare, total_fare, _ = self._tst_amounts(
             fnc.get("fareDataInformation.fareDataSupInformation", fare)
         )
         total_taxes, _ = self._tst_taxes(
             fnc.get("taxInformation", fare)
         )
+
         currency_code = base_fare.currency
-        all_passengers = ensure_list(
+
+        all_pax_ref = ensure_list(
             fnc.get("paxSegReference.refDetails", fare, default=[])
         )
-        passenger_type = fnc.get("refQualifier", all_passengers[0]) if all_passengers else None
+        all_passengers = [
+            fnc.get("refQualifier", pax_ref) for pax_ref in all_pax_ref if fnc.get("refQualifier", pax_ref) != "S"
+        ]
+
+        passenger_type = all_passengers[0] if all_passengers else None
         passenger_quantity = len(all_passengers)
         bagage_provisions = []
+
         fare_basis_code = None
         ticket_designator = None
         class_of_service = None
@@ -83,11 +92,9 @@ class DisplayTSTExtractor(BaseResponseExtractor):
         amount = None
 
         qualifier = fnc.get("fareDataInformation.fareDataMainInformation.fareDataQualifier", fare)
-
         if qualifier == "H":
             fare_type = "NET"
             amount = fnc.get("fareDataInformation.fareDataMainInformation.fareAmount", fare)
-
         if qualifier == "PU":
             fare_type = "PUB"
             amount = fnc.get("fareDataInformation.fareDataMainInformation.fareAmount", fare)
@@ -166,5 +173,5 @@ class DisplayTSTExtractor(BaseResponseExtractor):
             if am.currency == total_taxes_currency:  # avoid summing amounts on different currencies
                 total_taxes += float(am.amount)
             taxes.append(tax)
-        total_taxes = FareAmount(None, round(total_taxes, 2), total_taxes_currency)
+        total_taxes = FareAmount(None, str(round(total_taxes, 2)), total_taxes_currency)
         return total_taxes, taxes
