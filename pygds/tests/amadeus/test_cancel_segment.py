@@ -6,8 +6,8 @@ from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
 
 class TestCancelPNR(TestCase):
     def setUp(self) -> None:
-        self.xml = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-                    xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3" 
+        self.xml = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                            xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3"
                     xmlns:wsa="http://www.w3.org/2005/08/addressing">
                     <soapenv:Header>
                         <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
