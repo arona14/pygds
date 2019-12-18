@@ -182,7 +182,7 @@ class AmadeusXMLBuilder:
                     <cancelElements>
                         <entryType>E</entryType>
                         {''.join([f'''<element>
-                                    <identifier>OT</identifier>
+                                    <identifier>SS</identifier>
                                     <number>{segment}</number>
                                 </element>''' for segment in segments
                         ])}

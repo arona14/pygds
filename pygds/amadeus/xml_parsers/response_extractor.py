@@ -13,6 +13,7 @@ from pygds.core.types import VoidTicket, UpdatePassenger
 from pygds.core import generate_token
 from pygds.core.form_of_payment import FormOfPayment
 from pygds.core.price import InformativePricing
+import fnc
 
 
 class BaseResponseExtractor(object):
@@ -578,7 +579,8 @@ class CancelPnrExtractor(BaseResponseExtractor):
 
     def _extract(self):
 
-        return None
+        payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
+        return fnc.get("information", payload)
 
 
 class UpdatePassengers(BaseResponseExtractor):
