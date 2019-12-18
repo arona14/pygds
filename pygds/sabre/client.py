@@ -319,7 +319,7 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def delete_all_tst(self, token):
+    def delete_price_quote(self, token):
         return self.send_command(token, "PQD-ALL")
 
     @session_wrapper
