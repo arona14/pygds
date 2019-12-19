@@ -347,10 +347,7 @@ class PricePNRExtractor(BaseResponseExtractor):
             fare_break_down.fare_basic_code = self._get_fare_basic_code(fare)
             air_itinerary_pricing_info.ticket_designator = ticket_designator[0] if len(ticket_designator) else None
             fare_break_down.cabin = cabin
-            # fare_break_down.fare_amount = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
             fare_break_down.fare_passenger_type = self._get_pax_type(fare)
-            # fare_break_down.fare_type = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
-            # fare_break_down.filing_carrier = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
             list_fare_break_down.append(fare_break_down)
             air_itinerary_pricing_info.fare_break_down = list_fare_break_down
             air_itinerary_pricing_info.valiating_carrier = fnc.get("validatingCarrier.carrierInformation.carrierCode", fare)     # passenger type
