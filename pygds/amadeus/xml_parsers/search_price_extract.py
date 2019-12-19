@@ -414,7 +414,7 @@ class PricePNRExtractor(BaseResponseExtractor):
 
     def _get_pax_quantity(self, fare):
         """
-        look for passenger references
+        this return the quantity of passengers
         :param fare: a dictionary containing fare info
         :return: List[str]
         """
