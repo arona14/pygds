@@ -139,3 +139,7 @@
 # 0.0.30 (2019-12-17)
 - Sabre:
     - update seat map request [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.31 (2019-12-19)
+- Sabre:
+    - update display pnr extractor [mbayane1990](mbaye@ctsfares.com)
