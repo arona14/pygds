@@ -321,10 +321,9 @@ class PricePNRExtractor(BaseResponseExtractor):
         ticket_designator = ""
         for fare in fare_list:
             air_itinerary_pricing_info = AirItineraryPricingInfo()
-            commission_info, cabin, bag_provisors = self._get_com_info_cabin_and_bag_provisors(fare)
+            commission_info = self._get_commission_info(fare)
             if len(commission_info) > 3 and "CM" in commission_info:
                 commission_percentage = commission_info[2:]
-
             total_fare, currency_code = self._get_total_fare_and_currency_code(fare)
             air_itinerary_pricing_info.base_fare = self._get_equive_fare(fare) or self._get_base_fare(fare)
             air_itinerary_pricing_info.taxes = round(sum(self._get_taxes(fare)), 2)
@@ -344,16 +343,20 @@ class PricePNRExtractor(BaseResponseExtractor):
             if len(tour_code) > 0:
                 air_itinerary_pricing_info.tour_code = tour_code[0]
             air_itinerary_pricing_info.commission_percentage = commission_percentage
-            fare_break_down = FareBreakdown()
-            fare_break_down.fare_basic_code = self._get_fare_basic_code(fare)
             if len(ticket_designator) > 0:
                 air_itinerary_pricing_info.ticket_designator = ticket_designator[0]
-            fare_break_down.cabin = cabin
-            fare_break_down.fare_passenger_type = self._get_pax_type(fare)
+            air_itinerary_pricing_info.valiating_carrier = fnc.get("validatingCarrier.carrierInformation.carrierCode", fare)
+            fare_break_down = FareBreakdown()
+            for seg_infos in ensure_list(fnc.get("segmentInformation", fare, default=[])):
+                fare_break_down.fare_basic_code = self._get_fare_basic_code(fare)
+                fare_break_down.cabin = fnc.get("cabinGroup.cabinSegment.bookingClassDetails.option", seg_infos)
+                fare_break_down.fare_passenger_type = self._get_pax_type(fare)
+                fare_break_down.fare_amount = ""
+                fare_break_down.fare_type = ""
+                fare_break_down.filing_carrier = ""
+                fare_break_down.free_baggage = fnc.get("bagAllowanceInformation.bagAllowanceDetails", seg_infos)
             list_fare_break_down.append(fare_break_down)
             air_itinerary_pricing_info.fare_break_down = list_fare_break_down
-            air_itinerary_pricing_info.valiating_carrier = fnc.get("validatingCarrier.carrierInformation.carrierCode", fare)     # passenger type
-            air_itinerary_pricing_info.baggage_provisions = bag_provisors
             air_itinerary_pricing_list.append(air_itinerary_pricing_info)
             search_price = SearchPriceInfos()
             search_price.status = ""
@@ -373,7 +376,7 @@ class PricePNRExtractor(BaseResponseExtractor):
                     return fnc.get("attributeDescription", attribut_details)
         return None
 
-    def _get_com_info_cabin_and_bag_provisors(self, fare):
+    def _get_commission_info(self, fare):
         """
         This method return the ticket designator
         :param fare: a dictionnary containing the fare info
@@ -382,10 +385,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         segment_infos = ensure_list(fnc.get("segmentInformation", fare, default=[]))
         for segment_info in segment_infos:
             commission_info = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
-            cabin = fnc.get("cabinGroup.cabinSegment.bookingClassDetails.option", segment_info)
-            bag_provisors = fnc.get("bagAllowanceInformation.bagAllowanceDetails", segment_info)
-
-        return commission_info, cabin, bag_provisors
+        return commission_info
 
     def _get_fare_basic_code(self, fare):
         """
