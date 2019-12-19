@@ -256,6 +256,7 @@ class AddMultiElementExtractor(BaseResponseExtractor):
     """
     class to extract passengers and segments information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="PNR_Reply")
         self.parsed = True
@@ -302,6 +303,7 @@ class PricePNRExtractor(BaseResponseExtractor):
     """
     this class is to extract price information from XML Response
     """
+
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="Fare_PricePNRWithBookingClassReply")
         self.parsed = True
@@ -530,6 +532,7 @@ class IssueTicketResponseExtractor(BaseResponseExtractor):
     """
     this class is to extract issue ticket information  from XML Response
     """
+
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "DocIssuance_IssueTicketReply")
 
@@ -554,6 +557,7 @@ class VoidTicketExtractor(BaseResponseExtractor):
     """
     This class is to extract void ticket information from XML Response
     """
+
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "Ticket_CancelDocumentReply")
 
@@ -569,6 +573,7 @@ class CancelPnrExtractor(BaseResponseExtractor):
     """
     This class is to extract cancel pnr information form XML Response
     """
+
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
@@ -583,6 +588,7 @@ class UpdatePassengers(BaseResponseExtractor):
     """
     This class is to extract update passengers information from XML Response
     """
+
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
@@ -628,6 +634,7 @@ class InformativePricingWithoutPnrExtractor(BaseResponseExtractor):
     """
     This class is to extract informative pricing without pnr information from XML Response
     """
+
     def __init__(self, xml_content):
         super().__init__(xml_content, True, True, "Fare_InformativePricingWithoutPNRReply")
 
@@ -677,3 +684,13 @@ class FoPExtractor(BaseResponseExtractor):
             ref = from_json_safe(fop, "fopReference")
             all_fop.append(FormOfPayment(ref, fop))
         return all_fop
+
+
+class RebookExtractor(BaseResponseExtractor):
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="Air_RebookAirSegmentReply")
+        self.parsed = True
+
+    def _extract(self):
+        return None
