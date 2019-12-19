@@ -336,7 +336,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         index = 0
         for i in ensure_list(from_json(itinerary, "stl18:Segment")):
             if 'stl18:Air' in i:
-                air_segment = from_json(i, "stl18:Air")
+                air_segment = from_json_safe(i, "stl18:Air")
                 if 'Code' in i['stl18:Air']:
                     code = from_json_safe(air_segment, "Code")
                 else:
@@ -480,10 +480,10 @@ class DisplayPnrExtractor(BaseResponseExtractor):
     def _remarks(self, remarks):
         list_remarks = []
         for remark in ensure_list(remarks):
-            remark_index = from_json(remark, "index")
-            remark_type = from_json(remark, "type")
-            remark_id = from_json(remark, "elementId")
-            remark_text = from_json(remark, "stl18:RemarkLines", "stl18:RemarkLine", "stl18:Text")
+            remark_index = from_json_safe(remark, "index")
+            remark_type = from_json_safe(remark, "type")
+            remark_id = from_json_safe(remark, "elementId")
+            remark_text = from_json_safe(remark, "stl18:RemarkLines", "stl18:RemarkLine", "stl18:Text")
             remark_objet = Remarks(remark_index, remark_type, remark_id, remark_text)
             list_remarks.append(remark_objet)
         return list_remarks
@@ -533,11 +533,11 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         inf_pax_types = ("INF", "JNF")
 
         for pax in ensure_list(passengers):
-            name_id = from_json(pax, "nameId")
-            name_assoc_id = from_json(pax, "nameAssocId")
-            pax_type = from_json(pax, "passengerType")
-            last_name = from_json(pax, "stl18:LastName")
-            first_name = from_json(pax, "stl18:FirstName")
+            name_id = from_json_safe(pax, "nameId")
+            name_assoc_id = from_json_safe(pax, "nameAssocId")
+            pax_type = from_json_safe(pax, "passengerType", default='ADT')
+            last_name = from_json_safe(pax, "stl18:LastName")
+            first_name = from_json_safe(pax, "stl18:FirstName")
             full_name = f"{first_name} {last_name}"
             date_of_birth, gender, number_in_party = None, None, None
             seat_info = ensure_list(from_json_safe(pax, "stl18:Seats", "stl18:PreReservedSeats", "stl18:PreReservedSeat"))
