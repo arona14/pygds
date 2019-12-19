@@ -142,6 +142,9 @@ class BaseClient:
             self.session_holder.remove_session(message_id)
             self.log.info(f"Token associated to message id {message_id} is closed")
 
+    def delete_all_price_quotes(self, token: str):
+        raise NotImplementedError
+
 
 class ClientPool:
     """
