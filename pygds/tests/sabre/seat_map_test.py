@@ -20,7 +20,9 @@ class SeatMapTest(unittest.TestCase):
         flight_info.origin = "DTW"
         flight_info.destination = "NYC"
         flight_info.operating_flight_number = "8800"
-        flight_info.operating_code = "ARL"
+        flight_info.marketing_flight_number = "8800"
+        flight_info.operating_code = "DL"
+        flight_info.marketing_code = "DL"
         flight_info.currency_code = "USD"
         flight_info.depart_date = "10/10/2019"
         flight_info.arrival_date = "20/10/2019"
@@ -37,8 +39,8 @@ class SeatMapTest(unittest.TestCase):
         self.assertIn("<eb:Service>EnhancedSeatMapRQ</eb:Service>", seat_map_xml)
         self.assertIn("<eb:Action>EnhancedSeatMapRQ</eb:Action>", seat_map_xml)
         self.assertIn("<tag0:DepartureDate>10/10/2019</tag0:DepartureDate>", seat_map_xml)
-        self.assertIn("<tag0:Operating carrier=\"ARL\">8800</tag0:Operating>", seat_map_xml)
-        self.assertIn("<tag0:Marketing carrier=\"ARL\">8800</tag0:Marketing>", seat_map_xml)
+        self.assertIn("<tag0:Operating carrier=\"DL\">8800</tag0:Operating>", seat_map_xml)
+        self.assertIn("<tag0:Marketing carrier=\"DL\">8800</tag0:Marketing>", seat_map_xml)
 
 
 if __name__ == "__main__":

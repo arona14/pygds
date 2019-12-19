@@ -131,3 +131,15 @@
 # 0.0.28 (2019-12-10)
 - Sabre:
     - update seat map request (add operating flight number and marketing flight number) [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.29 (2019-12-13)
+- Sabre:
+    - update display pnr response extractor for amadeus[Virginie](virginie@ctsfares.com)
+
+# 0.0.30 (2019-12-17)
+- Sabre:
+    - update seat map request [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.31 (2019-12-19)
+- Sabre:
+    - update display pnr extractor [mbayane1990](mbaye@ctsfares.com)
