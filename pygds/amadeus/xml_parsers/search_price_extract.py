@@ -341,11 +341,13 @@ class PricePNRExtractor(BaseResponseExtractor):
                 tour_code = re.findall("TC" + " ([0-9A-Z]+)", text)
             if "TD" in text:
                 ticket_designator = re.findall("TD" + " ([0-9A-Z]+)", text)
-            air_itinerary_pricing_info.tour_code = tour_code[0] if len(tour_code) else None
+            if len(tour_code) > 0:
+                air_itinerary_pricing_info.tour_code = tour_code[0]
             air_itinerary_pricing_info.commission_percentage = commission_percentage
             fare_break_down = FareBreakdown()
             fare_break_down.fare_basic_code = self._get_fare_basic_code(fare)
-            air_itinerary_pricing_info.ticket_designator = ticket_designator[0] if len(ticket_designator) else None
+            if len(ticket_designator) > 0:
+                air_itinerary_pricing_info.ticket_designator = ticket_designator[0]
             fare_break_down.cabin = cabin
             fare_break_down.fare_passenger_type = self._get_pax_type(fare)
             list_fare_break_down.append(fare_break_down)
