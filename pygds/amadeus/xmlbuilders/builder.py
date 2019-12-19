@@ -358,6 +358,27 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
+    def re_book_air_segment(self, message_id, session_id, sequence_number,
+                            security_token, flight_segment):
+        header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {header}
+            <soapenv:Body>
+                <Fare_PricePNRWithBookingClass>
+                    {sub_parts.ppwbc_fare_type(price_request.fare_type)}
+                    {sub_parts.ppwbc_passenger_segment_selection(price_request)}
+                </Fare_PricePNRWithBookingClass>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
     def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_references: List[str] = []):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 

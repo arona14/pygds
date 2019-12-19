@@ -270,6 +270,19 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
         return CreateTstResponseExtractor(response_data).extract()
 
+    def re_book_air_segment(self, token: str, flight_segment: dict, pnr: str):
+        """
+            Add new Segment in the pnr
+        """
+        message_id, session_id, sequence_number, security_token = self.decode_token(token)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.re_book_air_segment(message_id, session_id, sequence_number,
+                                                            security_token, flight_segment)
+        response_data = self.__request_wrapper("air_rebook_air_segment", request_data,
+                                               'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
+        return (response_data).extract()
+
     def create_pnr(self, token):
         """
             create the PNR
