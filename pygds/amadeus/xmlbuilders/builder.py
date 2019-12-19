@@ -171,6 +171,29 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
+    def cancel_segments(self, session_id, sequence_number, security_token, message_id, segments):
+
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+             {self.generate_header("PNRXCL_14_2_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <PNR_Cancel>
+                    <pnrActions>
+                        <optionCode>11</optionCode>
+                    </pnrActions>
+                    <cancelElements>
+                        <entryType>E</entryType>
+                        {''.join([f'''<element>
+                                    <identifier>SS</identifier>
+                                    <number>{segment}</number>
+                                </element>''' for segment in segments
+                        ])}
+                    </cancelElements>
+                </PNR_Cancel>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
     def cancel_information_passenger(self, session_id, sequence_number, security_token,
                                      message_id, reference):
         return f"""

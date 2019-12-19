@@ -9,11 +9,11 @@ from pygds.core.sessions import SessionInfo
 import logging
 
 from pygds.core.ticket import TicketReply
-from pygds.core.types import CancelPnrReply
 from pygds.core.types import VoidTicket, UpdatePassenger
 from pygds.core import generate_token
 from pygds.core.form_of_payment import FormOfPayment
 from pygds.core.price import InformativePricing
+import fnc
 
 
 class BaseResponseExtractor(object):
@@ -578,10 +578,9 @@ class CancelPnrExtractor(BaseResponseExtractor):
         super().__init__(xml_content, True, True, "PNR_Reply")
 
     def _extract(self):
+
         payload = from_xml(self.xml_content, "soapenv:Envelope", "soapenv:Body", "PNR_Reply")
-        pnr = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "controlNumber")
-        company_id = from_json_safe(payload, "pnrHeader", "reservationInfo", "reservation", "companyId")
-        return CancelPnrReply(pnr, company_id)
+        return fnc.get("information", payload)
 
 
 class UpdatePassengers(BaseResponseExtractor):
