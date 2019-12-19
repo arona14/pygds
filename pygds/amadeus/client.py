@@ -154,6 +154,19 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return UpdatePassengers(response_data).extract()
 
+    def cancel_list_segment(self, token, close_session: bool = False, segments: List[str] = []):
+        """
+            This method delete all segments
+        """
+        message_id, session_id, sequence_number, security_token = self.decode_token(token)
+        if not security_token:
+            raise NoSessionError(token)
+        request_data = self.xml_builder.cancel_segments(session_id, sequence_number, security_token,
+                                                        message_id, segments)
+        response_data = self.__request_wrapper("cancel segments", request_data,
+                                               'http://webservices.amadeus.com/PNRXCL_14_2_1A')
+        return CancelPnrExtractor(response_data).extract()
+
     def cancel_information_passenger(self, reference, token):
         """
             This method modifies the elements of a PNR (passengers, etc.)

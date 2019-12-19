@@ -8,6 +8,7 @@ from requests import Response
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType, SessionHolder
+from typing import List
 
 
 class BaseClient:
@@ -141,6 +142,9 @@ class BaseClient:
                 continue
             self.session_holder.remove_session(message_id)
             self.log.info(f"Token associated to message id {message_id} is closed")
+
+    def cancel_list_segment(self, token, close_session: bool = False, segments: List[str] = []):
+        raise NotImplementedError
 
     def delete_all_price_quotes(self, token: str):
         raise NotImplementedError
