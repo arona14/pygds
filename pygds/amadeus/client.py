@@ -313,6 +313,9 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
 
+    def delete_all_price_quotes(self, token):
+        return self.send_command(token, "TTE/ALL")
+
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
             add passenger info and create the PNR

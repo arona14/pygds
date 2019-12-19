@@ -146,6 +146,9 @@ class BaseClient:
     def cancel_list_segment(self, token, close_session: bool = False, segments: List[str] = []):
         raise NotImplementedError
 
+    def delete_all_price_quotes(self, token: str):
+        raise NotImplementedError
+
 
 class ClientPool:
     """
