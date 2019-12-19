@@ -630,7 +630,8 @@ def _ppwbc_ref_detail(ref_type, ref_value):
 _fare_types_association = {
     "PUB": "RP",
     "NET": "RU",
-    "COM": "RC"
+    "COM": "RC",
+    "OTHER": "RW"
 }
 
 
@@ -639,12 +640,25 @@ def ppwbc_fare_type(fare_type):
         code = _fare_types_association[fare_type]
     except KeyError:
         return ""
-    return f"""<pricingOptionGroup>
-                    <pricingOptionKey>
-                        <pricingOptionKey>{code}</pricingOptionKey>
-                    </pricingOptionKey>
-                </pricingOptionGroup>
-                """
+    if code in ["RP", "RU"]:
+        return f"""<pricingOptionGroup>
+                        <pricingOptionKey>
+                            <pricingOptionKey>{code}</pricingOptionKey>
+                        </pricingOptionKey>
+                    </pricingOptionGroup>
+                    """
+    elif code in ["RW", "RC"]:
+        return f"""<pricingOptionGroup>
+                        <pricingOptionKey>
+                            <pricingOptionKey>{code}</pricingOptionKey>
+                        </pricingOptionKey>
+                        <optionDetail>
+                            <criteriaDetails>
+                                <attributeType>COM</attributeType>
+                            </criteriaDetails>
+                        </optionDetail>
+                    </pricingOptionGroup>
+                    """
 
 
 def ppwbc_discount():
