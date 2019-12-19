@@ -25,7 +25,6 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
                 status = fnc.get("controlNumber", reservation)
             if pnr and status:
                 break
-        all_tst = []
         for tst_data in ensure_list(fnc.get("tstList", payload, default=[])):
             tst_ref = fnc.get("tstReference.uniqueReference", tst_data)
             all_passengers = []
@@ -41,8 +40,8 @@ class CreateTstResponseExtractor(BaseResponseExtractor):
                     all_segments.append(fnc.get("refNumber", p))
 
             tst_info = TSTInfo(status=status, pnr=pnr, tst_ref=tst_ref, passengers=all_passengers, segments=all_segments)
-            all_tst.append(tst_info)
-        return all_tst
+            return tst_info
+        return None
 
 
 class DisplayTSTExtractor(BaseResponseExtractor):

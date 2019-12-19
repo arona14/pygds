@@ -275,18 +275,15 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
 
         response_json = CreateTstResponseExtractor(response_data).extract()
-        if response_json.payload is None:
+
+        if response_json.application_error is not None:
             return response_json
         if response_json.session_info.security_token is None:
             return response_data
 
-        tst_info = response_json.payload[0] if response_json.payload else None
-        if tst_info:
-            return self.display_tst(
-                response_json.session_info.security_token, tst_info.tst_ref
-            )
-        else:
-            None
+        return self.display_tst(
+            response_json.session_info.security_token, response_json.payload
+        )
 
     def display_tst(self, token: str, tst_info: TSTInfo):
         """
