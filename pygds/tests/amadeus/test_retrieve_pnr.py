@@ -2,16 +2,16 @@ from unittest import TestCase
 
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 
-data_retrieve_pnr_p = open("pygds/tests/data/retrieve_response_p.xml")
+data_retrieve_pnr_p = open("pygds/tests/amadeus/data/retrieve_response_p.xml")
 data_retrieve_pnr_p = data_retrieve_pnr_p.read()
 
-data_retrieve_pnr = open("pygds/tests/data/retrieve_pnr.xml")
+data_retrieve_pnr = open("pygds/tests/amadeus/data/retrieve_pnr.xml")
 data_retrieve_pnr = data_retrieve_pnr.read()
 
-data_retrieve_pnr_ticket = open("pygds/tests/data/retreive_pnr_PFU66D.xml")
+data_retrieve_pnr_ticket = open("pygds/tests/amadeus/data/retreive_pnr_PFU66D.xml")
 data_retrieve_pnr_ticket = data_retrieve_pnr_ticket.read()
 
-retrieve_pnr = open("pygds/tests/data/retreive_pnr_PFU66D.xml")
+retrieve_pnr = open("pygds/tests/amadeus/data/retreive_pnr_PFU66D.xml")
 retrieve_pnr = retrieve_pnr.read()
 
 

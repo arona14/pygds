@@ -5,14 +5,15 @@ from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 from pygds.core import generate_token
-from pygds.core.price import PriceRequest
+from pygds.core.price import PriceRequest, StoreSegmentSelect, TSTInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
+from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
-    CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
+    CommandReplyExtractor, PricePNRExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
     VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
     FoPExtractor, RebookExtractor
@@ -270,18 +271,45 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
 
-    def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):
+    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
+                          passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
         """
             Creates a TST from TST reference
+            token: str
+            tst_infos: List[TSTInfo]
         """
+
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.ticket_create_tst_from_price(message_id, session_id, sequence_number,
-                                                                     security_token, tst_references)
+                                                                     security_token, tst_info)
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
-        return CreateTstResponseExtractor(response_data).extract()
+
+        response_json = CreateTstResponseExtractor(response_data).extract()
+
+        if response_json.application_error is not None:
+            return response_json
+        if response_json.session_info.security_token is None:
+            return response_data
+
+        return self.display_tst(
+            response_json.session_info.security_token, response_json.payload
+        )
+
+    def display_tst(self, token: str, tst_info: TSTInfo):
+        """
+            Display a TST info
+        """
+        message_id, session_id, sequence_number, security_token = self.decode_token(token)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.display_tst(message_id, session_id, sequence_number,
+                                                    security_token, tst_info)
+        response_data = self.__request_wrapper("Display a tst info", request_data,
+                                               'http://webservices.amadeus.com/TTSTRQ_13_2_1A')
+        return DisplayTSTExtractor(response_data).extract()
 
     def re_book_air_segment(self, token: str, flight_segments: List[dict], pnr: str):
         """
