@@ -590,7 +590,7 @@ def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type)
     """
 
 
-def ppwbc_passenger_segment_selection(passengers: List, segments: List):
+def ppwbc_passenger_segment_selection(passengers: list = [], segments: list = []):
     if not (segments or passengers):
         return ""
     pax_refs = []

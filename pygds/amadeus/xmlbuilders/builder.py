@@ -360,9 +360,9 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>"""
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
-                                          fare_type: str,
-                                          passengers: List,
-                                          segments: List):
+                                          fare_type: str = "",
+                                          passengers: list = [],
+                                          segments: list = []):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"

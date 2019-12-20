@@ -253,11 +253,11 @@ class AmadeusClient(BaseClient):
         return SellFromRecommendationReplyExtractor(response_data).extract()
 
     def search_price_quote(self, token: str,
-                           fare_type: str,
-                           segment_select: List,
-                           passengers: List,
-                           baggage: int,
-                           region_name: str):
+                           fare_type: str = "",
+                           segment_select: list = [],
+                           passengers: list = [],
+                           baggage: int = 0,
+                           region_name: str = ""):
         """
         Price a PNR with a booking class.
         The PNR is supposed to be supplied in the session on a previous call.
