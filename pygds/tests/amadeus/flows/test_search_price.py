@@ -21,7 +21,7 @@ def test():
     log = log_handler.get_logger("test_all")
     pnr = "MYXH99"  # Q7N3A8 O95J97 WY9R4Z JSUDTM TTX3QV JSUDTM
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
         token = None

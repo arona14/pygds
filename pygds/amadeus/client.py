@@ -263,7 +263,7 @@ class AmadeusClient(BaseClient):
                                                                           segment_select)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        return PricePNRExtractor(response_data).extract()
+        return PricePNRExtractor(response_data)._extract()
 
     def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):
         """
