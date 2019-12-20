@@ -118,6 +118,9 @@ class BaseClient:
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         raise NotImplementedError
 
+    def re_book_air_segment(self, token: str, flight_segment, pnr):
+        raise NotImplementedError
+
     def new_rest_token(self):
         raise NotImplementedError
 

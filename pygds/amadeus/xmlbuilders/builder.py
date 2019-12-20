@@ -8,6 +8,8 @@ from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import ChashPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+import fnc
+from datetime import datetime
 
 
 class AmadeusXMLBuilder:
@@ -380,6 +382,75 @@ class AmadeusXMLBuilder:
             </soapenv:Body>
         </soapenv:Envelope>
         """
+
+    def re_book_air_segment(self, message_id, session_id, sequence_number,
+                            security_token, flight_segments):
+        header = self.generate_header("ARBKUR_14_1_1A", message_id, session_id, sequence_number, security_token)
+
+        origin = flight_segments[0] if flight_segments else {}
+        origin = fnc.get("origin", origin)
+        index_destination = len(flight_segments) - 1
+        destination = flight_segments[index_destination] if flight_segments else {}
+        destination = fnc.get("destination", destination)
+
+        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {header}
+            <soapenv:Body>
+                <Air_RebookAirSegment>
+                <originDestinationDetails>
+                        <originDestination>
+                            <origin>{origin}</origin>
+                            <destination>{destination}</destination>
+                        </originDestination>
+                        {''.join([self.get_segment_to_rebooks(flight_segment)  for flight_segment in flight_segments])}
+                </originDestinationDetails>
+                </Air_RebookAirSegment>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def get_segment_to_rebooks(self, flight_segment: dict):
+        try:
+            departure_date_time = fnc.get("departure_date_time", flight_segment)
+            departure_date_time = datetime.strptime(departure_date_time, "%Y-%m-%dT%H:%M:%S") if departure_date_time else None
+            date = datetime.date(departure_date_time) if departure_date_time else None
+            date = str(date.strftime("%y%m%d"))
+            time = datetime.time(departure_date_time) if departure_date_time else None
+            time = str(time.strftime("%H%M%S"))[:4]
+        except:
+            date = None
+            time = None
+        return f"""<itineraryInfo>
+                        <flightDetails>
+                            <flightDate>
+                                <departureDate>{date}</departureDate>
+                                <departureTime>{time}</departureTime>
+                            </flightDate>
+                            <boardPointDetails>
+                                <trueLocationId>{fnc.get("origin", flight_segment)}</trueLocationId>
+                            </boardPointDetails>
+                            <offpointDetails>
+                                <trueLocationId>{fnc.get("destination", flight_segment)}</trueLocationId>
+                            </offpointDetails>
+                            <companyDetails>
+                                <marketingCompany>{fnc.get("marketing_code", flight_segment)}</marketingCompany>
+                            </companyDetails>
+                            <flightIdentification>
+                                <flightNumber>{fnc.get("flight_number", flight_segment)}</flightNumber>
+                                <bookingClass>{fnc.get("class_of_service", flight_segment)}</bookingClass>
+                            </flightIdentification>
+                        </flightDetails>
+                        <relatedFlightInfo>
+                            <quantity>{fnc.get("number_in_party", flight_segment)}</quantity>
+                            <statusCode>{fnc.get("status", flight_segment)}</statusCode>
+                        </relatedFlightInfo>
+                    </itineraryInfo>"""
 
     def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_references: List[str] = []):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)

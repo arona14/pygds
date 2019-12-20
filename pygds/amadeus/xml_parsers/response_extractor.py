@@ -683,3 +683,13 @@ class FoPExtractor(BaseResponseExtractor):
             ref = from_json_safe(fop, "fopReference")
             all_fop.append(FormOfPayment(ref, fop))
         return all_fop
+
+
+class RebookExtractor(BaseResponseExtractor):
+
+    def __init__(self, xml_content: str):
+        super().__init__(xml_content, main_tag="Air_RebookAirSegmentReply")
+        self.parsed = True
+
+    def _extract(self):
+        return None
