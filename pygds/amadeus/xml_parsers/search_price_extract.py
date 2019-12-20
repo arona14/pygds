@@ -29,7 +29,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         for fare in fare_list:
             air_itinerary_pricing_info = AirItineraryPricingInfo()
             commission_info = self._get_commission_info(fare)
-            if len(commission_info) > 3 and "CM" in commission_info:
+            if not None (commission_info) and len(commission_info) > 3 and "CM" in commission_info:
                 commission_percentage = commission_info[2:]
             total_fare, currency_code = self._get_total_fare_and_currency_code(fare)
             air_itinerary_pricing_info.base_fare = self._get_equive_fare(fare) or self._get_base_fare(fare)
@@ -92,7 +92,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         segment_infos = ensure_list(fnc.get("segmentInformation", fare, default=[]))
         for segment_info in segment_infos:
             commission_info = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
-        return commission_info
+            return commission_info
 
     def _get_pax_type(self, fare):
         """
@@ -167,5 +167,4 @@ class PricePNRExtractor(BaseResponseExtractor):
         for tax_infos in ensure_list(fnc.get("taxInformation", fare, default=[])):
             tax = float(fnc.get("amountDetails.fareDataMainInformation.fareAmount", tax_infos))
             taxes.append(tax)
-
         return taxes
