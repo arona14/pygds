@@ -253,7 +253,12 @@ class AmadeusClient(BaseClient):
 
         return SellFromRecommendationReplyExtractor(response_data).extract()
 
-    def fare_price_pnr_with_booking_class(self, token: str, price_request: PriceRequest = None):
+    def search_price_quote(self, token: str,
+                           fare_type: PriceRequest.fare_type,
+                           segment_select: List[PriceRequest.segments],
+                           passengers: List[PriceRequest.passengers],
+                           baggage: PriceRequest.baggage,
+                           region_name: PriceRequest.region_name):
         """
         Price a PNR with a booking class.
         The PNR is supposed to be supplied in the session on a previous call.
@@ -264,8 +269,11 @@ class AmadeusClient(BaseClient):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number,
-                                                                          security_token, price_request)
+        request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id,
+                                                                          sequence_number,
+                                                                          security_token,
+                                                                          fare_type, passengers,
+                                                                          segment_select)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
