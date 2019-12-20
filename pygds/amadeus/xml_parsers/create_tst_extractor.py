@@ -172,5 +172,5 @@ class DisplayTSTExtractor(BaseResponseExtractor):
             if am.currency == total_taxes_currency:  # avoid summing amounts on different currencies
                 total_taxes += float(am.amount)
             taxes.append(tax)
-        total_taxes = FareAmount(None, str(round(total_taxes, 2)), total_taxes_currency)
+        total_taxes = FareAmount(None, str(round(total_taxes * 100) / 100), total_taxes_currency)
         return total_taxes, taxes

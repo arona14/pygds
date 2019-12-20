@@ -48,11 +48,11 @@ class TestDisplayTST(TestCase):
 
 
 if __name__ == "__main__":
-    # test = TestCreateTST()
-    # test.setUp()
-    # test.test_create_tst()
-    # test.test_bulder_client()
-    # test.tesy_class_tst_info()
+    test = TestCreateTST()
+    test.setUp()
+    test.test_create_tst()
+    test.test_bulder_client()
+    test.tesy_class_tst_info()
     test = TestDisplayTST()
     test.setUp()
     test.test_display_tst()
