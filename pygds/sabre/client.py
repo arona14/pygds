@@ -323,6 +323,16 @@ class SabreClient(BaseClient):
         return self.send_command(token, "PQD-ALL")
 
     @session_wrapper
+    def transfer_profile(self, token):
+        self.send_command(token, False, "CC/PC")
+
+    @session_wrapper
+    def add_fare_type_remark(self, token, fare_type, passenger_type):
+        fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
+        ud_fare_type = "N" if fare_type == "Net" else "P"
+        self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
+
+    @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
         """This function is for queue place
         """
