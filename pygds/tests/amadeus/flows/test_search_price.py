@@ -36,7 +36,7 @@ def test():
         for segs in ensure_list(fnc.get("itineraries", res_reservation, default=[])):
             for seg in ensure_list(fnc.get("segments", segs, default=[])):
                 seg_refs.append(seg.sequence)
-        request_price = PriceRequest(pax_refs, seg_refs, "OTHER")
+        request_price = PriceRequest(pax_refs, seg_refs, "OTHER", 0, "")
         log.debug("result of price_request")
         log.debug(request_price)
         token = session_info.security_token
