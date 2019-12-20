@@ -384,9 +384,6 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-<<<<<<< HEAD
-    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_info: TSTInfo):
-=======
     def re_book_air_segment(self, message_id, session_id, sequence_number,
                             security_token, flight_segments):
         header = self.generate_header("ARBKUR_14_1_1A", message_id, session_id, sequence_number, security_token)
@@ -456,8 +453,7 @@ class AmadeusXMLBuilder:
                         </relatedFlightInfo>
                     </itineraryInfo>"""
 
-    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_references: List[str] = []):
->>>>>>> e6169cd067f49256338a419c748fa70d2f76c128
+    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_info: TSTInfo):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
         content = f"""<psaList>
