@@ -152,6 +152,15 @@ class BaseClient:
     def delete_all_price_quotes(self, token: str):
         raise NotImplementedError
 
+    def transfer_profile(self, token):
+        raise NotImplementedError
+
+    def add_fare_type_remark(self, token, fare_type, passenger_type):
+        raise NotImplementedError
+
+    def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
+        raise NotImplementedError
+
 
 class ClientPool:
     """

@@ -29,11 +29,11 @@ class PricePNRExtractor(BaseResponseExtractor):
         for fare in fare_list:
             air_itinerary_pricing_info = AirItineraryPricingInfo()
             commission_info = self._get_commission_info(fare)
-            if not None (commission_info) and len(commission_info) > 3 and "CM" in commission_info:
+            if commission_info is not None and len(commission_info) > 3 and "CM" in commission_info:
                 commission_percentage = str(commission_info[2:])
             total_fare, currency_code = self._get_total_fare_and_currency_code(fare)
             air_itinerary_pricing_info.base_fare = self._get_equive_fare(fare) or self._get_base_fare(fare)
-            air_itinerary_pricing_info.taxes = str(round(sum(self._get_taxes(fare)), 2))
+            air_itinerary_pricing_info.taxes = str(round(sum(self._get_taxes(fare)) * 100) / 100)
             air_itinerary_pricing_info.total_fare = total_fare
             air_itinerary_pricing_info.currency_code = currency_code
             tst_reference = fnc.get("fareReference.referenceType", fare)

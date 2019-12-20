@@ -5,6 +5,8 @@ from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 from pygds.core import generate_token
+from pygds.core.price import PriceRequest, StoreSegmentSelect, TSTInfo
+
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
@@ -13,6 +15,9 @@ from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.search_price_extract import PricePNRExtractor
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, CreateTstResponseExtractor, \
+from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
+from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
+    CommandReplyExtractor, PricePNRExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
     VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
     FoPExtractor, RebookExtractor
@@ -265,18 +270,45 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data)._extract()
 
-    def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):
+    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
+                          passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
         """
             Creates a TST from TST reference
+            token: str
+            tst_infos: List[TSTInfo]
         """
+
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
         request_data = self.xml_builder.ticket_create_tst_from_price(message_id, session_id, sequence_number,
-                                                                     security_token, tst_references)
+                                                                     security_token, tst_info)
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
-        return CreateTstResponseExtractor(response_data).extract()
+
+        response_json = CreateTstResponseExtractor(response_data).extract()
+
+        if response_json.application_error is not None:
+            return response_json
+        if response_json.session_info.security_token is None:
+            return response_data
+
+        return self.display_tst(
+            response_json.session_info.security_token, response_json.payload
+        )
+
+    def display_tst(self, token: str, tst_info: TSTInfo):
+        """
+            Display a TST info
+        """
+        message_id, session_id, sequence_number, security_token = self.decode_token(token)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.display_tst(message_id, session_id, sequence_number,
+                                                    security_token, tst_info)
+        response_data = self.__request_wrapper("Display a tst info", request_data,
+                                               'http://webservices.amadeus.com/TTSTRQ_13_2_1A')
+        return DisplayTSTExtractor(response_data).extract()
 
     def re_book_air_segment(self, token: str, flight_segments: List[dict], pnr: str):
         """
@@ -321,6 +353,21 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
 
+<<<<<<< HEAD
+=======
+    def delete_all_price_quotes(self, token):
+        return self.send_command(token, "TTE/ALL")
+
+    def transfer_profile(self, token: str):
+        pass
+
+    def add_fare_type_remark(self, token: str, fare_type: str, passenger_type: str):
+        pass
+
+    def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
+        pass
+
+>>>>>>> 96317b92d0334c95d052a24d5491b1a56a1bf9ce
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
             add passenger info and create the PNR

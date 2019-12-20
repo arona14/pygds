@@ -48,8 +48,3 @@ class TravelFlightInfoTest(TestCase):
         self.assertEqual(flight_info.airlines, ["DL", "AF"])
         self.assertEqual(flight_info.rules_cabin, "RC")
         self.assertEqual(flight_info.rules_airline, "F")
-
-
-if __name__ == "__main__":
-    test = LowFareSearchTest()
-    test.test_generate_pax_reference()

@@ -18,7 +18,7 @@ from pygds.sabre.jsonbuilders.builder import SabreJSONBuilder
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.security_utils import generate_random_message_id
 from pygds.core.helpers import get_data_from_xml
-from pygds.sabre.price import StoreSegmentSelect
+from pygds.core.price import StoreSegmentSelect
 from pygds.sabre.xml_parsers.response_extractor import PriceSearchExtractor, DisplayPnrExtractor, SendCommandExtractor, \
     IssueTicketExtractor, EndTransactionExtractor, \
     SendRemarkExtractor, SabreQueuePlaceExtractor, SabreIgnoreTransactionExtractor, SeatMapResponseExtractor, \
@@ -321,6 +321,16 @@ class SabreClient(BaseClient):
     @session_wrapper
     def delete_all_price_quotes(self, token):
         return self.send_command(token, "PQD-ALL")
+
+    @session_wrapper
+    def transfer_profile(self, token):
+        self.send_command(token, False, "CC/PC")
+
+    @session_wrapper
+    def add_fare_type_remark(self, token: str, passenger_type: str):
+        fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
+        ud_fare_type = "N" if fare_type == "Net" else "P"
+        self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
 
     @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
