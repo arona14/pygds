@@ -5,7 +5,6 @@ from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 from pygds.core import generate_token
-from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
@@ -254,11 +253,11 @@ class AmadeusClient(BaseClient):
         return SellFromRecommendationReplyExtractor(response_data).extract()
 
     def search_price_quote(self, token: str,
-                           fare_type: PriceRequest.fare_type,
-                           segment_select: List[PriceRequest.segments],
-                           passengers: List[PriceRequest.passengers],
-                           baggage: PriceRequest.baggage,
-                           region_name: PriceRequest.region_name):
+                           fare_type: str,
+                           segment_select: List,
+                           passengers: List,
+                           baggage: int,
+                           region_name: str):
         """
         Price a PNR with a booking class.
         The PNR is supposed to be supplied in the session on a previous call.
@@ -274,8 +273,10 @@ class AmadeusClient(BaseClient):
                                                                           security_token,
                                                                           fare_type, passengers,
                                                                           segment_select)
+        print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
+        print(response_data)
         return PricePNRExtractor(response_data).extract()
 
     def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):

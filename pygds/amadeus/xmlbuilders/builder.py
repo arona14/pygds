@@ -2,7 +2,6 @@ from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.amadeus.xmlbuilders import low_fare_search_helper
-from pygds.core.price import PriceRequest
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
@@ -361,9 +360,9 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>"""
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
-                                          fare_type: PriceRequest.fare_type,
-                                          passengers: PriceRequest.passengers,
-                                          segments: PriceRequest.segments):
+                                          fare_type: str,
+                                          passengers: List,
+                                          segments: List):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"

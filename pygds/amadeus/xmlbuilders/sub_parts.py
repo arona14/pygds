@@ -2,7 +2,6 @@ from typing import List
 
 from pygds.amadeus.price import InformativeFareTax
 from pygds.core.payment import CreditCard, FormOfPayment
-from pygds.core.price import PriceRequest
 from pygds.core.types import TravellerNumbering, Itinerary, FlightSegment
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
 
@@ -591,8 +590,8 @@ def _fare_informative_price_passenger_group(sequence_no, start, count, pax_type)
     """
 
 
-def ppwbc_passenger_segment_selection(passengers: PriceRequest.passengers, segments: PriceRequest.segments):
-    if not PriceRequest or not (segments or passengers):
+def ppwbc_passenger_segment_selection(passengers: List, segments: List):
+    if not (segments or passengers):
         return ""
     pax_refs = []
     seg_refs = []
