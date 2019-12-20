@@ -327,7 +327,7 @@ class SabreClient(BaseClient):
         self.send_command(token, False, "CC/PC")
 
     @session_wrapper
-    def add_fare_type_remark(self, token, fare_type, passenger_type):
+    def add_fare_type_remark(self, token: str, passenger_type: str):
         fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
         ud_fare_type = "N" if fare_type == "Net" else "P"
         self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
