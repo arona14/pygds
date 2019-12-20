@@ -15,7 +15,7 @@ from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, E
     CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
     VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
-    FoPExtractor
+    FoPExtractor, RebookExtractor
 
 
 class AmadeusClient(BaseClient):
@@ -282,6 +282,19 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("ticket_create_TST_from_pricing", request_data,
                                                'http://webservices.amadeus.com/TAUTCQ_04_1_1A')
         return CreateTstResponseExtractor(response_data).extract()
+
+    def re_book_air_segment(self, token: str, flight_segments: List[dict], pnr: str):
+        """
+            Add new Segment in the pnr
+        """
+        message_id, session_id, sequence_number, security_token = self.decode_token(token)
+        if security_token is None:
+            raise NoSessionError(message_id)
+        request_data = self.xml_builder.re_book_air_segment(message_id, session_id, sequence_number,
+                                                            security_token, flight_segments)
+        response_data = self.__request_wrapper("air_rebook_air_segment", request_data,
+                                               'http://webservices.amadeus.com/ARBKUR_14_1_1A')
+        return RebookExtractor(response_data).extract()
 
     def create_pnr(self, token):
         """
