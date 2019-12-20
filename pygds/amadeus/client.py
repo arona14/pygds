@@ -357,6 +357,15 @@ class AmadeusClient(BaseClient):
     def delete_all_price_quotes(self, token):
         return self.send_command(token, "TTE/ALL")
 
+    def transfer_profile(self, token: str):
+        pass
+
+    def add_fare_type_remark(self, token: str, fare_type: str, passenger_type: str):
+        pass
+
+    def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
+        pass
+
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
             add passenger info and create the PNR
