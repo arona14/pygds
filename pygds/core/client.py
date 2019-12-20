@@ -119,7 +119,7 @@ class BaseClient:
         raise NotImplementedError
 
     def re_book_air_segment(self, token: str, flight_segment, pnr):
-        pass
+        raise NotImplementedError
 
     def new_rest_token(self):
         raise NotImplementedError
