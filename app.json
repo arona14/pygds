@@ -15,7 +15,7 @@
     "test": {
       "scripts": {
           "test-setup": "flake8 pygds",
-          "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=65 --cover-tests"
+          "test": "nosetests --with-coverage --cover-package=pygds --cover-min-percentage=65 --cover-testsnosetests --with-coverage --cover-package=pygds --cover-min-percentage=65 --cover-tests"
         }
     }
   }

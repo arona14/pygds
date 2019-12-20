@@ -10,8 +10,9 @@ from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, Rese
 from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
+from pygds.amadeus.xml_parsers.search_price_extract import PricePNRExtractor
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
-    CommandReplyExtractor, PricePNRExtractor, CreateTstResponseExtractor, \
+    CommandReplyExtractor, CreateTstResponseExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
     VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
     FoPExtractor
@@ -153,19 +154,6 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return UpdatePassengers(response_data).extract()
 
-    def cancel_list_segment(self, token, close_session: bool = False, segments: List[str] = []):
-        """
-            This method delete all segments
-        """
-        message_id, session_id, sequence_number, security_token = self.decode_token(token)
-        if not security_token:
-            raise NoSessionError(token)
-        request_data = self.xml_builder.cancel_segments(session_id, sequence_number, security_token,
-                                                        message_id, segments)
-        response_data = self.__request_wrapper("cancel segments", request_data,
-                                               'http://webservices.amadeus.com/PNRXCL_14_2_1A')
-        return CancelPnrExtractor(response_data).extract()
-
     def cancel_information_passenger(self, reference, token):
         """
             This method modifies the elements of a PNR (passengers, etc.)
@@ -253,7 +241,7 @@ class AmadeusClient(BaseClient):
         return SellFromRecommendationReplyExtractor(response_data).extract()
 
     def search_price_quote(self, token: str,
-                           fare_type: str = "",
+                           fare_type: str,
                            segment_select: list = [],
                            passengers: list = [],
                            baggage: int = 0,
@@ -273,10 +261,8 @@ class AmadeusClient(BaseClient):
                                                                           security_token,
                                                                           fare_type, passengers,
                                                                           segment_select)
-        print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        print(response_data)
         return PricePNRExtractor(response_data).extract()
 
     def ticket_create_tst_from_price(self, token, tst_references: List[str] = []):
@@ -321,9 +307,6 @@ class AmadeusClient(BaseClient):
             self.log.warning("A new session will be created when sending the command.")
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
-
-    def delete_all_price_quotes(self, token):
-        return self.send_command(token, "TTE/ALL")
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
