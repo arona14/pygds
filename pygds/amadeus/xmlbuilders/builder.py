@@ -2,7 +2,7 @@ from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.amadeus.xmlbuilders import low_fare_search_helper
-from pygds.core.price import PriceRequest, TSTInfo
+from pygds.core.price import TSTInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest

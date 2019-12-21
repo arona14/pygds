@@ -36,7 +36,7 @@ def test():
             for seg in ensure_list(fnc.get("segments", segs, default=[])):
                 seg_refs.append(seg.sequence)
         token = session_info.security_token
-        res_price = client.search_price_quote(token, "OTHER", seg_refs, pax_refs, 0, "")
+        res_price = client.search_price_quote(token, "COM", seg_refs, pax_refs, 0, "")
         log.debug(res_price)
 
         if session_info.session_ended is False:
