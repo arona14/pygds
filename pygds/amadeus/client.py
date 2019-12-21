@@ -13,9 +13,8 @@ from pygds.core.request import LowFareSearchRequest
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.search_price_extract import PricePNRExtractor
-from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
-    CommandReplyExtractor, CreateTstResponseExtractor, \
-from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
+
+from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, CommandReplyExtractor, CreateTstResponseExtractor, \
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, PricePNRExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
@@ -353,8 +352,6 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
 
-<<<<<<< HEAD
-=======
     def delete_all_price_quotes(self, token):
         return self.send_command(token, "TTE/ALL")
 
@@ -367,7 +364,6 @@ class AmadeusClient(BaseClient):
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
         pass
 
->>>>>>> 96317b92d0334c95d052a24d5491b1a56a1bf9ce
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
             add passenger info and create the PNR

@@ -93,6 +93,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         for segment_info in segment_infos:
             commission_info = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
             return commission_info
+        return None
 
     def _get_pax_type(self, fare):
         """

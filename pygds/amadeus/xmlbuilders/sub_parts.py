@@ -629,8 +629,8 @@ def _ppwbc_ref_detail(ref_type, ref_value):
 _fare_types_association = {
     "PUB": "RP",
     "NET": "RU",
-    "COM": "RC",
-    "OTHER": "RW"
+    "COM": "RW",
+    "OTHER": "RC"
 }
 
 
