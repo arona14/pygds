@@ -1,6 +1,5 @@
 import os
 from pygds.amadeus.client import AmadeusClient
-from pygds.core.price import PriceRequest
 from pygds.amadeus.errors import ClientError, ServerError
 from pygds.env_settings import get_setting
 from pygds.core.helpers import ensure_list
@@ -22,7 +21,7 @@ def test():
     log = log_handler.get_logger("test_all")
     pnr = "MYXH99"  # Q7N3A8 O95J97 WY9R4Z JSUDTM TTX3QV JSUDTM
 
-    client = AmadeusClient(endpoint, username, password, office_id, wsap, True)
+    client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
     try:
         token = None
@@ -36,11 +35,8 @@ def test():
         for segs in ensure_list(fnc.get("itineraries", res_reservation, default=[])):
             for seg in ensure_list(fnc.get("segments", segs, default=[])):
                 seg_refs.append(seg.sequence)
-        request_price = PriceRequest(pax_refs, seg_refs, "OTHER")
-        log.debug("result of price_request")
-        log.debug(request_price)
         token = session_info.security_token
-        res_price = client.fare_price_pnr_with_booking_class(token, request_price)
+        res_price = client.search_price_quote(token, "COM", seg_refs, pax_refs, 0, "")
         log.debug(res_price)
 
         if session_info.session_ended is False:
