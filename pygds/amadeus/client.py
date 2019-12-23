@@ -307,6 +307,11 @@ class AmadeusClient(BaseClient):
             response_json.session_info.security_token, response_json.payload
         )
 
+    def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None, pseudo_city_code: str = None):
+
+        pass
+
     def display_tst(self, token: str, tst_info: TSTInfo):
         """
             Display a TST info
