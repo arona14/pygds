@@ -21,9 +21,7 @@ wsap = get_setting("AMADEUS_WSAP")
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path = os.path.join(dir_path, "..", "..", "..")
 os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
-log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
 
-log = log_handler.get_logger("test_all")
 client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 
 try:
@@ -95,10 +93,10 @@ try:
     inf_k = Infant("Seyni", "Diallo", "10JAN19")
 
     traveller_infos = [TravellerInfo(
-        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", inf_am
+        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None
     ),
         TravellerInfo(
-        3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
+        3, "Khouna", "Khouna", "Fall", "03122010", "ADT", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
     )]
 
     reservation_info = ReservationInfo(traveller_infos, number_tel_agent="776656986")

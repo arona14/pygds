@@ -101,13 +101,13 @@ class AmadeusClient(BaseClient):
             values = payload["info_token"]
             return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
 
-    def get_reservation(self, token: str, close_trx: bool, record_locator: str):
+    def get_reservation(self, token: str, close_session: bool, pnr: str, current: bool = False):
         """
             Return the reservation data from PNR.
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
-        self.log.info(f"Retreive pnr '{record_locator}'.")
-        request_data = self.xml_builder.get_reservation_builder(message_id, session_id, sequence_number, security_token, record_locator, close_trx)
+        self.log.info(f"Retreive pnr '{pnr}'.")
+        request_data = self.xml_builder.get_reservation_builder(message_id, session_id, sequence_number, security_token, pnr, close_session, current)
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
@@ -271,7 +271,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
 
-    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
+    def store_price_quote(self, token: str, passenger_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
         """
             Creates a TST from TST reference
@@ -337,7 +337,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return GetPnrResponseExtractor(response_data).extract()
 
-    def send_command(self, command: str, token: str = None, close_trx: bool = False):
+    def send_command(self, token: str = None, close_trx: bool = False, command: str = None):
         """
         Send a command to Amadeus API
         :param command: the command to send as str
@@ -355,15 +355,21 @@ class AmadeusClient(BaseClient):
         return CommandReplyExtractor(data).extract()
 
     def delete_all_price_quotes(self, token):
-        return self.send_command(token, "TTE/ALL")
+        return self.send_command(token, command="TTE/ALL")
 
     def transfer_profile(self, token: str):
         pass
 
-    def add_fare_type_remark(self, token: str, fare_type: str, passenger_type: str):
+    def add_fare_type_remark(self, token: str, passenger_type: str):
         pass
 
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
+        pass
+
+    def add_remark(self, token: str, close_trx: bool, username: str):
+        pass
+
+    def portal_remark(self, token: str, close_trx: bool):
         pass
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):

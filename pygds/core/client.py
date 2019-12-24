@@ -161,6 +161,12 @@ class BaseClient:
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
         raise NotImplementedError
 
+    def add_remark(self, token: str, close_trx: bool, username: str):
+        raise NotImplementedError
+
+    def portal_remark(self, token: str, close_trx: bool):
+        raise NotImplementedError
+
 
 class ClientPool:
     """

@@ -155,7 +155,7 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(search_price_response).extract()
         return response
 
-    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
+    def store_price_quote(self, token: str, passenger_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = ""):
         """
         A method to store price
@@ -169,6 +169,7 @@ class SabreClient(BaseClient):
         """
         # if segment select is not given as couple of (segment number, brand id) we will
         # will rewrite it with null brand id to fit the request builder requirements
+        fare_type = "Net" if str(passenger_type).startswith("J") else "Pub"
         corrected_segments: List[StoreSegmentSelect] = []
         for s in segment_select:
             if not isinstance(s, tuple):
@@ -331,6 +332,14 @@ class SabreClient(BaseClient):
         fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
         ud_fare_type = "N" if fare_type == "Net" else "P"
         self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
+
+    @session_wrapper
+    def add_username_remark(self, token: str, username: str):
+        self.send_command(token, False, "5.S*UD100 " + str(username))
+
+    @session_wrapper
+    def portal_remark(self, token: str):
+        self.send_command(token, False, "6PORTAL")
 
     @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
