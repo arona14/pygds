@@ -45,16 +45,20 @@ class PriceRequest(PriceInfoBasic):
     A class to hold information about request of price PNR with booking class
     """
 
-    def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB"):
+    def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB", baggage: int = 0, region_name: str = ""):
         self.passengers = passengers
         self.segments = segments
         self.fare_type = fare_type
+        self.baggage = baggage
+        self.region_name = region_name
 
     def to_dict(self):
         return {
             "passengers": self.passengers,
             "segments": self.segments,
-            "fare_type": self.fare_type
+            "fare_type": self.fare_type,
+            "baggage": self.baggage,
+            "region_name": self.region_name
         }
 
 

@@ -29,11 +29,11 @@ class PricePNRExtractor(BaseResponseExtractor):
         for fare in fare_list:
             air_itinerary_pricing_info = AirItineraryPricingInfo()
             commission_info = self._get_commission_info(fare)
-            if len(commission_info) > 3 and "CM" in commission_info:
-                commission_percentage = commission_info[2:]
+            if commission_info is not None and len(commission_info) > 3 and "CM" in commission_info:
+                commission_percentage = str(commission_info[2:])
             total_fare, currency_code = self._get_total_fare_and_currency_code(fare)
             air_itinerary_pricing_info.base_fare = self._get_equive_fare(fare) or self._get_base_fare(fare)
-            air_itinerary_pricing_info.taxes = round(sum(self._get_taxes(fare)), 2)
+            air_itinerary_pricing_info.taxes = str(round(sum(self._get_taxes(fare)) * 100) / 100)
             air_itinerary_pricing_info.total_fare = total_fare
             air_itinerary_pricing_info.currency_code = currency_code
             tst_reference = fnc.get("fareReference.referenceType", fare)
@@ -55,13 +55,13 @@ class PricePNRExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.valiating_carrier = fnc.get("validatingCarrier.carrierInformation.carrierCode", fare)
             fare_break_down = FareBreakdown()
             for seg_infos in ensure_list(fnc.get("segmentInformation", fare, default=[])):
-                fare_break_down.fare_basic_code = fnc.get("fareQualifier.fareBasisDetails.fareBasisCode", seg_infos)
+                fare_break_down.fare_basis_code = fnc.get("fareQualifier.fareBasisDetails.fareBasisCode", seg_infos)
                 fare_break_down.cabin = fnc.get("cabinGroup.cabinSegment.bookingClassDetails.option", seg_infos)
                 fare_break_down.fare_passenger_type = self._get_pax_type(fare)
                 fare_break_down.fare_amount = ""
                 fare_break_down.fare_type = ""
                 fare_break_down.filing_carrier = ""
-                fare_break_down.free_baggage = fnc.get("bagAllowanceInformation.bagAllowanceDetails", seg_infos)
+                fare_break_down.free_baggage = fnc.get("bagAllowanceInformation.bagAllowanceDetails.baggageType", seg_infos)
                 list_fare_break_down.append(fare_break_down)
             air_itinerary_pricing_info.fare_break_down = list_fare_break_down
             air_itinerary_pricing_list.append(air_itinerary_pricing_info)
@@ -92,7 +92,8 @@ class PricePNRExtractor(BaseResponseExtractor):
         segment_infos = ensure_list(fnc.get("segmentInformation", fare, default=[]))
         for segment_info in segment_infos:
             commission_info = fnc.get("fareQualifier.fareBasisDetails.ticketDesignator", segment_info)
-        return commission_info
+            return commission_info
+        return None
 
     def _get_pax_type(self, fare):
         """
@@ -116,7 +117,7 @@ class PricePNRExtractor(BaseResponseExtractor):
         quantity = 0
         for pax_ref in ensure_list(from_json_safe(fare, "paxSegReference", "refDetails")):
             quantity += 1
-        return quantity
+        return str(quantity)
 
     def _get_equive_fare(self, fare):
         """
@@ -167,5 +168,4 @@ class PricePNRExtractor(BaseResponseExtractor):
         for tax_infos in ensure_list(fnc.get("taxInformation", fare, default=[])):
             tax = float(fnc.get("amountDetails.fareDataMainInformation.fareAmount", tax_infos))
             taxes.append(tax)
-
         return taxes

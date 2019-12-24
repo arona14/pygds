@@ -1,19 +1,20 @@
-# coding: utf-8
+# coding: utf-8 client
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
 from pygds.core import generate_token
-from pygds.core.price import PriceRequest, StoreSegmentSelect, TSTInfo
+from pygds.core.price import StoreSegmentSelect, TSTInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation, ReservationInfo
 from pygds.core.request import LowFareSearchRequest
+from pygds.amadeus.xml_parsers.search_price_extract import PricePNRExtractor
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
 from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
-    CommandReplyExtractor, PricePNRExtractor, \
+    CommandReplyExtractor, \
     IssueTicketResponseExtractor, CancelPnrExtractor, QueueExtractor, InformativePricingWithoutPnrExtractor, \
     VoidTicketExtractor, UpdatePassengers, InformativeBestPricingWithoutPNRExtractor, SellFromRecommendationReplyExtractor, \
     FoPExtractor, RebookExtractor
@@ -254,7 +255,12 @@ class AmadeusClient(BaseClient):
 
         return SellFromRecommendationReplyExtractor(response_data).extract()
 
-    def fare_price_pnr_with_booking_class(self, token: str, price_request: PriceRequest = None):
+    def search_price_quote(self, token: str,
+                           fare_type: str,
+                           segment_select: list = [],
+                           passengers: list = [],
+                           baggage: int = 0,
+                           region_name: str = ""):
         """
         Price a PNR with a booking class.
         The PNR is supposed to be supplied in the session on a previous call.
@@ -265,8 +271,11 @@ class AmadeusClient(BaseClient):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
-        request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id, sequence_number,
-                                                                          security_token, price_request)
+        request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id,
+                                                                          sequence_number,
+                                                                          security_token,
+                                                                          fare_type, passengers,
+                                                                          segment_select)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
