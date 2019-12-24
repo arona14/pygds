@@ -1,7 +1,7 @@
 from pygds.sabre.json_parsers.revalidate_extract import BaseResponseRevalidateExtractor, RevalidateItinerarieInfo
 
 
-class RevalidateItinerary(BaseResponseRevalidateExtractor):
+class RevalidateItineraryExtract(BaseResponseRevalidateExtractor):
     """
     This class retrieves information for revalidate itinerary
     """

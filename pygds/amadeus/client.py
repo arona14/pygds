@@ -4,7 +4,7 @@ from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
-from pygds.amadeus.xml_parsers.revalidate_extractor import RevalidateItinerary
+from pygds.amadeus.xml_parsers.revalidate_extractor import RevalidateItineraryExtract
 from pygds.core import generate_token
 from pygds.core.price import StoreSegmentSelect, TSTInfo
 from pygds.core.sessions import SessionInfo
@@ -319,7 +319,7 @@ class AmadeusClient(BaseClient):
         :param pseudo_city_code: the pseudo_city_code
         return None
         """
-        return RevalidateItinerary().extract()
+        return RevalidateItineraryExtract(None).extract()
 
     def display_tst(self, token: str, tst_info: TSTInfo):
         """
