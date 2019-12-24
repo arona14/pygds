@@ -1104,7 +1104,10 @@ class SeatMapResponseExtractor(BaseResponseExtractor):
 
     def __get_offer_info(self, offer_info):
         entitled_ind = from_json_safe(offer_info, "@entitledInd") if "@entitledInd" in offer_info else ''
-        base_price = self.__get_base_price(from_json_safe(offer_info, "Price") if "Price" in offer_info else '')
+        base = from_json_safe(offer_info, "BasePrice") if "BasePrice" in offer_info else None
+        if base is None:
+            base = from_json_safe(offer_info, "Price") if "Price" in offer_info else ''
+        base_price = self.__get_base_price(base)
         return Offer(entitled_ind=entitled_ind, base_price=base_price)
 
     def __get_limitations_info(self, limitations_info):
