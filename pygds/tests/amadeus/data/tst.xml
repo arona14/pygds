@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:awsse="http://xml.amadeus.com/2010/06/Session_v3" 
+    xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <soapenv:Header>
+        <wsa:To>http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:From>
+            <wsa:Address>https://nodeD1.test.webservices.amadeus.com/1ASIWCTSCSO</wsa:Address>
+        </wsa:From>
+        <wsa:Action>http://webservices.amadeus.com/TAUTCQ_04_1_1A</wsa:Action>
+        <wsa:MessageID>urn:uuid:17dc4515-7b06-7314-097e-b05e185ccc0a</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="http://www.w3.org/2005/08/addressing/reply">653504c8-8e8f-4a94-959d-cbcf95dd05ac</wsa:RelatesTo>
+        <awsse:Session TransactionStatusCode="InSeries">
+            <awsse:SessionId>00BJ8D68SK</awsse:SessionId>
+            <awsse:SequenceNumber>4</awsse:SequenceNumber>
+            <awsse:SecurityToken>1QKGJOJ1RIZFP1FXSX398UUWP9</awsse:SecurityToken>
+        </awsse:Session>
+    </soapenv:Header>
+    <soapenv:Body>
+        <Ticket_CreateTSTFromPricingReply xmlns="http://xml.amadeus.com/TAUTCR_04_1_1A">
+            <tstList>
+                <tstReference>
+                    <referenceType>TST</referenceType>
+                    <uniqueReference>1</uniqueReference>
+                    <iDDescription>
+                        <iDSequenceNumber>1</iDSequenceNumber>
+                    </iDDescription>
+                </tstReference>
+                <paxInformation>
+                    <refDetails>
+                        <refQualifier>PA</refQualifier>
+                        <refNumber>2</refNumber>
+                    </refDetails>
+                    <refDetails>
+                        <refQualifier>PA</refQualifier>
+                        <refNumber>3</refNumber>
+                    </refDetails>
+                </paxInformation>
+            </tstList>
+        </Ticket_CreateTSTFromPricingReply>
+    </soapenv:Body>
+</soapenv:Envelope>

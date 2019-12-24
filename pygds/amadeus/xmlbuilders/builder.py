@@ -2,12 +2,14 @@ from time import gmtime, strftime
 from typing import List
 from pygds.amadeus.xmlbuilders import sub_parts
 from pygds.amadeus.xmlbuilders import low_fare_search_helper
-from pygds.core.price import PriceRequest
+from pygds.core.price import TSTInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.types import TravellerNumbering, Itinerary, Recommandation
 from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import ChashPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
+import fnc
+from datetime import datetime
 
 
 class AmadeusXMLBuilder:
@@ -25,6 +27,7 @@ class AmadeusXMLBuilder:
         self.created_date_time = generate_created()
         self.nonce = generate_nonce()
         self.digested_password = password_digest(password, self.nonce, self.created_date_time)
+        self.passenger_mapping = {"ADT": "PA", "INF": "PI"}
 
     def ensure_security_parameters(self, message_id, nonce, created_date_time):
         """
@@ -165,6 +168,29 @@ class AmadeusXMLBuilder:
             </soapenv:Header>
             <soapenv:Body>
                 <Security_SignOut></Security_SignOut>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def cancel_segments(self, session_id, sequence_number, security_token, message_id, segments):
+
+        return f"""
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+             {self.generate_header("PNRXCL_14_2_1A", message_id, session_id, sequence_number, security_token)}
+            <soapenv:Body>
+                <PNR_Cancel>
+                    <pnrActions>
+                        <optionCode>11</optionCode>
+                    </pnrActions>
+                    <cancelElements>
+                        <entryType>E</entryType>
+                        {''.join([f'''<element>
+                                    <identifier>SS</identifier>
+                                    <number>{segment}</number>
+                                </element>''' for segment in segments
+                        ])}
+                    </cancelElements>
+                </PNR_Cancel>
             </soapenv:Body>
         </soapenv:Envelope>
         """
@@ -338,7 +364,9 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>"""
 
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
-                                          price_request: PriceRequest):
+                                          fare_type: str = "",
+                                          passengers: list = [],
+                                          segments: list = []):
         header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -351,24 +379,103 @@ class AmadeusXMLBuilder:
             {header}
             <soapenv:Body>
                 <Fare_PricePNRWithBookingClass>
-                    {sub_parts.ppwbc_fare_type(price_request.fare_type)}
-                    {sub_parts.ppwbc_passenger_segment_selection(price_request)}
+                    {sub_parts.ppwbc_fare_type(fare_type)}
+                    {sub_parts.ppwbc_passenger_segment_selection(passengers, segments)}
                 </Fare_PricePNRWithBookingClass>
             </soapenv:Body>
         </soapenv:Envelope>
         """
 
-    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_references: List[str] = []):
+    def re_book_air_segment(self, message_id, session_id, sequence_number,
+                            security_token, flight_segments):
+        header = self.generate_header("ARBKUR_14_1_1A", message_id, session_id, sequence_number, security_token)
+
+        origin = flight_segments[0] if flight_segments else {}
+        origin = fnc.get("origin", origin)
+        index_destination = len(flight_segments) - 1
+        destination = flight_segments[index_destination] if flight_segments else {}
+        destination = fnc.get("destination", destination)
+
+        return f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+            xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"
+            xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1"
+            xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1"
+            xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3"
+            xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1"
+            xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+            {header}
+            <soapenv:Body>
+                <Air_RebookAirSegment>
+                <originDestinationDetails>
+                        <originDestination>
+                            <origin>{origin}</origin>
+                            <destination>{destination}</destination>
+                        </originDestination>
+                        {''.join([self.get_segment_to_rebooks(flight_segment)  for flight_segment in flight_segments])}
+                </originDestinationDetails>
+                </Air_RebookAirSegment>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        """
+
+    def get_segment_to_rebooks(self, flight_segment: dict):
+        try:
+            departure_date_time = fnc.get("departure_date_time", flight_segment)
+            departure_date_time = datetime.strptime(departure_date_time, "%Y-%m-%dT%H:%M:%S") if departure_date_time else None
+            date = datetime.date(departure_date_time) if departure_date_time else None
+            date = str(date.strftime("%y%m%d"))
+            time = datetime.time(departure_date_time) if departure_date_time else None
+            time = str(time.strftime("%H%M%S"))[:4]
+        except:
+            date = None
+            time = None
+        return f"""<itineraryInfo>
+                        <flightDetails>
+                            <flightDate>
+                                <departureDate>{date}</departureDate>
+                                <departureTime>{time}</departureTime>
+                            </flightDate>
+                            <boardPointDetails>
+                                <trueLocationId>{fnc.get("origin", flight_segment)}</trueLocationId>
+                            </boardPointDetails>
+                            <offpointDetails>
+                                <trueLocationId>{fnc.get("destination", flight_segment)}</trueLocationId>
+                            </offpointDetails>
+                            <companyDetails>
+                                <marketingCompany>{fnc.get("marketing_code", flight_segment)}</marketingCompany>
+                            </companyDetails>
+                            <flightIdentification>
+                                <flightNumber>{fnc.get("flight_number", flight_segment)}</flightNumber>
+                                <bookingClass>{fnc.get("class_of_service", flight_segment)}</bookingClass>
+                            </flightIdentification>
+                        </flightDetails>
+                        <relatedFlightInfo>
+                            <quantity>{fnc.get("number_in_party", flight_segment)}</quantity>
+                            <statusCode>{fnc.get("status", flight_segment)}</statusCode>
+                        </relatedFlightInfo>
+                    </itineraryInfo>"""
+
+    def ticket_create_tst_from_price(self, message_id, session_id, sequence_number, security_token, tst_info: TSTInfo):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
-        content = ""
-        for tst_ref in tst_references:
-            content += f"""<psaList>
-                                <itemReference>
-                                <referenceType>TST</referenceType>
-                                <uniqueReference>{tst_ref}</uniqueReference>
-                                </itemReference>
-                            </psaList>"""
+        content = f"""<psaList>
+                            <itemReference>
+                            <referenceType>TST</referenceType>
+                                <uniqueReference>{tst_info.tst_ref}</uniqueReference>
+                            </itemReference>
+                            <paxReference>
+                                {''.join(
+                                    [
+                                        f"<referenceDetails><type>{self.passenger_mapping.get(passenger.passenger_type)}</type><value>{passenger.name_id}</value></referenceDetails>"
+                                        for passenger in tst_info.passengers
+                                        ])}
+                                {''.join(
+                                    [
+                                        f"<referenceDetails><type>S</type><value>{segment}</value></referenceDetails>"
+                                        for segment in tst_info.segments
+                                        ])}
+                            </paxReference>
+                        </psaList>"""
 
         return f"""
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
@@ -382,6 +489,46 @@ class AmadeusXMLBuilder:
                         <Ticket_CreateTSTFromPricing>
                             {content}
                         </Ticket_CreateTSTFromPricing>
+                    </soapenv:Body>
+                </soapenv:Envelope>
+                """
+
+    def display_tst(self, message_id: str, session_id: str, sequence_number: str,
+                    security_token: str, token: str, tst_info: TSTInfo):
+        security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
+
+        return f"""
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
+                    <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
+                        <add:MessageID>{message_id}</add:MessageID>
+                        <add:Action>http://webservices.amadeus.com/TTSTRQ_13_2_1A</add:Action>
+                        <add:To>{self.endpoint}/{self.wsap}</add:To>
+                        {security_part}
+                    </soapenv:Header>
+                    <soapenv:Body>
+                        <Ticket_DisplayTST>
+                            <displayMode>
+                                <attributeDetails>
+                                <attributeType>SEL</attributeType>
+                                </attributeDetails>
+                            </displayMode>
+                            <tstReference>
+                                <referenceType>TST</referenceType>
+                                <uniqueReference>{tst_info.tst_ref}</uniqueReference>
+                            </tstReference>
+                            <psaInformation>
+                                {''.join(
+                                    [
+                                        f"<referenceDetails><refQualifier>{self.passenger_mapping.get(passenger.passenger_type)}</refQualifier><refNumber>{passenger.name_id}</refNumber></referenceDetails>"
+                                        for passenger in tst_info.passengers
+                                        ])}
+                                {''.join(
+                                    [
+                                        f"<referenceDetails><refQualifier>S</<refQualifier>><refNumber>{segment}</refNumber></referenceDetails>"
+                                        for segment in tst_info.segments
+                                        ])}
+                            </psaInformation>
+                        </Ticket_DisplayTST>
                     </soapenv:Body>
                 </soapenv:Envelope>
                 """

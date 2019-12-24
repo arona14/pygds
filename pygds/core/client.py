@@ -8,6 +8,7 @@ from requests import Response
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.price import PriceRequest
 from pygds.core.sessions import MemorySessionHolder, SessionInfo, TokenType, SessionHolder
+from typing import List
 
 
 class BaseClient:
@@ -117,6 +118,9 @@ class BaseClient:
     def send_command(self, command: str, message_id: str = None, close_trx: bool = False):
         raise NotImplementedError
 
+    def re_book_air_segment(self, token: str, flight_segment, pnr):
+        raise NotImplementedError
+
     def new_rest_token(self):
         raise NotImplementedError
 
@@ -142,7 +146,19 @@ class BaseClient:
             self.session_holder.remove_session(message_id)
             self.log.info(f"Token associated to message id {message_id} is closed")
 
+    def cancel_list_segment(self, token, close_session: bool = False, segments: List[str] = []):
+        raise NotImplementedError
+
     def delete_all_price_quotes(self, token: str):
+        raise NotImplementedError
+
+    def transfer_profile(self, token):
+        raise NotImplementedError
+
+    def add_fare_type_remark(self, token, fare_type, passenger_type):
+        raise NotImplementedError
+
+    def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
         raise NotImplementedError
 
 

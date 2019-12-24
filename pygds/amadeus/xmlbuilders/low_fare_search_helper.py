@@ -38,8 +38,7 @@ def get_pax_info(pax_type: str, number_passenger: int):
     """
     return f"""
             <paxReference>
-                <ptc>{pax_type}</ptc>
-                {"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(number_passenger)])}
+                <ptc>{pax_type}</ptc>{"".join([f"<traveller><ref>{index +1}</ref></traveller>" for index in range(number_passenger)])}
             </paxReference>
         """
 

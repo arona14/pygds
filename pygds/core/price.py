@@ -1,6 +1,10 @@
 from typing import List
 from datetime import date
 
+from typing import Tuple
+
+StoreSegmentSelect = Tuple[int, str]
+
 
 class PriceInfoBasic:
     def __str__(self):
@@ -41,16 +45,20 @@ class PriceRequest(PriceInfoBasic):
     A class to hold information about request of price PNR with booking class
     """
 
-    def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB"):
+    def __init__(self, passengers: List[str], segments: List[str], fare_type: str = "PUB", baggage: int = 0, region_name: str = ""):
         self.passengers = passengers
         self.segments = segments
         self.fare_type = fare_type
+        self.baggage = baggage
+        self.region_name = region_name
 
     def to_dict(self):
         return {
             "passengers": self.passengers,
             "segments": self.segments,
-            "fare_type": self.fare_type
+            "fare_type": self.fare_type,
+            "baggage": self.baggage,
+            "region_name": self.region_name
         }
 
 
@@ -275,6 +283,28 @@ class SearchPriceInfos(PriceInfoBasic):
         return {
             "status": self.status,
             "air_itinerary_pricing_info": self.air_itinerary_pricing_info
+        }
+
+
+class TSTInfo(PriceInfoBasic):
+    """
+        This class we will get the Info of Search price
+    """
+
+    def __init__(self, status: str = None, pnr: str = None, tst_ref: str = None, passengers: List = [], segments: List = []):
+        self.status: str = None  # the status of result
+        self.pnr = pnr
+        self.passengers = passengers
+        self.tst_ref = tst_ref
+        self.segments = segments
+
+    def to_dict(self):
+        return {
+            "status": self.status,
+            "pnr": self.pnr,
+            "passengers": self.passengers,
+            "tst_ref": self.tst_ref,
+            "segments": self.segments
         }
 
 
