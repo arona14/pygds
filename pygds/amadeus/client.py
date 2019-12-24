@@ -309,6 +309,15 @@ class AmadeusClient(BaseClient):
 
     def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
                              fare_type: str = None, pseudo_city_code: str = None):
+        """
+        This method is us to check if the segment is always valid or not.
+        At this moment we put it pass to have same format of search price quote for sabre in portal.
+        :param itineraries: list of itineraries
+        :param passengers: list of passengers
+        :param fare_type: the fare type
+        :param pseudo_city_code: the pseudo_city_code
+        return None
+        """
 
         pass
 
