@@ -143,3 +143,7 @@
 # 0.0.31 (2019-12-19)
 - Sabre:
     - update display pnr extractor [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.32 (2019-12-24)
+- Sabre:
+    - seat map extractor change replace( BasePrice to Price) [mbayane1990](mbaye@ctsfares.com)
