@@ -339,6 +339,7 @@ class AirItineraryPricingInfo(PriceInfoBasic):
         self.taxes: float = 0.0            # taxes amount
         self.total_fare: float             # totoal fare amount
         self.currency_code: str = None     # currency code
+        self.tst_ref: int = 0
         self.passenger_type: str = None     # passenger type
         self.passenger_quantity: str = None  # passenger quantity
         self.charge_amount: float = 0.0      # Charge Amount
@@ -355,6 +356,7 @@ class AirItineraryPricingInfo(PriceInfoBasic):
             "taxes": self.taxes,
             "total_fare": self.total_fare,
             "currency_code": self.currency_code,
+            "tst_ref": self.tst_ref,
             "passenger_type": self.passenger_type,
             "passenger_quantity": self.passenger_quantity,
             "charge_amount": self.charge_amount,
