@@ -137,7 +137,7 @@ class DisplayTSTExtractor(BaseResponseExtractor):
         air_itinerary_pricing_infos.fare_break_down = all_fare_break_down
         air_itinerary_pricing_infos.valiating_carrier = validating_carier
         air_itinerary_pricing_infos.currency_code = currency_code
-        return air_itinerary_pricing_infos
+        return ensure_list(air_itinerary_pricing_infos)
 
     def _tst_amounts(self, fare_data_main_informations: List):
         amounts = []

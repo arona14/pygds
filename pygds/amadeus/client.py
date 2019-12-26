@@ -88,6 +88,9 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
+    def end_transaction(self, token: str, close_session: bool = True):
+        pass
+
     def decode_token(self, token: str):
         """
         This method is use to decode a token
@@ -302,9 +305,8 @@ class AmadeusClient(BaseClient):
             return response_json
         if response_json.session_info.security_token is None:
             return response_data
-
         return self.display_tst(
-            response_json.session_info.security_token, response_json.payload
+            token=response_json.session_info.security_token, tst_info=response_json.payload
         )
 
     def display_tst(self, token: str, tst_info: TSTInfo):
@@ -317,10 +319,11 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.display_tst(message_id, session_id, sequence_number,
                                                     security_token, tst_info)
         response_data = self.__request_wrapper("Display a tst info", request_data,
-                                               'http://webservices.amadeus.com/TTSTRQ_13_2_1A')
+                                               'http://webservices.amadeus.com/TTSTRQ_15_1_1A')
+
         return DisplayTSTExtractor(response_data).extract()
 
-    def re_book_air_segment(self, token: str, flight_segments: List[dict], pnr: str):
+    def re_book_air_segment(self, token: str, close_session: bool=False, flight_segments: List[dict]=[], pnr: str=None):
         """
             Add new Segment in the pnr
         """
@@ -363,8 +366,11 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
 
+    def add_username_remark(self, token: str, username: str):
+        pass
+
     def delete_all_price_quotes(self, token):
-        return self.send_command(token, command="TTE/ALL")
+        return self.send_command(token, close_trx=False, command="TTE/ALL")
 
     def transfer_profile(self, token: str):
         pass
@@ -375,10 +381,10 @@ class AmadeusClient(BaseClient):
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
         pass
 
-    def add_remark(self, token: str, close_trx: bool, username: str):
+    def add_remark(self, token: str, username: str):
         pass
 
-    def portal_remark(self, token: str, close_trx: bool):
+    def portal_remark(self, token: str):
         pass
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):

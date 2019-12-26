@@ -474,18 +474,6 @@ class AmadeusXMLBuilder:
                             <referenceType>TST</referenceType>
                                 <uniqueReference>{tst_info.tst_ref}</uniqueReference>
                             </itemReference>
-                            <paxReference>
-                                {''.join(
-                                    [
-                                        f"<refDetails><refQualifier>{self.passenger_mapping.get(passenger.passenger_type)}</refQualifier><refNumber>{passenger.name_id}</refNumber></refDetails>"
-                                        for passenger in tst_info.passengers
-                                        ])}
-                                {''.join(
-                                    [
-                                        f"<refDetails><refQualifier>S</refQualifier><refNumber>{segment}</refNumber></refDetails>"
-                                        for segment in tst_info.segments
-                                        ])}
-                            </paxReference>
                         </psaList>"""
 
         return f"""
@@ -505,14 +493,14 @@ class AmadeusXMLBuilder:
                 """
 
     def display_tst(self, message_id: str, session_id: str, sequence_number: str,
-                    security_token: str, token: str, tst_info: TSTInfo):
+                    security_token: str, tst_info: TSTInfo):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
 
         return f"""
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1" xmlns:typ="http://xml.amadeus.com/2010/06/Types_v1" xmlns:iat="http://www.iata.org/IATA/2007/00/IATA2010.1" xmlns:app="http://xml.amadeus.com/2010/06/AppMdw_CommonTypes_v3" xmlns:link="http://wsdl.amadeus.com/2010/06/ws/Link_v1" xmlns:ses="http://xml.amadeus.com/2010/06/Session_v3">
                     <soapenv:Header xmlns:add="http://www.w3.org/2005/08/addressing">
                         <add:MessageID>{message_id}</add:MessageID>
-                        <add:Action>http://webservices.amadeus.com/TTSTRQ_13_2_1A</add:Action>
+                        <add:Action>http://webservices.amadeus.com/TTSTRQ_15_1_1A</add:Action>
                         <add:To>{self.endpoint}/{self.wsap}</add:To>
                         {security_part}
                     </soapenv:Header>
@@ -527,18 +515,6 @@ class AmadeusXMLBuilder:
                                 <referenceType>TST</referenceType>
                                 <uniqueReference>{tst_info.tst_ref}</uniqueReference>
                             </tstReference>
-                            <psaInformation>
-                                {''.join(
-                                    [
-                                        f"<referenceDetails><refQualifier>{self.passenger_mapping.get(passenger.passenger_type)}</refQualifier><refNumber>{passenger.name_id}</refNumber></referenceDetails>"
-                                        for passenger in tst_info.passengers
-                                        ])}
-                                {''.join(
-                                    [
-                                        f"<referenceDetails><refQualifier>S</<refQualifier>><refNumber>{segment}</refNumber></referenceDetails>"
-                                        for segment in tst_info.segments
-                                        ])}
-                            </psaInformation>
                         </Ticket_DisplayTST>
                     </soapenv:Body>
                 </soapenv:Envelope>

@@ -123,7 +123,7 @@ class SabreClient(BaseClient):
         return CloseSessionExtractor(close_session_response).extract().payload
 
     @session_wrapper
-    def get_reservation(self, token: str, pnr: str):
+    def get_reservation(self, token: str, pnr: str, current: bool = False):
         """retrieve PNR
         :param pnr: the record locator
         :param token: the message identifier
@@ -156,7 +156,7 @@ class SabreClient(BaseClient):
         return response
 
     def store_price_quote(self, token: str, passenger_type: str, segment_select: List[StoreSegmentSelect],
-                          passengers: dict = {}, baggage: int = 0, region_name: str = ""):
+                          passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info=None):
         """
         A method to store price
         :param token: the token
@@ -319,25 +319,20 @@ class SabreClient(BaseClient):
         gds_response = SendCommandExtractor(command_response).extract()
         return gds_response
 
-    @session_wrapper
     def delete_all_price_quotes(self, token):
-        return self.send_command(token, "PQD-ALL")
+        return self.send_command(token, close_session=False, command="PQD-ALL")
 
-    @session_wrapper
     def transfer_profile(self, token):
         self.send_command(token, False, "CC/PC")
 
-    @session_wrapper
     def add_fare_type_remark(self, token: str, passenger_type: str):
         fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
         ud_fare_type = "N" if fare_type == "Net" else "P"
         self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
 
-    @session_wrapper
     def add_username_remark(self, token: str, username: str):
         self.send_command(token, False, "5.S*UD100 " + str(username))
 
-    @session_wrapper
     def portal_remark(self, token: str):
         self.send_command(token, False, "6PORTAL")
 

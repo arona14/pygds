@@ -167,6 +167,12 @@ class BaseClient:
     def portal_remark(self, token: str, close_trx: bool):
         raise NotImplementedError
 
+    def add_username_remark(self, token: str, username: str, close_trx: bool):
+        raise NotImplementedError
+
+    def end_transaction(self, token: str, close_session: bool = True):
+        raise NotImplementedError
+
 
 class ClientPool:
     """
