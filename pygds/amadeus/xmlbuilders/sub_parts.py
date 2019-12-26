@@ -604,7 +604,7 @@ def ppwbc_passenger_segment_selection(passengers: list = [], segments: list = []
     for s in segments:
         seg_refs.append(_ppwbc_ref_detail("S", s))
     return f"""
-    <pricingOptionGroup>ggg
+    <pricingOptionGroup>
         <pricingOptionKey>
             <pricingOptionKey>SEL</pricingOptionKey>
         </pricingOptionKey>
