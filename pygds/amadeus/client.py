@@ -1,4 +1,4 @@
-# coding: utf-8 client
+
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment

@@ -596,7 +596,11 @@ def ppwbc_passenger_segment_selection(passengers: list = [], segments: list = []
     pax_refs = []
     seg_refs = []
     for r in passengers:
-        pax_refs.append(_ppwbc_ref_detail("P", r))
+        passengers_refs = r["name_select"]
+        if passengers_refs:
+            for i in passengers_refs:
+                p = int(i[0:2])
+                pax_refs.append(_ppwbc_ref_detail("P", p))
     for s in segments:
         seg_refs.append(_ppwbc_ref_detail("S", s))
     return f"""
