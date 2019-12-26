@@ -19,7 +19,7 @@ def test():
     os.makedirs(os.path.join(dir_path, "out"), exist_ok=True)
     log_handler.load_file_config(os.path.join(dir_path, "log_config.yml"))
     log = log_handler.get_logger("test_all")
-    pnr = "MYXH99"  # Q7N3A8 O95J97 WY9R4Z JSUDTM TTX3QV JSUDTM
+    pnr = "QT37IS"  # Q7N3A8 O95J97 WY9R4Z JSUDTM TTX3QV MYXH99
 
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
 

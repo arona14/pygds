@@ -1,4 +1,4 @@
-# coding: utf-8 client
+
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
@@ -258,8 +258,9 @@ class AmadeusClient(BaseClient):
 
     def search_price_quote(self, token: str,
                            fare_type: str,
+                           close_session: bool = False,
                            segment_select: list = [],
-                           passengers: list = [],
+                           passenger_type: list = [],
                            baggage: int = 0,
                            region_name: str = ""):
         """
@@ -275,8 +276,9 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id,
                                                                           sequence_number,
                                                                           security_token,
-                                                                          fare_type, passengers,
-                                                                          segment_select)
+                                                                          fare_type, passenger_type,
+                                                                          segment_select,
+                                                                          close_session)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
