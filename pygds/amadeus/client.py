@@ -339,7 +339,7 @@ class AmadeusClient(BaseClient):
 
         return DisplayTSTExtractor(response_data).extract()
 
-    def re_book_air_segment(self, token: str, close_session: bool=False, flight_segments: List[dict]=[], pnr: str=None):
+    def re_book_air_segment(self, token: str, close_session: bool = False, flight_segments: List[dict] = [], pnr: str = None):
         """
             Add new Segment in the pnr
         """

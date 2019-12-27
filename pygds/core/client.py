@@ -101,14 +101,6 @@ class BaseClient:
         """
         raise NotImplementedError
 
-    def end_transaction(self, message_id):
-        """
-        Commit actions done in the current transaction of the token
-        :param message_id: The message id associated to the token
-        :return:
-        """
-        raise NotImplementedError
-
     def fare_master_pricer_travel_board_search(self, origin, destination, departure_date, arrival_date):
         raise NotImplementedError
 
