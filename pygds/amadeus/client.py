@@ -279,9 +279,15 @@ class AmadeusClient(BaseClient):
                                                                           fare_type, passenger_type,
                                                                           segment_select,
                                                                           close_session)
+
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
+
         return PricePNRExtractor(response_data).extract()
+
+    @staticmethod
+    def get_rest_token():
+        pass
 
     def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
