@@ -95,10 +95,10 @@ try:
     inf_k = Infant("Seyni", "Diallo", "10JAN19")
 
     traveller_infos = [TravellerInfo(
-        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", inf_am
+        2, "Amadou", "Diallo", "Diallo", "03121983", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None
     ),
         TravellerInfo(
-        3, "Khouna", "Khouna", "Fall", "03122010", "CHD", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
+        3, "Khouna", "Khouna", "Fall", "03122010", "ADT", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977"
     )]
 
     reservation_info = ReservationInfo(traveller_infos, number_tel_agent="776656986")

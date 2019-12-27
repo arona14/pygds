@@ -123,7 +123,7 @@ class SabreClient(BaseClient):
         return CloseSessionExtractor(close_session_response).extract().payload
 
     @session_wrapper
-    def get_reservation(self, token: str, pnr: str):
+    def get_reservation(self, token: str, pnr: str, current: bool = False):
         """retrieve PNR
         :param pnr: the record locator
         :param token: the message identifier
@@ -155,8 +155,8 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(search_price_response).extract()
         return response
 
-    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
-                          passengers: dict = {}, baggage: int = 0, region_name: str = ""):
+    def store_price_quote(self, token: str, segment_select: List[StoreSegmentSelect],
+                          passenger: dict = {}, baggage: int = 0, region_name: str = "", tst_info=None):
         """
         A method to store price
         :param token: the token
@@ -169,6 +169,7 @@ class SabreClient(BaseClient):
         """
         # if segment select is not given as couple of (segment number, brand id) we will
         # will rewrite it with null brand id to fit the request builder requirements
+        fare_type = "Net" if str(passenger["code"]).startswith("J") else "Pub"
         corrected_segments: List[StoreSegmentSelect] = []
         for s in segment_select:
             if not isinstance(s, tuple):
@@ -176,7 +177,7 @@ class SabreClient(BaseClient):
             corrected_segments.append(s)
         store_price_request = self.xml_builder.store_price_rq(token, fare_type=fare_type,
                                                               segment_select=corrected_segments,
-                                                              passenger_type=passengers,
+                                                              passenger_type=passenger,
                                                               region_name=region_name)
         self.log.debug(f"Baggage {baggage} is given but not used in construction of request.")
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
@@ -318,19 +319,22 @@ class SabreClient(BaseClient):
         gds_response = SendCommandExtractor(command_response).extract()
         return gds_response
 
-    @session_wrapper
     def delete_all_price_quotes(self, token):
-        return self.send_command(token, "PQD-ALL")
+        return self.send_command(token, close_session=False, command="PQD-ALL")
 
-    @session_wrapper
     def transfer_profile(self, token):
         self.send_command(token, False, "CC/PC")
 
-    @session_wrapper
     def add_fare_type_remark(self, token: str, passenger_type: str):
         fare_type = "Net" if str(passenger_type.startswith("J")) else "Pub"
         ud_fare_type = "N" if fare_type == "Net" else "P"
         self.send_command(token, False, f"5.S*UD25 {ud_fare_type}")  # Ajouter remark
+
+    def add_username_remark(self, token: str, username: str):
+        self.send_command(token, False, "5.S*UD100 " + str(username))
+
+    def portal_remark(self, token: str):
+        self.send_command(token, False, "6PORTAL")
 
     @session_wrapper
     def queue_place(self, token: str, queue_number: str, record_locator: str):
