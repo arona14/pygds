@@ -107,8 +107,18 @@ class AmadeusClient(BaseClient):
             return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
 
     def get_reservation(self, token: str, close_session: bool, pnr: str, current: bool = False):
-        """
-            Return the reservation data from PNR.
+        """Return the reservation data from PNR.
+
+        Arguments:
+            token {str} -- token of the session
+            close_session {bool} -- if true the session is closed at the end
+            pnr {str} -- value of the pnr
+
+        Keyword Arguments:
+            current {bool} -- if true the pnr is retrieved using the current session (default: {False})
+
+        Returns:
+            [type] -- [description]
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         self.log.info(f"Retreive pnr '{pnr}'.")
@@ -383,24 +393,60 @@ class AmadeusClient(BaseClient):
         return CommandReplyExtractor(data).extract()
 
     def add_username_remark(self, token: str, username: str):
-        pass
+        """Add the remark for a user
 
-    def delete_all_price_quotes(self, token):
+        Arguments:
+            token {str} -- Token of the amadeus session
+            username {str} -- Username of the user
+        """
+
+    def delete_all_price_quotes(self, token: str):
+        """Delete all price quote
+
+        Arguments:
+            token {str} -- token {str} -- Token of the amadeus session
+
+        Returns:
+            [type] -- [description]
+        """
         return self.send_command(token, close_trx=False, command="TTE/ALL")
 
     def transfer_profile(self, token: str):
+        """[summary]
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+        """
         pass
 
     def add_fare_type_remark(self, token: str, passenger_type: str):
+        """Add remark for the fare type
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+            passenger_type {str} -- The type of passenger
+        """
         pass
 
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
-        pass
+        """Send a remark
 
-    def add_remark(self, token: str, username: str):
+        Arguments:
+            token {str} -- Token of the amadeus session
+            close_trx {bool} -- if false the session is not close after the request
+            remark_text {str} -- Content of the remark
+
+        Keyword Arguments:
+            remark_type {str} -- [description] (default: {"General"})
+        """
         pass
 
     def portal_remark(self, token: str):
+        """Add remark
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+        """
         pass
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
