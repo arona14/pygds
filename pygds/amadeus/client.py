@@ -287,6 +287,10 @@ class AmadeusClient(BaseClient):
 
     @staticmethod
     def get_rest_token():
+        """
+        This method is use to generate a rest token in sabre. And we use it in portal to doing revalidate
+        In amadeus we don't need the rest token that's why i making pass to satisfied it in portal
+        """
         pass
 
     def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
