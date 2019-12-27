@@ -155,8 +155,8 @@ class SabreClient(BaseClient):
         response = PriceSearchExtractor(search_price_response).extract()
         return response
 
-    def store_price_quote(self, token: str, passenger_type: str, segment_select: List[StoreSegmentSelect],
-                          passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info=None):
+    def store_price_quote(self, token: str, segment_select: List[StoreSegmentSelect],
+                          passenger: dict = {}, baggage: int = 0, region_name: str = "", tst_info=None):
         """
         A method to store price
         :param token: the token
@@ -169,7 +169,7 @@ class SabreClient(BaseClient):
         """
         # if segment select is not given as couple of (segment number, brand id) we will
         # will rewrite it with null brand id to fit the request builder requirements
-        fare_type = "Net" if str(passenger_type).startswith("J") else "Pub"
+        fare_type = "Net" if str(passenger["code"]).startswith("J") else "Pub"
         corrected_segments: List[StoreSegmentSelect] = []
         for s in segment_select:
             if not isinstance(s, tuple):
