@@ -377,8 +377,9 @@ class AmadeusXMLBuilder:
     def fare_price_pnr_with_booking_class(self, message_id, session_id, sequence_number, security_token,
                                           fare_type: str = "",
                                           passengers: list = [],
-                                          segments: list = []):
-        header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token)
+                                          segments: list = [],
+                                          close_session: bool = False):
+        header = self.generate_header("TPCBRQ_18_1_1A", message_id, session_id, sequence_number, security_token, close_session)
         return f"""
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
             xmlns:sec="http://xml.amadeus.com/2010/06/Security_v1"

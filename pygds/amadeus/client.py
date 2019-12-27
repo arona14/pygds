@@ -1,9 +1,10 @@
-# coding: utf-8 client
+
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
+from pygds.amadeus.xml_parsers.revalidate_extractor import RevalidateItineraryExtract
 from pygds.core import generate_token
 from pygds.core.price import StoreSegmentSelect, TSTInfo
 from pygds.core.sessions import SessionInfo
@@ -260,8 +261,9 @@ class AmadeusClient(BaseClient):
 
     def search_price_quote(self, token: str,
                            fare_type: str,
+                           close_session: bool = False,
                            segment_select: list = [],
-                           passengers: list = [],
+                           passenger_type: list = [],
                            baggage: int = 0,
                            region_name: str = ""):
         """
@@ -277,8 +279,9 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id,
                                                                           sequence_number,
                                                                           security_token,
-                                                                          fare_type, passengers,
-                                                                          segment_select)
+                                                                          fare_type, passenger_type,
+                                                                          segment_select,
+                                                                          close_session)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
         return PricePNRExtractor(response_data).extract()
@@ -308,6 +311,19 @@ class AmadeusClient(BaseClient):
         return self.display_tst(
             token=response_json.session_info.security_token, tst_info=response_json.payload
         )
+
+    def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None, pseudo_city_code: str = None):
+        """
+        This method is us to check if the segment is always valid or not.
+        At this moment we put it pass to have same format of search price quote for sabre in portal.
+        :param itineraries: list of itineraries
+        :param passengers: list of passengers
+        :param fare_type: the fare type
+        :param pseudo_city_code: the pseudo_city_code
+        return None
+        """
+        return RevalidateItineraryExtract(None).extract()
 
     def display_tst(self, token: str, tst_info: TSTInfo):
         """
