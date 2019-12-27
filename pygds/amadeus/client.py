@@ -321,7 +321,9 @@ class AmadeusClient(BaseClient):
         :param pseudo_city_code: the pseudo_city_code
         return None
         """
-        return RevalidateItineraryExtract(None).extract()
+        res = RevalidateItineraryExtract(None).extract()
+
+        return res
 
     def display_tst(self, token: str, tst_info: TSTInfo):
         """

@@ -6,7 +6,7 @@ class RevalidateItineraryExtract(BaseResponseRevalidateExtractor):
     This class retrieves information for revalidate itinerary
     """
     def __init__(self, json_content):
-        super().__init__(json_content, main_tag="")
+        super().__init__(json_content, False, False, main_tag="")
 
     def _extract(self):
         revalidate_itinerarie = RevalidateItinerarieInfo()
