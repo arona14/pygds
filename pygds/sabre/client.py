@@ -177,7 +177,7 @@ class SabreClient(BaseClient):
             corrected_segments.append(s)
         store_price_request = self.xml_builder.store_price_rq(token, fare_type=fare_type,
                                                               segment_select=corrected_segments,
-                                                              passenger_type=passengers,
+                                                              passenger_type=passenger,
                                                               region_name=region_name)
         self.log.debug(f"Baggage {baggage} is given but not used in construction of request.")
         store_price_response = self.__request_wrapper("store_price_quote", store_price_request, self.endpoint)
