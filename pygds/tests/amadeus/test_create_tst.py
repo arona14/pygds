@@ -1,5 +1,4 @@
 from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
-from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
 from pygds.core.price import TSTInfo
 from pygds.core.types import PassengerBasicInfo
 from unittest import TestCase
