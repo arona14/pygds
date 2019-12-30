@@ -65,9 +65,9 @@ class PricePNRExtractor(BaseResponseExtractor):
                 list_fare_break_down.append(fare_break_down)
             air_itinerary_pricing_info.fare_break_down = list_fare_break_down
             air_itinerary_pricing_list.append(air_itinerary_pricing_info)
-            search_price = SearchPriceInfos()
-            search_price.status = ""
-            search_price.air_itinerary_pricing_info = air_itinerary_pricing_list
+        search_price = SearchPriceInfos()
+        search_price.status = "Complete"
+        search_price.air_itinerary_pricing_info = air_itinerary_pricing_list
         return search_price
 
     def _get_tour_code_and_ticket_designator(self, fare):

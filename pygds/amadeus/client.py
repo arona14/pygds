@@ -292,11 +292,21 @@ class AmadeusClient(BaseClient):
                                                                           fare_type, passenger_type,
                                                                           segment_select,
                                                                           close_session)
+
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
+
         return PricePNRExtractor(response_data).extract()
 
-    def store_price_quote(self, token: str, passenger_type: str, segment_select: List[StoreSegmentSelect],
+    @staticmethod
+    def get_rest_token():
+        """
+        This method is use to generate a rest token in sabre. And we use it in portal to doing revalidate
+        In amadeus we don't need the rest token that's why i making pass to satisfied it in portal
+        """
+        pass
+
+    def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
         """
             Creates a TST from TST reference
