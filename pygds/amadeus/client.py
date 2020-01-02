@@ -292,10 +292,9 @@ class AmadeusClient(BaseClient):
                                                                           fare_type, passenger_type,
                                                                           segment_select,
                                                                           close_session)
-        print(request_data)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
-        print(response_data)
+
         return PricePNRExtractor(response_data).extract()
 
     @staticmethod
