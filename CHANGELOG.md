@@ -149,5 +149,9 @@
     - seat map extractor change replace( BasePrice to Price) [mbayane1990](mbaye@ctsfares.com)
 
 # 0.0.33 (2019-12-31)
-- Sabre:
+- Amadeus:
     - search and store price change replace( fare_price_pnr_with_booking_class to search_price_quote and ticket_create_tst_from_price to store_price_quote) [salioucts](saliou@ctsfares.com)
+
+# 0.0.34 (2020-01-02)
+- Amadeus:
+    - Integrate commission in search price with fare type Pub [salioucts](saliou@ctsfares.com)
