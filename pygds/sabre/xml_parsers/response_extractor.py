@@ -20,7 +20,7 @@ from pygds.core.helpers import get_data_from_json as from_json
 from pygds.core.helpers import get_data_from_json_safe as from_json_safe
 from pygds.core.helpers import get_data_from_xml as from_xml
 from pygds.core.price import (AirItineraryPricingInfo, FareBreakdown,
-                              SearchPriceInfos)
+                              SearchPriceInfos, PenaltyInformation)
 from pygds.core.rebook import RebookInfo
 from pygds.core.sessions import SessionInfo
 from pygds.core.ticket import TicketReply
@@ -180,7 +180,7 @@ class PriceSearchExtractor(BaseResponseExtractor):
             air_itinerary_pricing_info.fare_break_down = self._get_fare_break_down(air_itinerary_pricing)
             air_itinerary_pricing_info.valiating_carrier = validating_carrier
             air_itinerary_pricing_info.baggage_provisions = from_json(air_itinerary_pricing, "BaggageProvisions")
-
+            air_itinerary_pricing_info.penalty = self._get_penalty(air_itinerary_pricing)
             return air_itinerary_pricing_info
 
     def _get_tour_code_or_ticket_designator(self, air_itinerary_pricing, code):
@@ -219,6 +219,38 @@ class PriceSearchExtractor(BaseResponseExtractor):
             fare_breakdown_list.append(fare_breakdown)
 
         return fare_breakdown_list
+
+    def get_penalty_type(self, penalty_type):
+        if penalty_type == "CPBD":
+            return {"type": "Exchange", "applicability": "Before"}
+        elif penalty_type == "CPAD":
+            return {"type": "Exchange", "applicability": "After"}
+        elif penalty_type == "RPBD":
+            return {"type": "Refund ", "applicability": "Before"}
+        elif penalty_type == "RPAD":
+            return {"type": "Refund", "applicability": "After"}
+
+    def _get_penalty(self, air_itinerary_pricing):
+
+        specific_penalty_list = ensure_list(from_json_safe(air_itinerary_pricing, "SpecificPenalty"))
+        all_penalty = []
+        for penalty in specific_penalty_list:
+            penalty_info = PenaltyInformation()
+            penalty_type = from_json_safe(penalty, "PenaltyInformation", "@Type")
+            if penalty_type is not None:
+                penalty_type = self.get_penalty_type(penalty_type)
+                penalty_info.type = penalty_type["type"]
+                penalty_info.applicability = penalty_type["applicability"]
+                not_applicable = from_json_safe(penalty, "PenaltyInformation", "@NotApplicable")
+                if not_applicable == "false":
+                    penalty_info.applicable = True
+                else:
+                    penalty_info.applicable = False
+                penalty_info.amount = from_json_safe(penalty, "PenaltyInformation", "@Amount", default=0)
+                penalty_info.currency_code = from_json_safe(penalty, "PenaltyInformation", "@Currency", default="USD")
+                all_penalty.append(penalty_info)
+
+        return all_penalty
 
 
 class RebookExtractor(BaseResponseExtractor):

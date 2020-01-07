@@ -155,3 +155,7 @@
 # 0.0.34 (2020-01-02)
 - Amadeus:
     - Integrate commission in search price with fare type Pub [salioucts](saliou@ctsfares.com)
+
+# 0.0.35 (2020-01-07)
+- Sabre:
+    - Addition of information on penalties in the price search request [VirginieSy](virginie@ctsfares.com)
