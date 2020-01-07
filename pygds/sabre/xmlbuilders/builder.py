@@ -11,7 +11,7 @@ from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
     store_pax_type, store_plus_up, \
     store_ticket_designator, add_flight_segment, _store_single_name_select, _store_build_segment_selects, \
-    _store_single_pax_type, segments_to_cancel, add_passenger_info
+    _store_single_pax_type, segments_to_cancel, add_passenger_info, get_penalty_info
 from decimal import Decimal
 
 
@@ -234,7 +234,6 @@ class SabreXMLBuilder:
             pax_type = store_pax_type(passenger_type)
             pax_type = pax_type if pax_type else ""
             commission = store_commission(fare_type, passenger_type, region_name, self.pcc)
-            # tour_code = store_tour_code(passenger_type)
             plus_up = store_plus_up(passenger_type, self.pcc)
             plus_up = plus_up if plus_up else ""
             fare_type_value = ""
@@ -261,6 +260,7 @@ class SabreXMLBuilder:
                                 {name_select}
                                 {pax_type}
                                 {plus_up}
+                                {get_penalty_info()}
                             </PricingQualifiers>
                         </OptionalQualifiers>
                         </PriceRequestInformation>

@@ -346,3 +346,9 @@ def segments_to_cancel(segment_list):
         return "".join([f"""<Segment Number="{seg}"/>""" for seg in segment_list])
     elif len(segment_list) == 0:
         return """<Segment Type="air"/>"""
+
+
+def get_penalty_info():
+    return """<SpecificPenalty>
+                    <Changeable Any="true"/>
+                </SpecificPenalty>"""
