@@ -229,14 +229,9 @@ class PriceSearchExtractor(BaseResponseExtractor):
         Returns:
             [dict] -- [return type and applicability of penalty]
         """
-        if penalty_type == "CPBD":
-            return {"type": "Exchange", "applicability": "Before"}
-        elif penalty_type == "CPAD":
-            return {"type": "Exchange", "applicability": "After"}
-        elif penalty_type == "RPBD":
-            return {"type": "Refund ", "applicability": "Before"}
-        elif penalty_type == "RPAD":
-            return {"type": "Refund", "applicability": "After"}
+        TYPE_MAP = {"CP": "Exchange", "RP": "Refund"}
+        APPLICABILITY_MAP = {"BD": "Before", "AD": "After"}
+        return {"type": TYPE_MAP[penalty_type[0:2]], "applicability": APPLICABILITY_MAP[penalty_type[2:4]]}
 
     def _get_penalty(self, air_itinerary_pricing):
         """[This function allows you to recover all penalty]
@@ -258,11 +253,8 @@ class PriceSearchExtractor(BaseResponseExtractor):
                 penalty_info.type = penalty_type["type"]
                 penalty_info.applicability = penalty_type["applicability"]
                 not_applicable = from_json_safe(penalty, "PenaltyInformation", "@NotApplicable")
-                if not_applicable == "false":
-                    penalty_info.applicable = True
-                else:
-                    penalty_info.applicable = False
-                penalty_info.amount = from_json_safe(penalty, "PenaltyInformation", "@Amount", default=0)
+                penalty_info.applicable = not_applicable == "false"
+                penalty_info.amount = float(from_json_safe(penalty, "PenaltyInformation", "@Amount", default=0))
                 penalty_info.currency_code = from_json_safe(penalty, "PenaltyInformation", "@Currency", default="USD")
                 all_penalty.append(penalty_info)
 
