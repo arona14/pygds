@@ -221,6 +221,14 @@ class PriceSearchExtractor(BaseResponseExtractor):
         return fare_breakdown_list
 
     def get_penalty_type(self, penalty_type):
+        """[This function returns the type and the moment of applicability of penalty]
+
+        Arguments:
+            penalty_type {[str]} -- [penalty code]
+
+        Returns:
+            [dict] -- [return type and applicability of penalty]
+        """
         if penalty_type == "CPBD":
             return {"type": "Exchange", "applicability": "Before"}
         elif penalty_type == "CPAD":
@@ -231,6 +239,14 @@ class PriceSearchExtractor(BaseResponseExtractor):
             return {"type": "Refund", "applicability": "After"}
 
     def _get_penalty(self, air_itinerary_pricing):
+        """[This function allows you to recover all penalty]
+
+        Arguments:
+            air_itinerary_pricing {[type]} -- [air itinerary pricing information]
+
+        Returns:
+            [list] -- [all penalty]
+        """
 
         specific_penalty_list = ensure_list(from_json_safe(air_itinerary_pricing, "SpecificPenalty"))
         all_penalty = []

@@ -237,7 +237,6 @@ class SabreXMLBuilder:
             plus_up = store_plus_up(passenger_type, self.pcc)
             plus_up = plus_up if plus_up else ""
             fare_type_value = ""
-            penalty_info = ""
         else:
             segment_number = get_segment_number(segment_select)
             pax_type, name_select = get_passenger_type(passenger_type, fare_type)
@@ -245,7 +244,6 @@ class SabreXMLBuilder:
             commission = get_commision(baggage, self.pcc, region_name)
             plus_up = ""
             ticket_designator = ""
-            penalty_info = get_penalty_info()
         header = self.generate_header("Session", "OTA_AirPriceLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -262,7 +260,7 @@ class SabreXMLBuilder:
                                 {name_select}
                                 {pax_type}
                                 {plus_up}
-                                {penalty_info}
+                                {get_penalty_info()}
                             </PricingQualifiers>
                         </OptionalQualifiers>
                         </PriceRequestInformation>
