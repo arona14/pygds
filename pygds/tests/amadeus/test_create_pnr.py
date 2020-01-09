@@ -3,7 +3,7 @@
 """
 
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
-from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary
+from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, FareOptions, TravelFlightInfo
 from pygds import log_handler
 from pygds.env_settings import get_setting
 import os
@@ -25,18 +25,33 @@ def test():
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "090320", "200320")
-        segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
-        low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(2), "", "", ["6X"], "", "", 1)
+        itineraries = [
+            RequestedSegment(
+                sequence=1, origin="CDG", destination="JFK", departure_date="100120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
 
-        log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        # currency_code, c_qualifier = ("EUR", "RC")
+        traveller = TravellerNumbering(1, 1, 1)
+
+        travel_flight_info = TravelFlightInfo(cabin="Y",
+                                              rules_cabin="RC",
+                                              airlines=["DL", "AF"],
+                                              rules_airline="F")
+
+        fare_options = FareOptions(price_type_et=True,
+                                   price_type_rp=True,
+                                   price_type_ru=True,
+                                   price_type_tac=True,
+                                   price_type_cuc=True,
+                                   currency_eur=True,
+                                   currency_usd=False)
+
+        low_fare_search = LowFareSearchRequest(itineraries, travelingNumber=traveller, fare_options=fare_options, travel_flight_info=travel_flight_info)
+
         search_results = client.fare_master_pricer_travel_board_search(low_fare_search)
         log.debug("fare_master_pricer_travel_board_search")
         ressults, session_info = (search_results.payload, search_results.session_info)
-        log.debug(ressults, session_info)
+        log.debug(ressults)
         log.debug("sell_from_recommandation")
-        segments = (ressults[1]['itineraries'])
+        segments = (ressults[0]['itineraries'][0])
         print(f" The itineraries : {segments}")
         itineraries = []
         for segment in segments:

@@ -224,10 +224,10 @@ class AmadeusClient(BaseClient):
             A method for searching prices of an itinerary.
         """
         request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search)
-
+        print(request_data)
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-
+        print(response_data)
         return PriceSearchExtractor(response_data).extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
