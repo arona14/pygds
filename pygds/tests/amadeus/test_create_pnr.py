@@ -25,9 +25,10 @@ def test():
     log = log_handler.get_logger("test_all")
     client = AmadeusClient(endpoint, username, password, office_id, wsap, False)
     try:
-        origine, destination, date_dep, date_arr = ("CDG", "DTW", "090120", "150120")
+        origine, destination, date_dep, date_arr = ("CDG", "DTW", "090320", "200320")
         segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
         low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(2), "", "", ["6X"], "", "", 1)
+
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
         # currency_code, c_qualifier = ("EUR", "RC")
         search_results = client.fare_master_pricer_travel_board_search(low_fare_search)
@@ -53,7 +54,7 @@ def test():
             "itineraries": itineraries,
             "passengers": reservation_info
         }
-        create_pnr = client._create_pnr(token, data)
+        create_pnr = client.create_pnr_rq(token, data)
         log.debug(create_pnr)
     except ClientError as ce:
         log.error(f"client_error: {ce}")

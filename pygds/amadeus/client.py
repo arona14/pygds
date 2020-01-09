@@ -457,7 +457,7 @@ class AmadeusClient(BaseClient):
             token {str} -- Token of the amadeus session
         """
 
-    def _create_pnr(self, token, data):
+    def create_pnr_rq(self, token, data):
         """
         """
         # office_id = "DTW1S210B"
