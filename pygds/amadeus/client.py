@@ -456,7 +456,20 @@ class AmadeusClient(BaseClient):
         Arguments:
             token {str} -- Token of the amadeus session
         """
-        pass
+
+    def _create_pnr(self, token, data):
+        """
+        """
+        # office_id = "DTW1S210B"
+        flights = data["itineraries"]
+        reservation_infos = data["passengers"]
+        list_flights = []
+        if len(flights):
+            for flight in flights:
+                list_flights.append(flight)
+        segment = self.sell_from_recommandation(list_flights)
+        token = segment.session_info.security_token
+        return self.add_passenger_info(token, reservation_infos)
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
         """
@@ -470,7 +483,10 @@ class AmadeusClient(BaseClient):
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 
-        return GetPnrResponseExtractor(response_data).extract()
+        response_data = GetPnrResponseExtractor(response_data).extract()
+        session_info = response_data.session_info
+        token = session_info.security_token
+        return self.create_pnr(token)
 
     def add_office_id(self, token: str, office_id: str):
         """
