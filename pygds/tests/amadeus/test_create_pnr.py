@@ -29,8 +29,8 @@ def test():
         segments = [RequestedSegment(origin=origine, destination=destination, departure_date=date_dep, arrival_date=date_arr)]
         low_fare_search = LowFareSearchRequest(segments, "Y", "", TravellerNumbering(2), "", "", ["6X"], "", "", 1)
         log.debug(f"making search from '{origine}' to '{destination}', starting at '{date_dep}' and arriving at '{date_arr}'")
-        currency_code, c_qualifier = ("EUR", "RC")
-        search_results = client.fare_master_pricer_travel_board_search(low_fare_search, currency_code, c_qualifier)
+        # currency_code, c_qualifier = ("EUR", "RC")
+        search_results = client.fare_master_pricer_travel_board_search(low_fare_search)
         log.debug("fare_master_pricer_travel_board_search")
         ressults, session_info = (search_results.payload, search_results.session_info)
         log.debug(ressults, session_info)
