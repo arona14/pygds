@@ -261,7 +261,7 @@ class AmadeusClient(BaseClient):
 
         return SessionExtractor(response_data).extract()
 
-    def sell_from_recommandation(self, itineraries):
+    def sell_from_recommandation(self, itineraries: List[Itinerary]):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
                                                'http://webservices.amadeus.com/ITAREQ_05_2_IA')
@@ -381,6 +381,8 @@ class AmadeusClient(BaseClient):
                                                    security_token)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        print(response_data)
+        print(GetPnrResponseExtractor(response_data).extract())
         return GetPnrResponseExtractor(response_data).extract()
 
     def send_command(self, token: str = None, close_trx: bool = False, command: str = None):
@@ -461,11 +463,11 @@ class AmadeusClient(BaseClient):
         """
         flights = request["itineraries"]
         reservation_infos = request["passengers"]
-        list_flights = []
-        if len(flights):
-            for flight in flights:
-                list_flights.append(flight)
-        segment = self.sell_from_recommandation(list_flights)
+        itinerary = Itinerary()
+        for flight in flights:
+            itinerary.addSegment(flight)
+        itineraries = [itinerary]
+        segment = self.sell_from_recommandation(itineraries)
         token = segment.session_info.security_token
         return self.add_passenger_info(token, reservation_infos)
 

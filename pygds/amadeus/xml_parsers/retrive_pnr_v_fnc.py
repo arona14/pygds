@@ -87,8 +87,9 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def _get_itinerary(self, itinerary_infos: List):
         itinerary = Itinerary()
-        segment_booked_date = fnc.get("pnrHeader.reservationInfo.reservation.date", self.payload) + fnc.get("pnrHeader.reservationInfo.reservation.time", self.payload)
-        segment_booked_date = reformat_date(segment_booked_date, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
+        segment_booked_date = None
+        # segment_booked_date = fnc.get("pnrHeader.reservationInfo.reservation.date", self.payload) + fnc.get("pnrHeader.reservationInfo.reservation.time", self.payload)
+        # segment_booked_date = reformat_date(segment_booked_date, "%d%m%y%H%M", "%Y-%m-%dT%H:%M:%S")
         schedule_change_indicator = "false"
         for segment in itinerary_infos:
             flight_number = fnc.get("travelProduct.productDetails.identification", segment)

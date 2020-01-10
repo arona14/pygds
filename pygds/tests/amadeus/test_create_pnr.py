@@ -67,8 +67,8 @@ def test():
             )
             list_segments.append(_segment)
 
-        traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", ""),
-                           TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "")]
+        traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None),
+                           TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977")]
         reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
         data = {
             "itineraries": list_segments,
