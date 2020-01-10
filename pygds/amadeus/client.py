@@ -379,9 +379,10 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
         request_data = self.xml_builder.create_pnr(message_id, session_id, sequence_number,
                                                    security_token)
+
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        print(response_data)
+        print(f"The Response Data : {response_data}")
         print(GetPnrResponseExtractor(response_data).extract())
         return GetPnrResponseExtractor(response_data).extract()
 

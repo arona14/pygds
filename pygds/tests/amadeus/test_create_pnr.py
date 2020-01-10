@@ -29,7 +29,7 @@ def test():
             RequestedSegment(
                 sequence=1, origin="CDG", destination="NCE", departure_date="110120", arrival_date="120120", total_seats=None, airport_city_qualifier="C")]
 
-        traveller = TravellerNumbering(1, 0, 0)
+        traveller = TravellerNumbering(1)
 
         travel_flight_info = TravelFlightInfo(cabin="Y",
                                               rules_cabin="RC",
@@ -70,11 +70,11 @@ def test():
         traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None),
                            TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977")]
         reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
-        data = {
+        request = {
             "itineraries": list_segments,
             "passengers": reservation_info
         }
-        create_pnr = client.create_pnr_rq(data)
+        create_pnr = client.create_pnr_rq(request)
         log.debug(create_pnr)
     except ClientError as ce:
         log.error(f"client_error: {ce}")
