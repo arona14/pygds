@@ -535,7 +535,7 @@ class AmadeusXMLBuilder:
                         <PNR_AddMultiElements>
                             <pnrActions>
                                 <optionCode>10</optionCode>
-                                <optionCode>30</optionCode>
+                                <optionCode>11</optionCode>
                             </pnrActions>
                         </PNR_AddMultiElements>
                     </soapenv:Body>
