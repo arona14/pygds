@@ -597,10 +597,11 @@ class AmadeusXMLBuilder:
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time)
         itineraries_details = []
-        for itinerary in itineraries:
+        for it in itineraries:
             # itineraries_details.append(sub_parts.sell_from_recommendation_itinerary_details(it.origin, it.destination, it.segments))
             itineraries_details.append(
-                self.itenerary_details(itinerary.origin, itinerary.destination, itinerary))
+                self.itenerary_details(it.origin, it.destination, it.departure_date, it.company, it.flight_number,
+                                       it.booking_class, it.quantity))
         # The optimization algorithm. M1: cancel all if unsuccessful, M2: keep all confirmed if unsuccessful
         algo = 'M1'
 
@@ -628,36 +629,8 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def itenerary_details(self, origin, destination, itinerary):
+    def itenerary_details(self, origin, destination, departure_date, company, flight_number, booking_class, quantity):
 
-        seg_infos = ""
-
-        for segment in itinerary.segments:
-            seg_infos += f"""
-                        <segmentInformation>
-                            <travelProductInformation>
-                                <flightDate>
-                                    <departureDate>{segment.departure_date}</departureDate>
-                                </flightDate>
-                                <boardPointDetails>
-                                    <trueLocationId>{segment.origin}</trueLocationId>
-                                </boardPointDetails>
-                                <offpointDetails>
-                                    <trueLocationId>{segment.destination}</trueLocationId>
-                                </offpointDetails>
-                                <companyDetails>
-                                    <marketingCompany>{segment.company}</marketingCompany>
-                                </companyDetails>
-                                <flightIdentification>
-                                    <flightNumber>{segment.flight_number}</flightNumber>
-                                    <bookingClass>{segment.booking_class}</bookingClass>
-                                </flightIdentification>
-                            </travelProductInformation>
-                            <relatedproductInformation>
-                                <quantity>{segment.quantity}</quantity>
-                                <statusCode>NN</statusCode>
-                            </relatedproductInformation>
-                        </segmentInformation>"""
         return f"""
         <itineraryDetails>
             <originDestinationDetails>
@@ -669,7 +642,30 @@ class AmadeusXMLBuilder:
                     <messageFunction>183</messageFunction>
                 </messageFunctionDetails>
             </message>
-            {seg_infos}
+            <segmentInformation>
+                <travelProductInformation>
+                    <flightDate>
+                        <departureDate>{departure_date}</departureDate>
+                    </flightDate>
+                    <boardPointDetails>
+                        <trueLocationId>{origin}</trueLocationId>
+                    </boardPointDetails>
+                    <offpointDetails>
+                        <trueLocationId>{destination}</trueLocationId>
+                    </offpointDetails>
+                    <companyDetails>
+                        <marketingCompany>{company}</marketingCompany>
+                    </companyDetails>
+                    <flightIdentification>
+                        <flightNumber>{flight_number}</flightNumber>
+                        <bookingClass>{booking_class}</bookingClass>
+                    </flightIdentification>
+                </travelProductInformation>
+                <relatedproductInformation>
+                    <quantity>{quantity}</quantity>
+                    <statusCode>NN</statusCode>
+                </relatedproductInformation>
+            </segmentInformation>
         </itineraryDetails>
         """
 

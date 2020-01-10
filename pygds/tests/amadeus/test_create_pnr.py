@@ -27,9 +27,9 @@ def test():
     try:
         itineraries = [
             RequestedSegment(
-                sequence=1, origin="CDG", destination="JFK", departure_date="100120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
+                sequence=1, origin="CDG", destination="JFK", departure_date="110120", arrival_date="120120", total_seats=None, airport_city_qualifier="C")]
 
-        traveller = TravellerNumbering(1, 1, 1)
+        traveller = TravellerNumbering(1, 0, 0)
 
         travel_flight_info = TravelFlightInfo(cabin="Y",
                                               rules_cabin="RC",
@@ -48,28 +48,33 @@ def test():
 
         search_results = client.fare_master_pricer_travel_board_search(low_fare_search)
         log.debug("fare_master_pricer_travel_board_search")
-        ressults, session_info = (search_results.payload, search_results.session_info)
+        ressults = search_results.payload
         log.debug(ressults)
         log.debug("sell_from_recommandation")
-        segments = (ressults[0]['itineraries'][0])
-        print(f" The itineraries : {segments}")
-        itineraries = []
-        for segment in segments:
-            for seg in segment:
-                quantities = seg["pax_ref"]
-                for quantity in quantities:
-                    quant = quantity["traveller"][1]["ref"]
-                itinerary = SellItinerary(seg["board_airport"], seg["off_airport"], seg["departure_date"], seg["marketing_company"], seg["flight_number"], seg["book_class"], quant)
-                itineraries.append(itinerary)
-        token = session_info.security_token  # is the message_id to use for the all others actions
-        traveller_infos = [TravellerInfo(1, "Virginie", "Lamesse", "Sy", "03121990", "ADT", ""),
-                           TravellerInfo(2, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "")]
-        reservation_info = ReservationInfo(traveller_infos, "776656986", "785679876", "saliou@gmail.com")
+        itinerary = (ressults[0]['itineraries'][0])
+        list_segments = []
+        for index, segment in enumerate(itinerary):
+            _segment = SellItinerary(
+                origin=segment["board_airport"],
+                destination=segment["off_airport"],
+                departure_date=segment["departure_date"],
+                company=segment["marketing_company"],
+                flight_number=segment["flight_number"],
+                booking_class=segment["book_class"],
+                quantity=traveller.total_seats(),
+                arrival_date=segment["arrival_date"],
+                flight_indicator=index
+            )
+            list_segments.append(_segment)
+
+        traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", ""),
+                           TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "")]
+        reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
         data = {
-            "itineraries": itineraries,
+            "itineraries": list_segments,
             "passengers": reservation_info
         }
-        create_pnr = client.create_pnr_rq(token, data)
+        create_pnr = client.create_pnr_rq(data)
         log.debug(create_pnr)
     except ClientError as ce:
         log.error(f"client_error: {ce}")

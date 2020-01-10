@@ -224,10 +224,9 @@ class AmadeusClient(BaseClient):
             A method for searching prices of an itinerary.
         """
         request_data = self.xml_builder.fare_master_pricer_travel_board_search(self.office_id, low_fare_search)
-        print(request_data)
+
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-        print(response_data)
         return PriceSearchExtractor(response_data).extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
@@ -262,7 +261,7 @@ class AmadeusClient(BaseClient):
 
         return SessionExtractor(response_data).extract()
 
-    def sell_from_recommandation(self, itineraries: List[Itinerary]):
+    def sell_from_recommandation(self, itineraries):
         request_data = self.xml_builder.sell_from_recomendation(itineraries)
         response_data = self.__request_wrapper("sell_from_recommandation", request_data,
                                                'http://webservices.amadeus.com/ITAREQ_05_2_IA')
@@ -457,12 +456,11 @@ class AmadeusClient(BaseClient):
             token {str} -- Token of the amadeus session
         """
 
-    def create_pnr_rq(self, token, data):
+    def create_pnr_rq(self, request):
         """
         """
-        # office_id = "DTW1S210B"
-        flights = data["itineraries"]
-        reservation_infos = data["passengers"]
+        flights = request["itineraries"]
+        reservation_infos = request["passengers"]
         list_flights = []
         if len(flights):
             for flight in flights:
@@ -482,7 +480,6 @@ class AmadeusClient(BaseClient):
                                                            security_token, reservation_infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-
         response_data = GetPnrResponseExtractor(response_data).extract()
         session_info = response_data.session_info
         token = session_info.security_token

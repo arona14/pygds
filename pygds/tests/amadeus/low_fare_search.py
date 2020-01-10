@@ -30,9 +30,9 @@ try:
 
     itineraries = [
         RequestedSegment(
-            sequence=1, origin="CDG", destination="DTW", departure_date="100220", arrival_date="150320", total_seats=None, airport_city_qualifier="C")]
+            sequence=1, origin="CDG", destination="DTW", departure_date="110120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
 
-    traveller = TravellerNumbering(1, 1, 1)
+    traveller = TravellerNumbering(1, 0, 0)
 
     travel_flight_info = TravelFlightInfo(cabin="Y",
                                           rules_cabin="RC",
