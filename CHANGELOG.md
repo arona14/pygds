@@ -159,3 +159,7 @@
 # 0.0.35 (2020-01-07)
 - Sabre:
     - Addition of information on penalties in the price search request [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.36 (2020-01-07)
+- Sabre:
+    - Modification of the request for the creation of pnr, change the format in AirPrice [VirginieSy](virginie@ctsfares.com)
