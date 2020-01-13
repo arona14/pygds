@@ -27,7 +27,7 @@ def test():
     try:
         itineraries = [
             RequestedSegment(
-                sequence=1, origin="CDG", destination="NCE", departure_date="110120", arrival_date="120120", total_seats=None, airport_city_qualifier="C")]
+                sequence=1, origin="CDG", destination="NCE", departure_date="130120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
 
         traveller = TravellerNumbering(1)
 
@@ -66,13 +66,93 @@ def test():
                 flight_indicator=index
             )
             list_segments.append(_segment)
+        passengers = [
 
-        traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", "P////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None),
-                           TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "P////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977")]
-        reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
+            {
+                "title": "Mr",
+                "given_name": "Elza",
+                "surname": "Koepp",
+                "middle_name": "",
+                "name_number": 1,
+                "gender": "Male",
+                "date_of_birth": "1990-01-01",
+                "passenger_type": "ADT",
+                "nationality": "RU",
+                "commission_percent": 0,
+                "markup": 0,
+                "total_fare": 3167.05,
+                "currency": "USD",
+                "base_fare": 2773,
+                "service_fee": 0,
+                "ticket_designator": "",
+                "tour_code": "",
+                "address": "",
+                "phone": "965874123",
+                "email": "saliou@ctsfares.com",
+                "cts_markup": 0,
+                "cts_reward": 0,
+                "agency_markup": 0,
+                "agency_discount": 0
+            },
+            {
+                "title": "Mrs",
+                "given_name": "Kelsi",
+                "surname": "Hand",
+                "middle_name": "",
+                "name_number": 2,
+                "gender": "Female",
+                "date_of_birth": "1990-01-01",
+                "passenger_type": "ADT",
+                "nationality": "NE",
+                "commission_percent": 0,
+                "markup": 0,
+                "total_fare": 3167.05,
+                "currency": "USD",
+                "base_fare": 2773,
+                "service_fee": 0,
+                "ticket_designator": "",
+                "tour_code": "",
+                "address": "",
+                "phone": "",
+                "email": "",
+                "cts_markup": 0,
+                "cts_reward": 0,
+                "agency_markup": 0,
+                "agency_discount": 0
+            },
+            {
+                "title": "Mr",
+                "given_name": "Pearlie",
+                "surname": "Kuhlman",
+                "middle_name": "",
+                "name_number": 3,
+                "gender": "Male",
+                "date_of_birth": "2009-01-01",
+                "passenger_type": "CNN",
+                "nationality": "MV",
+                "commission_percent": 0,
+                "markup": 0,
+                "total_fare": 2482.05,
+                "currency": "USD",
+                "base_fare": 2088,
+                "service_fee": 0,
+                "ticket_designator": "",
+                "tour_code": "",
+                "address": "",
+                "phone": "776919061",
+                "email": "",
+                "cts_markup": 0,
+                "cts_reward": 0,
+                "agency_markup": 0,
+                "agency_discount": 0
+            }
+        ]
+        # traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", "P2////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None),
+        #                    TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "P3////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977")]
+        # reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
         request = {
             "itineraries": list_segments,
-            "passengers": reservation_info
+            "passengers": passengers
         }
         create_pnr = client.create_pnr_rq(request)
         log.debug(create_pnr)

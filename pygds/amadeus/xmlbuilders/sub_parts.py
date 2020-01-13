@@ -328,7 +328,7 @@ def add_multi_element_ssr(travel_info):
         </dataElementsIndiv>"""
 
 
-def add_multi_elements_traveller_info(ref_number, first_name, surname, last_name, date_of_birth, pax_type,
+def add_multi_elements_traveller_info(ref_number=1, first_name=None, surname=None, last_name=None, date_of_birth=None, pax_type="ADT",
                                       infant=None):
     quantity = 1
     infant_part = ""

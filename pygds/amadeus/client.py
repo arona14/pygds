@@ -1,6 +1,6 @@
 
-from .xmlbuilders.builder import AmadeusXMLBuilder
-from .errors import ClientError, ServerError
+from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
+from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
@@ -380,7 +380,7 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.create_pnr(message_id, session_id, sequence_number,
                                                    security_token)
 
-        response_data = self.__request_wrapper("add_passenger_info", request_data,
+        response_data = self.__request_wrapper("create_pnr", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         print(f"The Response Data : {response_data}")
         print(GetPnrResponseExtractor(response_data).extract())
@@ -479,10 +479,12 @@ class AmadeusClient(BaseClient):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
+
         request_data = self.xml_builder.add_passenger_info(self.office_id, message_id, session_id, sequence_number,
                                                            security_token, reservation_infos)
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
+        print(f"The response: {response_data}")
         response_data = GetPnrResponseExtractor(response_data).extract()
         session_info = response_data.session_info
         token = session_info.security_token

@@ -673,31 +673,18 @@ class AmadeusXMLBuilder:
         </itineraryDetails>
         """
 
-    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, infos):
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, travelers):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
+
         ssr_content = ""
-        email_tel_passengers = ""
-
-        for i in infos.traveller_info:
-
+        # email_tel_passengers = ""
+        for i in travelers:
+            date_ = i["date_of_birth"].split("-")
+            date_of_birth = date_[2] + date_[1] + date_[0]
             passenger_infos.append(
-                sub_parts.add_multi_elements_traveller_info(
-                    i.ref_number, i.first_name, i.surname, i.last_name, i.date_of_birth, i.pax_type, i.infant
-                )
-            )
-
-            if i.pax_type == "ADT":
-                ssr_content += sub_parts.add_multi_element_ssr(i)
-
-            email_tel_passengers += sub_parts.add_multi_element_contact_element(
-                "7", i.tel, i.ref_number
-            ) if i.tel else ""
-
-            email_tel_passengers += sub_parts.add_multi_element_contact_element(
-                "P02", i.email, i.ref_number
-            ) if i.email else ""
-
+                sub_parts.add_multi_elements_traveller_info(i["name_number"], i["given_name"], i["surname"],
+                                                            date_of_birth, i["passenger_type"]))
         # type = 6 Travel agent telephone number
         # type = PO2 E-mail address
         # type = 7 Mobile Phone Number
@@ -728,8 +715,9 @@ class AmadeusXMLBuilder:
                                 </optionDetail>
                             </optionElement>
                         </dataElementsIndiv>
-                        {email_tel_passengers}
-                        {sub_parts.add_multi_element_contact_element("6", infos.number_tel_agent) if infos.number_tel else ""}
+                        {''.join([sub_parts.add_multi_element_contact_element("7", traveler["phone"]) for traveler in travelers])}
+                        {''.join([sub_parts.add_multi_element_contact_element("6", traveler["phone"]) for traveler in travelers])}
+                        {''.join([sub_parts.add_multi_element_contact_element("P02", traveler["email"]) for traveler in travelers])}
                         {ssr_content}
                         <dataElementsIndiv>
                             <elementManagementData>
@@ -785,13 +773,16 @@ class AmadeusXMLBuilder:
         </soapenv:Envelope>
         """
 
-    def traveller_info(self, ref_number, first_name, surname, last_name, date_of_birth, pax_type):
+    def traveller_info(self, name_number, given_name, surname, last_name, date_of_birth, passenger_type):
+
+        date_ = date_of_birth.split("-")
+        date_of_birth = date_[2] + date_[1] + date_[0]
         return f"""
         <travellerInfo>
             <elementManagementPassenger>
             <reference>
                 <qualifier>PR</qualifier>
-                <number>{ref_number}</number>
+                <number>{name_number}</number>
             </reference>
             <segmentName>NM</segmentName>
             </elementManagementPassenger>
@@ -802,8 +793,8 @@ class AmadeusXMLBuilder:
                     <quantity>1</quantity>
                 </traveller>
                 <passenger>
-                    <firstName>{first_name}</firstName>
-                    <type>{pax_type}</type>
+                    <firstName>{given_name}</firstName>
+                    <type>{passenger_type}</type>
                 </passenger>
             </travellerInformation>
             <dateOfBirth>
