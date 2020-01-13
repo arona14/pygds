@@ -163,3 +163,7 @@
 # 0.0.36 (2020-01-07)
 - Sabre:
     - Modification of the request for the creation of pnr, change the format in AirPrice [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.37 (2020-01-07)
+- Sabre:
+    - In the request for creation of pnr, in AirPrice, modification of the attribute for the ticket designator [VirginieSy]      (virginie@ctsfares.com)

@@ -50,8 +50,9 @@ class CreatePnrBuilder:
                 if pax.ticket_designator and pax.passenger_type not in self.infant_pax_types:
                     pricing_qualifiers["CommandPricing"] = [
                         {
-                            "FareBasis": {
-                                "TicketDesignator": pax.ticket_designator
+                            "Discount": {
+                                "Percent": "0",
+                                "AuthCode": pax.ticket_designator
                             }
                         }
                     ]
