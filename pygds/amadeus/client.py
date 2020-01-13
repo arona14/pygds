@@ -377,13 +377,13 @@ class AmadeusClient(BaseClient):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
+
         request_data = self.xml_builder.create_pnr(message_id, session_id, sequence_number,
                                                    security_token)
 
-        response_data = self.__request_wrapper("create_pnr", request_data,
+        response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        print(f"The Response Data : {response_data}")
-        print(GetPnrResponseExtractor(response_data).extract())
+
         return GetPnrResponseExtractor(response_data).extract()
 
     def send_command(self, token: str = None, close_trx: bool = False, command: str = None):
@@ -470,9 +470,9 @@ class AmadeusClient(BaseClient):
         itineraries = [itinerary]
         segment = self.sell_from_recommandation(itineraries)
         token = segment.session_info.security_token
-        return self.add_passenger_info(token, reservation_infos)
+        return self.add_passenger_info(token, reservation_infos, "")
 
-    def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
+    def add_passenger_info(self, token: str, reservation_infos: ReservationInfo, company_id):
         """
             add passenger info and create the PNR
         """
@@ -481,13 +481,17 @@ class AmadeusClient(BaseClient):
             raise NoSessionError(message_id)
 
         request_data = self.xml_builder.add_passenger_info(self.office_id, message_id, session_id, sequence_number,
-                                                           security_token, reservation_infos)
+                                                           security_token, reservation_infos, company_id)
+
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
-        print(f"The response: {response_data}")
+
         response_data = GetPnrResponseExtractor(response_data).extract()
+
         session_info = response_data.session_info
+
         token = session_info.security_token
+
         return self.create_pnr(token)
 
     def add_office_id(self, token: str, office_id: str):

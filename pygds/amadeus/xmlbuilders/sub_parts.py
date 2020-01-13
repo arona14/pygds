@@ -305,7 +305,7 @@ def sell_from_recommendation_segment(origin, destination, departure_date, compan
     """
 
 
-def add_multi_element_ssr(travel_info):
+def add_multi_element_ssr(travel_info, company_id):
 
     return f"""<dataElementsIndiv>
                 <elementManagementData>
@@ -316,13 +316,14 @@ def add_multi_element_ssr(travel_info):
                         <type>DOCS</type>
                         <status>HK</status>
                         <quantity>1</quantity>
-                        <freetext>{travel_info.ssr_content}</freetext>
+                        <companyId>{company_id}</companyId>
+                        <freetext>{travel_info["address"]}</freetext>
                     </ssr>
                 </serviceRequest>
                 <referenceForDataElement>
                     <reference>
                         <qualifier>PT</qualifier>
-                        <number>{travel_info.ref_number}</number>
+                        <number>{travel_info["name_number"]}</number>
                     </reference>
                 </referenceForDataElement>
         </dataElementsIndiv>"""
@@ -377,11 +378,6 @@ def add_multi_elements_traveller_info(ref_number=1, first_name=None, surname=Non
                         {infant_indicator}
                     </passenger>
                 </travellerInformation>
-                <dateOfBirth>
-                    <dateAndTimeDetails>
-                        <date>{date_of_birth}</date>
-                    </dateAndTimeDetails>
-                </dateOfBirth>
             </passengerData>
             {infant_part}
         </travellerInfo>

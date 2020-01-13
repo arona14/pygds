@@ -597,10 +597,11 @@ class AmadeusXMLBuilder:
         security_part = self.new_transaction_chunk(self.office_id, self.username, nonce, digested_password,
                                                    created_date_time)
         itineraries_details = []
-        for it in itineraries[0].segments:
-            # itineraries_details.append(sub_parts.sell_from_recommendation_itinerary_details(it.origin, it.destination, it.segments))
-            itineraries_details.append(
-                self.itenerary_details(it.origin, it.destination, it))
+        for iti in itineraries:
+            for it in iti.segments:
+                # itineraries_details.append(sub_parts.sell_from_recommendation_itinerary_details(it.origin, it.destination, it.segments))
+                itineraries_details.append(
+                    self.itenerary_details(it.origin, it.destination, it))
         # The optimization algorithm. M1: cancel all if unsuccessful, M2: keep all confirmed if unsuccessful
         algo = 'M1'
 
@@ -673,18 +674,18 @@ class AmadeusXMLBuilder:
         </itineraryDetails>
         """
 
-    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, travelers):
+    def add_passenger_info(self, office_id, message_id, session_id, sequence_number, security_token, travelers, company_id):
         security_part = self.continue_transaction_chunk(session_id, sequence_number, security_token)
         passenger_infos = []
 
         ssr_content = ""
-        # email_tel_passengers = ""
         for i in travelers:
             date_ = i["date_of_birth"].split("-")
             date_of_birth = date_[2] + date_[1] + date_[0]
             passenger_infos.append(
                 sub_parts.add_multi_elements_traveller_info(i["name_number"], i["given_name"], i["surname"],
                                                             date_of_birth, i["passenger_type"]))
+            ssr_content += sub_parts.add_multi_element_ssr(i, company_id)
         # type = 6 Travel agent telephone number
         # type = PO2 E-mail address
         # type = 7 Mobile Phone Number

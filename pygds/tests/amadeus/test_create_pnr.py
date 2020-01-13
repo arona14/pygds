@@ -3,7 +3,7 @@
 """
 
 from pygds.core.request import RequestedSegment, LowFareSearchRequest
-from pygds.core.types import TravellerNumbering, TravellerInfo, ReservationInfo, SellItinerary, FareOptions, TravelFlightInfo
+from pygds.core.types import TravellerNumbering, SellItinerary, FareOptions, TravelFlightInfo
 from pygds import log_handler
 from pygds.env_settings import get_setting
 import os
@@ -27,7 +27,7 @@ def test():
     try:
         itineraries = [
             RequestedSegment(
-                sequence=1, origin="CDG", destination="NCE", departure_date="130120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
+                sequence=1, origin="CDG", destination="NCE", departure_date="140120", arrival_date="150120", total_seats=None, airport_city_qualifier="C")]
 
         traveller = TravellerNumbering(1)
 
@@ -53,19 +53,7 @@ def test():
         log.debug("sell_from_recommandation")
         itinerary = (ressults[0]['itineraries'][0])
         list_segments = []
-        for index, segment in enumerate(itinerary):
-            _segment = SellItinerary(
-                origin=segment["board_airport"],
-                destination=segment["off_airport"],
-                departure_date=segment["departure_date"],
-                company=segment["marketing_company"],
-                flight_number=segment["flight_number"],
-                booking_class=segment["book_class"],
-                quantity=traveller.total_seats(),
-                arrival_date=segment["arrival_date"],
-                flight_indicator=index
-            )
-            list_segments.append(_segment)
+
         passengers = [
 
             {
@@ -86,7 +74,7 @@ def test():
                 "service_fee": 0,
                 "ticket_designator": "",
                 "tour_code": "",
-                "address": "",
+                "address": "lpkhbcchbjn jd",
                 "phone": "965874123",
                 "email": "saliou@ctsfares.com",
                 "cts_markup": 0,
@@ -112,7 +100,7 @@ def test():
                 "service_fee": 0,
                 "ticket_designator": "",
                 "tour_code": "",
-                "address": "",
+                "address": "jinjhbvhbhhbh",
                 "phone": "",
                 "email": "",
                 "cts_markup": 0,
@@ -138,7 +126,7 @@ def test():
                 "service_fee": 0,
                 "ticket_designator": "",
                 "tour_code": "",
-                "address": "",
+                "address": "jvjnjnvjfnru",
                 "phone": "776919061",
                 "email": "",
                 "cts_markup": 0,
@@ -147,9 +135,20 @@ def test():
                 "agency_discount": 0
             }
         ]
-        # traveller_infos = [TravellerInfo(2, "Virginie", "Lamesse", "Sy", "03121990", "ADT", "P2////17MAY12/M/19FEB26/ABRAHAM/SELAH", "amadou@ctsfares.com", "773630684", None),
-        #                    TravellerInfo(3, "Ahmadou", "Bamba", "Diagne", "03091992", "ADT", "P3////17MAY12/F/19FEB26/ABRAHAM/SELAH", "khouna@ctsfares.com", "776689977")]
-        # reservation_info = ReservationInfo(traveller_infos, number_tel="776919061", number_tel_agent="776656986", email="saliou@ctsfares.com")
+        for index, segment in enumerate(itinerary):
+            _segment = SellItinerary(
+                origin=segment["board_airport"],
+                destination=segment["off_airport"],
+                departure_date=segment["departure_date"],
+                company=segment["marketing_company"],
+                flight_number=segment["flight_number"],
+                booking_class=segment["book_class"],
+                quantity=len(passengers),
+                arrival_date=segment["arrival_date"],
+                flight_indicator=index
+            )
+            list_segments.append(_segment)
+
         request = {
             "itineraries": list_segments,
             "passengers": passengers
