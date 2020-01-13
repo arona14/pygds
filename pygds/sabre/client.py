@@ -429,7 +429,7 @@ class SabreClient(BaseClient):
         """
         token = self.get_rest_token()
         request_data = self.json_builder.create_pnr_builder(create_pnr_request)
-        response = self._rest_request_wrapper(request_data, "/v2.1.0/passenger/records?mode=create", token)
+        response = self._rest_request_wrapper(request_data, "/v2.2.0/passenger/records?mode=create", token)
         gds_response = CreatePnrExtractor(response.content).extract()
         return gds_response
 

@@ -5,7 +5,7 @@ import fnc
 from pygds.core.sessions import SessionInfo
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core.app_error import ApplicationError
-from pygds.core.helpers import get_data_from_json as from_json, get_data_from_json_safe as from_json_safe
+from pygds.core.helpers import get_data_from_json_safe as from_json_safe
 from pygds.sabre.json_parsers.create_passenger_name_record import CreatePnrInfo
 from pygds.core.types import BasicDataObject
 
@@ -67,12 +67,14 @@ class AppErrorRestExtractor(BaseResponseRestExtractor):
     def _extract(self):
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
         if self.main_tag is not None:
-            payload = from_json(self.json_content, self.main_tag)
+            payload = from_json_safe(self.json_content, self.main_tag)
         else:
-            payload = from_json(self.json_content)
+            payload = from_json_safe(self.json_content)
         app_error_data = from_json_safe(payload, "ApplicationResults", "Error")
         if not app_error_data:
-            return None
+            app_error_data = from_json_safe(payload, "errorCode")
+            if not app_error_data:
+                return None
 
         return ApplicationError(None, None, None, app_error_data)
 
@@ -86,9 +88,9 @@ class CreatePnrExtractor(BaseResponseRestExtractor):
 
         create_pnr_info = CreatePnrInfo()
         self.json_content = json.loads((self.json_content).decode('utf8').replace("'", '"'))
-        payload = from_json(self.json_content, "CreatePassengerNameRecordRS")
+        payload = from_json_safe(self.json_content, "CreatePassengerNameRecordRS")
 
-        status = fnc.get('ApplicationResults.status', payload, default="")
+        status = fnc.get('ApplicationResults.status', payload, default="NotProcessed")
         air_book = fnc.get('AirBook', payload, default={})
         air_price = fnc.get('AirPrice', payload, default={})
         travel_itinerary_read = fnc.get('TravelItineraryRead', payload, default={})
