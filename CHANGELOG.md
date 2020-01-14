@@ -147,3 +147,23 @@
 # 0.0.32 (2019-12-24)
 - Sabre:
     - seat map extractor change replace( BasePrice to Price) [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.33 (2019-12-31)
+- Amadeus:
+    - search and store price change replace( fare_price_pnr_with_booking_class to search_price_quote and ticket_create_tst_from_price to store_price_quote) [salioucts](saliou@ctsfares.com)
+
+# 0.0.34 (2020-01-02)
+- Amadeus:
+    - Integrate commission in search price with fare type Pub [salioucts](saliou@ctsfares.com)
+
+# 0.0.35 (2020-01-07)
+- Sabre:
+    - Addition of information on penalties in the price search request [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.36 (2020-01-07)
+- Sabre:
+    - Modification of the request for the creation of pnr, change the format in AirPrice [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.37 (2020-01-07)
+- Sabre:
+    - In the request for creation of pnr, in AirPrice, modification of the attribute for the ticket designator [VirginieSy]      (virginie@ctsfares.com)

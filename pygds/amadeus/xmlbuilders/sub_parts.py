@@ -596,7 +596,11 @@ def ppwbc_passenger_segment_selection(passengers: list = [], segments: list = []
     pax_refs = []
     seg_refs = []
     for r in passengers:
-        pax_refs.append(_ppwbc_ref_detail("P", r))
+        passengers_refs = r["name_select"]
+        if passengers_refs:
+            for i in passengers_refs:
+                p = int(i[0:2])
+                pax_refs.append(_ppwbc_ref_detail("P", p))
     for s in segments:
         seg_refs.append(_ppwbc_ref_detail("S", s))
     return f"""
@@ -627,10 +631,9 @@ def _ppwbc_ref_detail(ref_type, ref_value):
 
 
 _fare_types_association = {
-    "PUB": "RP",
-    "NET": "RU",
-    "COM": "RW",
-    "OTHER": "RC"
+    "Pub": "RP",
+    "Net": "RU",
+    "Com": "RW"
 }
 
 
@@ -639,17 +642,23 @@ def ppwbc_fare_type(fare_type):
         code = _fare_types_association[fare_type]
     except KeyError:
         return ""
-    if code in ["RP", "RU"]:
+    if code == "RU":
         return f"""<pricingOptionGroup>
                         <pricingOptionKey>
                             <pricingOptionKey>{code}</pricingOptionKey>
                         </pricingOptionKey>
                     </pricingOptionGroup>
                     """
-    elif code in ["RW", "RC"]:
-        return f"""<pricingOptionGroup>
+    elif code == "RP":
+        pub = f"""<pricingOptionGroup>
                         <pricingOptionKey>
                             <pricingOptionKey>{code}</pricingOptionKey>
+                        </pricingOptionKey>
+                    </pricingOptionGroup>
+                    """
+        com = f"""<pricingOptionGroup>
+                        <pricingOptionKey>
+                            <pricingOptionKey>RW</pricingOptionKey>
                         </pricingOptionKey>
                         <optionDetail>
                             <criteriaDetails>
@@ -658,6 +667,7 @@ def ppwbc_fare_type(fare_type):
                         </optionDetail>
                     </pricingOptionGroup>
                     """
+        return pub + com
 
 
 def ppwbc_discount():

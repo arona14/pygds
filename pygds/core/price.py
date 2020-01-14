@@ -339,6 +339,7 @@ class AirItineraryPricingInfo(PriceInfoBasic):
         self.taxes: float = 0.0            # taxes amount
         self.total_fare: float             # totoal fare amount
         self.currency_code: str = None     # currency code
+        self.tst_ref: int = 0
         self.passenger_type: str = None     # passenger type
         self.passenger_quantity: str = None  # passenger quantity
         self.charge_amount: float = 0.0      # Charge Amount
@@ -348,6 +349,7 @@ class AirItineraryPricingInfo(PriceInfoBasic):
         self.fare_break_down: FareBreakdown     # FareBreakdown class
         self.valiating_carrier: str = None     # passenger type
         self.baggage_provisions: list = []
+        self.penalty: PenaltyInformation
 
     def to_dict(self):
         return{
@@ -355,6 +357,7 @@ class AirItineraryPricingInfo(PriceInfoBasic):
             "taxes": self.taxes,
             "total_fare": self.total_fare,
             "currency_code": self.currency_code,
+            "tst_ref": self.tst_ref,
             "passenger_type": self.passenger_type,
             "passenger_quantity": self.passenger_quantity,
             "charge_amount": self.charge_amount,
@@ -363,7 +366,8 @@ class AirItineraryPricingInfo(PriceInfoBasic):
             "commission_percentage": self.commission_percentage,
             "valiating_carrier": self.valiating_carrier,
             "fare_break_down": self.fare_break_down,
-            "baggage_provisions": self.baggage_provisions
+            "baggage_provisions": self.baggage_provisions,
+            "penalty": self.penalty
         }
 
 
@@ -392,4 +396,23 @@ class FareBreakdown(PriceInfoBasic):
             "fare_type": self.fare_type,
             "filing_carrier": self.filing_carrier,
             "free_baggage": self.free_baggage
+        }
+
+
+class PenaltyInformation(PriceInfoBasic):
+
+    def __init__(self):
+        self.type: str = None
+        self.applicable: str = None
+        self.applicability: str = None
+        self.amount: float = 0
+        self.currency_code: str = "USD"
+
+    def to_dict(self):
+        return {
+            "type": self.type,
+            "applicable": self.applicable,
+            "applicability": self.applicability,
+            "amount": self.amount,
+            "currency_code": self.currency_code
         }

@@ -1,9 +1,10 @@
-# coding: utf-8 client
+
 from .xmlbuilders.builder import AmadeusXMLBuilder
 from .errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
+from pygds.amadeus.xml_parsers.revalidate_extractor import RevalidateItineraryExtract
 from pygds.core import generate_token
 from pygds.core.price import StoreSegmentSelect, TSTInfo
 from pygds.core.sessions import SessionInfo
@@ -88,6 +89,9 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/VLSSOQ_04_1_1A')
         return SessionExtractor(response_data).extract()
 
+    def end_transaction(self, token: str, close_session: bool = True):
+        pass
+
     def decode_token(self, token: str):
         """
         This method is use to decode a token
@@ -102,13 +106,23 @@ class AmadeusClient(BaseClient):
             values = payload["info_token"]
             return values["message_id"], values["session_id"], int(values["sequence"]) + 1, values["security_token"]
 
-    def get_reservation(self, token: str, close_trx: bool, record_locator: str):
-        """
-            Return the reservation data from PNR.
+    def get_reservation(self, token: str, close_session: bool, pnr: str, current: bool = False):
+        """Return the reservation data from PNR.
+
+        Arguments:
+            token {str} -- token of the session
+            close_session {bool} -- if true the session is closed at the end
+            pnr {str} -- value of the pnr
+
+        Keyword Arguments:
+            current {bool} -- if true the pnr is retrieved using the current session (default: {False})
+
+        Returns:
+            [type] -- [description]
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
-        self.log.info(f"Retreive pnr '{record_locator}'.")
-        request_data = self.xml_builder.get_reservation_builder(message_id, session_id, sequence_number, security_token, record_locator, close_trx)
+        self.log.info(f"Retreive pnr '{pnr}'.")
+        request_data = self.xml_builder.get_reservation_builder(message_id, session_id, sequence_number, security_token, pnr, close_session, current)
         if security_token is None:
             self.log.warning("A new session will be created when retrieve pnr.")
         data = self.__request_wrapper("get_reservation", request_data, 'http://webservices.amadeus.com/PNRRET_17_1_1A')
@@ -257,8 +271,9 @@ class AmadeusClient(BaseClient):
 
     def search_price_quote(self, token: str,
                            fare_type: str,
+                           close_session: bool = False,
                            segment_select: list = [],
-                           passengers: list = [],
+                           passenger_type: list = [],
                            baggage: int = 0,
                            region_name: str = ""):
         """
@@ -274,11 +289,21 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.fare_price_pnr_with_booking_class(message_id, session_id,
                                                                           sequence_number,
                                                                           security_token,
-                                                                          fare_type, passengers,
-                                                                          segment_select)
+                                                                          fare_type, passenger_type,
+                                                                          segment_select,
+                                                                          close_session)
         response_data = self.__request_wrapper("fare_price_pnr_with_booking_class", request_data,
                                                'http://webservices.amadeus.com/TPCBRQ_18_1_1A')
+
         return PricePNRExtractor(response_data).extract()
+
+    @staticmethod
+    def get_rest_token():
+        """
+        This method is use to generate a rest token in sabre. And we use it in portal to doing revalidate
+        In amadeus we don't need the rest token that's why i making pass to satisfied it in portal
+        """
+        pass
 
     def store_price_quote(self, token: str, fare_type: str, segment_select: List[StoreSegmentSelect],
                           passengers: dict = {}, baggage: int = 0, region_name: str = "", tst_info: TSTInfo = None):
@@ -302,10 +327,22 @@ class AmadeusClient(BaseClient):
             return response_json
         if response_json.session_info.security_token is None:
             return response_data
-
         return self.display_tst(
-            response_json.session_info.security_token, response_json.payload
+            token=response_json.session_info.security_token, tst_info=response_json.payload
         )
+
+    def revalidate_itinerary(self, itineraries: list = [], passengers: list = [],
+                             fare_type: str = None, pseudo_city_code: str = None):
+        """
+        This method is us to check if the segment is always valid or not.
+        At this moment we put it pass to have same format of search price quote for sabre in portal.
+        :param itineraries: list of itineraries
+        :param passengers: list of passengers
+        :param fare_type: the fare type
+        :param pseudo_city_code: the pseudo_city_code
+        return None
+        """
+        return RevalidateItineraryExtract(None).extract()
 
     def display_tst(self, token: str, tst_info: TSTInfo):
         """
@@ -317,10 +354,11 @@ class AmadeusClient(BaseClient):
         request_data = self.xml_builder.display_tst(message_id, session_id, sequence_number,
                                                     security_token, tst_info)
         response_data = self.__request_wrapper("Display a tst info", request_data,
-                                               'http://webservices.amadeus.com/TTSTRQ_13_2_1A')
+                                               'http://webservices.amadeus.com/TTSTRQ_15_1_1A')
+
         return DisplayTSTExtractor(response_data).extract()
 
-    def re_book_air_segment(self, token: str, flight_segments: List[dict], pnr: str):
+    def re_book_air_segment(self, token: str, close_session: bool = False, flight_segments: List[dict] = [], pnr: str = None):
         """
             Add new Segment in the pnr
         """
@@ -346,7 +384,7 @@ class AmadeusClient(BaseClient):
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
         return GetPnrResponseExtractor(response_data).extract()
 
-    def send_command(self, command: str, token: str = None, close_trx: bool = False):
+    def send_command(self, token: str = None, close_trx: bool = False, command: str = None):
         """
         Send a command to Amadeus API
         :param command: the command to send as str
@@ -363,16 +401,61 @@ class AmadeusClient(BaseClient):
         data = self.__request_wrapper("send_command", request_data, 'http://webservices.amadeus.com/HSFREQ_07_3_1A')
         return CommandReplyExtractor(data).extract()
 
-    def delete_all_price_quotes(self, token):
-        return self.send_command(token, "TTE/ALL")
+    def add_username_remark(self, token: str, username: str):
+        """Add the remark for a user
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+            username {str} -- Username of the user
+        """
+
+    def delete_all_price_quotes(self, token: str):
+        """Delete all price quote
+
+        Arguments:
+            token {str} -- token {str} -- Token of the amadeus session
+
+        Returns:
+            [type] -- [description]
+        """
+        return self.send_command(token, close_trx=False, command="TTE/ALL")
 
     def transfer_profile(self, token: str):
+        """[summary]
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+        """
         pass
 
-    def add_fare_type_remark(self, token: str, fare_type: str, passenger_type: str):
+    def add_fare_type_remark(self, token: str, passenger_type: str):
+        """Add remark for the fare type
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+            passenger_type {str} -- The type of passenger
+        """
         pass
 
     def send_remark(self, token: str, close_trx: bool, remark_text: str, remark_type: str = "General"):
+        """Send a remark
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+            close_trx {bool} -- if false the session is not close after the request
+            remark_text {str} -- Content of the remark
+
+        Keyword Arguments:
+            remark_type {str} -- [description] (default: {"General"})
+        """
+        pass
+
+    def portal_remark(self, token: str):
+        """Add remark
+
+        Arguments:
+            token {str} -- Token of the amadeus session
+        """
         pass
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):

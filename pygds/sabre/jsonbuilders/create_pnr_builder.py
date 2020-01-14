@@ -6,7 +6,7 @@ class CreatePnrBuilder:
 
     def __init__(self, create_pnr_request: CreatePnrRequest):
         self.create_pnr_request = create_pnr_request
-        self.version: str = "2.1.0"
+        self.version: str = "2.2.0"
         self.net_pax_types: list = ["JCB", "JNN", "JNF"]
         self.infant_pax_types: list = ["JNF", "INF"]
 
@@ -41,7 +41,7 @@ class CreatePnrBuilder:
             if self.create_pnr_request.fare_type == 'COM':
                 misc_qualifiers["Commission"]["Percent"] = str(pax.percent)
                 if pax.tour_code and pax.passenger_type not in self.infant_pax_types:
-                    misc_qualifiers["TourCode"]["Percent"] = {
+                    misc_qualifiers["TourCode"] = {
                         "SuppressIT": {
                             "Ind": True
                         },
@@ -50,8 +50,10 @@ class CreatePnrBuilder:
                 if pax.ticket_designator and pax.passenger_type not in self.infant_pax_types:
                     pricing_qualifiers["CommandPricing"] = [
                         {
-                            "Discount": "0",
-                            "AuthCode": self.pax.ticket_designator
+                            "Discount": {
+                                "Percent": "0",
+                                "AuthCode": pax.ticket_designator
+                            }
                         }
                     ]
 
@@ -142,8 +144,7 @@ class CreatePnrBuilder:
                     "ReceivedFrom": "E"
                 }
             },
-            "RedisplayReservation": True,
-            "UnmaskCreditCard": True
+            "unmaskCreditCard": True
         }
 
     def secure_flight(self, passengers):
