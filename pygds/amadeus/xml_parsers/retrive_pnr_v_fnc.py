@@ -87,7 +87,6 @@ class GetPnrResponseExtractor(BaseResponseExtractor):
 
     def get_segment_booked_date(self):
 
-        segment_booked_date = None
         date_ = fnc.get("pnrHeader.reservationInfo.reservation.date", self.payload)
         time_ = fnc.get("pnrHeader.reservationInfo.reservation.time", self.payload)
         if date_ and time_:

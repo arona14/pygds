@@ -9,6 +9,7 @@ from pygds.core.request import LowFareSearchRequest
 from pygds.core.payment import ChashPayment
 from pygds.core.security_utils import generate_random_message_id, generate_created, generate_nonce, password_digest
 import fnc
+from pygds.core.helpers import reformat_date
 from datetime import datetime
 
 
@@ -599,7 +600,6 @@ class AmadeusXMLBuilder:
         itineraries_details = []
         for iti in itineraries:
             for it in iti.segments:
-                # itineraries_details.append(sub_parts.sell_from_recommendation_itinerary_details(it.origin, it.destination, it.segments))
                 itineraries_details.append(
                     self.itenerary_details(it.origin, it.destination, it))
         # The optimization algorithm. M1: cancel all if unsuccessful, M2: keep all confirmed if unsuccessful
@@ -680,8 +680,8 @@ class AmadeusXMLBuilder:
 
         ssr_content = ""
         for i in travelers:
-            date_ = i["date_of_birth"].split("-")
-            date_of_birth = date_[2] + date_[1] + date_[0]
+            if i["date_of_birth"]:
+                date_of_birth = reformat_date(i["date_of_birth"], "%Y-%m-%d", "%d%m%y")
             passenger_infos.append(
                 sub_parts.add_multi_elements_traveller_info(i["name_number"], i["given_name"], i["surname"],
                                                             date_of_birth, i["passenger_type"]))
@@ -775,9 +775,8 @@ class AmadeusXMLBuilder:
         """
 
     def traveller_info(self, name_number, given_name, surname, last_name, date_of_birth, passenger_type):
-
-        date_ = date_of_birth.split("-")
-        date_of_birth = date_[2] + date_[1] + date_[0]
+        if date_of_birth:
+            date_of_birth = reformat_date(date_of_birth, "%Y-%m-%d", "%d%m%y")
         return f"""
         <travellerInfo>
             <elementManagementPassenger>
