@@ -469,10 +469,10 @@ class AmadeusClient(BaseClient):
             itinerary.addSegment(flight)
         itineraries = [itinerary]
         segment = self.sell_from_recommandation(itineraries)
-        if segment:
+        if segment and segment.application_error is None:
             token = segment.session_info.security_token
         pax_info = self.add_passenger_info(token, reservation_infos, "")
-        if pax_info:
+        if pax_info and pax_info.application_error is None:
             token = pax_info.session_info.security_token
         return self.create_pnr(token)
 
