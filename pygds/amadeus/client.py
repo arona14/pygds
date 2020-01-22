@@ -13,7 +13,6 @@ from pygds.core.request import LowFareSearchRequest
 from pygds.amadeus.xml_parsers.search_price_extract import PricePNRExtractor
 from pygds.errors.gdserrors import NoSessionError
 from pygds.core.client import BaseClient
-import sys
 from pygds.amadeus.xml_parsers.create_tst_extractor import CreateTstResponseExtractor, DisplayTSTExtractor
 from pygds.amadeus.xml_parsers.response_extractor import PriceSearchExtractor, ErrorExtractor, SessionExtractor, \
     CommandReplyExtractor, \
@@ -471,18 +470,16 @@ class AmadeusClient(BaseClient):
             itinerary.addSegment(flight)
         itineraries = [itinerary]
         segment = self.sell_from_recommandation(itineraries)
-        if segment and segment.application_error is not None:
-            sys.exit()
-        else:
+        if segment and segment.application_error is None:
             token = segment.session_info.security_token
+        else:
+            return segment.payload
         pax_info = self.add_passenger_info(token, reservation_infos, "")
-        if pax_info and pax_info.application_error is not None:
-            sys.exit()
-        else:
+        if pax_info and pax_info.application_error is None:
             token = pax_info.session_info.security_token
-        if token is None:
-            sys.exit()
         else:
+            return pax_info.payload
+        if token:
             return self.create_pnr(token)
 
     def add_passenger_info(self, token: str, reservation_infos: ReservationInfo, company_id):
