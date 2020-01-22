@@ -1,6 +1,6 @@
 
-from .xmlbuilders.builder import AmadeusXMLBuilder
-from .errors import ClientError, ServerError
+from pygds.amadeus.xmlbuilders.builder import AmadeusXMLBuilder
+from pygds.amadeus.errors import ClientError, ServerError
 from pygds.core.payment import FormOfPayment
 from typing import List
 from pygds.amadeus.xml_parsers.retrive_pnr_v_fnc import GetPnrResponseExtractor
@@ -227,7 +227,6 @@ class AmadeusClient(BaseClient):
 
         response_data = self.__request_wrapper("fare_master_pricer_travel_board_search", request_data,
                                                'http://webservices.amadeus.com/FMPTBQ_18_1_1A')
-
         return PriceSearchExtractor(response_data).extract()
 
     def fare_informative_price_without_pnr(self, numbering: TravellerNumbering, itineraries: List[Itinerary]):
@@ -378,10 +377,13 @@ class AmadeusClient(BaseClient):
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
+
         request_data = self.xml_builder.create_pnr(message_id, session_id, sequence_number,
                                                    security_token)
+
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
+
         return GetPnrResponseExtractor(response_data).extract()
 
     def send_command(self, token: str = None, close_trx: bool = False, command: str = None):
@@ -456,17 +458,41 @@ class AmadeusClient(BaseClient):
         Arguments:
             token {str} -- Token of the amadeus session
         """
-        pass
 
-    def add_passenger_info(self, token: str, reservation_infos: ReservationInfo):
+    def create_pnr_rq(self, request):
+        """
+        """
+        token = None
+        flights = request["itineraries"]
+        reservation_infos = request["passengers"]
+        itinerary = Itinerary()
+        for flight in flights:
+            itinerary.addSegment(flight)
+        itineraries = [itinerary]
+        segment = self.sell_from_recommandation(itineraries)
+        if segment and segment.application_error is None:
+            token = segment.session_info.security_token
+        else:
+            return segment.payload
+        pax_info = self.add_passenger_info(token, reservation_infos, "")
+        if pax_info and pax_info.application_error is None:
+            token = pax_info.session_info.security_token
+        else:
+            return pax_info.payload
+        if token:
+            return self.create_pnr(token)
+
+    def add_passenger_info(self, token: str, reservation_infos: ReservationInfo, company_id):
         """
             add passenger info and create the PNR
         """
         message_id, session_id, sequence_number, security_token = self.decode_token(token)
         if security_token is None:
             raise NoSessionError(message_id)
+
         request_data = self.xml_builder.add_passenger_info(self.office_id, message_id, session_id, sequence_number,
-                                                           security_token, reservation_infos)
+                                                           security_token, reservation_infos, company_id)
+
         response_data = self.__request_wrapper("add_passenger_info", request_data,
                                                'http://webservices.amadeus.com/PNRADD_17_1_1A')
 
