@@ -27,7 +27,7 @@ def test():
     try:
         itineraries = [
             RequestedSegment(
-                sequence=1, origin="CDG", destination="NCE", departure_date="150120", arrival_date="160120", total_seats=None, airport_city_qualifier="C")]
+                sequence=1, origin="CDG", destination="NCE", departure_date="240120", arrival_date="280120", total_seats=None, airport_city_qualifier="C")]
 
         traveller = TravellerNumbering(1)
 
