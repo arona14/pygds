@@ -399,7 +399,7 @@ class SabreXMLBuilder:
             seat_part = seat_request(p_update.name_number, p_update.seat_number,
                                      p_update.segment_number) if p_update.seat_number and p_update.segment_number else ""
             passenger_info_part = passenger_info(p_update.date_of_birth, p_update.gender, p_update.name_number,
-                                                 p_update.first_name, p_update.last_name) if p_update.date_of_birth and p_update.gender and p_update.first_name and p_update.last_name else ""
+                                                 p_update.first_name, p_update.last_name, p_update.issue_country, p_update.known_traveler_number) if (p_update.date_of_birth and p_update.gender and p_update.first_name and p_update.last_name) or (p_update.known_traveler_number and p_update.issue_country and p_update.first_name and p_update.last_name) else ""
             service_ssr_part = service_ssr_code(p_update.segment_number, p_update.ssr_code, p_update.name_number) if p_update.segment_number and p_update.ssr_code else ""
         else:
             seat_part, passenger_info_part, service_ssr_part = ("", "", "")

@@ -30,6 +30,9 @@ class UpdatePassengerTest(unittest.TestCase):
 
         passenger_dk = PassengerUpdate()
         passenger_dk.dk_number = "DK567826787"
+        passenger_dk.segment_number = "3"
+        passenger_dk.member_ship_id = '155P9B76'
+        passenger_dk.name_number = "1.1"
         seat_map_xml = client.xml_builder.update_passenger_rq(True, pnr, passenger_dk)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
@@ -52,11 +55,30 @@ class UpdatePassengerTest(unittest.TestCase):
         passenger_info.name_number = "3"
         passenger_info.first_name = "Binete"
         passenger_info.last_name = "Thiam"
+        passenger_info.known_traveler_number = None
+        passenger_info.issue_country = None
         seat_map_xml = client.xml_builder.update_passenger_rq(True, pnr, passenger_info)
         self.assertIsNotNone(seat_map_xml)
         self.assertIn("soapenv:Envelope", seat_map_xml)
         self.assertIn("XGRJDK", seat_map_xml)
         self.assertIn("<PersonName DateOfBirth=\"10/08/1990\" Gender=\"M\" NameNumber=\"3\">", seat_map_xml)
+        self.assertIn("<GivenName>Binete</GivenName>", seat_map_xml)
+        self.assertIn("<Surname>Thiam</Surname>", seat_map_xml)
+
+        passenger_info.date_of_birth = "10/08/1990"
+        passenger_info.gender = "M"
+        passenger_info.name_number = "3"
+        passenger_info.first_name = "Binete"
+        passenger_info.last_name = "Thiam"
+        passenger_info.known_traveler_number = 1122334455
+        passenger_info.issue_country = 'US'
+        seat_map_xml = client.xml_builder.update_passenger_rq(True, pnr, passenger_info)
+        self.assertIsNotNone(seat_map_xml)
+        self.assertIn("soapenv:Envelope", seat_map_xml)
+        self.assertIn("XGRJDK", seat_map_xml)
+        self.assertIn("<PersonName NameNumber=\"3\">", seat_map_xml)
+        self.assertIn("<IssueCountry>US</IssueCountry>", seat_map_xml)
+        self.assertIn("<KnownTravelerNumber>1122334455</KnownTravelerNumber>", seat_map_xml)
         self.assertIn("<GivenName>Binete</GivenName>", seat_map_xml)
         self.assertIn("<Surname>Thiam</Surname>", seat_map_xml)
 

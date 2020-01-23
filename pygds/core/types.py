@@ -1224,6 +1224,8 @@ class PassengerUpdate:
         self.seat_number: str = None
         self.member_ship_id: str = None
         self.program_id: str = None
+        self.issue_country: str = None
+        self.known_traveler_number: str = None
 
 
 class FlightSeatMap:
