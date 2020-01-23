@@ -5,7 +5,7 @@ from pygds.core.payment import FormOfPayment, CreditCard
 from pygds.core.types import PassengerUpdate, FlightSeatMap, Passenger
 from pygds.core.security_utils import generate_random_message_id, generate_created
 from pygds.sabre.price import StoreSegmentSelect
-from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, customer_id, service_ssr_code, seat_request
+from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, service_ssr_code, seat_request, travel_itinerary_add_info_rq
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, \
     get_segments_exchange, get_passengers_exchange, \
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
@@ -404,8 +404,8 @@ class SabreXMLBuilder:
         else:
             seat_part, passenger_info_part, service_ssr_part = ("", "", "")
 
-        dk_number_part = customer_id(p_update.dk_number) if p_update.dk_number else ""
-
+        # dk_number_part = customer_id(p_update.dk_number) if p_update.dk_number else ""
+        travel_itinerary_add_info_request = travel_itinerary_add_info_rq(dk_number=p_update.dk_number, member_ship_id=p_update.member_ship_id, name_number=p_update.name_number, program_id=p_update.program_id, segment_number=p_update.segment_number)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
@@ -429,7 +429,7 @@ class SabreXMLBuilder:
                             </SpecialServiceInfo>
                             </SpecialServiceRQ>
                         </SpecialReqDetails>
-                            {dk_number_part}
+                            {travel_itinerary_add_info_request}
                     </PassengerDetailsRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""
