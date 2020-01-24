@@ -126,7 +126,12 @@ class AppErrorExtractor(BaseResponseExtractor):
                     error_message = from_json_safe(app_error_data, "ns3:SystemSpecificResults", "ns3:Message")
                     return ApplicationError(None, None, None, error_message)
                 else:
-                    return None
+                    app_error_data = from_json_safe(payload, "ApplicationResults", "Warning")
+                    if app_error_data:
+                        error_message = from_json_safe(app_error_data, "SystemSpecificResults", "Message")
+                        return ApplicationError(None, None, None, error_message)
+                    else:
+                        return None
             else:
                 error_code = from_json_safe(app_error_data, "stl18:Code")
                 error_message = from_json_safe(app_error_data, "stl18:Message")

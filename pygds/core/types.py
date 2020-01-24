@@ -1222,6 +1222,10 @@ class PassengerUpdate:
         self.segment_number: str = None
         self.ssr_code: List[str] = None
         self.seat_number: str = None
+        self.member_ship_id: str = None
+        self.program_id: str = None
+        self.issue_country: str = None
+        self.known_traveler_number: str = None
 
 
 class FlightSeatMap:

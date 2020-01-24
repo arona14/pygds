@@ -1,18 +1,49 @@
-def passenger_info(date_of_birth, gender, name_number, first_name, last_name):
+def passenger_info(date_of_birth, gender, name_number, first_name, last_name, issue_country: str, known_traveler_number: int = None):
+    if known_traveler_number is not None and issue_country:
+        return f"""<SecureFlight SegmentNumber="A">
+         <IssueCountry>{issue_country}</IssueCountry>
+        <KnownTravelerNumber>{known_traveler_number}</KnownTravelerNumber>
+         <PersonName NameNumber="{name_number}">
+         <GivenName>{first_name}</GivenName>
+         <Surname>{last_name}</Surname>
+         </PersonName>
+         </SecureFlight>"""
+
     return f"""<SecureFlight SegmentNumber="A">
-     <PersonName DateOfBirth="{date_of_birth}" Gender="{gender}" NameNumber="{name_number}">
-     <GivenName>{first_name}</GivenName>
-     <Surname>{last_name}</Surname>
-     </PersonName>
-     </SecureFlight>"""
+             <PersonName DateOfBirth="{date_of_birth}" Gender="{gender}" NameNumber="{name_number}">
+             <GivenName>{first_name}</GivenName>
+             <Surname>{last_name}</Surname>
+             </PersonName>
+         </SecureFlight>"""
 
 
-def customer_id(dk_number):
-    return f"""<TravelItineraryAddInfoRQ>
-         <CustomerInfo>
-            <CustomerIdentifier>{dk_number}</CustomerIdentifier>
-         </CustomerInfo>
-     </TravelItineraryAddInfoRQ>"""
+def cust_loyalty_info(member_ship_id: str = "", name_number: str = "", program_id: str = "", segment_number: int = 1):
+    if member_ship_id and name_number and program_id:
+        return f"""
+                <CustLoyalty MembershipID="{member_ship_id}" NameNumber="{name_number}" ProgramID="{program_id}" SegmentNumber="{segment_number}"/>
+                """
+    return ""
+
+
+def customer_id(dk_number: str):
+    if dk_number:
+        return f"""
+                <CustomerIdentifier>{dk_number}</CustomerIdentifier>
+             """
+    return ""
+
+
+def travel_itinerary_add_info_rq(dk_number: str = "", member_ship_id: str = "", name_number: str = "", program_id: str = "", segment_number: int = 1):
+    customer_identifier = customer_id(dk_number)
+    cust_loyalty = cust_loyalty_info(member_ship_id, name_number, program_id, segment_number)
+    if customer_identifier or cust_loyalty:
+        return f"""<TravelItineraryAddInfoRQ>
+                     <CustomerInfo>
+                        {customer_identifier}
+                        {cust_loyalty}
+                     </CustomerInfo>
+                </TravelItineraryAddInfoRQ>"""
+    return ""
 
 
 def service_ssr_code(segment_number, ssr_code, name_number):
