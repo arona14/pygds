@@ -309,6 +309,7 @@ class SabreXMLBuilder:
                                 {name_select}
                                 {pax_type}
                                 {plus_up}
+                                {get_penalty_info()}
                             </PricingQualifiers>
                         </OptionalQualifiers>
                         </PriceRequestInformation>
