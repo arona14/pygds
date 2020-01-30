@@ -171,3 +171,7 @@
 # 0.0.38 (2020-01-23)
 - Sabre:
     - add info to update passenger builder [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.39 (2020-01-23)
+- Sabre:
+    - add info to update store price builder [VirginieSy](virginie@ctsfares.com)
