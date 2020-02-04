@@ -349,7 +349,4 @@ def segments_to_cancel(segment_list):
 
 
 def get_penalty_info():
-    return """<SpecificPenalty>
-                    <Changeable Any="true"/>
-                    <Refundable Any="true"/>
-                </SpecificPenalty>"""
+    return """<SpecificPenalty AdditionalInfo="true"/>"""
