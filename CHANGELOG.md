@@ -175,3 +175,7 @@
 # 0.0.39 (2020-01-23)
 - Sabre:
     - add info to update store price builder [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.40 (2020-02-04)
+- Sabre:
+    - Update search price builder [VirginieSy](virginie@ctsfares.com)
