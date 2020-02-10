@@ -179,3 +179,7 @@
 # 0.0.40 (2020-02-04)
 - Sabre:
     - Update search price builder [VirginieSy](virginie@ctsfares.com)
+    
+# 0.0.41 (2020-02-10)
+- Sabre:
+    - Update display pnr response extractor [mbayane1990](mbaye@ctsfares.com)

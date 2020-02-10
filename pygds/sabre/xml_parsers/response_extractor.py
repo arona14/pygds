@@ -467,11 +467,13 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
             commission_percentage = from_json_safe(price, "FareInfo", "Commission", "Percentage")
             for i in ensure_list(price_quote["Summary"]["NameAssociation"]):
-                if pq_number == from_json_safe(i, "PriceQuote", "number"):
-                    name_number = from_json_safe(i, "nameNumber")
-                    passenger_type = from_json_safe(i, "PriceQuote", "Passenger", "requestedType")
-                    passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
-                    list_passengers.append(passenger)
+                pqs = from_json_safe(i, "PriceQuote", default=[])
+                name_number = from_json_safe(i, "nameNumber")
+                for _p in ensure_list(pqs):
+                    if pq_number == from_json_safe(_p, "number"):
+                        passenger_type = from_json_safe(_p, "Passenger", "requestedType")
+                        passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
+                        list_passengers.append(passenger)
 
             price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
             list_price_quote.append(price_quote_data)
