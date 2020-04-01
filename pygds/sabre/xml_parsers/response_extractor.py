@@ -829,7 +829,6 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
     """A class to extract itineraries for ticket exchange
     Arguments:
         BaseResponseExtractor {[type]} -- [description]
-    
     Returns:
         ExchangeShoppingInfos -- Information of Exchange Shopping
     """
