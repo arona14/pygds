@@ -83,7 +83,7 @@ class ReservationSegment(BasicDataObject):
 
 class OriginDestination(BasicDataObject):
 
-    def __init__(self, origin, destination, elapsed_time):
+    def __init__(self, origin: str, destination: str, elapsed_time: str):
         self.origin = origin
         self.destination = destination
         self.elapsed_time = elapsed_time

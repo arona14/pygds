@@ -370,7 +370,7 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def exchange_shopping(self, token: str, pnr: str, passengers: list = [dict], origin_destination: list = [dict]):
+    def exchange_shopping(self, token: str, pnr: str, passengers: List[dict], origin_destination: List[dict]):
         """A method to search for applicable itinerary reissue options for an existing ticket
 
         Arguments:
