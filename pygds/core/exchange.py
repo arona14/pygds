@@ -4,7 +4,7 @@ from pygds.core.types import BasicDataObject
 
 class PriceDifference(BasicDataObject):
 
-    def __init__(self, currency_code: str = None, value: str = None):
+    def __init__(self, currency_code: str = None, value: float = 0.0):
         self.currency_code = currency_code
         self.value = value
 
@@ -18,16 +18,22 @@ class PriceDifference(BasicDataObject):
 
 class TotalPriceDifference(BasicDataObject):
 
-    def __init__(self, sub_total_difference: PriceDifference = None, total_fee: PriceDifference = None, grand_total_difference: PriceDifference = None):
+    def __init__(self, fare_difference: PriceDifference = None, tax_difference: PriceDifference = None, sub_total_difference: PriceDifference = None, total_fee: PriceDifference = None, total_fee_tax: PriceDifference = None, grand_total_difference: PriceDifference = None):
 
+        self.fare_difference = fare_difference
+        self.tax_difference = tax_difference
         self.sub_total_difference = sub_total_difference
         self.total_fee = total_fee
+        self.total_fee_tax = total_fee_tax
         self.grand_total_difference = grand_total_difference
 
     def to_data(self):
         return {
+            "fare_difference": self.fare_difference,
+            "tax_difference": self.tax_difference,
             "sub_total_difference": self.sub_total_difference,
             "total_fee": self.total_fee,
+            "total_fee_tax": self.total_fee_tax,
             "grand_total_difference": self.grand_total_difference
         }
 
@@ -69,18 +75,25 @@ class ReservationSegment(BasicDataObject):
             "destination": self.destination,
             "marketing_flight_number": self.marketing_flight_number,
             "marketing": self.marketing,
-            "operating": self.operating
+            "operating": self.operating,
+            "equipment": self.equipment
 
         }
 
 
 class OriginDestination(BasicDataObject):
 
-    def __init__(self):
+    def __init__(self, origin: str, destination: str, elapsed_time: str):
+        self.origin = origin
+        self.destination = destination
+        self.elapsed_time = elapsed_time
         self.segments: List[ReservationSegment] = []
 
     def to_data(self):
         return{
+            "origin": self.origin,
+            "destination": self.destination,
+            "elapsed_time": self.elapsed_time,
             "segments": [s.to_data() for s in self.segments]
 
         }

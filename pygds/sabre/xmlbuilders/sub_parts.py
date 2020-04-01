@@ -263,30 +263,30 @@ def add_flight_segments_to_air_book(segment_list):
     return segments
 
 
-def exchange_pax(pnr, name_number, first_name, last_name, ticket_number):
+def exchange_shopping_passenger(pnr, name_number, first_name, last_name, ticket_number):
 
     return f"""<PassengerWithPNR pnrLocator="{pnr}" referenceNumber="{name_number}" firstName="{first_name}" lastName="{last_name}">
                 <DocumentNumber>{ticket_number}</DocumentNumber>
             </PassengerWithPNR>"""
 
 
-def get_passengers_exchange(pnr, passengers):
-    return "\n".join([exchange_pax(pnr, p["name_number"], p["first_name"], p["last_name"], p["ticket_number"]) for p in passengers])
+def get_passengers_in_exchange_shopping(pnr, passengers):
+    return "\n".join([exchange_shopping_passenger(pnr, p["name_number"], p["first_name"], p["last_name"], p["ticket_number"]) for p in passengers])
 
 
-def exchange_seg(departure_date_time, departure_airport, arrival_airport):
+def exchange_shopping_segment(departure_date, departure_airport, arrival_airport):
 
     return f"""<OriginDestinationInformation shopIndicator="true">
                 <DateTimeSelection>
-                    <DepartureDate>{departure_date_time}</DepartureDate>
+                    <DepartureDate>{departure_date}</DepartureDate>
                 </DateTimeSelection>
                 <StartLocation>{departure_airport}</StartLocation>
                 <EndLocation>{arrival_airport}</EndLocation>
             </OriginDestinationInformation>"""
 
 
-def get_segments_exchange(segments):
-    return "\n".join([exchange_seg(s["departure_date_time"], s["departure_airport"], s["arrival_airport"]) for s in segments])
+def get_segments_in_exchange_shopping(segments):
+    return "\n".join([exchange_shopping_segment(s["departure_date"], s["departure_airport"], s["arrival_airport"]) for s in segments])
 
 
 def get_form_of_payment(payment_type: str = None, code_card: str = None, expire_date: str = None, cc_number: str = None):

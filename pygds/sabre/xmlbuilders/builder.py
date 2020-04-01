@@ -7,7 +7,7 @@ from pygds.core.security_utils import generate_random_message_id, generate_creat
 from pygds.sabre.price import StoreSegmentSelect
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, service_ssr_code, seat_request, travel_itinerary_add_info_rq
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, \
-    get_segments_exchange, get_passengers_exchange, \
+    get_segments_in_exchange_shopping, get_passengers_in_exchange_shopping, \
     get_form_of_payment, get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
     store_pax_type, store_plus_up, \
     store_ticket_designator, add_flight_segment, _store_single_name_select, _store_build_segment_selects, \
@@ -498,11 +498,19 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def exchange_shopping_rq(self, token, pnr, passengers_info, origin_destination_info):
+    def exchange_shopping_rq(self, token: str, pnr: str, passengers: List[dict], origin_destination: List[dict]):
+        """ Return the xml request to search for available flights for a ticket number to be exchanged
+
+        Arguments:
+            token {str} -- the security token
+            pnr {str} -- the pnr code
+
+        Keyword Arguments:
+            passengers {list} -- list of passengers information (default: {[dict]})
+            origin_destination {list} -- list of itineraries information (default: {[dict]})
+
         """
-            Return the xml request to search for available flights
-            for a ticket number to be exchanged
-        """
+
         header = self.generate_header("ExchangeShoppingRQ", "ExchangeShoppingRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -514,9 +522,9 @@ class SabreXMLBuilder:
                         </STL_Header.RQ>
                         <TicketingProvider>1S</TicketingProvider>
                         <PassengerInformation>
-                            {get_passengers_exchange(pnr, passengers_info)}
+                            {get_passengers_in_exchange_shopping(pnr, passengers)}
                         </PassengerInformation>
-                            {get_segments_exchange(origin_destination_info)}
+                            {get_segments_in_exchange_shopping(origin_destination)}
                     </ExchangeShoppingRQ>
                 </soapenv:Body>
             </soapenv:Envelope>"""

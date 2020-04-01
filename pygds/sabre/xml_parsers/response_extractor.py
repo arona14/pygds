@@ -826,9 +826,11 @@ class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
 
 
 class ExchangeShoppingExtractor(BaseResponseExtractor):
-
-    """
-        A class to extract itineraries for ticket exchange
+    """A class to extract itineraries for ticket exchange
+    Arguments:
+        BaseResponseExtractor {[type]} -- [description]
+    Returns:
+        ExchangeShoppingInfos -- Information of Exchange Shopping
     """
 
     def __init__(self, xml_content: str):
@@ -838,15 +840,15 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
     def _extract(self):
 
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
-        exchange_shopping_rs = from_json(payload, "ExchangeShoppingRS")
+        exchange_shopping_rs = from_json_safe(payload, "ExchangeShoppingRS")
         exchange_shopping_rs = str(exchange_shopping_rs).replace("@", "")
         exchange_shopping_rs = eval(exchange_shopping_rs.replace("u'", "'"))
-        status = from_json(exchange_shopping_rs, "ApplicationResults", "status")
+        status = from_json_safe(exchange_shopping_rs, "ApplicationResults", "status")
         to_return = []
-        for i in ensure_list(from_json(exchange_shopping_rs, "Solution")):
-            sequence = from_json(i, "sequence")
-            book_itinerary = self._book_itinerary(from_json(i, "BookItinerary"))
-            fare = self._fare(from_json(i, "Fare"))
+        for i in ensure_list(from_json_safe(exchange_shopping_rs, "Solution")):
+            sequence = from_json_safe(i, "sequence")
+            book_itinerary = self._book_itinerary(from_json_safe(i, "BookItinerary"))
+            fare = self._fare(from_json_safe(i, "Fare"))
             exchange_data = ExchangeData(sequence, book_itinerary, fare)
             to_return.append(exchange_data)
         exchange_shopping = ExchangeShoppingInfos(status, to_return)
@@ -855,41 +857,73 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
     def _book_itinerary(self, book_itinerary_data):
 
         book_iti = BookItinerary()
-        for ori in ensure_list(from_json(book_itinerary_data, "OriginDestination")):
-            origin_destination = OriginDestination()
+        list_itinerary = []
+        for origin in ensure_list(from_json_safe(book_itinerary_data, "OriginDestination")):
+            start_location = from_json_safe(origin, "startLocation")
+            end_location = from_json_safe(origin, "endLocation")
+            elapsed_time = from_json_safe(origin, "elapsedTime")
+            origin_destination = OriginDestination(start_location, end_location, elapsed_time)
             list_segment = []
-            list_itinerary = []
-            for book in ensure_list(from_json(ori, "ReservationSegment")):
+            for book in ensure_list(from_json_safe(origin, "ReservationSegment")):
                 segment_number = from_json_safe(book, "segmentNumber")
                 elapsed_time = from_json_safe(book, "elapsedTime")
-                departure_date = from_json_safe(book, "startDateTime")
-                arrival_date = from_json_safe(book, "endDateTime")
-                origin = from_json_safe(book, "startLocation")
-                destination = from_json_safe(book, "endLocation")
+                departure_date_time = from_json_safe(book, "startDateTime")
+                arrival_date_time = from_json_safe(book, "endDateTime")
+                origin_location = from_json_safe(book, "startLocation")
+                destination_location = from_json_safe(book, "endLocation")
                 marketing_flight_number = from_json_safe(book, "marketingFlightNumber")
                 marketing = from_json_safe(book, "marketingProvider")
                 operating = from_json_safe(book, "operatingProvider")
-                reservation_segment = ReservationSegment(segment_number, elapsed_time, departure_date, arrival_date, origin, destination, marketing_flight_number, marketing, operating)
+                reservation_segment = ReservationSegment(
+                    segment_number, elapsed_time,
+                    departure_date_time,
+                    arrival_date_time,
+                    origin_location,
+                    destination_location,
+                    marketing_flight_number,
+                    marketing,
+                    operating
+                )
                 list_segment.append(reservation_segment)
-                origin_destination.segments = list_segment
-                list_itinerary.append(origin_destination)
+            origin_destination.segments = list_segment
+            list_itinerary.append(origin_destination)
         book_iti.origin_destination = list_itinerary
         return book_iti
 
     def _fare(self, fare_data):
-        valid = from_json(fare_data, "valid")
-        sub_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "currencyCode")
+        valid = from_json_safe(fare_data, "valid")
+
+        fare_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "FareDifference", "#text")
+        fare_difference_amount = float(fare_difference_amount) if fare_difference_amount is not None else 0
+        fare_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "FareDifference", "currencyCode")
+        fare_difference = PriceDifference(fare_difference_currency_code, fare_difference_amount)
+
+        tax_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "TaxDifference", "#text")
+        tax_difference_amount = float(tax_difference_amount) if tax_difference_amount is not None else 0
+        tax_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TaxDifference", "currencyCode")
+        tax_difference = PriceDifference(tax_difference_currency_code, tax_difference_amount)
+
         sub_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "#text")
+        sub_total_difference_amount = float(sub_total_difference_amount) if sub_total_difference_amount is not None else 0
+        sub_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "SubtotalDifference", "currencyCode")
         sub_total_difference = PriceDifference(sub_total_difference_currency_code, sub_total_difference_amount)
 
-        total_fee_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "currencyCode")
         total_fee_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "#text")
+        total_fee_difference_amount = float(total_fee_difference_amount) if total_fee_difference_amount is not None else 0
+        total_fee_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "TotalFee", "currencyCode")
         total_fee = PriceDifference(total_fee_currency_code, total_fee_difference_amount)
 
-        grand_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "currencyCode")
+        total_fee_tax_amount = from_json_safe(fare_data, "TotalFeeTax", "TotalFee", "#text")
+        total_fee_tax_amount = float(total_fee_tax_amount) if total_fee_tax_amount is not None else 0
+        total_fee_tax_currency_code = from_json_safe(fare_data, "TotalFeeTax", "TotalFee", "currencyCode")
+        total_fee_tax = PriceDifference(total_fee_tax_currency_code, total_fee_tax_amount)
+
         grand_total_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "#text")
+        grand_total_difference_amount = float(grand_total_difference_amount) if grand_total_difference_amount is not None else 0
+        grand_total_difference_currency_code = from_json_safe(fare_data, "TotalPriceDifference", "GrandTotalDifference", "currencyCode")
         grand_total_difference = PriceDifference(grand_total_difference_currency_code, grand_total_difference_amount)
-        total_price = TotalPriceDifference(sub_total_difference, total_fee, grand_total_difference)
+
+        total_price = TotalPriceDifference(fare_difference, tax_difference, sub_total_difference, total_fee, total_fee_tax, grand_total_difference)
         to_return = Fare(valid, total_price)
         return to_return
 
