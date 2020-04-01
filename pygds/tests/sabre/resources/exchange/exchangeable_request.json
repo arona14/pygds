@@ -1,0 +1,54 @@
+{
+    "security_token": "Shared/IDL:IceSess\\\\/SessMgr:1\\\\.0.IDL/Common/!ICESMS\\\\/RESF!ICESMSLB\\\\/RES.LB!-2904200309575852921!1325077!0",
+    "sequence_number": 1,
+    "token_type": "<TokenType.SESSION_TOKEN:2>",
+    "payload": {
+      "is_ticket_exchangeable": {
+        "status": {
+          "STL:Success": {
+            "STL:System": "TKT-DS",
+            "STL:Source": "EDOC"
+          }
+        },
+        "agent": {
+          "sine": "AWT",
+          "ticketing_provider": "DL",
+          "Work_location": "WR17",
+          "home_location": "DTW",
+          "iso_country_code": "US"
+        },
+        "ticket_details": {
+          "number": "0067522917756",
+          "traveler": {
+            "Name": "MIKE MELHEM",
+            "FirstName": "MIKE",
+            "LastName": "MELHEM"
+          },
+          "service_coupon": [
+            {
+              "coupon": "1",
+              "marketing_provider": "DL",
+              "marketing_flight_number": "16",
+              "operating_provider": "DL",
+              "origin": "DTW",
+              "destination": "LHR",
+              "class_of_service": "V",
+              "booking_status": "OK",
+              "current_status": "OPEN"
+            },
+            {
+              "coupon": "2",
+              "marketing_provider": "DL",
+              "marketing_flight_number": "19",
+              "operating_provider": "DL",
+              "origin": "LHR",
+              "destination": "DTW",
+              "class_of_service": "V",
+              "booking_status": "OK",
+              "current_status": "OPEN"
+            }
+          ]
+        }
+      }
+    }
+}
