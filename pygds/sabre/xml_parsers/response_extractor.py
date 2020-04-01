@@ -826,13 +826,12 @@ class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
 
 
 class ExchangeShoppingExtractor(BaseResponseExtractor):
-    """
-    
+    """A class to extract itineraries for ticket exchange
     Arguments:
         BaseResponseExtractor {[type]} -- [description]
     
     Returns:
-        [type] -- [description]
+        ExchangeShoppingInfos -- Information of Exchange Shopping
     """
 
     def __init__(self, xml_content: str):
@@ -877,13 +876,13 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
                 marketing = from_json_safe(book, "marketingProvider")
                 operating = from_json_safe(book, "operatingProvider")
                 reservation_segment = ReservationSegment(
-                    segment_number, elapsed_time, 
-                    departure_date_time, 
-                    arrival_date_time, 
-                    origin_location, 
-                    destination_location, 
-                    marketing_flight_number, 
-                    marketing, 
+                    segment_number, elapsed_time,
+                    departure_date_time,
+                    arrival_date_time,
+                    origin_location,
+                    destination_location,
+                    marketing_flight_number,
+                    marketing,
                     operating
                 )
                 list_segment.append(reservation_segment)
