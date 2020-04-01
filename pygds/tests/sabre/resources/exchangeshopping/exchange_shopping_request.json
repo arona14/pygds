@@ -1,0 +1,24 @@
+{
+    "passengers": [
+      {
+        "first_name": "VIRGINIE",
+        "last_name": "Ciss",
+        "name_number": "1.1",
+        "ticket_number": "0067478696654"
+      }
+    ],
+    "segments": [
+      {
+        "departure_date": "2020-06-03",
+        "departure_airport": "DTW",
+        "arrival_airport": "LHR"
+      },
+      {
+        "departure_date": "2020-06-17",
+        "departure_airport": "CDG",
+        "arrival_airport": "DTW"
+      }
+    ],
+    "pcc": "WR17",
+    "pnr": "DTUCAL"
+  }

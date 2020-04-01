@@ -370,18 +370,32 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def exchange_shopping(self, token: str, pnr, passengers: list = [], origin_destination: list = []):
+    def exchange_shopping(self, token: str, pnr: str, passengers: list = [dict], origin_destination: list = [dict]):
+        """A method to search for applicable itinerary reissue options for an existing ticket
+
+        Arguments:
+            token {str} -- the security token
+            pnr {str} -- the pnr code
+
+        Keyword Arguments:
+            passengers {list} -- list of passengers information (default: {[dict]})
+            origin_destination {list} -- list of itineraries information (default: {[dict]})
+
+        Returns:
+            [ExchangeShoppingExtractor] -- [description]
         """
-        A method to search for applicable itinerary reissue options for an existing ticket
-        :param token: the security token
-        :param pnr: the Record locator
-        :param passengers: passengers information
-        :param origin_destination: itineraries information
-        :return:
-        """
-        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(token, pnr, passengers, origin_destination)
-        exchange_shopping_response = self.__request_wrapper("exchange_shopping", exchange_shopping_request,
-                                                            self.endpoint)
+        exchange_shopping_request = self.xml_builder.exchange_shopping_rq(
+            token,
+            pnr,
+            passengers,
+            origin_destination
+        )
+
+        exchange_shopping_response = self.__request_wrapper(
+            "exchange_shopping",
+            exchange_shopping_request,
+            self.endpoint
+        )
         gds_response = ExchangeShoppingExtractor(exchange_shopping_response).extract()
         return gds_response
 
