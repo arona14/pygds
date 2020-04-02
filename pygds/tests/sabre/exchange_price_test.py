@@ -1,13 +1,11 @@
 import os
 import json
 import unittest
-import fnc
-
 from pygds.env_settings import get_setting
 from pygds.core.security_utils import decode_base64
 from pygds.sabre.xmlbuilders.builder import SabreXMLBuilder
 from pygds.sabre import helpers
-import fnc
+
 
 class ExchangePriceTest(unittest.TestCase):
     """ This class will test all our function on the client side """
@@ -44,5 +42,3 @@ class ExchangePriceTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
