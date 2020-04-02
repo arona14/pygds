@@ -183,3 +183,7 @@
 # 0.0.41 (2020-02-10)
 - Sabre:
     - Update display pnr response extractor [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.42 (2020-04-01)
+- Sabre:
+    - Implementation of the method allowing to search for new itineraries for the exchange of a ticket number. [VirginieSy](virginie@ctsfares.com)
