@@ -941,19 +941,19 @@ class ExchangePriceExtractor(BaseResponseExtractor):
     def _extract(self):
 
         payload = from_xml(self.xml_content, "soap-env:Envelope", "soap-env:Body")
-        automated_exchanges_rs = from_json(payload, "AutomatedExchangesRS")
+        automated_exchanges_rs = from_json_safe(payload, "AutomatedExchangesRS")
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
-        status = from_json(automated_exchanges_rs, "STL:ApplicationResults", "status")
-        baggage = self._baggage_info(from_json(automated_exchanges_rs, "BaggageInfo"))
-        comparaison = self._exchange_comparaison(from_json(automated_exchanges_rs, "ExchangeComparison"))
+        status = from_json_safe(automated_exchanges_rs, "STL:ApplicationResults", "status")
+        baggage = self._baggage_info(from_json_safe(automated_exchanges_rs, "BaggageInfo"))
+        comparaison = self._exchange_comparaison(from_json_safe(automated_exchanges_rs, "ExchangeComparison"))
         to_return = ExchangeComparisonInfos(status, baggage, comparaison)
         return to_return
 
     def _baggage_info(self, baggage_data):
 
         list_flight_segment = []
-        for i in ensure_list(from_json(baggage_data, "FlightSegment")):
+        for i in ensure_list(from_json_safe(baggage_data, "FlightSegment")):
             departure_date = from_json_safe(i, "DepartureDateTime")
             arrival_date = from_json_safe(i, "ArrivalDateTime")
             flight_number = from_json_safe(i, "FlightNumber")
@@ -976,7 +976,7 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         itinerary_pricing_list = []
         tax_comparaison_list = []
 
-        for i in ensure_list(from_json(exchange_comparaison_data, "AirItineraryPricingInfo")):
+        for i in ensure_list(from_json_safe(exchange_comparaison_data, "AirItineraryPricingInfo")):
             base_fare_amount = from_json_safe(i, "ItinTotalFare", "BaseFare", "Amount")
             base_fare_cc = from_json_safe(i, "ItinTotalFare", "BaseFare", "CurrencyCode")
             taxe = from_json_safe(i, "ItinTotalFare", "Taxes", "TotalAmount")
@@ -990,7 +990,7 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         for t in ensure_list(from_json(exchange_comparaison_data, "TaxComparison")):
             tax_type = from_json_safe(t, "Type")
             tax_list = []
-            for t1 in ensure_list(from_json(t, "Tax")):
+            for t1 in ensure_list(from_json_safe(t, "Tax")):
                 tax_amount = from_json_safe(t1, "Amount")
                 tax_code = from_json_safe(t1, "Amount")
                 tax_data = TaxData(tax_amount, tax_code)
@@ -998,12 +998,12 @@ class ExchangePriceExtractor(BaseResponseExtractor):
             tax_comparison = TaxComparison(tax_type, tax_list)
             tax_comparaison_list.append(tax_comparison)
 
-        change_fee_collection = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
-        exchange_reissue = from_json(exchange_comparaison_data, "ExchangeDetails", "ExchangeReissue")
-        change_fee = from_json(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
-        total_refund = from_json(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
+        change_fee_collection = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
+        exchange_reissue = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "ExchangeReissue")
+        change_fee = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
+        total_refund = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
         exchange_details = ExchangeDetails(change_fee, exchange_reissue, total_refund, change_fee_collection)
-        pqr_number = from_json(exchange_comparaison_data, "ExchangeComparison", "PQR_Number")
+        pqr_number = from_json_safe(exchange_comparaison_data, "ExchangeComparison", "PQR_Number")
         exchange_comparison = ExchangeComparison(pqr_number, exchange_details)
         exchange_comparison.air_itinerary_pricing_info = itinerary_pricing_list
         exchange_comparison.tax_comparison = tax_comparaison_list
