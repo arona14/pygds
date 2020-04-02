@@ -529,7 +529,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_price_rq(self, token, ticket_number, name_number, passenger_type):
+    def automated_exchanges_price_rq(self, token: str, ticket_number: str, name_number: str, passenger_type: str):
         """
             Return the xml request to find new prices
             for a ticket number to be exchanged

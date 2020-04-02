@@ -400,7 +400,7 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def exchange_price(self, token: str, ticket_number, name_number, passenger_type):
+    def exchange_price(self, token: str, ticket_number: str, name_number: str, passenger_type: str):
         """
         A method to price an air ticket exchange
         :param token: the security token
