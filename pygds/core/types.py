@@ -876,9 +876,9 @@ class Agent(BasicDataObject):
 
 class ServiceCoupon(BasicDataObject):
 
-    def __init__(self, coupon: int = None, marketing_provider: str = None, marketing_flight_number: str = None, operating_provider: str = None, origin: str = None, \
-        destination: str = None, class_of_service: str = None, booking_status: str = None, current_status: str = None, \
-            start_date_time: str = None, not_valid_after_date: str = None, fare_basis: str = None):
+    def __init__(self, coupon: int = None, marketing_provider: str = None, marketing_flight_number: str = None, operating_provider: str = None, origin: str = None,
+                 destination: str = None, class_of_service: str = None, booking_status: str = None, current_status: str = None,
+                 start_date_time: str = None, not_valid_after_date: str = None, fare_basis: str = None):
 
         self.coupon = coupon
         self.marketing_provider = marketing_provider

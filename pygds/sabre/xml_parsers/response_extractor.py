@@ -825,8 +825,20 @@ class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
                 start_date_time = from_json_safe(service, "StartDateTime")
                 not_valid_after_date = from_json_safe(service, "NotValidAfterDate")
                 fare_basis = from_json_safe(service, "FareBasis")
-                service_coupon = ServiceCoupon(coupon, marketing_provider, marketing_flight_number, operating_provider, origin, \
-                    destination, class_of_service, booking_status, current_status, start_date_time, not_valid_after_date, fare_basis)
+                service_coupon = ServiceCoupon(
+                    coupon,
+                    marketing_provider,
+                    marketing_flight_number,
+                    operating_provider,
+                    origin,
+                    destination,
+                    class_of_service,
+                    booking_status,
+                    current_status,
+                    start_date_time,
+                    not_valid_after_date,
+                    fare_basis
+                )
                 ticket_details.add_service_coupon(service_coupon)
         electronic_document = ElectronicDocument(status, agent_, ticket_details)
 
