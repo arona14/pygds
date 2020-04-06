@@ -356,16 +356,21 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def is_ticket_exchangeable(self, token: str, ticket_number):
-        """
-        A method to check if the ticket number is exchangeable
-        :param token: the security token
-        :param ticket_number: the ticket number
-        :return:
+    def is_ticket_exchangeable(self, token: str, ticket_number: str):
+        """ A method to check if the ticket number is exchangeable
+
+        Arguments:
+            token {str} -- The security token
+            ticket_number {str} -- The ticket number
+
+        Returns:
+            [IsTicketExchangeableExtractor] -- Ticket Exchangeable Extractor
         """
         electronic_document_request = self.xml_builder.electronic_document_rq(token, ticket_number)
-        electronic_document_response = self.__request_wrapper("is_ticket_exchangeable", electronic_document_request,
-                                                              self.endpoint)
+        electronic_document_response = self.__request_wrapper(
+            "is_ticket_exchangeable",
+            electronic_document_request,
+            self.endpoint)
         gds_response = IsTicketExchangeableExtractor(electronic_document_response).extract()
         return gds_response
 
@@ -416,21 +421,50 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def exchange_commit(self, token: str, price_quote, form_of_payment, fare_type, percent, amount):
+    def exchange_commit(self, token: str, price_quote: int, form_of_payment: FormOfPayment, fare_type: str, commission_percent: str = None, markup: str = None):
+        """A method to price an air ticket exchange
+
+        Arguments:
+            token {str} -- The security token
+            price_quote {int} -- The pq number
+            form_of_payment {FormOfPayment} -- The type of payment
+            fare_type {str} -- The fare type
+
+        Keyword Arguments:
+            commission_percent {str} -- the value of commission (default: {None})
+            markup {str} -- The value of markup (default: {None})
+
+        Returns:
+            [ExchangeCommitExtractor] -- Exchange Commit Extractor
         """
-        A method to price an air ticket exchange
-        :param token: the security token
-        :param price_quote: the pq number
-        :param form_of_payment: the type of payment
-        :param fare_type: the fare type
-        :param percent: the value of commission
-        :param amount: the value of amount
-        :return:
-        """
-        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(token, price_quote, form_of_payment,
-                                                                                  fare_type, percent, amount)
+
+        exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(
+            token,
+            price_quote,
+            form_of_payment,
+            fare_type,
+            commission_percent,
+            markup
+        )
         exchange_commit_response = self.__request_wrapper("exchange_commit", exchange_commit_request, self.endpoint)
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()
+        return gds_response
+
+    @session_wrapper
+    def exchange_ticket(self, token: str, price_quote: int):
+        """This method is make for the ticket process.
+        she does not want to make the end transaction at the end to commit the change
+
+        Arguments:
+            token {str} -- The security token
+            price_quote {int} -- Price quote number
+
+        Returns:
+            [IssueTicketExtractor] -- Issue Ticket Extractor
+        """
+        ticketing_exchange_request = self.xml_builder.ticketing_exchange_rq(token, price_quote)
+        ticketing_exchange_response = self.__request_wrapper("exchange_ticket", ticketing_exchange_request, self.endpoint)
+        gds_response = IssueTicketExtractor(ticketing_exchange_response).extract()
         return gds_response
 
     def create_pnr_rq(self, create_pnr_request):
