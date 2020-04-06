@@ -554,20 +554,19 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_commmit_rq(self, token, price_quote, form_of_payment, fare_type, percent, amount):
+    def automated_exchanges_commmit_rq(self, token: str, price_quote: int, form_of_payment: FormOfPayment, fare_type: str, commission_percent: str = None, markup: str = None):
         """
             Return the xml request to store a price
             for a ticket number to be exchanged
         """
         header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
+        commission = ""
 
-        if percent is not None and percent > 0:
-            commission = get_commission_exchange(fare_type, percent)
+        if commission_percent is not None and commission_percent > 0:
+            commission = get_commission_exchange(fare_type, commission_percent)
 
-        elif amount is not None and amount > 0:
-            commission = get_commission_exchange(fare_type, amount)
-        else:
-            commission = ""
+        elif markup is not None and markup > 0:
+            commission = get_commission_exchange(fare_type, markup)
 
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -586,7 +585,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def ticketing_exchange_rq(self, token, price_quote):
+    def ticketing_exchange_rq(self, token: str, price_quote: int):
         """
             Return the xml request to ticket a pnr to be exchanged
         """

@@ -876,7 +876,9 @@ class Agent(BasicDataObject):
 
 class ServiceCoupon(BasicDataObject):
 
-    def __init__(self, coupon: int = None, marketing_provider: str = None, marketing_flight_number: str = None, operating_provider: str = None, origin: str = None, destination: str = None, class_of_service: str = None, booking_status: str = None, current_status: str = None):
+    def __init__(self, coupon: int = None, marketing_provider: str = None, marketing_flight_number: str = None, operating_provider: str = None, origin: str = None, \
+        destination: str = None, class_of_service: str = None, booking_status: str = None, current_status: str = None, \
+            start_date_time: str = None, not_valid_after_date: str = None, fare_basis: str = None):
 
         self.coupon = coupon
         self.marketing_provider = marketing_provider
@@ -887,6 +889,9 @@ class ServiceCoupon(BasicDataObject):
         self.class_of_service = class_of_service
         self.booking_status = booking_status
         self.current_status = current_status
+        self.start_date_time = start_date_time
+        self.not_valid_after_date = not_valid_after_date
+        self.fare_basis = fare_basis
 
     def to_data(self):
         return {
@@ -894,10 +899,13 @@ class ServiceCoupon(BasicDataObject):
             "marketing_provider": self.marketing_provider,
             "marketing_flight_number": self.marketing_flight_number,
             "operating_provider": self.operating_provider,
-            "origin": self.origin,
-            "destination": self.destination,
             "class_of_service": self.class_of_service,
+            "fare_basis": self.fare_basis,
+            "origin": self.origin,
+            "departure_date_time": self.start_date_time,
+            "destination": self.destination,
             "booking_status": self.booking_status,
+            "not_valid_after_date": self.not_valid_after_date,
             "current_status": self.current_status
         }
 

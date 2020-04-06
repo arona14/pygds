@@ -770,9 +770,13 @@ class ExchangeAppErrorExtractor(ExchangeBaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body", self.main_tag)
         app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
-        if not app_error_data:
+        if app_error_data:
+            app_error_data = from_json_safe(payload, "STL:STL_Header.RS", "STL:Results", "STL:Error", "STL:SystemSpecificResults")
+            error_message = from_json_safe(app_error_data, "STL:ErrorMessage")
+            if error_message is not None:
+                return ApplicationError(None, None, None, error_message)
             return None
-
+        return None
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
 
@@ -808,21 +812,25 @@ class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
             number = from_json_safe(t, "number")
             traveler = from_json_safe(t, "Customer", "Traveler")
             ticket_details = TicketDetails(number, traveler)
-            for i in from_json_safe(t, "ServiceCoupon"):
-                coupon = from_json_safe(i, "coupon")
-                marketing_provider = from_json_safe(i, "MarketingProvider")
-                marketing_flight_number = from_json_safe(i, "MarketingFlightNumber")
-                operating_provider = from_json_safe(i, "OperatingProvider")
-                origin = from_json_safe(i, "StartLocation")
-                destination = from_json_safe(i, "EndLocation")
-                class_of_service = from_json_safe(i, "ClassOfService", "name")
-                booking_status = from_json_safe(i, "BookingStatus")
-                current_status = from_json_safe(i, "CurrentStatus")
-                service_coupon = ServiceCoupon(coupon, marketing_provider, marketing_flight_number, operating_provider, origin, destination, class_of_service, booking_status, current_status)
+            for service in from_json_safe(t, "ServiceCoupon"):
+                coupon = from_json_safe(service, "coupon")
+                marketing_provider = from_json_safe(service, "MarketingProvider")
+                marketing_flight_number = from_json_safe(service, "MarketingFlightNumber")
+                operating_provider = from_json_safe(service, "OperatingProvider")
+                origin = from_json_safe(service, "StartLocation")
+                destination = from_json_safe(service, "EndLocation")
+                class_of_service = from_json_safe(service, "ClassOfService", "name")
+                booking_status = from_json_safe(service, "BookingStatus")
+                current_status = from_json_safe(service, "CurrentStatus")
+                start_date_time = from_json_safe(service, "StartDateTime")
+                not_valid_after_date = from_json_safe(service, "NotValidAfterDate")
+                fare_basis = from_json_safe(service, "FareBasis")
+                service_coupon = ServiceCoupon(coupon, marketing_provider, marketing_flight_number, operating_provider, origin, \
+                    destination, class_of_service, booking_status, current_status, start_date_time, not_valid_after_date, fare_basis)
                 ticket_details.add_service_coupon(service_coupon)
-        to_return = ElectronicDocument(status, agent_, ticket_details)
+        electronic_document = ElectronicDocument(status, agent_, ticket_details)
 
-        return to_return
+        return electronic_document
 
 
 class ExchangeShoppingExtractor(BaseResponseExtractor):
@@ -1027,9 +1035,9 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         automated_exchanges_rs = str(automated_exchanges_rs).replace("@", "")
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
 
-        status = self._source(from_json(automated_exchanges_rs, "STL:ApplicationResults", "status"))
-        pqr_number = self._source(from_json(automated_exchanges_rs, "STL:ExchangeConfirmation", "PQR_Number"))
-        source = self._source(from_json(automated_exchanges_rs, "Source"))
+        status = from_json_safe(automated_exchanges_rs, "STL:ApplicationResults", "status")
+        pqr_number = from_json_safe(automated_exchanges_rs, "STL:ExchangeConfirmation", "PQR_Number")
+        source = from_json_safe(automated_exchanges_rs, "Source")
         exchange_confirmation = ExchangeConfirmationInfos(status, pqr_number, source)
 
         return {
@@ -1044,8 +1052,8 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         create_date_time = from_json_safe(source_data, "CreateDateTime")
         iata_number = from_json_safe(source_data, "IATA_Number")
         pseudo_city_code = from_json_safe(source_data, "PseudoCityCode")
-        to_return = SourceData(agency_city, agent_duty_sine, agent_work_area, create_date_time, iata_number, pseudo_city_code)
-        return to_return
+        source_data = SourceData(agency_city, agent_duty_sine, agent_work_area, create_date_time, iata_number, pseudo_city_code)
+        return source_data
 
 
 class SeatMapResponseExtractor(BaseResponseExtractor):
