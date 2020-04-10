@@ -187,3 +187,7 @@
 # 0.0.42 (2020-04-01)
 - Sabre:
     - Implementation of the method allowing to search for new itineraries for the exchange of a ticket number. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.43 (2020-04-10)
+- Sabre:
+    - Modifications of responses for the exchange procedure with gds Sable. [VirginieSy](virginie@ctsfares.com)

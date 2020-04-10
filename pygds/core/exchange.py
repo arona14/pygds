@@ -38,15 +38,47 @@ class TotalPriceDifference(BasicDataObject):
         }
 
 
+class PassengerBookingDetail(BasicDataObject):
+    def __init__(self, booking_class: str = None, fare_basis: str = None, document_number: str = None, cabin: str = None, meal: str = None, private_fare_type: str = None):
+        self.booking_class = booking_class
+        self.fare_basis = fare_basis
+        self.document_number = document_number
+        self.cabin = cabin
+        self.meal = meal
+        self.private_fare_type = private_fare_type
+
+    def to_data(self):
+        return {
+            "booking_class": self.booking_class,
+            "fare_basis": self.fare_basis,
+            "document_number": self.document_number,
+            "cabin": self.cabin,
+            "meal": self.meal,
+            "private_fare_type": self.private_fare_type
+        }
+
+
+class ReservationSegmentDetail(BasicDataObject):
+    def __init__(self, segment_number: str = None):
+        self.segment_number = segment_number
+        self.passenger_booking_details: List[PassengerBookingDetail] = []
+
+
 class Fare(BasicDataObject):
 
-    def __init__(self, valid: str = None, total_price_difference: TotalPriceDifference = None):
+    def __init__(self, valid: bool = False, total_price_difference: TotalPriceDifference = None):
         self.valid = valid
+        self.pricing_sequence: str = None
+        self.passengers_in_different_cabins: bool = False
+        self.reservation_segment_details: List[ReservationSegmentDetail] = []
         self.total_price_difference = total_price_difference
 
     def to_data(self):
         return {
             "valid": self.valid,
+            "pricing_sequence": self.pricing_sequence,
+            "passengers_in_different_cabins": self.passengers_in_different_cabins,
+            "reservation_segment_details": self.reservation_segment_details,
             "total_price_difference": self.total_price_difference
 
         }
@@ -231,7 +263,7 @@ class ExchangeAirItineraryPricingInfo(BasicDataObject):
 
 class ExchangeComparison(BasicDataObject):
 
-    def __init__(self, pqr_number: str = None, exchange_details: ExchangeDetails = None):
+    def __init__(self, pqr_number: int = 0, exchange_details: ExchangeDetails = None):
 
         self.pqr_number = pqr_number
         self.air_itinerary_pricing_info: List[ExchangeAirItineraryPricingInfo] = []
