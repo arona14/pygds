@@ -1,0 +1,184 @@
+<SOAP-ENV:Envelope encoding="UTF-8" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <GetElectronicDocumentRS
+            xmlns="http://www.sabre.com/ns/Ticketing/EDoc" Version="1.0.0">
+            <STL:STL_Header.RS
+                xmlns:STL="http://www.sabre.com/ns/Ticketing/EDocStl" timeStamp="2020-04-01T08:12:39">
+                <STL:OrchestrationID seq="0">TKTVLP610-27359-2102465304-1585746759631-10016443-edoc:0</STL:OrchestrationID>
+                <STL:Results>
+                    <STL:Success>
+                        <STL:System>TKT-DS</STL:System>
+                        <STL:Source>EDOC</STL:Source>
+                    </STL:Success>
+                </STL:Results>
+            </STL:STL_Header.RS>
+            <Agent sine="AWT" type="GDS">
+                <TicketingProvider>AA</TicketingProvider>
+                <WorkLocation>WR17</WorkLocation>
+                <HomeLocation>DTW</HomeLocation>
+                <IsoCountryCode>US</IsoCountryCode>
+                <IataNumber>23612444</IataNumber>
+                <CRSCode>0011</CRSCode>
+            </Agent>
+            <TransactionInfo sequence="1">
+                <LocalDateTime>2020-04-01T08:12:39.897-05:00</LocalDateTime>
+                <SystemDateTime>2020-04-01T08:12:39.897-05:00</SystemDateTime>
+                <SystemProvider>1S</SystemProvider>
+            </TransactionInfo>
+            <DocumentDetailsDisplay>
+                <Ticket number="0017522917833" type="TKT">
+                    <Details>
+                        <TourNumber>L2000</TourNumber>
+                        <Reservation>
+                            <Sabre>RWPXBY</Sabre>
+                        </Reservation>
+                        <LocalIssueDateTime>2020-04-01T00:00:00.000-00:00</LocalIssueDateTime>
+                        <AgencyBillingNumber>D586445858</AgencyBillingNumber>
+                        <InvoiceNumber>8058752</InvoiceNumber>
+                        <FareCalculationPricing>6</FareCalculationPricing>
+                    </Details>
+                    <Customer>
+                        <Traveler>
+                            <Name>CORDELL POLLICH</Name>
+                            <FirstName>CORDELL</FirstName>
+                            <LastName>POLLICH</LastName>
+                        </Traveler>
+                    </Customer>
+                    <ServiceCoupon coupon="1">
+                        <MarketingProvider>AA</MarketingProvider>
+                        <MarketingFlightNumber>4660</MarketingFlightNumber>
+                        <OperatingProvider>AA</OperatingProvider>
+                        <ClassOfService name="N">N</ClassOfService>
+                        <FareBasis>NHN8C1M5/F279</FareBasis>
+                        <StartLocation>DTW</StartLocation>
+                        <StartDateTime>2020-06-22T10:42:00</StartDateTime>
+                        <EndLocation>LGA</EndLocation>
+                        <NotValidAfterDate>2020-06-22</NotValidAfterDate>
+                        <BookingStatus>OK</BookingStatus>
+                        <CurrentStatus>OPEN</CurrentStatus>
+                        <BagAllowance amount="1" code="PC"/>
+                    </ServiceCoupon>
+                    <ServiceCoupon coupon="2" type="A"/>
+                    <ServiceCoupon coupon="3">
+                        <MarketingProvider>AA</MarketingProvider>
+                        <MarketingFlightNumber>44</MarketingFlightNumber>
+                        <OperatingProvider>AA</OperatingProvider>
+                        <ClassOfService name="N">N</ClassOfService>
+                        <FareBasis>NHN8C1M5/F279</FareBasis>
+                        <StartLocation>JFK</StartLocation>
+                        <StartDateTime>2020-06-22T18:25:00</StartDateTime>
+                        <EndLocation>CDG</EndLocation>
+                        <NotValidAfterDate>2020-06-22</NotValidAfterDate>
+                        <BookingStatus>OK</BookingStatus>
+                        <CurrentStatus>OPEN</CurrentStatus>
+                        <BagAllowance amount="1" code="PC"/>
+                    </ServiceCoupon>
+                    <ServiceCoupon coupon="4">
+                        <MarketingProvider>AA</MarketingProvider>
+                        <MarketingFlightNumber>787</MarketingFlightNumber>
+                        <OperatingProvider>AA</OperatingProvider>
+                        <ClassOfService name="N">N</ClassOfService>
+                        <FareBasis>NHN8C1M5/F279</FareBasis>
+                        <StartLocation>CDG</StartLocation>
+                        <StartDateTime>2020-07-07T13:00:00</StartDateTime>
+                        <EndLocation>CLT</EndLocation>
+                        <NotValidBeforeDate>2020-06-24</NotValidBeforeDate>
+                        <NotValidAfterDate>2020-06-22</NotValidAfterDate>
+                        <BookingStatus>OK</BookingStatus>
+                        <CurrentStatus>OPEN</CurrentStatus>
+                        <BagAllowance amount="1" code="PC"/>
+                    </ServiceCoupon>
+                    <ServiceCoupon coupon="5">
+                        <MarketingProvider>AA</MarketingProvider>
+                        <MarketingFlightNumber>1817</MarketingFlightNumber>
+                        <OperatingProvider>AA</OperatingProvider>
+                        <ClassOfService name="N">N</ClassOfService>
+                        <FareBasis>NHN8C1M5/F279</FareBasis>
+                        <StartLocation>CLT</StartLocation>
+                        <StartDateTime>2020-07-07T18:27:00</StartDateTime>
+                        <EndLocation>DTW</EndLocation>
+                        <NotValidBeforeDate>2020-06-24</NotValidBeforeDate>
+                        <NotValidAfterDate>2020-06-22</NotValidAfterDate>
+                        <BookingStatus>OK</BookingStatus>
+                        <CurrentStatus>OPEN</CurrentStatus>
+                        <BagAllowance amount="1" code="PC"/>
+                    </ServiceCoupon>
+                    <RelatedDocument>
+                        <Conjunctive>
+                            <Number>0017522917834</Number>
+                        </Conjunctive>
+                    </RelatedDocument>
+                    <Amounts>
+                        <New>
+                            <Base>
+                                <Amount currencyCode="USD" decimalPlace="0">0</Amount>
+                                <Text>BT</Text>
+                            </Base>
+                            <Total>
+                                <Amount currencyCode="USD" decimalPlace="0">0</Amount>
+                                <Text>BT</Text>
+                            </Total>
+                        </New>
+                        <Other>
+                            <Commission>
+                                <Amount currencyCode="USD" decimalPlace="1">58.0</Amount>
+                                <Text>58.0</Text>
+                            </Commission>
+                        </Other>
+                    </Amounts>
+                    <Taxes>
+                        <New>
+                            <Tax code="YQ">
+                                <Amount currencyCode="USD" decimalPlace="0">37.80</Amount>
+                            </Tax>
+                            <Tax code="YR">
+                                <Amount currencyCode="USD" decimalPlace="0">400.00</Amount>
+                            </Tax>
+                            <Tax code="AY">
+                                <Amount currencyCode="USD" decimalPlace="0">11.20</Amount>
+                            </Tax>
+                            <Tax code="FR">
+                                <Amount currencyCode="USD" decimalPlace="0">22.10</Amount>
+                            </Tax>
+                            <Tax code="QX">
+                                <Amount currencyCode="USD" decimalPlace="0">32.30</Amount>
+                            </Tax>
+                            <Tax code="IZ">
+                                <Amount currencyCode="USD" decimalPlace="0">5.00</Amount>
+                            </Tax>
+                            <Tax code="O4">
+                                <Amount currencyCode="USD" decimalPlace="0">3.30</Amount>
+                            </Tax>
+                            <Tax code="YC">
+                                <Amount currencyCode="USD" decimalPlace="0">5.89</Amount>
+                            </Tax>
+                            <Tax code="XY">
+                                <Amount currencyCode="USD" decimalPlace="0">7.00</Amount>
+                            </Tax>
+                            <Tax code="XA">
+                                <Amount currencyCode="USD" decimalPlace="0">3.96</Amount>
+                            </Tax>
+                            <Tax code="XF">
+                                <Amount currencyCode="USD" decimalPlace="0">12.00</Amount>
+                            </Tax>
+                        </New>
+                    </Taxes>
+                    <Payment sequence="1" type="CC">
+                        <Card cardType="AX">
+                            <MaskedCardNumber>XXXXXXXXXXX2007</MaskedCardNumber>
+                            <ExpireDate>0423</ExpireDate>
+                            <ApprovalCode source="S">105988</ApprovalCode>
+                        </Card>
+                    </Payment>
+                    <Remark>
+                        <Endorsements sequence="0">CXL BY FLT TIME OR NOVALUE/CXL-CHG PEN APPLY/REF AGY ONLY/VALID AA/AJB  PARTNERS ONLY</Endorsements>
+                    </Remark>
+                    <FareCalculation>
+                        <New>DTT AA X/NYC AA PAR M/BT      X/CLT AA DTT M/BT   END         XT 11.20AY22.10FR32.30QX5.00IZ3.30O45.89YC7.00XY3.96XA12.00XFDTW4.5JFK4.5CLT3</New>
+                    </FareCalculation>
+                </Ticket>
+            </DocumentDetailsDisplay>
+        </GetElectronicDocumentRS>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

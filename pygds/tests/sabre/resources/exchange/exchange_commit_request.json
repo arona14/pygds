@@ -1,0 +1,18 @@
+{
+    "pcc": "WR17",
+    "customer_identifier": "D586445858_USA",
+    "validating_carrier": "AF",
+    "price_quote_associated": [
+        {
+            "price_quote": 2,
+            "payment_type": "CC",
+            "fare_type": "PUB",
+            "code_card": "AX",
+            "number_card": "11111111111111",
+            "expire_date_card": "2020-05",
+            "approval_code": "AA",
+            "commission_percent": 0,
+            "markup": 0
+        }
+    ]
+}

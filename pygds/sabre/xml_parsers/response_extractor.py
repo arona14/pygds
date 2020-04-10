@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import List
+import json
 
 from pygds.amadeus.amadeus_types import GdsResponse
 from pygds.core import xmlparser
@@ -14,7 +15,7 @@ from pygds.core.exchange import (BaggageInfo, BaseFare, BookItinerary,
                                  MarketingAirline, OriginDestination,
                                  PriceDifference, ReservationSegment,
                                  SourceData, TaxComparison, TaxData,
-                                 TotalPriceDifference)
+                                 TotalPriceDifference, PassengerBookingDetail, ReservationSegmentDetail)
 from pygds.core.helpers import ensure_list
 from pygds.core.helpers import get_data_from_json as from_json
 from pygds.core.helpers import get_data_from_json_safe as from_json_safe
@@ -912,6 +913,7 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
 
     def _fare(self, fare_data):
         valid = from_json_safe(fare_data, "valid")
+        valid = json.loads(valid.lower())
 
         fare_difference_amount = from_json_safe(fare_data, "TotalPriceDifference", "FareDifference", "#text")
         fare_difference_amount = float(fare_difference_amount) if fare_difference_amount is not None else 0
@@ -945,6 +947,29 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
 
         total_price = TotalPriceDifference(fare_difference, tax_difference, sub_total_difference, total_fee, total_fee_tax, grand_total_difference)
         to_return = Fare(valid, total_price)
+        to_return.pricing_sequence = from_json_safe(fare_data, "pricingSequence")
+        passengers_in_different_cabins = from_json_safe(fare_data, "passengersInDifferentCabins")
+        to_return.passengers_in_different_cabins = json.loads(passengers_in_different_cabins.lower())
+
+        reservation_segment_details_list = []
+        for segment in ensure_list(from_json_safe(fare_data, "ReservationSegmentDetails")):
+            segment_number = from_json_safe(segment, "segmentNumber")
+            reservation_segment_detail = ReservationSegmentDetail(segment_number)
+            passenger_booking_details_list = []
+            for passenger in ensure_list(from_json_safe(segment, "PassengerBookingDetails")):
+                booking_class = from_json_safe(passenger, "bookingClass")
+                fare_basis = from_json_safe(passenger, "fareBasis")
+                document_number = from_json_safe(passenger, "documentNumber")
+                cabin = from_json_safe(passenger, "cabin")
+                meal = from_json_safe(passenger, "meal")
+                private_fare_type = from_json_safe(passenger, "PrivateFareType")
+                if private_fare_type == "":
+                    private_fare_type = "@"
+                passenger_booking = PassengerBookingDetail(booking_class, fare_basis, document_number, cabin, meal, private_fare_type)
+                passenger_booking_details_list.append(passenger_booking)
+            reservation_segment_detail.passenger_booking_details = passenger_booking_details_list
+            reservation_segment_details_list.append(reservation_segment_detail)
+        to_return.reservation_segment_details = reservation_segment_details_list
         return to_return
 
 
@@ -1009,13 +1034,14 @@ class ExchangePriceExtractor(BaseResponseExtractor):
 
         for t in ensure_list(from_json(exchange_comparaison_data, "TaxComparison")):
             tax_type = from_json_safe(t, "Type")
+            tax_comparison = TaxComparison(tax_type)
             tax_list = []
             for t1 in ensure_list(from_json_safe(t, "Tax")):
                 tax_amount = from_json_safe(t1, "Amount")
                 tax_code = from_json_safe(t1, "Amount")
                 tax_data = TaxData(tax_amount, tax_code)
                 tax_list.append(tax_data)
-            tax_comparison = TaxComparison(tax_type, tax_list)
+            tax_comparison.tax = tax_list
             tax_comparaison_list.append(tax_comparison)
 
         change_fee_collection = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "ChangeFeeCollectionOptions", "FeeCollectionMethod")
@@ -1023,7 +1049,7 @@ class ExchangePriceExtractor(BaseResponseExtractor):
         change_fee = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "ChangeFee")
         total_refund = from_json_safe(exchange_comparaison_data, "ExchangeDetails", "TotalRefund")
         exchange_details = ExchangeDetails(change_fee, exchange_reissue, total_refund, change_fee_collection)
-        pqr_number = from_json_safe(exchange_comparaison_data, "ExchangeComparison", "PQR_Number")
+        pqr_number = from_json_safe(exchange_comparaison_data, "PQR_Number")
         exchange_comparison = ExchangeComparison(pqr_number, exchange_details)
         exchange_comparison.air_itinerary_pricing_info = itinerary_pricing_list
         exchange_comparison.tax_comparison = tax_comparaison_list
@@ -1048,7 +1074,7 @@ class ExchangeCommitExtractor(BaseResponseExtractor):
         automated_exchanges_rs = eval(automated_exchanges_rs.replace("u'", "'"))
 
         status = from_json_safe(automated_exchanges_rs, "STL:ApplicationResults", "status")
-        pqr_number = from_json_safe(automated_exchanges_rs, "STL:ExchangeConfirmation", "PQR_Number")
+        pqr_number = from_json_safe(automated_exchanges_rs, "ExchangeConfirmation", "PQR_Number")
         source = from_json_safe(automated_exchanges_rs, "Source")
         exchange_confirmation = ExchangeConfirmationInfos(status, pqr_number, source)
 
