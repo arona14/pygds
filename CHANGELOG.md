@@ -191,3 +191,7 @@
 # 0.0.43 (2020-04-10)
 - Sabre:
     - Modifications of responses for the exchange procedure with gds Sable. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.44 (2020-04-16)
+- Sabre:
+    - Addition of passenger type in exchange shopping extraction with gds Sabre. [VirginieSy](virginie@ctsfares.com)

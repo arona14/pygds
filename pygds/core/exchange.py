@@ -46,6 +46,7 @@ class PassengerBookingDetail(BasicDataObject):
         self.cabin = cabin
         self.meal = meal
         self.private_fare_type = private_fare_type
+        self.passenger_type: str = None
 
     def to_data(self):
         return {
@@ -54,7 +55,8 @@ class PassengerBookingDetail(BasicDataObject):
             "document_number": self.document_number,
             "cabin": self.cabin,
             "meal": self.meal,
-            "private_fare_type": self.private_fare_type
+            "private_fare_type": self.private_fare_type,
+            "passenger_type": self.passenger_type
         }
 
 
