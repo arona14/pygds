@@ -966,6 +966,10 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
                 if private_fare_type == "":
                     private_fare_type = "@"
                 passenger_booking = PassengerBookingDetail(booking_class, fare_basis, document_number, cabin, meal, private_fare_type)
+                for passenger_price in ensure_list(from_json_safe(fare_data, "PassengerPriceInformation", "Passenger")):
+                    if document_number == from_json_safe(passenger_price, "documentNumber"):
+                        passenger_booking.passenger_type = from_json_safe(passenger_price, "type")
+                        break
                 passenger_booking_details_list.append(passenger_booking)
             reservation_segment_detail.passenger_booking_details = passenger_booking_details_list
             reservation_segment_details_list.append(reservation_segment_detail)
