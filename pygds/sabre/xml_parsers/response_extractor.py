@@ -952,6 +952,7 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
         to_return.passengers_in_different_cabins = json.loads(passengers_in_different_cabins.lower())
 
         reservation_segment_details_list = []
+        passengers_in_fare = ensure_list(from_json_safe(fare_data, "PassengerPriceInformation", "Passenger"))
         for segment in ensure_list(from_json_safe(fare_data, "ReservationSegmentDetails")):
             segment_number = from_json_safe(segment, "segmentNumber")
             reservation_segment_detail = ReservationSegmentDetail(segment_number)
@@ -966,7 +967,7 @@ class ExchangeShoppingExtractor(BaseResponseExtractor):
                 if private_fare_type == "":
                     private_fare_type = "@"
                 passenger_booking = PassengerBookingDetail(booking_class, fare_basis, document_number, cabin, meal, private_fare_type)
-                for passenger_price in ensure_list(from_json_safe(fare_data, "PassengerPriceInformation", "Passenger")):
+                for passenger_price in passengers_in_fare:
                     if document_number == from_json_safe(passenger_price, "documentNumber"):
                         passenger_booking.passenger_type = from_json_safe(passenger_price, "type")
                         break
