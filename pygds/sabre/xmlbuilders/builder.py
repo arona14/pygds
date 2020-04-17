@@ -756,3 +756,31 @@ class SabreXMLBuilder:
                         </AirTicketRQ>
                     </soapenv:Body>
             </soapenv:Envelope>"""
+
+    def price_quote_services_rq(self, token: str, record_locator: str):
+        """ Return the xml request to display pricing information stored
+        in the PNRs of Price Quote and Price Quote Reissue records
+
+        Arguments:
+            token {[str]} -- The security token
+            record_locator {[str]} -- the record locator
+
+        Returns:
+            [str] -- price quote request
+        """
+
+        header = self.generate_header("PriceQuoteServicesRQ", "PriceQuoteServicesRQ", token)
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                {header}
+                <soapenv:Body>
+                    <GetPriceQuoteRQ version="4.1.0" xmlns="http://www.sabre.com/ns/Ticketing/pqs/1.0">
+                        <SearchParameters resultType="D">
+                            <PriceQuoteInfo>
+                            <Reservation>{record_locator}</Reservation>
+                            <PriceQuote/>
+                            </PriceQuoteInfo>
+                        </SearchParameters>
+                    </GetPriceQuoteRQ>
+                </soapenv:Body>
+            </soapenv:Envelope>"""

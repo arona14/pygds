@@ -131,8 +131,13 @@ class SabreClient(BaseClient):
         """
         display_pnr_request = self.xml_builder.get_reservation_rq(token, pnr)
         display_pnr_response = self.__request_wrapper("get_reservation", display_pnr_request, self.xml_builder.url)
-        gds_response = DisplayPnrExtractor(display_pnr_response).extract()
-        return gds_response
+
+        price_quote_services_request = self.xml_builder.price_quote_services_rq(token, pnr)
+        price_quote_services_response = self.__request_wrapper("price_quote_services_rq", price_quote_services_request, self.xml_builder.url)
+
+        gds_response = DisplayPnrExtractor(display_pnr_response)
+        gds_response.price_quote_services = price_quote_services_response
+        return gds_response.extract()
 
     @session_wrapper
     def search_price_quote(self, token: str, fare_type: str = '', segment_select: list = [],

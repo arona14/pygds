@@ -342,6 +342,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
     def __init__(self, xml_content: str):
         super().__init__(xml_content, main_tag="stl18:GetReservationRS")
         self.parsed = True
+        self.price_quote_services: str = None
 
     def _extract(self):
 
@@ -358,7 +359,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
             'passengers': passengers,
             'itineraries': itineraries,
             'form_of_payments': self.list_fop(remarks),
-            'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
+            'price_quotes': self._price_quote(),
             'ticketing_info': self._ticketing(passengers_data, ticketing_data),
             'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
@@ -444,42 +445,57 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     list_itineraries.append(current_itinerary)
         return list_itineraries
 
-    def _price_quote(self, price_quote):
-
+    def _price_quote(self):
+        """This method allows to recover all price quote containing in the pnr 
+        with the details of each price quote
+        
+        Returns:
+            [list] -- list of price quote in the pnr
+        """
         list_price_quote = []
-        for price in ensure_list(from_json(price_quote, "Details")):
-            list_passengers = []
-            pq_number = from_json_safe(price, "number")
-            status = from_json_safe(price, "status")
-            fare_type = self.fare_type_price_quote(from_json_safe(price, "passengerType"))
-            if "EquivalentFare" in from_json_safe(price, "FareInfo"):
-                base_fare_value = from_json_safe(price, "FareInfo", "EquivalentFare", "#text")
-                base_fare_cc = from_json_safe(price, "FareInfo", "EquivalentFare", "currencyCode")
-            else:
-                base_fare_value = float(from_json_safe(price, "FareInfo", "BaseFare", "#text"))
-                base_fare_cc = from_json_safe(price, "FareInfo", "BaseFare", "currencyCode")
-            base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
+        price_quote =  from_xml(self.price_quote_services, "soap-env:Envelope", "soap-env:Body", "GetPriceQuoteRS")
+        price_quote_details = ensure_list(from_json_safe(price_quote, "PriceQuoteInfo", "Details"))
+        if len(price_quote_details):
+            for price in price_quote_details:
+                list_passengers = []
+                pq_number = from_json_safe(price, "@number")
+                status = from_json_safe(price, "@status")
+                fare_info = from_json_safe(price, "FareInfo")
+                fare_type = from_json_safe(fare_info, "FareIndicators", "@privateFareType")
+                if fare_type is not None and fare_type == "@":
+                    fare_type = "NET"
+                elif fare_type is not None and fare_type != "@":
+                    fare_type == "COM"
+                else:
+                    fare_type = "PUB"
+                if "EquivalentFare" in fare_info:
+                    base_fare_value = from_json_safe(fare_info, "EquivalentFare", "#text")
+                    base_fare_cc = from_json_safe(fare_info, "EquivalentFare", "@currencyCode")
+                else:
+                    base_fare_value = float(from_json_safe(fare_info, "BaseFare", "#text"))
+                    base_fare_cc = from_json_safe(fare_info, "BaseFare", "@currencyCode")
+                base_fare = FormatAmount(base_fare_value, base_fare_cc).to_data()
 
-            total_fare_value = float(from_json_safe(price, "FareInfo", "TotalFare", "#text"))
-            total_fare_cc = from_json_safe(price, "FareInfo", "TotalFare", "currencyCode")
-            total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
+                total_fare_value = float(from_json_safe(fare_info, "TotalFare", "#text"))
+                total_fare_cc = from_json_safe(fare_info, "TotalFare", "@currencyCode")
+                total_fare = FormatAmount(total_fare_value, total_fare_cc).to_data()
 
-            tax_fare_value = float(from_json_safe(price, "FareInfo", "TotalTax", "#text"))
-            tax_fare_cc = from_json_safe(price, "FareInfo", "TotalTax", "currencyCode")
-            tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
-            validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
-            commission_percentage = from_json_safe(price, "FareInfo", "Commission", "Percentage")
-            for i in ensure_list(price_quote["Summary"]["NameAssociation"]):
-                pqs = from_json_safe(i, "PriceQuote", default=[])
-                name_number = from_json_safe(i, "nameNumber")
-                for _p in ensure_list(pqs):
-                    if pq_number == from_json_safe(_p, "number"):
-                        passenger_type = from_json_safe(_p, "Passenger", "requestedType")
-                        passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
-                        list_passengers.append(passenger)
+                tax_fare_value = float(from_json_safe(fare_info, "TotalTax", "#text"))
+                tax_fare_cc = from_json_safe(fare_info, "TotalTax", "@currencyCode")
+                tax_fare = FormatAmount(tax_fare_value, tax_fare_cc).to_data()
+                validating_carrier = from_json_safe(price, "MiscellaneousInfo", "ValidatingCarrier")
+                commission_percentage = from_json_safe(fare_info, "Commission", "Percentage", default="0")
+                for i in ensure_list(price_quote["PriceQuoteInfo"]["Summary"]["NameAssociation"]):
+                    pqs = from_json_safe(i, "PriceQuote", default=[])
+                    name_number = from_json_safe(i, "@nameNumber")
+                    for _p in ensure_list(pqs):
+                        if pq_number == from_json_safe(_p, "@number"):
+                            passenger_type = from_json_safe(_p, "Passenger", "@type")
+                            passenger = FormatPassengersInPQ(name_number, passenger_type).to_data()
+                            list_passengers.append(passenger)
 
-            price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
-            list_price_quote.append(price_quote_data)
+                price_quote_data = PriceQuote_(int(pq_number), status, fare_type, base_fare, total_fare, tax_fare, validating_carrier, list_passengers, commission_percentage)
+                list_price_quote.append(price_quote_data)
 
         return list_price_quote
 
