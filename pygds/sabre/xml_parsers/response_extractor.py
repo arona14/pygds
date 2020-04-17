@@ -533,14 +533,13 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         if len(tickets_in_pnr):
             for ticket_pnr in tickets_in_pnr:
                 ticket_number = from_json_safe(ticket_pnr, "stl18:TicketNumber")
-                name_id = self.passenger_name_id_into_ticket_number(passengers, ticket_number)
+                name_id, full_name = self.passenger_info_into_ticket_number(passengers, ticket_number)
                 transaction_indicator = from_json_safe(ticket_pnr, "stl18:TransactionIndicator")
                 agency_location = from_json_safe(ticket_pnr, "stl18:AgencyLocation")
                 time_stamp = from_json_safe(ticket_pnr, "stl18:Timestamp")
                 index = from_json_safe(ticket_pnr, "index")
                 original_ticket_detail = from_json_safe(ticket_pnr, "stl18:OriginalTicketDetails")
                 agent_sine = from_json_safe(ticket_pnr, "stl18:AgentSine")
-                full_name = self.passenger_full_name(passengers, name_id)
                 ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
                 list_ticket.append(ticket_object)
 
@@ -633,24 +632,18 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     pass
         return passenger_list
 
-    def passenger_full_name(self, all_passengers, name_number):
-
-        for pax in ensure_list(all_passengers):
-            name_id = from_json(pax, "nameId")
-            if name_number == name_id:
-                last_name = from_json(pax, "stl18:LastName")
-                first_name = from_json(pax, "stl18:FirstName")
-                full_name = f"{first_name} {last_name}"
-                return full_name
-
-    def passenger_name_id_into_ticket_number(self, passengers, ticket_number):
+    def passenger_info_into_ticket_number(self, passengers, ticket_number):
         for pax in ensure_list(passengers):
             if "stl18:TicketingInfo" not in pax:
                 pass
             else:
                 for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
                     if ticket_number == from_json_safe(ticket, "stl18:TicketNumber"):
-                        return from_json_safe(pax, "nameId")
+                        last_name = from_json_safe(pax, "stl18:LastName")
+                        first_name = from_json_safe(pax, "stl18:FirstName")
+                        full_name = f"{first_name} {last_name}"
+                        name_id = from_json_safe(pax, "nameId")
+                        return name_id, full_name
 
 
 class SendCommandExtractor(BaseResponseExtractor):
