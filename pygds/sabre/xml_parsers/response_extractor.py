@@ -446,14 +446,14 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         return list_itineraries
 
     def _price_quote(self):
-        """This method allows to recover all price quote containing in the pnr 
+        """This method allows to recover all price quote containing in the pnr
         with the details of each price quote
-        
+
         Returns:
             [list] -- list of price quote in the pnr
         """
         list_price_quote = []
-        price_quote =  from_xml(self.price_quote_services, "soap-env:Envelope", "soap-env:Body", "GetPriceQuoteRS")
+        price_quote = from_xml(self.price_quote_services, "soap-env:Envelope", "soap-env:Body", "GetPriceQuoteRS")
         price_quote_details = ensure_list(from_json_safe(price_quote, "PriceQuoteInfo", "Details"))
         if len(price_quote_details):
             for price in price_quote_details:
