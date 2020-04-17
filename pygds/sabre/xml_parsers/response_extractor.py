@@ -642,7 +642,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 first_name = from_json(pax, "stl18:FirstName")
                 full_name = f"{first_name} {last_name}"
                 return full_name
-    
+             
     def passenger_name_id_into_ticket_number(self, passengers, ticket_number):
         for pax in ensure_list(passengers):
             if "stl18:TicketingInfo" not in pax:
