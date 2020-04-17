@@ -520,7 +520,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def _ticketing(self, passengers, ticketing_info):
         """This method returns the list of ticket numbers in the pnr
-        taking into account passenger information
+        taking into account passenger information.
 
         Arguments:
             passengers {list} -- list of passengers in pnr
