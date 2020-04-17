@@ -505,7 +505,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 list_info.append(info_payment)
 
         return list_info
-      
+    
     def all_tickets_in_pnr(self, ticketing_info):
         """This method returns the list of ticket numbers in the pnr
 
@@ -525,7 +525,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         Arguments:
             passengers {list} -- list of passengers
             ticketing_info {dict} -- a dictionary with stl18:TicketDetails as its key
-            
+         
         Returns:
             [list] -- list of ticket numbers in the pnr
         """
@@ -544,7 +544,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 full_name = self.passenger_full_name(passengers, name_id)
                 ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
                 list_ticket.append(ticket_object)
-                         
+
         return list_ticket
 
     def _remarks(self, remarks):
@@ -643,7 +643,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 first_name = from_json(pax, "stl18:FirstName")
                 full_name = f"{first_name} {last_name}"
                 return full_name
-    
+                
     def passenger_name_id_into_ticket_number(self, passengers, ticket_number):
         for pax in ensure_list(passengers):
             if "stl18:TicketingInfo" not in pax:
