@@ -195,3 +195,7 @@
 # 0.0.44 (2020-04-16)
 - Sabre:
     - Addition of passenger type in exchange shopping extraction with gds Sabre. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.45 (2020-04-17)
+- Sabre:
+    - Modify the extraction of information relating to ticket numbers. [VirginieSy](virginie@ctsfares.com)
