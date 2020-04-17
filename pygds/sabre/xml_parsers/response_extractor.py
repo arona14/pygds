@@ -523,7 +523,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         taking into account passenger information
 
         Arguments:
-            passengers {list} -- list of passengers
+            passengers {list} -- list of passengers in pnr
             ticketing_info {dict} -- a dictionary with stl18:TicketDetails as its key
         Returns:
             [list] -- list of ticket numbers in the pnr
