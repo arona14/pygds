@@ -350,14 +350,16 @@ class DisplayPnrExtractor(BaseResponseExtractor):
         display_pnr = eval(display_pnr.replace("u'", "'"))
         passengers_reservation = from_json_safe(display_pnr, "stl18:Reservation", "stl18:PassengerReservation")
         remarks = self._remarks(from_json_safe(display_pnr, "stl18:Reservation", "stl18:Remarks", "stl18:Remark"))
-        passengers = self._passengers(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger"))
+        passengers_data = from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")
+        passengers = self._passengers(passengers_data)
         itineraries = self._itineraries(from_json_safe(passengers_reservation, "stl18:Segments"), passengers)
+        ticketing_data = from_json_safe(passengers_reservation, "stl18:TicketingInfo")
         return {
             'passengers': passengers,
             'itineraries': itineraries,
             'form_of_payments': self.list_fop(remarks),
             'price_quotes': self._price_quote(from_json_safe(display_pnr, "or112:PriceQuote", "PriceQuoteInfo")),
-            'ticketing_info': self._ticketing(from_json_safe(passengers_reservation, "stl18:Passengers", "stl18:Passenger")),
+            'ticketing_info': self._ticketing(passengers_data, ticketing_data),
             'remarks': remarks,
             'dk_number': from_json_safe(display_pnr, "stl18:Reservation", "stl18:DKNumbers", "stl18:DKNumber"),
             'record_locator': from_json_safe(display_pnr, "stl18:Reservation", "stl18:BookingDetails", "stl18:RecordLocator"),
@@ -504,24 +506,42 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
         return list_info
 
-    def _ticketing(self, passengers):
+    def all_tickets_in_pnr(self, ticketing_info):
+        """This method returns the list of ticket numbers in the pnr
+
+        Arguments:
+            ticketing_info {[dict]} -- a dictionary with stl18:TicketDetails as its key
+
+        Returns:
+            [list] -- [The list of ticket numbers]
+        """
+        ticket_details = from_json_safe(ticketing_info, "stl18:TicketDetails")
+        return ensure_list(ticket_details) if ticket_details else []
+
+    def _ticketing(self, passengers, ticketing_info):
+        """This method returns the list of ticket numbers in the pnr
+        taking into account passenger information.
+
+        Arguments:
+            passengers {list} -- list of passengers in pnr
+            ticketing_info {dict} -- a dictionary with stl18:TicketDetails as its key
+        Returns:
+            [list] -- list of ticket numbers in the pnr
+        """
         list_ticket = []
-        for pax in ensure_list(passengers):
-            if "stl18:TicketingInfo" not in pax:
-                pass
-            else:
-                name_id = from_json(pax, "nameId")
-                for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
-                    ticket_number = from_json_safe(ticket, "stl18:TicketNumber")
-                    transaction_indicator = from_json_safe(ticket, "stl18:TransactionIndicator")
-                    agency_location = from_json_safe(ticket, "stl18:AgencyLocation")
-                    time_stamp = from_json_safe(ticket, "stl18:Timestamp")
-                    index = from_json_safe(ticket, "index")
-                    original_ticket_detail = from_json_safe(ticket, "stl18:OriginalTicketDetails")
-                    agent_sine = from_json_safe(ticket, "stl18:AgentSine")
-                    full_name = self.passenger_full_name(passengers, name_id)
-                    ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
-                    list_ticket.append(ticket_object)
+        tickets_in_pnr = self.all_tickets_in_pnr(ticketing_info)
+        if len(tickets_in_pnr):
+            for ticket_pnr in tickets_in_pnr:
+                ticket_number = from_json_safe(ticket_pnr, "stl18:TicketNumber")
+                name_id, full_name = self.passenger_info_into_ticket_number(passengers, ticket_number)
+                transaction_indicator = from_json_safe(ticket_pnr, "stl18:TransactionIndicator")
+                agency_location = from_json_safe(ticket_pnr, "stl18:AgencyLocation")
+                time_stamp = from_json_safe(ticket_pnr, "stl18:Timestamp")
+                index = from_json_safe(ticket_pnr, "index")
+                original_ticket_detail = from_json_safe(ticket_pnr, "stl18:OriginalTicketDetails")
+                agent_sine = from_json_safe(ticket_pnr, "stl18:AgentSine")
+                ticket_object = TicketingInfo_(ticket_number, transaction_indicator, name_id, agency_location, time_stamp, index, original_ticket_detail, agent_sine, full_name)
+                list_ticket.append(ticket_object)
 
         return list_ticket
 
@@ -612,15 +632,18 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     pass
         return passenger_list
 
-    def passenger_full_name(self, all_passengers, name_number):
-
-        for pax in ensure_list(all_passengers):
-            name_id = from_json(pax, "nameId")
-            if name_number == name_id:
-                last_name = from_json(pax, "stl18:LastName")
-                first_name = from_json(pax, "stl18:FirstName")
-                full_name = f"{first_name} {last_name}"
-                return full_name
+    def passenger_info_into_ticket_number(self, passengers, ticket_number):
+        for pax in ensure_list(passengers):
+            if "stl18:TicketingInfo" not in pax:
+                pass
+            else:
+                for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
+                    if ticket_number == from_json_safe(ticket, "stl18:TicketNumber"):
+                        last_name = from_json_safe(pax, "stl18:LastName")
+                        first_name = from_json_safe(pax, "stl18:FirstName")
+                        full_name = f"{first_name} {last_name}"
+                        name_id = from_json_safe(pax, "nameId")
+                        return name_id, full_name
 
 
 class SendCommandExtractor(BaseResponseExtractor):
