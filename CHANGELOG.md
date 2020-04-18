@@ -199,3 +199,7 @@
 # 0.0.45 (2020-04-17)
 - Sabre:
     - Modify the extraction of information relating to ticket numbers. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.46 (2020-04-17)
+- Sabre:
+    - Modification of the extraction of price quote information from a pnr. [VirginieSy](virginie@ctsfares.com)
