@@ -410,46 +410,43 @@ class SabreClient(BaseClient):
         return gds_response
 
     @session_wrapper
-    def exchange_price(self, token: str, ticket_number: str, name_number: str, passenger_type: str):
-        """
-        A method to price an air ticket exchange
-        :param token: the security token
-        :param ticket_number: the ticket number
-        :param name_number: the passenger name number
-        :param passenger_type: the passenger type
-        :return:
+    def exchange_price(self, token: str, ticket_number: str, name_number: str, passenger_type: str, markup: float = 0.0):
+        """A method to price an air ticket exchange
+
+        Arguments:
+            token {str} -- The security token
+            ticket_number {str} -- The ticket number
+            name_number {str} -- The passenger name number
+            passenger_type {str} -- the passenger type
+
+        Keyword Arguments:
+            markup {float} -- The value of markup (default: {0.0})
+
+        Returns:
+            [ExchangePriceExtractor] -- Exchange Price Extractor
         """
         exchange_price_request = self.xml_builder.automated_exchanges_price_rq(token, ticket_number, name_number,
-                                                                               passenger_type)
+                                                                               passenger_type, markup)
         exchange_price_response = self.__request_wrapper("exchange_price", exchange_price_request, self.endpoint)
         gds_response = ExchangePriceExtractor(exchange_price_response).extract()
         return gds_response
 
     @session_wrapper
-    def exchange_commit(self, token: str, price_quote: int, form_of_payment: FormOfPayment, fare_type: str, commission_percent: str = None, markup: str = None):
-        """A method to price an air ticket exchange
+    def exchange_commit(self, token: str, price_quote: int, form_of_payment: FormOfPayment):
+        """A method to confirm an air ticket exchange
 
         Arguments:
             token {str} -- The security token
             price_quote {int} -- The pq number
             form_of_payment {FormOfPayment} -- The type of payment
-            fare_type {str} -- The fare type
-
-        Keyword Arguments:
-            commission_percent {str} -- the value of commission (default: {None})
-            markup {str} -- The value of markup (default: {None})
 
         Returns:
             [ExchangeCommitExtractor] -- Exchange Commit Extractor
         """
-
         exchange_commit_request = self.xml_builder.automated_exchanges_commmit_rq(
             token,
             price_quote,
-            form_of_payment,
-            fare_type,
-            commission_percent,
-            markup
+            form_of_payment
         )
         exchange_commit_response = self.__request_wrapper("exchange_commit", exchange_commit_request, self.endpoint)
         gds_response = ExchangeCommitExtractor(exchange_commit_response).extract()

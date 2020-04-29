@@ -31,10 +31,7 @@ class ExchangeCommitTest(unittest.TestCase):
         exchange_commit = sabre_xml_builder.automated_exchanges_commmit_rq(
             self.token,
             pq["price_quote"],
-            form_of_payment,
-            "NET",
-            0,
-            0
+            form_of_payment
         )
         self.assertIsNotNone(exchange_commit)
         exchange_commit_data = helpers.get_data_from_json(exchange_commit, "AutomatedExchangesRQ")
