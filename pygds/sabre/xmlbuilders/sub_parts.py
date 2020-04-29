@@ -350,3 +350,18 @@ def segments_to_cancel(segment_list):
 
 def get_penalty_info():
     return """<SpecificPenalty AdditionalInfo="true"/>"""
+
+
+def get_markup_exchange_price(markup: float):
+    """This method adds the value of the markup
+
+    Arguments:
+        markup {float} -- markup value
+
+    Returns:
+        [str] -- the tag to add the markup
+    """
+    plus_up = ""
+    if markup is not None and markup > 0:
+        plus_up = f"""<PlusUp Amount="{markup}"/>"""
+    return plus_up

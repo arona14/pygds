@@ -7,11 +7,10 @@ from pygds.core.security_utils import generate_random_message_id, generate_creat
 from pygds.sabre.price import StoreSegmentSelect
 from pygds.sabre.xmlbuilders.update_passenger_sub_parts import passenger_info, service_ssr_code, seat_request, travel_itinerary_add_info_rq
 from pygds.sabre.xmlbuilders.sub_parts import get_segment_number, get_passenger_type, get_commision, get_fare_type, \
-    get_segments_in_exchange_shopping, get_passengers_in_exchange_shopping, \
-    get_commission_exchange, add_flight_segments_to_air_book, store_commission, store_name_select, \
-    store_pax_type, store_plus_up, \
-    store_ticket_designator, add_flight_segment, _store_single_name_select, _store_build_segment_selects, \
-    _store_single_pax_type, segments_to_cancel, add_passenger_info, get_penalty_info
+    get_segments_in_exchange_shopping, get_passengers_in_exchange_shopping, add_flight_segments_to_air_book, \
+    store_commission, store_name_select, store_pax_type, store_plus_up, store_ticket_designator, add_flight_segment, \
+    _store_single_name_select, _store_build_segment_selects, _store_single_pax_type, segments_to_cancel, \
+    add_passenger_info, get_penalty_info, get_markup_exchange_price
 from decimal import Decimal
 
 
@@ -529,7 +528,7 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_price_rq(self, token: str, ticket_number: str, name_number: str, passenger_type: str):
+    def automated_exchanges_price_rq(self, token: str, ticket_number: str, name_number: str, passenger_type: str, markup: float = 0.0):
         """
             Return the xml request to find new prices
             for a ticket number to be exchanged
@@ -546,6 +545,7 @@ class SabreXMLBuilder:
                                     <PricingQualifiers>
                                         <NameSelect NameNumber="{name_number}"/>
                                         <PassengerType Code="{passenger_type}"/>
+                                        {get_markup_exchange_price(markup)}
                                     </PricingQualifiers>
                                 </OptionalQualifiers>
                             </PriceRequestInformation>
@@ -554,20 +554,12 @@ class SabreXMLBuilder:
                 </soapenv:Body>
             </soapenv:Envelope>"""
 
-    def automated_exchanges_commmit_rq(self, token: str, price_quote: int, form_of_payment: FormOfPayment, fare_type: str, commission_percent: str = None, markup: str = None):
+    def automated_exchanges_commmit_rq(self, token: str, price_quote: int, form_of_payment: FormOfPayment):
         """
             Return the xml request to store a price
             for a ticket number to be exchanged
         """
         header = self.generate_header("AutomatedExchangesLLSRQ", "AutomatedExchangesLLSRQ", token)
-        commission = ""
-
-        if commission_percent is not None and commission_percent > 0:
-            commission = get_commission_exchange(fare_type, commission_percent)
-
-        elif markup is not None and markup > 0:
-            commission = get_commission_exchange(fare_type, markup)
-
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                 {header}
@@ -576,7 +568,6 @@ class SabreXMLBuilder:
                         <ExchangeConfirmation PQR_Number="{price_quote}">
                             <OptionalQualifiers>
                                 {self.fop_choice(form_of_payment)}
-                                {commission}
                             </OptionalQualifiers>
                         </ExchangeConfirmation>
                     </AutomatedExchangesRQ>

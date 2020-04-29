@@ -1,5 +1,6 @@
 {
     "ticket_number": "0017381596590",
     "name_number": "1.1",
-    "passenger_type": "JCB"
+    "passenger_type": "JCB",
+    "markup": 30
 }
