@@ -810,19 +810,11 @@ class ExchangeAppErrorExtractor(ExchangeBaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body", self.main_tag)
         app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
-        if app_error_data:
-            app_error_data = from_json_safe(payload, "STL:STL_Header.RS", "STL:Results", "STL:Error", "STL:SystemSpecificResults")
-            error_message = from_json_safe(app_error_data, "STL:ErrorMessage")
-            if error_message is not None:
-                return ApplicationError(None, None, None, error_message)
-            return None
-        else:
+        if not app_error_data:
             app_error_data = from_json_safe(payload, "STL:STL_Header.RS", "STL:Results", "STL:Error", "STL:SystemSpecificResults")
             if app_error_data:
                 error_message = from_json_safe(app_error_data, "STL:ErrorMessage")
-                if error_message is not None:
-                    return ApplicationError(None, None, None, error_message)
-                return None
+                return ApplicationError(None, None, None, error_message)
             return None
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
