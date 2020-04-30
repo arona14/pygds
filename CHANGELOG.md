@@ -203,3 +203,7 @@
 # 0.0.46 (2020-04-17)
 - Sabre:
     - Modification of the extraction of price quote information from a pnr. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.47 (2020-04-30)
+- Sabre:
+    - Modification of the extraction of ticket exchange. [VirginieSy](virginie@ctsfares.com)

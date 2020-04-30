@@ -810,13 +810,12 @@ class ExchangeAppErrorExtractor(ExchangeBaseResponseExtractor):
     def _extract(self):
         payload = from_xml(self.xml_content, "SOAP-ENV:Envelope", "SOAP-ENV:Body", self.main_tag)
         app_error_data = from_json_safe(payload, "stl:ApplicationResults", "stl:Error")
-        if app_error_data:
+        if not app_error_data:
             app_error_data = from_json_safe(payload, "STL:STL_Header.RS", "STL:Results", "STL:Error", "STL:SystemSpecificResults")
-            error_message = from_json_safe(app_error_data, "STL:ErrorMessage")
-            if error_message is not None:
+            if app_error_data:
+                error_message = from_json_safe(app_error_data, "STL:ErrorMessage")
                 return ApplicationError(None, None, None, error_message)
             return None
-        return None
         description = from_json_safe(app_error_data, "stl:SystemSpecificResults", "stl:Message")
         return ApplicationError(None, None, None, description)
 
@@ -848,38 +847,38 @@ class IsTicketExchangeableExtractor(ExchangeBaseResponseExtractor):
         home_location = from_json_safe(agent_data, "HomeLocation")
         iso_country_code = from_json_safe(agent_data, "IsoCountryCode")
         agent_ = Agent(sine, ticketing_provider, work_location, home_location, iso_country_code)
-        for t in ensure_list(from_json_safe(data, "DocumentDetailsDisplay", "Ticket")):
-            number = from_json_safe(t, "number")
-            traveler = from_json_safe(t, "Customer", "Traveler")
-            ticket_details = TicketDetails(number, traveler)
-            for service in from_json_safe(t, "ServiceCoupon"):
-                coupon = from_json_safe(service, "coupon")
-                marketing_provider = from_json_safe(service, "MarketingProvider")
-                marketing_flight_number = from_json_safe(service, "MarketingFlightNumber")
-                operating_provider = from_json_safe(service, "OperatingProvider")
-                origin = from_json_safe(service, "StartLocation")
-                destination = from_json_safe(service, "EndLocation")
-                class_of_service = from_json_safe(service, "ClassOfService", "name")
-                booking_status = from_json_safe(service, "BookingStatus")
-                current_status = from_json_safe(service, "CurrentStatus")
-                start_date_time = from_json_safe(service, "StartDateTime")
-                not_valid_after_date = from_json_safe(service, "NotValidAfterDate")
-                fare_basis = from_json_safe(service, "FareBasis")
-                service_coupon = ServiceCoupon(
-                    coupon,
-                    marketing_provider,
-                    marketing_flight_number,
-                    operating_provider,
-                    origin,
-                    destination,
-                    class_of_service,
-                    booking_status,
-                    current_status,
-                    start_date_time,
-                    not_valid_after_date,
-                    fare_basis
-                )
-                ticket_details.add_service_coupon(service_coupon)
+        document_detail = from_json_safe(data, "DocumentDetailsDisplay", "Ticket")
+        number = from_json_safe(document_detail, "number")
+        traveler = from_json_safe(document_detail, "Customer", "Traveler")
+        ticket_details = TicketDetails(number, traveler)
+        for service in from_json_safe(document_detail, "ServiceCoupon"):
+            coupon = from_json_safe(service, "coupon")
+            marketing_provider = from_json_safe(service, "MarketingProvider")
+            marketing_flight_number = from_json_safe(service, "MarketingFlightNumber")
+            operating_provider = from_json_safe(service, "OperatingProvider")
+            origin = from_json_safe(service, "StartLocation")
+            destination = from_json_safe(service, "EndLocation")
+            class_of_service = from_json_safe(service, "ClassOfService", "name")
+            booking_status = from_json_safe(service, "BookingStatus")
+            current_status = from_json_safe(service, "CurrentStatus")
+            start_date_time = from_json_safe(service, "StartDateTime")
+            not_valid_after_date = from_json_safe(service, "NotValidAfterDate")
+            fare_basis = from_json_safe(service, "FareBasis")
+            service_coupon = ServiceCoupon(
+                coupon,
+                marketing_provider,
+                marketing_flight_number,
+                operating_provider,
+                origin,
+                destination,
+                class_of_service,
+                booking_status,
+                current_status,
+                start_date_time,
+                not_valid_after_date,
+                fare_basis
+            )
+            ticket_details.add_service_coupon(service_coupon)
         electronic_document = ElectronicDocument(status, agent_, ticket_details)
 
         return electronic_document
