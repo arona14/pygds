@@ -353,7 +353,6 @@ def get_penalty_info():
 
 
 def get_markup_exchange_price(markup: float):
-    TWOPLACES = Decimal(10) ** -2
     """This method adds the value of the markup
 
     Arguments:
@@ -362,6 +361,7 @@ def get_markup_exchange_price(markup: float):
     Returns:
         [str] -- the tag to add the markup
     """
+    TWOPLACES = Decimal(10) ** -2
     plus_up = ""
     if markup is not None and markup > 0:
         markup = Decimal(markup).quantize(TWOPLACES)
