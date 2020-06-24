@@ -636,6 +636,8 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     date_of_birth, gender, number_in_party = _d_birth, _gender, _n_in_party
                 elif from_json_safe(pax, "withInfant") == "true":
                     infant_info_map[key] = (_d_birth, _gender, _n_in_party)
+                else:
+                    date_of_birth, gender, number_in_party = _d_birth, _gender, _n_in_party
             p = Passenger(name_id, name_assoc_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
             passenger_list.append(p)
         # fill infant info from previous map
