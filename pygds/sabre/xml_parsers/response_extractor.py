@@ -640,7 +640,6 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                     date_of_birth, gender, number_in_party = _d_birth, _gender, _n_in_party
             p = Passenger(name_id, name_assoc_id, first_name, last_name, date_of_birth, gender, "", "", "", "", number_in_party, "", pax_type, seats=seats)
             passenger_list.append(p)
-        # fill infant info from previous map
         for p in passenger_list:
             if p.passenger_type in inf_pax_types:
                 try:
