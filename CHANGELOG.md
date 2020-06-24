@@ -207,3 +207,7 @@
 # 0.0.47 (2020-04-30)
 - Sabre:
     - Modification of the extraction of ticket exchange. [VirginieSy](virginie@ctsfares.com)
+
+# 0.0.48 (2020-06-24)
+- Sabre:
+    - Modification in the extraction of data for display pnr, by reforming the date of birth. [VirginieSy](virginie@ctsfares.com)
