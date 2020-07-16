@@ -8,6 +8,9 @@ from pygds.core.types import FlightPointDetails, FlightSegment
 from pygds.sabre.price import StoreSegmentSelect
 
 
+TWO_PLACES = Decimal(10) ** -2
+
+
 def get_segment_number(segment_select):
     if segment_select != []:
         segment_number = "<ItineraryOptions>"
@@ -99,37 +102,28 @@ def get_commision(baggage, pcc, region_name):
 
 
 def __store_commission_with_pub(passenger_type_data, region_name, pcc):
-    TWOPLACES = Decimal(10) ** -2
-    hemisphere_code = _get_hemisphere_code(region_name)
     commission = ""
-    if from_json_safe(passenger_type_data, 'commission_percent') > 0 and from_json_safe(passenger_type_data, 'tour_code') == "":
-        commission_percentage = Decimal(passenger_type_data['commission_percent']).quantize(TWOPLACES)
+    if from_json_safe(passenger_type_data, 'commission_percent') > 0:
+        commission_percentage = Decimal(passenger_type_data['commission_percent']).quantize(TWO_PLACES)
         commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
         if pcc == "3GAH":
-            commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
+            commission = commission + f"""<HemisphereCode>{_get_hemisphere_code(region_name)}</HemisphereCode>
                                             <JourneyCode>'2'</JourneyCode>"""
-        commission = commission + "</MiscQualifiers>"
-
-    elif from_json_safe(passenger_type_data, 'commission_percent') > 0 and from_json_safe(passenger_type_data, 'tour_code') != "":
-        commission_percentage = Decimal(passenger_type_data['commission_percent']).quantize(TWOPLACES)
-        commission = commission + f"""<MiscQualifiers><Commission Percent='{str(commission_percentage)}'/>"""
-        if pcc == "3GAH":
-            commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>"
-                                            "<JourneyCode>'2'</JourneyCode>"""
-        commission = commission + f"""<TourCode>
+        if from_json_safe(passenger_type_data, 'tour_code'):
+            commission = commission + f"""<TourCode>
                 <SuppressIT Ind='true'/>
                 <Text>{passenger_type_data['tour_code']}</Text>
             </TourCode>
-            </MiscQualifiers>"""
+            """
+        commission = commission + "</MiscQualifiers>"
     return commission
 
 
 def __store_commission_with_net(passenger_type_data, region_name, pcc):
-    TWOPLACES = Decimal(10) ** -2
     commission = ""
     hemisphere_code = _get_hemisphere_code(region_name)
     if from_json_safe(passenger_type_data, 'markup') != "0" and pcc != "37AF":
-        commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
+        commission_amount = Decimal(passenger_type_data['markup']).quantize(TWO_PLACES)
         commission = commission + f"""<MiscQualifiers><Commission Amount='{str(commission_amount)}'/>"""
         if pcc == "3GAH":
             commission = commission + f"""<HemisphereCode>{hemisphere_code}</HemisphereCode>
@@ -237,9 +231,9 @@ def _store_single_name_select(name_id: str) -> str:
 
 
 def store_plus_up(passenger_type_data, pcc):
-    TWOPLACES = Decimal(10) ** -2
+
     if from_json_safe(passenger_type_data, 'markup') > 0 and pcc != "37AF":
-        commission_amount = Decimal(passenger_type_data['markup']).quantize(TWOPLACES)
+        commission_amount = Decimal(passenger_type_data['markup']).quantize(TWO_PLACES)
         return f"""<PlusUp Amount='{str(commission_amount)}'></PlusUp>"""
 
 
@@ -361,9 +355,9 @@ def get_markup_exchange_price(markup: float):
     Returns:
         [str] -- the tag to add the markup
     """
-    TWOPLACES = Decimal(10) ** -2
+
     plus_up = ""
     if markup is not None and markup > 0:
-        markup = Decimal(markup).quantize(TWOPLACES)
+        markup = Decimal(markup).quantize(TWO_PLACES)
         plus_up = f"""<PlusUp Amount="{markup}"/>"""
     return plus_up
