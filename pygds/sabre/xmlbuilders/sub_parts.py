@@ -10,6 +10,7 @@ from pygds.sabre.price import StoreSegmentSelect
 
 TWO_PLACES = Decimal(10) ** -2
 
+
 def get_segment_number(segment_select):
     if segment_select != []:
         segment_number = "<ItineraryOptions>"
