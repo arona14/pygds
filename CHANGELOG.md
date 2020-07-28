@@ -215,3 +215,8 @@
 # 0.0.49 (2020-07-16)
 - Sabre:
     - Update store price Rq builder ( to fixe Tour Code None with commission percent) [mbayane1990](mbaye@ctsfares.com)
+
+# 0.0.50 (2020-07-28)
+- Sabre:
+    - skip pqs without fare info in Price Quote Services extractor [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
+    - get None if cannot match ticket number to passenger on retrieve PNR [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
