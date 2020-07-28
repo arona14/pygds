@@ -654,9 +654,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def passenger_info_into_ticket_number(self, passengers, ticket_number):
         for pax in ensure_list(passengers):
-            if "stl18:TicketingInfo" not in pax:
-                pass
-            else:
+            if "stl18:TicketingInfo" in pax:
                 for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
                     if ticket_number == from_json_safe(ticket, "stl18:TicketNumber"):
                         last_name = from_json_safe(pax, "stl18:LastName")
@@ -664,6 +662,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                         full_name = f"{first_name} {last_name}"
                         name_id = from_json_safe(pax, "nameId")
                         return name_id, full_name
+        return None, None
 
 
 class SendCommandExtractor(BaseResponseExtractor):
