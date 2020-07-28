@@ -461,6 +461,9 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 pq_number = from_json_safe(price, "@number")
                 status = from_json_safe(price, "@status")
                 fare_info = from_json_safe(price, "FareInfo")
+                if not fare_info:
+                    self.log.warning(f"PQ {pq_number} doesnt contain in fare info. We are going to skip it.")
+                continue
                 fare_type = from_json_safe(fare_info, "FareIndicators", "@privateFareType")
                 if fare_type is not None and fare_type == "@":
                     fare_type = "NET"
@@ -651,9 +654,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
 
     def passenger_info_into_ticket_number(self, passengers, ticket_number):
         for pax in ensure_list(passengers):
-            if "stl18:TicketingInfo" not in pax:
-                pass
-            else:
+            if "stl18:TicketingInfo" in pax:
                 for ticket in ensure_list(from_json(pax, "stl18:TicketingInfo", "stl18:TicketDetails")):
                     if ticket_number == from_json_safe(ticket, "stl18:TicketNumber"):
                         last_name = from_json_safe(pax, "stl18:LastName")
@@ -661,6 +662,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                         full_name = f"{first_name} {last_name}"
                         name_id = from_json_safe(pax, "nameId")
                         return name_id, full_name
+        return None, None
 
 
 class SendCommandExtractor(BaseResponseExtractor):
