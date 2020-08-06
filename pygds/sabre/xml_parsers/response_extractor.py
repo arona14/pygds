@@ -463,7 +463,7 @@ class DisplayPnrExtractor(BaseResponseExtractor):
                 fare_info = from_json_safe(price, "FareInfo")
                 if not fare_info:
                     self.log.warning(f"PQ {pq_number} doesnt contain in fare info. We are going to skip it.")
-                continue
+                    continue
                 fare_type = from_json_safe(fare_info, "FareIndicators", "@privateFareType")
                 if fare_type is not None and fare_type == "@":
                     fare_type = "NET"
