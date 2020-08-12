@@ -291,6 +291,7 @@ class SabreXMLBuilder:
         plus_up = store_plus_up(passenger_type, self.pcc)
         plus_up = plus_up if plus_up else ""
         fare_type_value = ""
+        penalty_info = get_penalty_info() if not t_designator else ""
         header = self.generate_header("Session", "OTA_AirPriceLLSRQ", token)
         return f"""<?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -303,12 +304,12 @@ class SabreXMLBuilder:
                             <PricingQualifiers>
                                 {fare_type_value}
                                 {brands}
-                                {segment_numbers}
                                 {t_designator}
+                                {segment_numbers}
                                 {name_select}
                                 {pax_type}
                                 {plus_up}
-                                {get_penalty_info()}
+                                {penalty_info}
                             </PricingQualifiers>
                         </OptionalQualifiers>
                         </PriceRequestInformation>
