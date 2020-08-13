@@ -194,7 +194,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         brands = "".join(brands)
     else:
         brands = ""
-        t_designator = _ticket_designator(ticket_designator, next_rph + 1 if with_brand else 1) if ticket_designator else ""
+        t_designator = _ticket_designator(ticket_designator, 1) if ticket_designator else ""
 
     return segments, brands, t_designator
 
