@@ -183,7 +183,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         if brand is not None:
             with_brand = True
             brands.append(_single_brand(brand, next_rph))
-        segments.append(_single_segment_select(segment, next_rph if with_brand else None))
+        segments.append(_single_segment_select(segment, next_rph if with_brand else 1))
     segments = f"""
     <ItineraryOptions>
         {"".join(segments)}
@@ -194,7 +194,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         brands = "".join(brands)
     else:
         brands = ""
-        t_designator = _ticket_designator(ticket_designator, next_rph + 1) if ticket_designator else ""
+        t_designator = _ticket_designator(ticket_designator, 1) if ticket_designator else ""
 
     return segments, brands, t_designator
 
@@ -211,7 +211,8 @@ def _ticket_designator(ticket_designator: str, rph: int) -> str:
     return f"""
     <CommandPricing RPH="{rph}">
         <Discount Percent='0' AuthCode='{ticket_designator}'/>
-    </CommandPricing>"""
+    </CommandPricing>
+"""
 
 
 def store_pax_type(passenger_type_data):
