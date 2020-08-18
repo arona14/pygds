@@ -122,7 +122,7 @@ def __store_commission_with_pub(passenger_type_data, region_name, pcc):
 def __store_commission_with_net(passenger_type_data, region_name, pcc):
     commission = ""
     hemisphere_code = _get_hemisphere_code(region_name)
-    if from_json_safe(passenger_type_data, 'markup') != "0" and pcc != "37AF":
+    if from_json_safe(passenger_type_data, 'markup') > 0 and pcc != "37AF":
         commission_amount = Decimal(passenger_type_data['markup']).quantize(TWO_PLACES)
         commission = commission + f"""<MiscQualifiers><Commission Amount='{str(commission_amount)}'/>"""
         if pcc == "3GAH":
@@ -173,7 +173,7 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     return ticket_designator, segment_number
 
 
-def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None):
+def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None, pax_type: str = None):
     brands = []
     segments = []
     next_rph = 0
@@ -183,7 +183,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         if brand is not None:
             with_brand = True
             brands.append(_single_brand(brand, next_rph))
-        segments.append(_single_segment_select(segment, next_rph if with_brand else 1))
+        segments.append(_single_segment_select(segment, next_rph if with_brand else 1 if pax_type != 'JCB' else ""))
     segments = f"""
     <ItineraryOptions>
         {"".join(segments)}
