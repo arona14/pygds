@@ -225,7 +225,11 @@
 - Sabre:
     - fix bug introduced in version 0.0.50: skip only pqs without fare info in Price Quote Services extractor [Mouhamad Ndiankho THIAM](mohamed@ctsfares.com)
     
- # 0.0.49 (2020-07-16)
+ # 0.0.52 (2020-08-12)
  - Sabre:
      - Update store price Rq builder ( use rph=1 on SegmentSelect and CommandPricing when we haven't brands and do not 
      send penality with CommandPricing ) [mbayane1990](mbaye@ctsfares.com)
+     
+ # 0.0.53 (2020-08-18)
+ - Sabre:
+     - Update store price Rq builder ( to avoid RPH Where pax type is Net ) [mbayane1990](mbaye@ctsfares.com)
