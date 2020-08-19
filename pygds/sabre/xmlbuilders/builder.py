@@ -283,7 +283,7 @@ class SabreXMLBuilder:
 
         name_select = _store_single_name_select(name_select)
         name_select = name_select if name_select else ""
-        segment_numbers, brands, t_designator = _store_build_segment_selects(segment_select, ticket_designator, pax_type_code)
+        segment_numbers, brands, t_designator = _store_build_segment_selects(segment_select, ticket_designator, fare_type)
         pax_type = _store_single_pax_type(pax_type_code)
         pax_type = pax_type if pax_type else ""
         commission = store_commission(fare_type, passenger_type, region_name, self.pcc)

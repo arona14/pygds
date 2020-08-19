@@ -173,7 +173,7 @@ def store_ticket_designator(passenger_type_data, segment_select, brand_id):
     return ticket_designator, segment_number
 
 
-def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None, pax_type: str = None):
+def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmentSelect], ticket_designator: str = None, fare_type: str = None):
     brands = []
     segments = []
     next_rph = 0
@@ -183,7 +183,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         if brand is not None:
             with_brand = True
             brands.append(_single_brand(brand, next_rph))
-        segments.append(_single_segment_select(segment, next_rph if with_brand else 1 if pax_type != 'JCB' else ""))
+        segments.append(_single_segment_select(segment, next_rph if with_brand else 1 if fare_type.upper() == 'PUB' else ""))
     segments = f"""
     <ItineraryOptions>
         {"".join(segments)}
