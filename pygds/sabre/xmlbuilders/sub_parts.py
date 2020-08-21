@@ -183,7 +183,7 @@ def _store_build_segment_selects(segment_select_with_brand_ids: List[StoreSegmen
         if brand is not None:
             with_brand = True
             brands.append(_single_brand(brand, next_rph))
-        segments.append(_single_segment_select(segment, next_rph if with_brand else 1 if fare_type.upper() == 'PUB' else ""))
+        segments.append(_single_segment_select(segment, next_rph if with_brand else 1 if ticket_designator else ""))
     segments = f"""
     <ItineraryOptions>
         {"".join(segments)}

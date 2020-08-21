@@ -233,3 +233,7 @@
  # 0.0.53 (2020-08-18)
  - Sabre:
      - Update store price Rq builder ( to avoid RPH Where pax type is Net ) [mbayane1990](mbaye@ctsfares.com)
+     
+ # 0.0.54 (2020-08-21)
+  - Sabre:
+      - Update store price Rq builder ( send rph only with brand or ticket designator ) [mbayane1990](mbaye@ctsfares.com)
